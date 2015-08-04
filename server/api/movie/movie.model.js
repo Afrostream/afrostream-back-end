@@ -47,15 +47,6 @@ module.exports = function (sequelize, DataTypes) {
         return this.setDataValue('lang', JSON.stringify(val));
       }
     },
-    sources: {
-      type: DataTypes.STRING,
-      get: function () {
-        return JSON.parse(this.getDataValue('sources'));
-      },
-      set: function (val) {
-        return this.setDataValue('sources', JSON.stringify(val));
-      }
-    },
     //TODO users joint http://docs.sequelizejs.com/en/latest/docs/associations/
     subscribers: {
       type: DataTypes.STRING,

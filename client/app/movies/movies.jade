@@ -17,7 +17,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
 
       .col-md-3(ng-repeat='movie in movies')
         .thumbnail
-          img.poster(src='{{movie.poster}}')
+          img.poster.img-responsive(src='{{movie.poster}}')
           .caption
             h3 {{movie.title}}
             p {{movie.synopsis | limitTo:100}}{{movie.synopsis.length > 100 ? '...' : ''}}
