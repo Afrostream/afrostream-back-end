@@ -5,7 +5,7 @@ module.exports = function (grunt) {
   var localConfig;
   try {
     localConfig = require('./server/config/local.env');
-  } catch(e) {
+  } catch (e) {
     localConfig = {};
   }
 
@@ -221,7 +221,7 @@ module.exports = function (grunt) {
       target: {
         src: '<%= yeoman.client %>/index.html',
         ignorePath: '<%= yeoman.client %>/',
-        exclude: [/bootstrap-sass-official/, /bootstrap.js/, '/json3/', '/es5-shim/', /bootstrap.css/, /font-awesome.css/ ]
+        exclude: [/bootstrap-sass-official/, /bootstrap.js/, '/json3/', '/es5-shim/', /bootstrap.css/, /font-awesome.css/]
       }
     },
 
@@ -384,7 +384,7 @@ module.exports = function (grunt) {
       },
       heroku: {
         options: {
-          remote: 'heroku',
+          remote: 'git@heroku.com:afrostream-backend.git',
           branch: 'master'
         }
       },
@@ -551,19 +551,17 @@ module.exports = function (grunt) {
       },
       server: {
         files: {
-          '.tmp/app/app.css' : '<%= yeoman.client %>/app/app.less'
+          '.tmp/app/app.css': '<%= yeoman.client %>/app/app.less'
         }
       },
     },
 
     injector: {
-      options: {
-
-      },
+      options: {},
       // Inject application script files into index.html (doesn't include bower)
       scripts: {
         options: {
-          transform: function(filePath) {
+          transform: function (filePath) {
             filePath = filePath.replace('/client/', '');
             filePath = filePath.replace('/.tmp/', '');
             return '<script src="' + filePath + '"></script>';
@@ -573,18 +571,18 @@ module.exports = function (grunt) {
         },
         files: {
           '<%= yeoman.client %>/index.html': [
-               [
-                 '.tmp/{app,components}/**/!(*.spec|*.mock).js',
-                 '!{.tmp,<%= yeoman.client %>}/app/app.js'
-               ]
+            [
+              '.tmp/{app,components}/**/!(*.spec|*.mock).js',
+              '!{.tmp,<%= yeoman.client %>}/app/app.js'
             ]
+          ]
         }
       },
 
       // Inject component less into app.less
       less: {
         options: {
-          transform: function(filePath) {
+          transform: function (filePath) {
             filePath = filePath.replace('/client/app/', '');
             filePath = filePath.replace('/client/components/', '');
             return '@import \'' + filePath + '\';';
@@ -603,7 +601,7 @@ module.exports = function (grunt) {
       // Inject component css into index.html
       css: {
         options: {
-          transform: function(filePath) {
+          transform: function (filePath) {
             filePath = filePath.replace('/client/', '');
             filePath = filePath.replace('/.tmp/', '');
             return '<link rel="stylesheet" href="' + filePath + '">';
@@ -632,7 +630,7 @@ module.exports = function (grunt) {
     }, 1500);
   });
 
-  grunt.registerTask('express-keepalive', 'Keep grunt running', function() {
+  grunt.registerTask('express-keepalive', 'Keep grunt running', function () {
     this.async();
   });
 
@@ -674,7 +672,7 @@ module.exports = function (grunt) {
     grunt.task.run(['serve']);
   });
 
-  grunt.registerTask('test', function(target, option) {
+  grunt.registerTask('test', function (target, option) {
     if (target === 'server') {
       return grunt.task.run([
         'env:all',
@@ -760,9 +758,9 @@ module.exports = function (grunt) {
     }
 
     else grunt.task.run([
-      'test:server',
-      'test:client'
-    ]);
+        'test:server',
+        'test:client'
+      ]);
   });
 
   grunt.registerTask('build', [
