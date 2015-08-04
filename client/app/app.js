@@ -6,9 +6,13 @@ angular.module('afrostreamAdminApp', [
   'ngSanitize',
   'btford.socket-io',
   'ui.router',
-  'ui.bootstrap'
+  'ui.bootstrap',
+  //UPLOAD
+  'angularFileUpload',
+  //Slug helper
+  'slugifier'
 ])
-  .config(function($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
+  .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $urlRouterProvider
       .otherwise('/');
 
@@ -16,11 +20,11 @@ angular.module('afrostreamAdminApp', [
     $httpProvider.interceptors.push('authInterceptor');
   })
 
-  .factory('authInterceptor', function($rootScope, $q, $cookies, $injector) {
+  .factory('authInterceptor', function ($rootScope, $q, $cookies, $injector) {
     var state;
     return {
       // Add authorization token to headers
-      request: function(config) {
+      request: function (config) {
         config.headers = config.headers || {};
         if ($cookies.get('token')) {
           config.headers.Authorization = 'Bearer ' + $cookies.get('token');
@@ -29,7 +33,7 @@ angular.module('afrostreamAdminApp', [
       },
 
       // Intercept 401s and redirect you to login
-      responseError: function(response) {
+      responseError: function (response) {
         if (response.status === 401) {
           (state || (state = $injector.get('$state'))).go('login');
           // remove any stale tokens
@@ -43,10 +47,10 @@ angular.module('afrostreamAdminApp', [
     };
   })
 
-  .run(function($rootScope, $state, Auth) {
+  .run(function ($rootScope, $state, Auth) {
     // Redirect to login if route requires auth and you're not logged in
-    $rootScope.$on('$stateChangeStart', function(event, next) {
-      Auth.isLoggedIn(function(loggedIn) {
+    $rootScope.$on('$stateChangeStart', function (event, next) {
+      Auth.isLoggedIn(function (loggedIn) {
         if (next.authenticate && !loggedIn) {
           event.preventDefault();
           $state.go('login');

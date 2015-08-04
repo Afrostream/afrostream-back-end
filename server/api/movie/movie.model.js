@@ -8,12 +8,17 @@ module.exports = function (sequelize, DataTypes) {
       primaryKey: true,
       autoIncrement: true
     },
-    name: DataTypes.STRING,
-    title: DataTypes.STRING,
+    title: {
+      type: DataTypes.STRING,
+      defaultValue: 'title'
+    },
     poster: DataTypes.STRING,
     thumb: DataTypes.STRING,
     synopsis: DataTypes.STRING,
-    type: DataTypes.STRING,
+    type: {
+      type: DataTypes.STRING,
+      defaultValue: 'movie'
+    },
     duration: DataTypes.DECIMAL,
     cast: {
       type: DataTypes.STRING,

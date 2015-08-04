@@ -27,11 +27,18 @@ angular.module('afrostreamAdminApp')
       $http.delete('/api/movies/' + movie._id);
     };
 
+
     $scope.$on('$destroy', function () {
       socket.unsyncUpdates('movie');
     });
 
+    $scope.editMovie = function (movie) {
+      $scope.currentMovie = movie;
+      $modal.open(movieModalOpts);
+    };
+
     $scope.newMovie = function () {
+      $scope.currentMovie = {};
       $modal.open(movieModalOpts);
     };
   });
