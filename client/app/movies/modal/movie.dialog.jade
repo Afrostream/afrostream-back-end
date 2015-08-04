@@ -1,0 +1,15 @@
+.modal-header
+  button.close(data-dismiss='modal' aria-hidden='true')
+  h4.modal-title Add a movie
+.modal-body
+  form.form-horizontal(role='form')
+    .form-group
+      label(for='title').control-label Title
+      input.form-control(id='title' type='text' ng-model='movie.name' placeholder='Movie Title')
+      label(for='poster').control-label Poster
+      input.form-control(id='poster' type='text' ng-model='movie.poster')
+      label(for='synopsis').control-label Synopsis
+      textarea.form-control(id='synopsis' rows='4' ng-model='movie.synopsis')
+.modal-footer
+  button.btn.btn-primary(type='submit' ng-click='addMovie()') Add
+  button.btn.btn-primary(ng-click='cancel()') Cancel
