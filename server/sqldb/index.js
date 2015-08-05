@@ -31,6 +31,20 @@ db.User = db.sequelize.import(path.join(
 ));
 
 // Insert models below
+db.Image = db.sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'image',
+  'image.model'
+));
+db.Asset = db.sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'asset',
+  'asset.model'
+));
 db.Episode = db.sequelize.import(path.join(
   config.root,
   'server',

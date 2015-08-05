@@ -7,10 +7,10 @@
       label(for='type').control-label Type
     .form-group
       .btn-group
-        label.btn.btn-primary(ng-model='item.type' btn-radio='"item"') Movie
-        label.btn.btn-primary(ng-model='item.type' btn-radio='"serie"') Série
-        label.btn.btn-primary(ng-model='item.type' btn-radio='"season"') Season
-        label.btn.btn-primary(ng-model='item.type' btn-radio='"episode"') Episode
+        label.btn.btn-primary(ng-model='item.type' btn-radio='"item"' ng-if='isFilm()') Movie
+        label.btn.btn-primary(ng-model='item.type' btn-radio='"serie"' ng-if='isFilm()') Série
+        label.btn.btn-primary(ng-model='item.type' btn-radio='"season"' ng-if='isSeason()') Season
+        label.btn.btn-primary(ng-model='item.type' btn-radio='"episode"' ng-if='isEpisode()') Episode
 
     .form-group
       label(for='title').control-label Title
@@ -34,13 +34,13 @@
       .row
         .col-md-6
           p.input-group
-            input.form-control(id='dateFrom' type='text' ng-model='item.dateFrom' placeholder='FROM' datepicker-popup='{{format}}' min-date='minDate'  datepicker-options='dateOptions' date-disabled='disabled(date, mode)' close-text='Close')
+            input.form-control(id='dateFrom' type='text' ng-model='item.dateFrom' is-open='opened' placeholder='FROM' datepicker-popup='{{format}}' min-date='minDate'  datepicker-options='dateOptions' date-disabled='disabled(date, mode)' close-text='Close')
             span.input-group-btn
               button.btn.btn-default(ng-click='open()')
                 i.glyphicon.glyphicon-calendar
         .col-md-6
           p.input-group
-            input.form-control(id='dateTo' type='text' ng-model='item.dateTo' placeholder='TO' datepicker-popup='{{format}}' min-date='minDate'  datepicker-options='dateOptions' date-disabled='disabled(date, mode)' close-text='Close')
+            input.form-control(id='dateTo' type='text' ng-model='item.dateTo' is-open='opened' placeholder='TO' datepicker-popup='{{format}}' min-date='item.dateFrom'  datepicker-options='dateOptions' date-disabled='disabled(date, mode)' close-text='Close')
             span.input-group-btn
               button.btn.btn-default(ng-click='open()')
                 i.glyphicon.glyphicon-calendar

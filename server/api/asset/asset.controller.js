@@ -1,21 +1,20 @@
 /**
  * Using Rails-like standard naming convention for endpoints.
- * GET     /api/episodes              ->  index
- * POST    /api/episodes              ->  create
- * GET     /api/episodes/:id          ->  show
- * PUT     /api/episodes/:id          ->  update
- * DELETE  /api/episodes/:id          ->  destroy
+ * GET     /api/assets              ->  index
+ * POST    /api/assets              ->  create
+ * GET     /api/assets/:id          ->  show
+ * PUT     /api/assets/:id          ->  update
+ * DELETE  /api/assets/:id          ->  destroy
  */
 
 'use strict';
 
 var _ = require('lodash');
 var sqldb = require('../../sqldb');
+var Asset = sqldb.Asset;
 var Episode = sqldb.Episode;
-var Season = sqldb.Season;
 
-Episode.belongsTo(Season, {foreignKey: 'season'}); // Adds seasonId to Episode
-
+Asset.belongsTo(Episode, {foreignKey: 'episode'}); // Adds episodeId to Asset
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -63,16 +62,16 @@ function removeEntity(res) {
   };
 }
 
-// Gets a list of episodes
+// Gets a list of assets
 exports.index = function (req, res) {
-  Episode.findAll()
+  Asset.findAll()
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
 
-// Gets a single episode from the DB
+// Gets a single asset from the DB
 exports.show = function (req, res) {
-  Episode.find({
+  Asset.find({
     where: {
       _id: req.params.id
     }
@@ -82,19 +81,19 @@ exports.show = function (req, res) {
     .catch(handleError(res));
 };
 
-// Creates a new episode in the DB
+// Creates a new asset in the DB
 exports.create = function (req, res) {
-  Episode.create(req.body)
+  Asset.create(req.body)
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
 
-// Updates an existing episode in the DB
+// Updates an existing asset in the DB
 exports.update = function (req, res) {
   if (req.body._id) {
     delete req.body._id;
   }
-  Episode.find({
+  Asset.find({
     where: {
       _id: req.params.id
     }
@@ -105,9 +104,9 @@ exports.update = function (req, res) {
     .catch(handleError(res));
 };
 
-// Deletes a episode from the DB
+// Deletes a asset from the DB
 exports.destroy = function (req, res) {
-  Episode.find({
+  Asset.find({
     where: {
       _id: req.params.id
     }

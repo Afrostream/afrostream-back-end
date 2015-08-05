@@ -15,6 +15,14 @@ angular.module('afrostreamAdminApp')
       'state': 'seasons',
       'icon': 'fa-film'
     }, {
+      'title': 'Episodes',
+      'state': 'episodes',
+      'icon': 'fa-ticket'
+    }, {
+      'title': 'Assets',
+      'state': 'assets',
+      'icon': 'fa-file-video-o'
+    }, {
       'title': 'Users',
       'state': 'users',
       'icon': 'fa-users'

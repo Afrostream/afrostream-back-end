@@ -20,7 +20,7 @@ module.exports = function (sequelize, DataTypes) {
     synopsis: DataTypes.TEXT,
     type: {
       type: DataTypes.STRING,
-      defaultValue: 'movie'
+      defaultValue: 'movie'//serie
     },
     duration: DataTypes.DECIMAL,
     cast: {
@@ -79,11 +79,19 @@ module.exports = function (sequelize, DataTypes) {
         return this.setDataValue('episodes', JSON.stringify(val));
       }
     },
-    rating: DataTypes.INTEGER,
+    writer: {
+      type: DataTypes.STRING,
+      get: function () {
+        return JSON.parse(this.getDataValue('writer'));
+      },
+      set: function (val) {
+        return this.setDataValue('writer', JSON.stringify(val));
+      }
+    },
+    rating: DataTypes.DECIMAL,
+    vote: DataTypes.DECIMAL,
     slug: DataTypes.STRING,
     provider: DataTypes.STRING,
-    network: DataTypes.STRING,
-    overview: DataTypes.STRING,
     active: DataTypes.BOOLEAN
   });
 };

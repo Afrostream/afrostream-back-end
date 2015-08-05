@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(sequelize, DataTypes) {
+module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Episode', {
     _id: {
       type: DataTypes.INTEGER,
@@ -8,8 +8,33 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true,
       autoIncrement: true
     },
-    name: DataTypes.STRING,
-    info: DataTypes.STRING,
+    title: {
+      type: DataTypes.STRING,
+      defaultValue: 'title'
+    },
+    poster: DataTypes.STRING,
+    dateFrom: DataTypes.DATE,
+    dateTo: DataTypes.DATE,
+    thumb: DataTypes.STRING,
+    synopsis: DataTypes.TEXT,
+    type: {
+      type: DataTypes.STRING,
+      defaultValue: 'episode'
+    },
+    duration: DataTypes.DECIMAL,
+    tags: {
+      type: DataTypes.STRING,
+      get: function () {
+        return JSON.parse(this.getDataValue('tags'));
+      },
+      set: function (val) {
+        return this.setDataValue('tags', JSON.stringify(val));
+      }
+    },
+    season: DataTypes.INTEGER,
+    rating: DataTypes.DECIMAL,
+    vote: DataTypes.DECIMAL,
+    slug: DataTypes.STRING,
     active: DataTypes.BOOLEAN
   });
 };

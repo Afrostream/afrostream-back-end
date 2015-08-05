@@ -5,7 +5,17 @@ angular.module('afrostreamAdminApp')
 
     $scope.item = item;
 
-    $scope.item.type = type;
+    $scope.item.type = $scope.item.type || type;
+
+    $scope.isFilm = function () {
+      return type === 'movie' || type === 'serie';
+    };
+    $scope.isSeason = function () {
+      return type === 'season';
+    };
+    $scope.isEpisode = function () {
+      return type === 'episode';
+    };
 
     $scope.slugify = function (input) {
       $scope.item.slug = Slug.slugify(input);
@@ -73,24 +83,13 @@ angular.module('afrostreamAdminApp')
       });
     };
 
-    $scope.today = function () {
-      $scope.dt = new Date();
-    };
-    $scope.today();
-
-    $scope.clear = function () {
-      $scope.dt = null;
-    };
-
+    //======= DATE =======//
     // Disable weekend selection
     $scope.disabled = function (date, mode) {
       return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
     };
 
-    $scope.toggleMin = function () {
-      $scope.minDate = $scope.minDate ? null : new Date();
-    };
-    $scope.toggleMin();
+    $scope.minDate = $scope.minDate ? null : new Date();
 
     $scope.open = function () {
       $scope.opened = true;
@@ -101,7 +100,6 @@ angular.module('afrostreamAdminApp')
       startingDay: 1
     };
 
-    $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
-    $scope.format = $scope.formats[0];
+    $scope.format = 'yyyy-MMMM-dd';
 
   });

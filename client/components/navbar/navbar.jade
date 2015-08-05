@@ -5,17 +5,14 @@
         a.dropdown-toggle(href='#' dropdown-toggle)
           img(src='../assets/images/avatar.jpg')
         ul.dropdown-menu.dropdown-menu-right
-          li.dropdown-header Joe Bloggs
+          li.dropdown-header {{ getCurrentUser().name }}
           li.divider
           li.link(ng-hide='isLoggedIn()', ui-sref-active='active')
             a(ui-sref='signup') Sign up
           li.link(ng-hide='isLoggedIn()', ui-sref-active='active')
             a(ui-sref='login') Login
-          li.link(ng-show='isLoggedIn()')
-            p.navbar-text Hello {{ getCurrentUser().name }}
           li.link(ng-show='isLoggedIn()', ui-sref-active='active')
-            a(ui-sref='settings')
-              span.glyphicon.glyphicon-cog
+            a(ui-sref='settings') Parametres
           li.divider
           li.link(ng-show='isLoggedIn()')
             a(ui-sref='logout') Logout
