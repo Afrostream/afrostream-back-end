@@ -1,8 +1,8 @@
 .row.header
   .col-xs-12
     .user.pull-right
-      .item.dropdown
-        a.dropdown-toggle(href='#')
+      .item.dropdown(ng-show='isLoggedIn()' dropdown)
+        a.dropdown-toggle(href='#' dropdown-toggle)
           img(src='../assets/images/avatar.jpg')
         ul.dropdown-menu.dropdown-menu-right
           li.dropdown-header Joe Bloggs
@@ -19,8 +19,8 @@
           li.divider
           li.link(ng-show='isLoggedIn()')
             a(ui-sref='logout') Logout
-      .item.dropdown
-        a.dropdown-toggle(href='#')
+      .item.dropdown(ng-show='isLoggedIn()' dropdown)
+        a.dropdown-toggle(href='#' dropdown-toggle)
           i.fa.fa-bell-o
         ul.dropdown-menu.dropdown-menu-right
           li.dropdown-header Notifications

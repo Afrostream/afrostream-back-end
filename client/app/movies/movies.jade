@@ -8,21 +8,21 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
         .col-lg-12
           .btn-group.pull-right(role='button')
             .btn-group
-              input.form-control(type='text', placeholder='Search a movie here.', ng-model='searchMovie')
+              input.form-control(type='text', placeholder='Search a {{type}} here.', ng-model='searchItem')
             .btn-group
-              button.btn.btn-primary.pull-right(ng-click='newMovie()')
+              button.btn.btn-primary.pull-right(ng-click='newItem()')
                 span.glyphicon.glyphicon-plus
                 span Add new
               .clearfix
 
-      .col-md-3(ng-repeat='movie in movies')
+      .col-md-3(ng-repeat='item in items')
         .thumbnail
-          img.poster.img-responsive(src='{{movie.poster}}')
+          img.poster.img-responsive(src='{{item.poster}}')
           .caption
-            h3 {{movie.title}}
-            p {{movie.synopsis | limitTo:100}}{{movie.synopsis.length > 100 ? '...' : ''}}
+            h3 {{item.title}}
+            p {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
               .btn-group
-                button.btn.btn-primary(ng-click='editMovie(movie)')
+                button.btn.btn-primary(ng-click='editItem(item)')
                   span.glyphicon.glyphicon-pencil.pull-right
-                button.btn.btn-danger(ng-click='deleteMovie(movie)')
+                button.btn.btn-danger(ng-click='deleteItem(item)')
                   span.glyphicon.glyphicon-trash.pull-right

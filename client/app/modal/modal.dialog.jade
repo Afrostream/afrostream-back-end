@@ -1,0 +1,54 @@
+.modal-header(style='background-image:url({{item.poster}});')
+  button.close(data-dismiss='modal' aria-hidden='true')
+  h4.modal-title {{item.title | limitTo:50}}
+.modal-body
+  form.form-horizontal(role='form')
+    .form-group
+      label(for='type').control-label Type
+    .form-group
+      .btn-group
+        label.btn.btn-primary(ng-model='item.type' btn-radio='"item"') Movie
+        label.btn.btn-primary(ng-model='item.type' btn-radio='"serie"') Série
+        label.btn.btn-primary(ng-model='item.type' btn-radio='"season"') Season
+        label.btn.btn-primary(ng-model='item.type' btn-radio='"episode"') Episode
+
+    .form-group
+      label(for='title').control-label Title
+      input.form-control(id='title' type='text' ng-model='item.title' ng-change='slugify(item.title)' placeholder='Title')
+      label(for='slug').control-label Slug
+      input.form-control(id='slug' type='text' ng-model='item.slug' placeholder='Slug url')
+
+    .form-group
+      label(for='poster').control-label Poster
+      input.form-control(id='poster' type='text' ng-model='item.poster' placeholder='Poster Url/Id')
+      //button(ngf-select ng-model='file')
+      img(ngf-src='item.poster' ngf-default-src='/thumb.jpg')
+
+    .form-group
+      label(for='thumb').control-label Thumb
+      input.form-control(id='thumb' type='text' ng-model='item.thum' placeholder='Thumb Url/Id')
+      //button(ngf-select ng-model='file')
+      img(ngf-src='item.thumb' ngf-default-src='/thumb.jpg')
+
+    .form-group
+      .row
+        .col-md-6
+          p.input-group
+            input.form-control(id='dateFrom' type='text' ng-model='item.dateFrom' placeholder='FROM' datepicker-popup='{{format}}' min-date='minDate'  datepicker-options='dateOptions' date-disabled='disabled(date, mode)' close-text='Close')
+            span.input-group-btn
+              button.btn.btn-default(ng-click='open()')
+                i.glyphicon.glyphicon-calendar
+        .col-md-6
+          p.input-group
+            input.form-control(id='dateTo' type='text' ng-model='item.dateTo' placeholder='TO' datepicker-popup='{{format}}' min-date='minDate'  datepicker-options='dateOptions' date-disabled='disabled(date, mode)' close-text='Close')
+            span.input-group-btn
+              button.btn.btn-default(ng-click='open()')
+                i.glyphicon.glyphicon-calendar
+
+    .form-group
+      label(for='synopsis').control-label Synopsis
+      textarea.form-control(id='synopsis' rows='4' ng-model='item.synopsis' placeholder='Description')
+.modal-footer
+  button.btn.btn-primary(type='submit' ng-click='addItem()' ng-if='!item._id') Add
+  button.btn.btn-primary(type='submit' ng-click='updateItem()' ng-if='item._id') Update
+  button.btn.btn-primary(ng-click='cancel()') Cancel

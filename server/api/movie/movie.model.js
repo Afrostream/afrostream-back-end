@@ -13,8 +13,11 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: 'title'
     },
     poster: DataTypes.STRING,
+    dateFrom: DataTypes.DATE,
+    dateTo: DataTypes.DATE,
+    logo: DataTypes.STRING,
     thumb: DataTypes.STRING,
-    synopsis: DataTypes.STRING,
+    synopsis: DataTypes.TEXT,
     type: {
       type: DataTypes.STRING,
       defaultValue: 'movie'
@@ -55,6 +58,25 @@ module.exports = function (sequelize, DataTypes) {
       },
       set: function (val) {
         return this.setDataValue('subscribers', JSON.stringify(val));
+      }
+    },
+    //TODO users joint http://docs.sequelizejs.com/en/latest/docs/associations/
+    seasons: {
+      type: DataTypes.STRING,
+      get: function () {
+        return JSON.parse(this.getDataValue('seasons'));
+      },
+      set: function (val) {
+        return this.setDataValue('seasons', JSON.stringify(val));
+      }
+    },
+    episodes: {
+      type: DataTypes.STRING,
+      get: function () {
+        return JSON.parse(this.getDataValue('episodes'));
+      },
+      set: function (val) {
+        return this.setDataValue('episodes', JSON.stringify(val));
       }
     },
     rating: DataTypes.INTEGER,

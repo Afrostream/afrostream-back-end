@@ -1,44 +1,46 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('MoviesCtrl', function ($scope, $http, socket, $modal) {
-    $scope.movies = [];
-    $scope.currentMovie = {};
+  .controller('MoviesCtrl', function ($scope, $http, socket, $modal, $state) {
+    $scope.type = $state.current.type || 'movie';
+    $scope.items = [];
+    $scope.currentItem = {};
 
-    var movieModalOpts = {
-      templateUrl: 'app/movies/modal/movie.html', // Url du template HTML
-      controller: 'MovieDialogCtrl',
+    var modalOpts = {
+      templateUrl: 'app/modal/modal.html', // Url du template HTML
+      controller: 'ModalDialogCtrl',
       scope: $scope,
       resolve: {
-        movieList: function () {
-          return $scope.movies;
-        }, movie: function () {
-          return $scope.currentMovie;
+        item: function () {
+          return $scope.currentItem;
+        },
+        type: function () {
+          return $scope.type;
         }
       }
     };
 
-    $http.get('/api/movies').success(function (movies) {
-      $scope.movies = movies;
-      socket.syncUpdates('movie', $scope.movies);
+    $http.get('/api/' + $scope.type + 's').success(function (items) {
+      $scope.items = items;
+      socket.syncUpdates($scope.type, $scope.items);
     });
 
-    $scope.deleteMovie = function (movie) {
-      $http.delete('/api/movies/' + movie._id);
+    $scope.deleteItem = function (item) {
+      $http.delete('/api/' + $scope.type + 's/' + item._id);
     };
-
 
     $scope.$on('$destroy', function () {
-      socket.unsyncUpdates('movie');
+      socket.unsyncUpdates($scope.type);
     });
 
-    $scope.editMovie = function (movie) {
-      $scope.currentMovie = movie;
-      $modal.open(movieModalOpts);
+    $scope.editItem = function (item) {
+      $scope.currentItem = item;
+      $modal.open(modalOpts);
     };
 
-    $scope.newMovie = function () {
-      $scope.currentMovie = {};
-      $modal.open(movieModalOpts);
+    $scope.newItem = function () {
+      $scope.currentItem = {};
+      $modal.open(modalOpts);
     };
-  });
+  })
+;

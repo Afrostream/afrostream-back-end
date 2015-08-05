@@ -1,20 +1,14 @@
+'use strict';
 /**
  * Widget Directive
  */
 
 angular
   .module('afrostreamAdminApp')
-  .directive('rdWidget', rdWidget);
-
-function rdWidget() {
-  var directive = {
-    transclude: true,
-    template: '<div class="widget" ng-transclude></div>',
-    restrict: 'EA'
-  };
-  return directive;
-
-  function link(scope, element, attrs) {
-    /* */
-  }
-};
+  .directive('rdWidget', function () {
+    return {
+      transclude: true,
+      template: '<div class="widget" ng-transclude></div>',
+      restrict: 'EA'
+    };
+  });

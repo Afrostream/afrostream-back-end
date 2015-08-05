@@ -10,7 +10,8 @@ angular.module('afrostreamAdminApp', [
   //UPLOAD
   'angularFileUpload',
   //Slug helper
-  'slugifier'
+  'slugifier',
+  'ngToast'
 ])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $urlRouterProvider
@@ -46,7 +47,11 @@ angular.module('afrostreamAdminApp', [
       }
     };
   })
-
+  .config(['ngToastProvider', function (ngToastProvider) {
+    ngToastProvider.configure({
+      animation: 'slide' // or 'fade'
+    });
+  }])
   .run(function ($rootScope, $state, Auth) {
     // Redirect to login if route requires auth and you're not logged in
     $rootScope.$on('$stateChangeStart', function (event, next) {

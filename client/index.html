@@ -19,6 +19,7 @@
   <!-- bower:css -->
   <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.css" />
   <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.min.css" />
+  <link rel="stylesheet" href="bower_components/ngtoast/dist/ngToast.css" />
   <!-- endbower -->
   <!-- endbuild -->
   <!-- build:css({.tmp,client}) app/app.css -->
@@ -71,6 +72,8 @@
 <script src="bower_components/angular-base64-upload/src/angular-base64-upload.js"></script>
 <script src="bower_components/angular-file-upload/dist/angular-file-upload.min.js"></script>
 <script src="bower_components/angular-slugify/angular-slugify.js"></script>
+<script src="bower_components/angular-animate/angular-animate.js"></script>
+<script src="bower_components/ngtoast/dist/ngToast.js"></script>
 <!-- endbower -->
 <script src="socket.io-client/socket.io.js"></script>
 <!-- endbuild -->
@@ -85,9 +88,12 @@
 <script src="app/admin/admin.js"></script>
 <script src="app/main/main.controller.js"></script>
 <script src="app/main/main.js"></script>
-<script src="app/movies/modal/movie.dialog.controller.js"></script>
+<script src="app/modal/modal.dialog.controller.js"></script>
 <script src="app/movies/movies.controller.js"></script>
 <script src="app/movies/movies.js"></script>
+<script src="app/seasons/seasons.js"></script>
+<script src="app/users/users.controller.js"></script>
+<script src="app/users/users.js"></script>
 <script src="components/auth/auth.service.js"></script>
 <script src="components/auth/movie.service.js"></script>
 <script src="components/auth/user.service.js"></script>
@@ -96,6 +102,7 @@
 <script src="components/mongoose-error/mongoose-error.directive.js"></script>
 <script src="components/navbar/navbar.controller.js"></script>
 <script src="components/navbar/navbar.directive.js"></script>
+<script src="components/side-bar/side-bar.controller.js"></script>
 <script src="components/side-bar/side-bar.directive.js"></script>
 <script src="components/socket/socket.service.js"></script>
 <script src="components/widget/loading.js"></script>

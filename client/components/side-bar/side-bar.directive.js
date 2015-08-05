@@ -5,6 +5,7 @@ angular.module('afrostreamAdminApp')
     return {
       templateUrl: 'components/side-bar/side-bar.html',
       restrict: 'EA',
+      controller: 'SidebarCtrl',
       replace: true,
       link: function ($scope) {
         /**

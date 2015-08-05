@@ -21,75 +21,75 @@ var routerStub = {
 // require the index with our stubbed out modules
 var movieIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
     }
   },
   './movie.controller': movieCtrlStub
 });
 
-describe('Movie API Router:', function() {
+describe('Movie API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     movieIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/movies', function() {
+  describe('GET /api/movies', function () {
 
-    it('should route to movie.controller.index', function() {
+    it('should route to movie.controller.index', function () {
       routerStub.get
-                .withArgs('/', 'movieCtrl.index')
-                .should.have.been.calledOnce;
+        .withArgs('/', 'movieCtrl.index')
+        .should.have.been.calledOnce;
     });
 
   });
 
-  describe('GET /api/movies/:id', function() {
+  describe('GET /api/movies/:id', function () {
 
-    it('should route to movie.controller.show', function() {
+    it('should route to movie.controller.show', function () {
       routerStub.get
-                .withArgs('/:id', 'movieCtrl.show')
-                .should.have.been.calledOnce;
+        .withArgs('/:id', 'movieCtrl.show')
+        .should.have.been.calledOnce;
     });
 
   });
 
-  describe('POST /api/movies', function() {
+  describe('POST /api/movies', function () {
 
-    it('should route to movie.controller.create', function() {
+    it('should route to movie.controller.create', function () {
       routerStub.post
-                .withArgs('/', 'movieCtrl.create')
-                .should.have.been.calledOnce;
+        .withArgs('/', 'movieCtrl.create')
+        .should.have.been.calledOnce;
     });
 
   });
 
-  describe('PUT /api/movies/:id', function() {
+  describe('PUT /api/movies/:id', function () {
 
-    it('should route to movie.controller.update', function() {
+    it('should route to movie.controller.update', function () {
       routerStub.put
-                .withArgs('/:id', 'movieCtrl.update')
-                .should.have.been.calledOnce;
+        .withArgs('/:id', 'movieCtrl.update')
+        .should.have.been.calledOnce;
     });
 
   });
 
-  describe('PATCH /api/movies/:id', function() {
+  describe('PATCH /api/movies/:id', function () {
 
-    it('should route to movie.controller.update', function() {
+    it('should route to movie.controller.update', function () {
       routerStub.patch
-                .withArgs('/:id', 'movieCtrl.update')
-                .should.have.been.calledOnce;
+        .withArgs('/:id', 'movieCtrl.update')
+        .should.have.been.calledOnce;
     });
 
   });
 
-  describe('DELETE /api/movies/:id', function() {
+  describe('DELETE /api/movies/:id', function () {
 
-    it('should route to movie.controller.destroy', function() {
+    it('should route to movie.controller.destroy', function () {
       routerStub.delete
-                .withArgs('/:id', 'movieCtrl.destroy')
-                .should.have.been.calledOnce;
+        .withArgs('/:id', 'movieCtrl.destroy')
+        .should.have.been.calledOnce;
     });
 
   });
