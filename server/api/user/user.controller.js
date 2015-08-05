@@ -9,21 +9,21 @@ var jwt = require('jsonwebtoken');
 
 function validationError(res, statusCode) {
   statusCode = statusCode || 422;
-  return function(err) {
+  return function (err) {
     res.status(statusCode).json(err);
   }
 }
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
-  return function(err) {
+  return function (err) {
     res.status(statusCode).send(err);
   };
 }
 
 function respondWith(res, statusCode) {
   statusCode = statusCode || 200;
-  return function() {
+  return function () {
     res.status(statusCode).end();
   };
 }
@@ -32,7 +32,7 @@ function respondWith(res, statusCode) {
  * Get list of users
  * restriction: 'admin'
  */
-exports.index = function(req, res) {
+exports.index = function (req, res) {
   User.findAll({
     attributes: [
       '_id',
@@ -42,7 +42,7 @@ exports.index = function(req, res) {
       'provider'
     ]
   })
-    .then(function(users) {
+    .then(function (users) {
       res.status(200).json(users);
     })
     .catch(handleError(res));
@@ -51,16 +51,16 @@ exports.index = function(req, res) {
 /**
  * Creates a new user
  */
-exports.create = function(req, res, next) {
+exports.create = function (req, res, next) {
   var newUser = User.build(req.body);
   newUser.setDataValue('provider', 'local');
   newUser.setDataValue('role', 'user');
   newUser.save()
-    .then(function(user) {
-      var token = jwt.sign({ _id: user._id }, config.secrets.session, {
+    .then(function (user) {
+      var token = jwt.sign({_id: user._id}, config.secrets.session, {
         expiresInMinutes: 60 * 5
       });
-      res.json({ token: token });
+      res.json({token: token});
     })
     .catch(validationError(res));
 };
@@ -68,7 +68,7 @@ exports.create = function(req, res, next) {
 /**
  * Get a single user
  */
-exports.show = function(req, res, next) {
+exports.show = function (req, res, next) {
   var userId = req.params.id;
 
   User.find({
@@ -76,13 +76,13 @@ exports.show = function(req, res, next) {
       _id: userId
     }
   })
-    .then(function(user) {
+    .then(function (user) {
       if (!user) {
         return res.status(404).end();
       }
       res.json(user.profile);
     })
-    .catch(function(err) {
+    .catch(function (err) {
       return next(err);
     });
 };
@@ -91,9 +91,9 @@ exports.show = function(req, res, next) {
  * Deletes a user
  * restriction: 'admin'
  */
-exports.destroy = function(req, res) {
-  User.destroy({ _id: req.params.id })
-    .then(function() {
+exports.destroy = function (req, res) {
+  User.destroy({_id: req.params.id})
+    .then(function () {
       res.status(204).end();
     })
     .catch(handleError(res));
@@ -102,7 +102,7 @@ exports.destroy = function(req, res) {
 /**
  * Change a users password
  */
-exports.changePassword = function(req, res, next) {
+exports.changePassword = function (req, res, next) {
   var userId = req.user._id;
   var oldPass = String(req.body.oldPassword);
   var newPass = String(req.body.newPassword);
@@ -112,11 +112,11 @@ exports.changePassword = function(req, res, next) {
       _id: userId
     }
   })
-    .then(function(user) {
+    .then(function (user) {
       if (user.authenticate(oldPass)) {
         user.password = newPass;
         return user.save()
-          .then(function() {
+          .then(function () {
             res.status(200).end();
           })
           .catch(validationError(res));
@@ -127,9 +127,31 @@ exports.changePassword = function(req, res, next) {
 };
 
 /**
+ * Change a users role
+ */
+exports.changeRole = function (req, res) {
+  var userId = req.user._id;
+  var role = String(req.body.role);
+
+  User.find({
+    where: {
+      _id: userId
+    }
+  })
+    .then(function (user) {
+      user.role = role;
+      return user.save()
+        .then(function () {
+          res.status(200).end();
+        })
+        .catch(validationError(res));
+    });
+};
+
+/**
  * Get my info
  */
-exports.me = function(req, res, next) {
+exports.me = function (req, res, next) {
   var userId = req.user._id;
 
   User.find({
@@ -144,13 +166,13 @@ exports.me = function(req, res, next) {
       'provider'
     ]
   })
-    .then(function(user) { // don't ever give out the password or salt
+    .then(function (user) { // don't ever give out the password or salt
       if (!user) {
         return res.status(401).end();
       }
       res.json(user);
     })
-    .catch(function(err) {
+    .catch(function (err) {
       return next(err);
     });
 };
@@ -158,6 +180,6 @@ exports.me = function(req, res, next) {
 /**
  * Authentication callback
  */
-exports.authCallback = function(req, res, next) {
+exports.authCallback = function (req, res, next) {
   res.redirect('/');
 };

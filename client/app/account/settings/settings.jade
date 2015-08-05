@@ -6,6 +6,17 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
     .page-content
       .row
         .col-sm-12
+          h1 Change User Role
+        .col-sm-12
+          form.form(name='roles', ng-submit='changeRole(roles)', novalidate='')
+            .form-group
+              .btn-group
+                label.btn.btn-primary(ng-model='user.role' btn-radio='"user"' ) User
+                label.btn.btn-primary(ng-model='user.role' btn-radio='"admin"' ) Admin
+
+            button.btn.btn-lg.btn-primary(type='submit') Save changes
+      .row
+        .col-sm-12
           h1 Change Password
         .col-sm-12
           form.form(name='form', ng-submit='changePassword(form)', novalidate='')
