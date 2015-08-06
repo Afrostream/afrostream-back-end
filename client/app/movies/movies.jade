@@ -6,23 +6,31 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
     .page-content
       .row
         .col-lg-12
-          .btn-group.pull-right(role='button')
-            .btn-group
-              input.form-control(type='text', placeholder='Search a {{type}} here.', ng-model='searchItem')
-            .btn-group
-              button.btn.btn-primary.pull-right(ng-click='newItem()')
-                span.glyphicon.glyphicon-plus
-                span Add new
-              .clearfix
-
-      .col-md-3(ng-repeat='item in items')
-        .thumbnail
-          img.poster.img-responsive(src='{{item.poster}}')
-          .caption
-            h3 {{item.title}}
-            p {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
-              .btn-group
-                button.btn.btn-primary(ng-click='editItem(item)')
-                  span.glyphicon.glyphicon-pencil.pull-right
-                button.btn.btn-danger(ng-click='deleteItem(item)')
-                  span.glyphicon.glyphicon-trash.pull-right
+          rd-widget
+            rd-widget-header(icon='fa-tasks' title='{{type}}')
+              .row
+                input.form-control.input-sm(type='text' placeholder='Find a {{type}} here.' ng-model='searchField')
+              .row
+                button.btn.btn-xs.btn-primary.pull-right(ng-click='newItem()')
+                  span.glyphicon.glyphicon-plus
+                  span Add new
+            rd-widget-body.medium.no-padding
+              .table-responsive
+                table.table
+                  tbody
+                    tr(ng-repeat='item in items | filter:searchField')
+                      td
+                        .thumbnail
+                          img.poster.img-responsive(src='{{item.poster}}')
+                      td.text-right.text-nowrap
+                        strong {{item.title}}
+                        br
+                        span.text-muted {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
+                      td
+                        span.text-success
+                          i.fa(class='fa-check')
+                      td
+                        button.btn.btn-xs.btn-primary(ng-click='editItem(item)')
+                          span.glyphicon.glyphicon-pencil
+                        button.btn.btn-xs.btn-danger(ng-click='deleteItem(item)')
+                          span.glyphicon.glyphicon-trash

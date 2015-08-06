@@ -99,6 +99,7 @@ exports.show = function (req, res) {
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
+
 // Gets all episodes linked from the DB
 exports.getEpisodes = function (req, res) {
   Season.find({
