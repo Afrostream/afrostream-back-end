@@ -48,6 +48,9 @@
     .form-group
       label(for='synopsis').control-label Synopsis
       textarea.form-control(id='synopsis' rows='4' ng-model='item.synopsis' placeholder='Description')
+
+    seasons(ng-if='isSeason()')
+
 .modal-footer
   button.btn.btn-primary(type='submit' ng-click='addItem()' ng-if='!item._id') Add
   button.btn.btn-primary(type='submit' ng-click='updateItem()' ng-if='item._id') Update

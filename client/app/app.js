@@ -11,7 +11,8 @@ angular.module('afrostreamAdminApp', [
   'angularFileUpload',
   //Slug helper
   'slugifier',
-  'ngToast'
+  'ngToast',
+  'ngTagsInput'
 ])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $urlRouterProvider

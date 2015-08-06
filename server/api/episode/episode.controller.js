@@ -14,7 +14,7 @@ var sqldb = require('../../sqldb');
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;
 
-Episode.belongsTo(Season, {foreignKey: 'season'}); // Adds seasonId to Episode
+Episode.belongsTo(Season, {foreignKey: 'seasonId'}); // Adds seasonId to Episode
 
 
 function handleError(res, statusCode) {
@@ -65,9 +65,21 @@ function removeEntity(res) {
 
 // Gets a list of episodes
 exports.index = function (req, res) {
-  Episode.findAll()
-    .then(responseWithResult(res))
-    .catch(handleError(res));
+  var queryName = req.param('query');
+  if (queryName) {
+    Episode.findAll({
+      where: {
+        title: {$notILike: '%' + queryName}
+      }
+    })
+      .then(handleEntityNotFound(res))
+      .then(responseWithResult(res))
+      .catch(handleError(res));
+  } else {
+    Episode.findAll()
+      .then(responseWithResult(res))
+      .catch(handleError(res));
+  }
 };
 
 // Gets a single episode from the DB
