@@ -12,9 +12,14 @@
 var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var Season = sqldb.Season;
+var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var episodeKeyAssoc = 'episodes';
-Season.hasMany(Episode, {as: episodeKeyAssoc});
+
+var MovieSeasons = sqldb.sequelize.define('MovieSeasons', {});
+
+Movie.belongsToMany(Season, {through: MovieSeasons, as: 'seasons'});
+Season.hasOne(Movie, {through: MovieSeasons, as: 'movie'});
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;

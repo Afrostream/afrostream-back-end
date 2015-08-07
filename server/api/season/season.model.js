@@ -22,24 +22,6 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: 'season'
     },
     duration: DataTypes.DECIMAL,
-    tags: {
-      type: DataTypes.STRING,
-      get: function () {
-        return JSON.parse(this.getDataValue('tags'));
-      },
-      set: function (val) {
-        return this.setDataValue('tags', JSON.stringify(val));
-      }
-    },
-    //episodes: {
-    //  type: DataTypes.STRING,
-    //  get: function () {
-    //    return JSON.parse(this.getDataValue('episodes'));
-    //  },
-    //  set: function (val) {
-    //    return this.setDataValue('episodes', JSON.stringify(val));
-    //  }
-    //},
     rating: DataTypes.DECIMAL,
     vote: DataTypes.DECIMAL,
     slug: DataTypes.STRING,

@@ -14,7 +14,10 @@ var sqldb = require('../../sqldb');
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;
 
-Episode.belongsTo(Season, {foreignKey: 'seasonId'}); // Adds seasonId to Episode
+var SeasonEpisodes = sqldb.sequelize.define('SeasonEpisodes', {});
+
+Season.belongsToMany(Season, {through: SeasonEpisodes, as: 'episodes'});
+Episode.hasOne(Season, {through: SeasonEpisodes, as: 'season'});
 
 
 function handleError(res, statusCode) {

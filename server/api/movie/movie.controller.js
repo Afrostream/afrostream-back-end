@@ -15,12 +15,10 @@ var Movie = sqldb.Movie;
 var Category = sqldb.Category;
 var keyAssoc = 'categorys';
 
-var MovieCategorys = sqldb.sequelize.define('MovieCategorys', {
-  status: sqldb.Sequelize.STRING
-});
+var CategoryMovies = sqldb.sequelize.define('CategoryMovies', {});
 
-Movie.belongsToMany(Category, {through: MovieCategorys, as: 'categorys'});
-Category.belongsToMany(Movie, {through: MovieCategorys, as: 'movies'});
+Movie.belongsToMany(Category, {through: CategoryMovies, as: 'categorys'});
+Category.belongsToMany(Movie, {through: CategoryMovies, as: 'movies'});
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
