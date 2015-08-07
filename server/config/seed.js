@@ -8,6 +8,8 @@
 var sqldb = require('../sqldb');
 var Category = sqldb.Category;
 var Movie = sqldb.Movie;
+var Episode = sqldb.Episode;
+var Season = sqldb.Season;
 var User = sqldb.User;
 
 Category.sync()
@@ -61,6 +63,34 @@ Movie.sync()
       title: 'Deployment Ready',
       synopsis: 'Easily deploy your app to Heroku or Openshift with the heroku ' +
       'and openshift subgenerators',
+      poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
+    }]);
+  });
+
+Season.sync()
+  .then(function () {
+    return Season.destroy({where: {}});
+  })
+  .then(function () {
+    Season.bulkCreate([{
+      title: 'In the mood for love Season 1',
+      synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
+      'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
+      'Stylus, Sass, CoffeeScript, and Less.',
+      poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
+    }]);
+  });
+
+Episode.sync()
+  .then(function () {
+    return Episode.destroy({where: {}});
+  })
+  .then(function () {
+    Episode.bulkCreate([{
+      title: 'In the mood for love Episode 1',
+      synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
+      'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
+      'Stylus, Sass, CoffeeScript, and Less.',
       poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
     }]);
   });

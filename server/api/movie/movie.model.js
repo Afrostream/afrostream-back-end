@@ -60,25 +60,6 @@ module.exports = function (sequelize, DataTypes) {
         return this.setDataValue('subscribers', JSON.stringify(val));
       }
     },
-    //TODO users joint http://docs.sequelizejs.com/en/latest/docs/associations/
-    seasons: {
-      type: DataTypes.STRING,
-      get: function () {
-        return JSON.parse(this.getDataValue('seasons'));
-      },
-      set: function (val) {
-        return this.setDataValue('seasons', JSON.stringify(val));
-      }
-    },
-    episodes: {
-      type: DataTypes.STRING,
-      get: function () {
-        return JSON.parse(this.getDataValue('episodes'));
-      },
-      set: function (val) {
-        return this.setDataValue('episodes', JSON.stringify(val));
-      }
-    },
     writer: {
       type: DataTypes.STRING,
       get: function () {
@@ -88,6 +69,7 @@ module.exports = function (sequelize, DataTypes) {
         return this.setDataValue('writer', JSON.stringify(val));
       }
     },
+    seasonId: DataTypes.INTEGER,
     rating: DataTypes.DECIMAL,
     vote: DataTypes.DECIMAL,
     slug: DataTypes.STRING,

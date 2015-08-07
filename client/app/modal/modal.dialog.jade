@@ -51,9 +51,11 @@
         label(for='synopsis').control-label Synopsis
         textarea.form-control(id='synopsis' rows='4' ng-model='item.synopsis' placeholder='Description')
 
+      movies(ng-if='isFilm()')
+
       seasons(ng-if='isSeason()')
 
-      movies(ng-if='isFilm()')
+      episodes(ng-if='isEpisode()')
 
     div(ng-if='type == "category"')
       categorys

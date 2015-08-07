@@ -81,4 +81,20 @@ db.Movie = db.sequelize.import(path.join(
   'movie.model'
 ));
 
+
+var CategoryMovies = db.sequelize.define('CategoryMovies', {});
+var MovieSeasons = db.sequelize.define('MovieSeasons', {});
+var SeasonEpisodes = db.sequelize.define('SeasonEpisodes', {});
+
+db.Movie.belongsToMany(db.Category, {through: CategoryMovies, as: 'categorys'});
+db.Category.belongsToMany(db.Movie, {through: CategoryMovies, as: 'movies'});
+
+
+db.Movie.belongsToMany(db.Season, {through: MovieSeasons, as: 'seasons'});
+db.Season.belongsToMany(db.Movie, {through: MovieSeasons, as: 'movie'});
+
+
+db.Season.belongsToMany(db.Episode, {through: SeasonEpisodes, as: 'episodes'});
+db.Episode.belongsToMany(db.Season, {through: SeasonEpisodes, as: 'season'});
+
 module.exports = db;

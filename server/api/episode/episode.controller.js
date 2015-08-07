@@ -13,12 +13,7 @@ var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;
-
-var SeasonEpisodes = sqldb.sequelize.define('SeasonEpisodes', {});
-
-Season.belongsToMany(Season, {through: SeasonEpisodes, as: 'episodes'});
-Episode.hasOne(Season, {through: SeasonEpisodes, as: 'season'});
-
+var keyAssoc = 'season';
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -55,6 +50,17 @@ function saveUpdates(updates) {
   };
 }
 
+
+function addSeason(updates) {
+  var movies = Season.build(_.map(updates.season || [], _.partialRight(_.pick, '_id')));
+  return function (entity) {
+    return entity.setSeason(movies[0])
+      .then(function (updated) {
+        return updated;
+      });
+  };
+}
+
 function removeEntity(res) {
   return function (entity) {
     if (entity) {
@@ -69,20 +75,24 @@ function removeEntity(res) {
 // Gets a list of episodes
 exports.index = function (req, res) {
   var queryName = req.param('query');
+  var paramsObj = {
+    include: [
+      {model: Season, as: keyAssoc} // load all episodes
+    ]
+  };
+
   if (queryName) {
-    Episode.findAll({
+    paramsObj = _.merge(paramsObj, {
       where: {
         title: {$notILike: '%' + queryName}
       }
     })
-      .then(handleEntityNotFound(res))
-      .then(responseWithResult(res))
-      .catch(handleError(res));
-  } else {
-    Episode.findAll()
-      .then(responseWithResult(res))
-      .catch(handleError(res));
   }
+
+  Episode.findAll(paramsObj)
+    .then(handleEntityNotFound(res))
+    .then(responseWithResult(res))
+    .catch(handleError(res));
 };
 
 // Gets a single episode from the DB
@@ -90,7 +100,10 @@ exports.show = function (req, res) {
   Episode.find({
     where: {
       _id: req.params.id
-    }
+    },
+    include: [
+      {model: Season, as: keyAssoc} // load all episodes
+    ]
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
@@ -116,6 +129,7 @@ exports.update = function (req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
+    .then(addSeason(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };

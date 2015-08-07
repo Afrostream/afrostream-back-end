@@ -22,6 +22,8 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: 'season'
     },
     duration: DataTypes.DECIMAL,
+    movieId: DataTypes.INTEGER,
+    episodeId: DataTypes.INTEGER,
     rating: DataTypes.DECIMAL,
     vote: DataTypes.DECIMAL,
     slug: DataTypes.STRING,

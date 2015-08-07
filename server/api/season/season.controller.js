@@ -14,12 +14,6 @@ var sqldb = require('../../sqldb');
 var Season = sqldb.Season;
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
-var episodeKeyAssoc = 'episodes';
-
-var MovieSeasons = sqldb.sequelize.define('MovieSeasons', {});
-
-Movie.belongsToMany(Season, {through: MovieSeasons, as: 'seasons'});
-Season.hasOne(Movie, {through: MovieSeasons, as: 'movie'});
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -56,14 +50,25 @@ function saveUpdates(updates) {
   };
 }
 
+function addMovie(updates) {
+  var movie = Movie.build(_.map(updates.movie || [], _.partialRight(_.pick, '_id')));
+  return function (entity) {
+    if (!movie || !movie.length) {
+      return entity
+    }
+    return entity.setMovie(movie[0])
+      .then(function () {
+        return entity;
+      });
+  };
+}
+
 function addEpisodes(updates) {
-  //var episodes = Episode.build(_.map(updates.episodes || [], _.partialRight(_.pick, '_id')));
   var episodes = Episode.build(_.map(updates.episodes || [], _.partialRight(_.pick, '_id')));
-  //var episodes = updates.episodes || [];
   return function (entity) {
     return entity.setEpisodes(episodes)
-      .then(function (updated) {
-        return updated;
+      .then(function () {
+        return entity;
       });
   };
 }
@@ -81,11 +86,23 @@ function removeEntity(res) {
 
 // Gets a list of seasons
 exports.index = function (req, res) {
-  Season.findAll({
+  var queryName = req.param('query');
+  var paramsObj = {
     include: [
-      {model: Episode, as: episodeKeyAssoc} // load all episodes
+      {model: Episode, as: 'episodes'}, // load all episodes
+      {model: Movie, as: 'movie'} // load related movie
     ]
-  })
+  };
+
+  if (queryName) {
+    paramsObj = _.merge(paramsObj, {
+      where: {
+        title: {$notILike: '%' + queryName}
+      }
+    })
+  }
+  Season.findAll(paramsObj)
+    .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
@@ -97,7 +114,8 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
-      {model: Episode, as: episodeKeyAssoc} // load all episodes
+      {model: Episode, as: 'episodes'}, // load all episodes
+      {model: Movie, as: 'movie'} // load related movie
     ]
   })
     .then(handleEntityNotFound(res))
@@ -125,6 +143,7 @@ exports.update = function (req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addEpisodes(req.body))
+    .then(addMovie(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };

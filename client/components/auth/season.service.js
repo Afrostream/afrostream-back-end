@@ -6,18 +6,6 @@ angular.module('afrostreamAdminApp')
         id: '@_id'
       },
       {
-        getEpisodes: {
-          method: 'GET',
-          params: {
-            controller: 'episodes'
-          }
-        },
-        addEpisodes: {
-          method: 'PUT',
-          params: {
-            controller: 'episodes'
-          }
-        },
         get: {
           method: 'GET',
           params: {

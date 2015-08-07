@@ -1,9 +1,22 @@
-tags-input(ng-model='item.episodes' placeholder='Search episode' add-from-autocomplete-only='true' display-property='title' key-property='_id')
-  auto-complete(source='loadEpisodes($query)' template='episode-template' min-length='0'
-  load-on-focus='true'
-  load-on-empty='true'
-  max-results-to-show='32')
-script(type='text/ng-template' id='episode-template')
-  .tag-template
-    span {{data.title}}
+.form-group
+  label.control-label Movie
+  tags-input(ng-model='item.movie' placeholder='Search movie' add-from-autocomplete-only='true' display-property='title' key-property='_id')
+    auto-complete(source='loadMovies($query)' template='movie-template' min-length='0'
+    load-on-focus='true'
+    load-on-empty='true'
+    max-results-to-show='32')
+  script(type='text/ng-template' id='movie-template')
+    .tag-template
+      span {{data.title}}
+
+.form-group
+  label.control-label Episodes
+  tags-input(ng-model='item.episodes' placeholder='Search episode' add-from-autocomplete-only='true' display-property='title' key-property='_id')
+    auto-complete(source='loadEpisodes($query)' template='episode-template' min-length='0'
+    load-on-focus='true'
+    load-on-empty='true'
+    max-results-to-show='32')
+  script(type='text/ng-template' id='episode-template')
+    .tag-template
+      span {{data.title}}
 

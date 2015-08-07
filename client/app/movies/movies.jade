@@ -1,8 +1,21 @@
-tags-input(ng-model='item.categorys' placeholder='Search category' add-from-autocomplete-only='true' display-property='label' key-property='_id')
-  auto-complete(source='loadCategorys($query)' template='category-template' min-length='0'
-  load-on-focus='true'
-  load-on-empty='true'
-  max-results-to-show='32')
-script(type='text/ng-template' id='category-template')
-  .tag-template
-    span {{data.label}}
+.form-group
+  label.control-label Category
+  tags-input(ng-model='item.categorys' placeholder='Search category' add-from-autocomplete-only='true' display-property='label' key-property='_id')
+    auto-complete(source='loadCategorys($query)' template='category-template' min-length='0'
+    load-on-focus='true'
+    load-on-empty='true'
+    max-results-to-show='32')
+  script(type='text/ng-template' id='category-template')
+    .tag-template
+      span {{data.label}}
+
+.form-group
+  label.control-label Seasons
+  tags-input(ng-model='item.seasons' placeholder='Search seasons' add-from-autocomplete-only='true' display-property='title' key-property='_id')
+    auto-complete(source='loadSeasons($query)' template='season-template' min-length='0'
+    load-on-focus='true'
+    load-on-empty='true'
+    max-results-to-show='32')
+  script(type='text/ng-template' id='season-template')
+    .tag-template
+      span {{data.title}}

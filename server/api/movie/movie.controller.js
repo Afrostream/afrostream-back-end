@@ -13,12 +13,7 @@ var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var Movie = sqldb.Movie;
 var Category = sqldb.Category;
-var keyAssoc = 'categorys';
-
-var CategoryMovies = sqldb.sequelize.define('CategoryMovies', {});
-
-Movie.belongsToMany(Category, {through: CategoryMovies, as: 'categorys'});
-Category.belongsToMany(Movie, {through: CategoryMovies, as: 'movies'});
+var Season = sqldb.Season;
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -58,9 +53,21 @@ function saveUpdates(updates) {
 function addCategorys(updates) {
   var categorys = Category.build(_.map(updates.categorys || [], _.partialRight(_.pick, '_id')));
   return function (entity) {
-    return entity.setMovies(categorys)
-      .then(function (updated) {
-        return updated;
+    return entity.setCategorys(categorys)
+      .then(function () {
+        return entity;
+      });
+  };
+}
+
+function addSeasons(updates) {
+  var seasons = Season.build(_.map(updates.seasons || [], _.partialRight(_.pick, '_id')));
+  console.log(seasons);
+  return function (entity) {
+    console.log(entity.setSeasons);
+    return entity.setSeasons(seasons)
+      .then(function () {
+        return entity;
       });
   };
 }
@@ -81,7 +88,8 @@ exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
     include: [
-      {model: Category, as: keyAssoc} // load all episodes
+      {model: Category, as: 'categorys'}, // load all episodes
+      {model: Season, as: 'seasons'} // load all seasons
     ]
   };
 
@@ -106,7 +114,8 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
-      {model: Category, as: keyAssoc} // load all categorys
+      {model: Category, as: 'categorys'}, // load all categorys
+      {model: Season, as: 'seasons'} // load all seasons
     ]
   })
     .then(handleEntityNotFound(res))
@@ -134,6 +143,7 @@ exports.update = function (req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addCategorys(req.body))
+    .then(addSeasons(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
