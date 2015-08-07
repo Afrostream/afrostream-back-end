@@ -9,7 +9,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
           rd-widget
             rd-widget-header(icon='fa-tasks' title='{{type}}')
               .row
-                input.form-control.input-sm(type='text' placeholder='Find a {{type}} here.' ng-model='searchField')
+                input.form-control.input-sm(type='text' placeholder='Find a {{type}} here.' ng-model='$parent.$parent.searchField')
               .row
                 button.btn.btn-xs.btn-primary.pull-right(ng-click='newItem()')
                   span.glyphicon.glyphicon-plus
@@ -22,7 +22,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                       td
                         .thumbnail
                           img.poster.img-responsive(src='{{item.poster}}')
-                      td.text-right.text-nowrap
+                      td.text-right.text-xcvcvxcv
                         strong {{item.title}}
                         br
                         span.text-muted {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
