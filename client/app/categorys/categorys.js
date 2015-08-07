@@ -5,8 +5,8 @@ angular.module('afrostreamAdminApp')
     $stateProvider
       .state('categorys', {
         url: '/categorys',
-        templateUrl: 'app/movies/movies.html',
-        controller: 'MoviesCtrl',
+        templateUrl: 'app/data/data.html',
+        controller: 'DataCtrl',
         type: 'category'
       });
   });

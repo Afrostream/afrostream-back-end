@@ -56,7 +56,7 @@ function addEpisodes(updates) {
   var episodes = Episode.build(_.map(updates.episodes || [], _.partialRight(_.pick, '_id')));
   //var episodes = updates.episodes || [];
   return function (entity) {
-    return entity.addEpisodes(episodes)
+    return entity.setEpisodes(episodes)
       .then(function (updated) {
         return updated;
       });
@@ -100,21 +100,6 @@ exports.show = function (req, res) {
     .catch(handleError(res));
 };
 
-// Gets all episodes linked from the DB
-exports.getEpisodes = function (req, res) {
-  Season.find({
-    where: {
-      _id: req.params.id
-    },
-    include: [
-      {model: Episode, as: episodeKeyAssoc} // load all episodes
-    ]
-  })
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
-
 // Creates a new season in the DB
 exports.create = function (req, res) {
   Season.create(req.body)
@@ -130,10 +115,7 @@ exports.update = function (req, res) {
   Season.find({
     where: {
       _id: req.params.id
-    },
-    include: [
-      {model: Episode, as: episodeKeyAssoc} // load all episodes
-    ]
+    }
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))

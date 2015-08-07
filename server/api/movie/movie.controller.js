@@ -12,17 +12,26 @@
 var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var Movie = sqldb.Movie;
+var Category = sqldb.Category;
+var keyAssoc = 'categorys';
+
+var MovieCategorys = sqldb.sequelize.define('MovieCategorys', {
+  status: sqldb.Sequelize.STRING
+});
+
+Movie.belongsToMany(Category, {through: MovieCategorys, as: 'categorys'});
+Category.belongsToMany(Movie, {through: MovieCategorys, as: 'movies'});
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
-  return function(err) {
+  return function (err) {
     res.status(statusCode).send(err);
   };
 }
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -30,7 +39,7 @@ function responseWithResult(res, statusCode) {
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end();
       return null;
@@ -40,19 +49,29 @@ function handleEntityNotFound(res) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
+  return function (entity) {
     return entity.updateAttributes(updates)
-      .then(function(updated) {
+      .then(function (updated) {
+        return updated;
+      });
+  };
+}
+
+function addCategorys(updates) {
+  var categorys = Category.build(_.map(updates.categorys || [], _.partialRight(_.pick, '_id')));
+  return function (entity) {
+    return entity.setMovies(categorys)
+      .then(function (updated) {
         return updated;
       });
   };
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       return entity.destroy()
-        .then(function() {
+        .then(function () {
           res.status(204).end();
         });
     }
@@ -60,18 +79,37 @@ function removeEntity(res) {
 }
 
 // Gets a list of movies
-exports.index = function(req, res) {
-  Movie.findAll()
+exports.index = function (req, res) {
+  var queryName = req.param('query');
+  var paramsObj = {
+    include: [
+      {model: Category, as: keyAssoc} // load all episodes
+    ]
+  };
+
+  if (queryName) {
+    paramsObj = _.merge(paramsObj, {
+      where: {
+        title: {$notILike: '%' + queryName}
+      }
+    })
+  }
+
+  Movie.findAll(paramsObj)
+    .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
 
 // Gets a single movie from the DB
-exports.show = function(req, res) {
+exports.show = function (req, res) {
   Movie.find({
     where: {
       _id: req.params.id
-    }
+    },
+    include: [
+      {model: Category, as: keyAssoc} // load all categorys
+    ]
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
@@ -79,14 +117,14 @@ exports.show = function(req, res) {
 };
 
 // Creates a new movie in the DB
-exports.create = function(req, res) {
+exports.create = function (req, res) {
   Movie.create(req.body)
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
 
 // Updates an existing movie in the DB
-exports.update = function(req, res) {
+exports.update = function (req, res) {
   if (req.body._id) {
     delete req.body._id;
   }
@@ -97,12 +135,13 @@ exports.update = function(req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
+    .then(addCategorys(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
 
 // Deletes a movie from the DB
-exports.destroy = function(req, res) {
+exports.destroy = function (req, res) {
   Movie.find({
     where: {
       _id: req.params.id

@@ -6,8 +6,23 @@
 'use strict';
 
 var sqldb = require('../sqldb');
+var Category = sqldb.Category;
 var Movie = sqldb.Movie;
 var User = sqldb.User;
+
+Category.sync()
+  .then(function () {
+    return Category.destroy({where: {}});
+  })
+  .then(function () {
+    Category.bulkCreate([{
+      label: 'Sélection',
+      slug: 'selection'
+    }, {
+      label: 'Nouveauté',
+      slug: 'nouveaute'
+    }]);
+  });
 
 Movie.sync()
   .then(function () {
@@ -15,13 +30,13 @@ Movie.sync()
   })
   .then(function () {
     Movie.bulkCreate([{
-      title: 'Development Tools',
+      title: 'In the mood for love',
       synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
       'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
       'Stylus, Sass, CoffeeScript, and Less.',
       poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
     }, {
-      title: 'Server and Client integration',
+      title: 'Shauwn the sheep',
       synopsis: 'Built with a powerful and fun stack: MongoDB, Express, ' +
       'AngularJS, and Node.',
       poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'

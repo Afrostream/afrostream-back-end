@@ -5,7 +5,8 @@ angular.module('afrostreamAdminApp')
     $stateProvider
       .state('assets', {
         url: '/assets',
-        templateUrl: 'app/assets/assets.html',
-        controller: 'AssetsCtrl'
+        templateUrl: 'app/data/data.html',
+        controller: 'DataCtrl',
+        type: 'asset'
       });
   });
