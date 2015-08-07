@@ -6,7 +6,7 @@ angular.module('afrostreamAdminApp')
     $scope.items = [];
     $scope.currentItem = {};
     $scope.searchField = '';
-    
+
     var modalOpts = {
       templateUrl: 'app/modal/modal.html', // Url du template HTML
       controller: 'ModalDialogCtrl',

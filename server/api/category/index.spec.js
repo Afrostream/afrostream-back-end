@@ -34,7 +34,7 @@ describe('Category API Router:', function() {
     categoryIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/categories', function() {
+  describe('GET /api/categorys', function() {
 
     it('should route to category.controller.index', function() {
       routerStub.get
@@ -44,7 +44,7 @@ describe('Category API Router:', function() {
 
   });
 
-  describe('GET /api/categories/:id', function() {
+  describe('GET /api/categorys/:id', function() {
 
     it('should route to category.controller.show', function() {
       routerStub.get
@@ -54,7 +54,7 @@ describe('Category API Router:', function() {
 
   });
 
-  describe('POST /api/categories', function() {
+  describe('POST /api/categorys', function() {
 
     it('should route to category.controller.create', function() {
       routerStub.post
@@ -64,7 +64,7 @@ describe('Category API Router:', function() {
 
   });
 
-  describe('PUT /api/categories/:id', function() {
+  describe('PUT /api/categorys/:id', function() {
 
     it('should route to category.controller.update', function() {
       routerStub.put
@@ -74,7 +74,7 @@ describe('Category API Router:', function() {
 
   });
 
-  describe('PATCH /api/categories/:id', function() {
+  describe('PATCH /api/categorys/:id', function() {
 
     it('should route to category.controller.update', function() {
       routerStub.patch
@@ -84,7 +84,7 @@ describe('Category API Router:', function() {
 
   });
 
-  describe('DELETE /api/categories/:id', function() {
+  describe('DELETE /api/categorys/:id', function() {
 
     it('should route to category.controller.destroy', function() {
       routerStub.delete

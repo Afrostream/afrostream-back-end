@@ -17,19 +17,34 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
             rd-widget-body.medium.no-padding
               .table-responsive
                 table.table
+                  colgroup
+                    col.col-md-1
+                    col.col-md-2(ng-if='type !== "category"')
+                    col.col-md-7
+                    col.col-md-1
+                    col.col-md-1
+                  thead
+                    tr
+                      th.text-center ID
+                      th.text-center(ng-if='type !== "category"') Thumb
+                      th.text-center Title
+                      th.text-center In prod
+                      th.text-center Actions
                   tbody
                     tr(ng-repeat='item in items | filter:searchField')
-                      td
+                      td.text-center
+                        span {{item._id}}
+                      td(ng-if='item.poster')
                         .thumbnail
                           img.poster.img-responsive(src='{{item.poster}}')
-                      td.text-right.text-xcvcvxcv
-                        strong {{item.title}}
+                      td.text-center
+                        strong {{item.title || item.label}}
                         br
                         span.text-muted {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
-                      td
+                      td.text-center
                         span.text-success
                           i.fa(class='fa-check')
-                      td
+                      td.pull-right
                         button.btn.btn-xs.btn-primary(ng-click='editItem(item)')
                           span.glyphicon.glyphicon-pencil
                         button.btn.btn-xs.btn-danger(ng-click='deleteItem(item)')

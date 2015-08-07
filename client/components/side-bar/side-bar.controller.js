@@ -7,6 +7,10 @@ angular.module('afrostreamAdminApp')
       'state': 'main',
       'icon': 'fa-tachometer'
     }, {
+      'title': 'Categorys',
+      'state': 'categorys',
+      'icon': 'fa-bookmark'
+    }, {
       'title': 'Movies',
       'state': 'movies',
       'icon': 'fa-video-camera'

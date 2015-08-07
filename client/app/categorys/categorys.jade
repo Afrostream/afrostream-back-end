@@ -1,0 +1,5 @@
+.form-group
+  label(for='label').control-label Label
+  input.form-control(id='label' type='text' ng-model='item.label' ng-change='slugify(item.label)' placeholder='Label')
+  label(for='slug').control-label Slug
+  input.form-control(id='slug' type='text' ng-model='item.slug' placeholder='Slug url')

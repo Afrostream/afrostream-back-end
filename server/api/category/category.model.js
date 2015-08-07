@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(sequelize, DataTypes) {
+module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Category', {
     _id: {
       type: DataTypes.INTEGER,
@@ -8,8 +8,8 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true,
       autoIncrement: true
     },
-    name: DataTypes.STRING,
-    info: DataTypes.STRING,
+    label: DataTypes.STRING,
+    slug: DataTypes.STRING,
     active: DataTypes.BOOLEAN
   });
 };

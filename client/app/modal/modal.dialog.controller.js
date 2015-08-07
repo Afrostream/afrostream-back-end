@@ -41,7 +41,7 @@ angular.module('afrostreamAdminApp')
     };
 
     $scope.addItem = function () {
-      $http.post('/api/' + type + 's', $scope.item).then(function (result) {
+      $http.post('/api/' + $scope.directiveType, $scope.item).then(function (result) {
         ngToast.create({
           content: 'La ' + $scope.item.type + ' ' + result.data.title + ' à été ajoutée au catalogue'
         });
@@ -53,7 +53,7 @@ angular.module('afrostreamAdminApp')
     };
 
     $scope.updateItem = function () {
-      $http.put('/api/' + type + 's/' + $scope.item._id, $scope.item).then(function (result) {
+      $http.put('/api/' + $scope.directiveType + '/' + $scope.item._id, $scope.item).then(function (result) {
         ngToast.create({
           content: 'La ' + $scope.item.type + ' ' + result.data.title + ' à été mise a jour'
         });
@@ -65,7 +65,7 @@ angular.module('afrostreamAdminApp')
     };
 
     $scope.deleteItem = function () {
-      $http.delete('/api/' + type + 's/' + $scope.item._id).then(function (result) {
+      $http.delete('/api/' + $scope.directiveType + '/' + $scope.item._id).then(function (result) {
         ngToast.create({
           content: 'La ' + $scope.item.type + ' ' + result.data.title + ' à été supprimée du catalogue'
         });
