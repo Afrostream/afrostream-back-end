@@ -18,6 +18,9 @@ function onConnect(socket) {
   });
 
   // Insert sockets below
+  require('../api/comment/comment.socket').register(socket);
+  require('../api/caption/caption.socket').register(socket);
+  require('../api/video/video.socket').register(socket);
   require('../api/image/image.socket').register(socket);
   require('../api/asset/asset.socket').register(socket);
   require('../api/episode/episode.socket').register(socket);
