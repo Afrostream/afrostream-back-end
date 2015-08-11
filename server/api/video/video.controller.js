@@ -51,9 +51,9 @@ function saveUpdates(updates) {
 }
 
 function addAssets(updates) {
-  var assets = Asset.build(updates.assets || []);
+  var assets = Asset.build(updates.sources || []);
   return function (entity) {
-    return entity.setAssets(assets)
+    return entity.setSources(assets)
       .then(function () {
         return entity;
       });
@@ -86,7 +86,7 @@ exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
     include: [
-      {model: Asset, as: 'assets'}, // load all sources assets
+      {model: Asset, as: 'sources'}, // load all sources assets
       {model: Caption, as: 'captions'} // load all sources captions
     ]
   };

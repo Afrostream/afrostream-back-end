@@ -141,11 +141,17 @@ db.Episode.belongsToMany(db.Season, {through: SeasonEpisodes, as: 'season'});
 //db.Video.belongsToMany(db.Caption, {through: VideoCaptions, as: 'captions'});
 //db.Caption.belongsTo(db.Video, {through: VideoCaptions, as: 'video', foreignKey: 'videoId', constraints: false});
 
-db.Video.hasMany(db.Asset, {as: 'assets', foreignKey: '_id', constraints: false});
-db.Asset.belongsTo(db.Video, {as: 'video', foreignKey: '_id', constraints: false});
+//db.Video.hasMany(db.Asset, {as: 'assets', foreignKey: '_id', constraints: false});
+//db.Video.hasMany(db.Asset, {as: 'assets', foreignKey: '_id', constraints: false});
+db.Video.belongsToMany(db.Asset, {through: VideoAssets, as: 'sources'});
+db.Asset.belongsToMany(db.Video, {through: VideoAssets, as: 'videos'});
+//db.Asset.belongsTo(db.Video, {as: 'video', foreignKey: '_id', constraints: false});
 //
-db.Video.hasMany(db.Caption, {as: 'captions', foreignKey: '_id', constraints: false});
-db.Caption.belongsTo(db.Video, {as: 'video', foreignKey: '_id', constraints: false});
+//db.Video.hasMany(db.Caption, {as: 'captions', foreignKey: '_id', constraints: false});
+//db.Video.hasMany(db.Caption, {as: 'captions', foreignKey: '_id', constraints: false});
+db.Video.belongsToMany(db.Caption, {through: VideoCaptions, as: 'captions'});
+db.Caption.belongsToMany(db.Video, {through: VideoCaptions, as: 'videos'});
+//db.Caption.belongsTo(db.Video, {as: 'video', foreignKey: '_id', constraints: false});
 
 //db.Video.hasMany(db.Asset, {as: 'sources'});
 //db.Asset.belongsTo(db.Video, {as: 'video', foreignKey: 'videoId', constraints: false});
