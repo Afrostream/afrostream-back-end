@@ -122,11 +122,18 @@ db.Category.belongsToMany(db.Movie, {through: CategoryMovies, as: 'movies'});
 
 
 db.Movie.belongsToMany(db.Season, {through: MovieSeasons, as: 'seasons'});
-db.Season.belongsTo(db.Movie, {through: MovieSeasons, as: 'movie', foreignKey: 'movieId'});
+db.Season.belongsToMany(db.Movie, {through: MovieSeasons, as: 'movie'});
 
 
 db.Season.belongsToMany(db.Episode, {through: SeasonEpisodes, as: 'episodes'});
-db.Episode.belongsTo(db.Season, {through: SeasonEpisodes, as: 'season', foreignKey: 'seasonId'});
+db.Episode.belongsToMany(db.Season, {through: SeasonEpisodes, as: 'season'});
+
+//db.Movie.hasMany(db.Season, {as: 'seasons', foreignKey: 'movieId', constraints: false});
+//db.Season.hasOne(db.Movie, {as: 'movie', foreignKey: '_id', constraints: false});
+//
+//
+//db.Season.hasMany(db.Episode, {as: 'episodes', foreignKey: 'seasonId', constraints: false});
+//db.Episode.belongsTo(db.Season, {as: 'season', foreignKey: '_id', constraints: false});
 
 //db.Video.belongsToMany(db.Asset, {through: VideoAssets, as: 'assets', foreignKey: '_id'});
 //db.Asset.belongsTo(db.Video, {through: VideoAssets, as: 'video', foreignKey: 'videoId', constraints: false});
