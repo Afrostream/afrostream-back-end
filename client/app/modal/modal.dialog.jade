@@ -4,7 +4,16 @@
 .modal-body
   form.form-horizontal(role='form')
 
-    div(ng-if='type !== "category"')
+    div(ng-if='type === "category"')
+      categorys
+
+    div(ng-if='type === "video"')
+      videos
+
+    div(ng-if='type === "language"')
+      languages
+
+    div(ng-if='type !== "category" && type !== "video" && type !== "language"')
       .form-group
         label(for='type').control-label Type
       .form-group
@@ -56,11 +65,6 @@
       seasons(ng-if='isSeason()')
 
       episodes(ng-if='isEpisode()')
-
-    div(ng-if='type == "category"')
-      categorys
-
-
 
 .modal-footer
   button.btn.btn-primary(type='submit' ng-click='addItem()' ng-if='!item._id') Add

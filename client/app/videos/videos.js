@@ -3,10 +3,10 @@
 angular.module('afrostreamAdminApp')
   .config(function ($stateProvider) {
     $stateProvider
-      .state('assets', {
-        url: '/assets',
+      .state('videos', {
+        url: '/videos',
         templateUrl: 'app/data/data.html',
         controller: 'DataCtrl',
-        type: 'asset'
+        type: 'video'
       });
   });

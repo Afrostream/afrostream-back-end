@@ -23,9 +23,13 @@ angular.module('afrostreamAdminApp')
       'state': 'episodes',
       'icon': 'fa-ticket'
     }, {
-      'title': 'Assets',
-      'state': 'assets',
+      'title': 'Videos',
+      'state': 'videos',
       'icon': 'fa-file-video-o'
+    }, {
+      'title': 'Languages',
+      'state': 'languages',
+      'icon': 'fa-globe'
     }, {
       'title': 'Users',
       'state': 'users',

@@ -35,8 +35,8 @@ describe('Asset API:', function() {
       request(app)
         .post('/api/assets')
         .send({
-          name: 'New Asset',
-          info: 'This is the brand new asset!!!'
+          src: 'New Asset',
+          type: 'This is the brand new asset!!!'
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -50,21 +50,21 @@ describe('Asset API:', function() {
     });
 
     it('should respond with the newly created asset', function() {
-      newAsset.name.should.equal('New Asset');
-      newAsset.info.should.equal('This is the brand new asset!!!');
+      newAsset.src.should.equal('New Asset');
+      newAsset.type.should.equal('This is the brand new asset!!!');
     });
 
   });
 
-  describe('GET /api/assets/:id', function() {
+  describe('GET /api/assets/:id', function () {
     var asset;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/assets/' + newAsset._id)
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -73,30 +73,30 @@ describe('Asset API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       asset = {};
     });
 
-    it('should respond with the requested asset', function() {
-      asset.name.should.equal('New Asset');
-      asset.info.should.equal('This is the brand new asset!!!');
+    it('should respond with the requested asset', function () {
+      asset.src.should.equal('New Asset');
+      asset.type.should.equal('This is the brand new asset!!!');
     });
 
   });
 
-  describe('PUT /api/assets/:id', function() {
+  describe('PUT /api/assets/:id', function () {
     var updatedAsset
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/assets/' + newAsset._id)
         .send({
-          name: 'Updated Asset',
-          info: 'This is the updated asset!!!'
+          src: 'Updated Asset',
+          type: 'This is the updated asset!!!'
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,13 +105,13 @@ describe('Asset API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedAsset = {};
     });
 
-    it('should respond with the updated asset', function() {
-      updatedAsset.name.should.equal('Updated Asset');
-      updatedAsset.info.should.equal('This is the updated asset!!!');
+    it('should respond with the updated asset', function () {
+      updatedAsset.src.should.equal('Updated Asset');
+      updatedAsset.type.should.equal('This is the updated asset!!!');
     });
 
   });

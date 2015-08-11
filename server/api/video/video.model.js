@@ -3,16 +3,15 @@
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Video', {
     _id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       allowNull: false,
-      primaryKey: true,
-      autoIncrement: true
+      primaryKey: true
     },
     name: DataTypes.STRING,
     info: DataTypes.STRING,
-    captions: DataTypes.STRING,
-    videoId: DataTypes.INTEGER,
-    captionId: DataTypes.INTEGER,
+    assetId: DataTypes.UUID,
+    captionId: DataTypes.UUID,
     active: DataTypes.BOOLEAN
   });
 };

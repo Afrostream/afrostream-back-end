@@ -3,23 +3,14 @@
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Asset', {
     _id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       allowNull: false,
-      primaryKey: true,
-      autoIncrement: true
+      primaryKey: true
     },
-    sources: {
-      type: DataTypes.STRING,
-      get: function () {
-        return JSON.parse(this.getDataValue('sources'));
-      },
-      set: function (val) {
-        return this.setDataValue('sources', JSON.stringify(val));
-      }
-    },
-    name: DataTypes.STRING,
-    info: DataTypes.STRING,
-    episode: DataTypes.INTEGER,
+    src: DataTypes.STRING,
+    type: DataTypes.STRING,
+    videoId: DataTypes.UUID,
     active: DataTypes.BOOLEAN
   });
 };

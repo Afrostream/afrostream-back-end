@@ -3,40 +3,40 @@
 var app = require('../../app');
 var request = require('supertest');
 
-var newCaption;
+var newLanguage;
 
-describe('Caption API:', function () {
+describe('Language API:', function () {
 
-  describe('GET /api/captions', function () {
-    var captions;
+  describe('GET /api/languages', function () {
+    var languages;
 
     beforeEach(function (done) {
       request(app)
-        .get('/api/captions')
+        .get('/api/languages')
         .expect(200)
         .expect('Content-Type', /json/)
         .end(function (err, res) {
           if (err) {
             return done(err);
           }
-          captions = res.body;
+          languages = res.body;
           done();
         });
     });
 
     it('should respond with JSON array', function () {
-      captions.should.be.instanceOf(Array);
+      languages.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/captions', function () {
+  describe('POST /api/languages', function () {
     beforeEach(function (done) {
       request(app)
-        .post('/api/captions')
+        .post('/api/languages')
         .send({
-          label: 'New Caption',
-          lang: 'This is the brand new caption!!!'
+          label: 'New Language',
+          lang: 'This is the brand new language!!!'
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -44,55 +44,55 @@ describe('Caption API:', function () {
           if (err) {
             return done(err);
           }
-          newCaption = res.body;
+          newLanguage = res.body;
           done();
         });
     });
 
-    it('should respond with the newly created caption', function () {
-      newCaption.label.should.equal('New Caption');
-      newCaption.lang.should.equal('This is the brand new caption!!!');
+    it('should respond with the newly created language', function () {
+      newLanguage.label.should.equal('New Language');
+      newLanguage.lang.should.equal('This is the brand new language!!!');
     });
 
   });
 
-  describe('GET /api/captions/:id', function () {
-    var caption;
+  describe('GET /api/languages/:id', function () {
+    var language;
 
     beforeEach(function (done) {
       request(app)
-        .get('/api/captions/' + newCaption._id)
+        .get('/api/languages/' + newLanguage._id)
         .expect(200)
         .expect('Content-Type', /json/)
         .end(function (err, res) {
           if (err) {
             return done(err);
           }
-          caption = res.body;
+          language = res.body;
           done();
         });
     });
 
     afterEach(function () {
-      caption = {};
+      language = {};
     });
 
-    it('should respond with the requested caption', function () {
-      caption.label.should.equal('New Caption');
-      caption.lang.should.equal('This is the brand new caption!!!');
+    it('should respond with the requested language', function () {
+      language.label.should.equal('New Language');
+      language.lang.should.equal('This is the brand new language!!!');
     });
 
   });
 
-  describe('PUT /api/captions/:id', function () {
-    var updatedCaption
+  describe('PUT /api/languages/:id', function () {
+    var updatedLanguage
 
     beforeEach(function (done) {
       request(app)
-        .put('/api/captions/' + newCaption._id)
+        .put('/api/languages/' + newLanguage._id)
         .send({
-          label: 'Updated Caption',
-          lang: 'This is the updated caption!!!'
+          label: 'Updated Language',
+          lang: 'This is the updated language!!!'
         })
         .expect(200)
         .expect('Content-Type', /json/)
@@ -100,27 +100,27 @@ describe('Caption API:', function () {
           if (err) {
             return done(err);
           }
-          updatedCaption = res.body;
+          updatedLanguage = res.body;
           done();
         });
     });
 
     afterEach(function () {
-      updatedCaption = {};
+      updatedLanguage = {};
     });
 
-    it('should respond with the updated caption', function () {
-      updatedCaption.label.should.equal('Updated Caption');
-      updatedCaption.lang.should.equal('This is the updated caption!!!');
+    it('should respond with the updated language', function () {
+      updatedLanguage.label.should.equal('Updated Language');
+      updatedLanguage.lang.should.equal('This is the updated language!!!');
     });
 
   });
 
-  describe('DELETE /api/captions/:id', function () {
+  describe('DELETE /api/languages/:id', function () {
 
     it('should respond with 204 on successful removal', function (done) {
       request(app)
-        .delete('/api/captions/' + newCaption._id)
+        .delete('/api/languages/' + newLanguage._id)
         .expect(204)
         .end(function (err, res) {
           if (err) {
@@ -130,9 +130,9 @@ describe('Caption API:', function () {
         });
     });
 
-    it('should respond with 404 when caption does not exist', function (done) {
+    it('should respond with 404 when language does not exist', function (done) {
       request(app)
-        .delete('/api/captions/' + newCaption._id)
+        .delete('/api/languages/' + newLanguage._id)
         .expect(404)
         .end(function (err, res) {
           if (err) {

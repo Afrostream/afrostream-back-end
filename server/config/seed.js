@@ -10,6 +10,7 @@ var Category = sqldb.Category;
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;
+var Language = sqldb.Language;
 var User = sqldb.User;
 
 Category.sync()
@@ -78,6 +79,17 @@ Season.sync()
       'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
       'Stylus, Sass, CoffeeScript, and Less.',
       poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
+    }]);
+  });
+
+Language.sync()
+  .then(function () {
+    return Language.destroy({where: {}});
+  })
+  .then(function () {
+    Language.bulkCreate([{
+      label: 'Français',
+      lang: 'fr'
     }]);
   });
 

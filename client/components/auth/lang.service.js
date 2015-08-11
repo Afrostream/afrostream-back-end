@@ -1,18 +1,15 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .factory('Asset', function ($resource) {
-    return $resource('/api/assets/:id/:controller', {
+  .factory('Lang', function ($resource) {
+    return $resource('/api/languages/:id/:controller', {
         id: '@_id'
       },
       {
-        update: {
-          method: 'PUT'
-        },
         get: {
           method: 'GET',
           params: {
-            id: 'me'
+            id: '0'
           }
         }
       });
