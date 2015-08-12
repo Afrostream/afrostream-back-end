@@ -13,11 +13,19 @@
   .row
     h3 Upload Queue
     table.table
+      colgroup
+        col.col-md-2
+        col.col-md-1
+        col.col-md-2
+        col.col-md-3
+        col.col-md-1
+        col.col-md-3
       thead
         tr
           th Name
           th(ng-show='uploader.isHTML5') Size
           th(ng-show='uploader.isHTML5') Progress
+          th Type
           th Status
           th Actions
       tbody
@@ -26,8 +34,16 @@
             strong {{item.file.name}}
           td(ng-show='uploader.isHTML5') {{ item.file.size/1024/1024|number:2 }} MB
           td(ng-show='uploader.isHTML5')
-            .progress
-              .progress-bar(role='progressbar' ng-style="{ 'width': item.progress + '%' }")
+            .progress.progress-striped.active
+              .progress-bar(role='progressbar' type='dynamic' ng-style="{ 'width': item.isUploading * item.progress + '%' }")
+          td.text-center
+            .btn-group
+              button.btn.btn-xs.btn-info(ng-model='item.file.imgType' btn-radio='"poster"' )
+                span Poster
+              button.btn.btn-xs.btn-info(ng-model='item.file.imgType' btn-radio='"thumb"' )
+                span Thumb
+              button.btn.btn-xs.btn-info(ng-model='item.file.imgType' btn-radio='"logo"' )
+                span Logo
           td.text-center
             span(ng-show='item.isSuccess')
               i.glyphicon.glyphicon-ok
@@ -36,17 +52,18 @@
             span(ng-show='item.isError')
               i.glyphicon.glyphicon-remove
           td(nowrap)
-            button.btn.btn-success.btn-xs(type='button' ng-click='item.upload()' ng-disabled='item.isReady || item.isUploading || item.isSuccess' )
-              span.glyphicon.glyphicon-upload Upload
-            button.btn.btn-success.btn-xs(type='button' ng-click='item.cancel()' ng-disabled='!item.isUploading' )
-              span.glyphicon.glyphicon-ban-circle Cancel
-            button.btn.btn-success.btn-xs(type='button' ng-click='item.remove()' )
-              span.glyphicon.glyphicon-trash Remove
+            .btn-group
+              button.btn.btn-success.btn-xs(type='button' ng-click='item.upload()' ng-disabled='item.isReady || item.isUploading || item.isSuccess' )
+                span.glyphicon.glyphicon-upload Upload
+              button.btn.btn-success.btn-xs(type='button' ng-click='item.cancel()' ng-disabled='!item.isUploading' )
+                span.glyphicon.glyphicon-ban-circle Cancel
+              button.btn.btn-success.btn-xs(type='button' ng-click='item.remove()' )
+                span.glyphicon.glyphicon-trash Remove
 
   div
     div Queue progress
-      .progress
-        .progress-bar(role='progressbar' ng-style="{ 'width': uploader.progress + '%' }")
+      .progress.progress-striped.active
+        .progress-bar(role='progressbar' type='dynamic' ng-style="{ 'width': uploader.isUploading *uploader.progress + '%' }")
 
       button.btn.btn-success.btn-s(type='button' ng-click='uploader.uploadAll()' ng-disabled='!uploader.getNotUploadedItems().length' )
         span.glyphicon.glyphicon-upload Upload All

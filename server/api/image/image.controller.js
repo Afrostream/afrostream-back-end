@@ -101,6 +101,8 @@ exports.show = function (req, res) {
 
 // Creates a new image in the DB
 exports.create = function (req, res) {
+  var itemData = {imgType: 'poster'};
+
   req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
     if (!filename) {
       // If filename is not truthy it means there's no file
@@ -127,8 +129,9 @@ exports.create = function (req, res) {
       var datePrefix = moment().format('YYYY[/]MM');
       var key = crypto.randomBytes(10).toString('hex');
       var hashFilename = key + '-' + filename;
+      var fileType = itemData.imgType || 'poster';
 
-      var pathFile = '/poster/' + datePrefix + '/' + hashFilename;
+      var pathFile = '/' + fileType + '/' + datePrefix + '/' + hashFilename;
 
       var headers = {
         'Content-Length': finalBuffer.length,
@@ -146,7 +149,7 @@ exports.create = function (req, res) {
           return handleError(res);
         }
         Image.create({
-          type: 'poster',
+          type: fileType,
           path: response.req.path,
           url: response.req.url,
           mimetype: mimetype,
@@ -165,6 +168,9 @@ exports.create = function (req, res) {
     handleError(err)
   });
 
+  req.busboy.on('field', function (fieldname, val) {
+    itemData[fieldname] = val;
+  });
   // Start the parsing
   req.pipe(req.busboy);
 };
