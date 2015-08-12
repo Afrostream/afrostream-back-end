@@ -3,7 +3,7 @@ script(type='text/ng-template' id='imagesTemplate.html')
     img(ng-src='{{match.model.imgix}}?fit=crop&w=100&h=30')
     span(ng-bind-html='match.label | typeaheadHighlight:query')
 
-.modal-header(style='background-image:url({{item.poster.imgix}}?fit=crop&w=600&h=200);')
+.modal-header(style='background-image:url({{item.poster.imgix}}?fit=crop&w=1000&h=200);')
   button.close(data-dismiss='modal' aria-hidden='true')
   h4.modal-title {{item.title | limitTo:50}}
 .modal-body
@@ -40,11 +40,11 @@ script(type='text/ng-template' id='imagesTemplate.html')
       .form-group
         label(for='poster').control-label Poster
         //input.form-control(id='poster' type='text' ng-model='item.poster' placeholder='Poster Url/Id')
-        input.form-control(type='text' ng-model='item.poster' placeholder='Search poster' typeahead='image as image.name for image in loadImages($viewVal,"poster") | limitTo: 5' typeahead-template-url='imagesTemplate.html' typeahead-min-length='3')
+        input.form-control(type='text' ng-model='item.poster' placeholder='Search poster' typeahead='image as image.name for image in loadImages($viewValue,"poster") | limitTo: 5' typeahead-template-url='imagesTemplate.html')
 
       .form-group
         label(for='thumb').control-label Thumb
-        input.form-control(type='text' ng-model='item.thumb' placeholder='Search thumb' typeahead='image as image.name for image in loadImages($viewVal, "thumb") | limitTo: 30' typeahead-template-url='imagesTemplate.html' typeahead-min-length='3')
+        input.form-control(type='text' ng-model='item.thumb' placeholder='Search thumb' typeahead='image as image.name for image in loadImages($viewValue, "thumb") | limitTo: 30' typeahead-template-url='imagesTemplate.html')
 
 
       .form-group

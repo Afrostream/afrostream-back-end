@@ -10,7 +10,7 @@ angular.module('afrostreamAdminApp')
           method: 'PUT',
           params: {}
         },
-        getInfo: {
+        get: {
           method: 'GET',
           params: {
             id: '0'

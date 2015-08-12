@@ -112,11 +112,11 @@ exports.index = function (req, res) {
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: {
-        title: {$notILike: '%' + queryName}
+        title: {$iLike: '%' + queryName + '%'}
       }
     })
   }
-
+  console.log(paramsObj)
   Movie.findAll(paramsObj)
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))

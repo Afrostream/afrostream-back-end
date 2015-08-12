@@ -94,7 +94,7 @@ exports.index = function (req, res) {
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: {
-        name: {$notILike: '%' + queryName}
+        name: {$iLike: '%' + queryName + '%'}
       }
     });
   }
