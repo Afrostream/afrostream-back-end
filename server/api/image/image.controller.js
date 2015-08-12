@@ -82,7 +82,20 @@ function removeEntity(res) {
 
 // Gets a list of images
 exports.index = function (req, res) {
-  Image.findAll()
+  var queryName = req.param('query');
+  var typeName = req.param('type');
+  var paramsObj = {};
+
+  if (queryName) {
+    paramsObj = _.merge(paramsObj, {
+      where: {
+        name: {$notILike: '%' + queryName},
+        type: typeName || 'poster'
+      }
+    })
+  }
+
+  Image.findAll(paramsObj)
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
