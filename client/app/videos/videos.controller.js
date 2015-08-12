@@ -12,7 +12,7 @@ angular.module('afrostreamAdminApp')
       'application/dash+xml'
     ];
 
-    $scope.item.assets = $scope.item.assets || [];
+    $scope.item.sources = $scope.item.sources || [];
     $scope.item.captions = $scope.item.captions || [];
 
     $scope.newAsset = function (data) {
@@ -27,10 +27,10 @@ angular.module('afrostreamAdminApp')
     $scope.removeAsset = function (asset, $index) {
       if (asset._id) {
         Asset.remove({id: asset._id}).$promise.then(function () {
-          $scope.item.assets.splice($index, 1);
+          $scope.item.sources.splice($index, 1);
         });
       } else {
-        $scope.item.assets.splice($index, 1);
+        $scope.item.sources.splice($index, 1);
       }
     };
 

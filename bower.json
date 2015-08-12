@@ -15,11 +15,11 @@
     "angular-socket-io": "~0.7.0",
     "angular-ui-router": "~0.2.15",
     "rdash-ui": "1.0.*",
-    "angular-base64-upload": "~0.1.12",
-    "angular-file-upload": "~1.2.0",
+    "angular-file-upload": "~2.1.1",
     "angular-slugify": "~1.0.1",
     "ngtoast": "~1.5.5",
-    "ng-tags-input": "~3.0.0"
+    "ng-tags-input": "~3.0.0",
+    "ng-file-upload": "~6.0.4"
   },
   "devDependencies": {
     "angular-mocks": "~1.4.0",

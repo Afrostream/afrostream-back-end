@@ -14,6 +14,7 @@ var sqldb = require('../../sqldb');
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;
 var keyAssoc = 'season';
+var Image = sqldb.Image;
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -58,6 +59,18 @@ function addSeason(updates) {
       .then(function (updated) {
         return updated;
       });
+  };
+}
+
+function addImages(updates) {
+  return function (entity) {
+    var chainer = sqldb.Sequelize.Promise.join;
+    var poster = Image.build(updates.poster);
+    var thumb = Image.build(updates.thumb);
+    return chainer(
+      entity.setPoster(poster),
+      entity.setThumb(thumb)
+    );
   };
 }
 
@@ -113,6 +126,8 @@ exports.show = function (req, res) {
 // Creates a new episode in the DB
 exports.create = function (req, res) {
   Episode.create(req.body)
+    .then(addSeason(req.body))
+    .then(addImages(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
@@ -130,6 +145,7 @@ exports.update = function (req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addSeason(req.body))
+    .then(addImages(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };

@@ -12,10 +12,8 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.STRING,
       defaultValue: 'title'
     },
-    poster: DataTypes.STRING,
     dateFrom: DataTypes.DATE,
     dateTo: DataTypes.DATE,
-    thumb: DataTypes.STRING,
     synopsis: DataTypes.TEXT,
     type: {
       type: DataTypes.STRING,
@@ -23,8 +21,6 @@ module.exports = function (sequelize, DataTypes) {
     },
     duration: DataTypes.DECIMAL,
     seasonId: DataTypes.INTEGER,
-    rating: DataTypes.DECIMAL,
-    vote: DataTypes.DECIMAL,
     slug: DataTypes.STRING,
     active: DataTypes.BOOLEAN
   });

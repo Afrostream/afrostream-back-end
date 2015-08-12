@@ -44,10 +44,21 @@ var all = {
     }
   },
 
+  amazon: {
+    key: process.env.AWS_ACCESS_KEY_ID,
+    secret: process.env.AWS_SECRET_ACCESS_KEY,
+    s3Bucket: process.env.S3_BUCKET_NAME,
+    region: 'eu-west-1'
+  },
+
+  imgix: {
+    domain: process.env.IMGIX_DOMAIN || 'afrostream.imgix.net'
+  },
+
   google: {
-    clientID:     process.env.GOOGLE_ID || 'id',
+    clientID: process.env.GOOGLE_ID || 'id',
     clientSecret: process.env.GOOGLE_SECRET || 'secret',
-    callbackURL:  (process.env.DOMAIN || '') + '/auth/google/callback'
+    callbackURL: (process.env.DOMAIN || '') + '/auth/google/callback'
   }
 };
 

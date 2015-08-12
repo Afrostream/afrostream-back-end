@@ -10,6 +10,7 @@ angular.module('afrostreamAdminApp')
     var modalOpts = {
       templateUrl: 'app/modal/modal.html', // Url du template HTML
       controller: 'ModalDialogCtrl',
+      size: 'lg',
       scope: $scope,
       resolve: {
         item: function () {
