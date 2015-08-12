@@ -14,6 +14,7 @@ var sqldb = require('../../sqldb');
 var Movie = sqldb.Movie;
 var Category = sqldb.Category;
 var Season = sqldb.Season;
+var Image = sqldb.Image;
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -62,13 +63,26 @@ function addCategorys(updates) {
 
 function addSeasons(updates) {
   var seasons = Season.build(_.map(updates.seasons || [], _.partialRight(_.pick, '_id')));
-  console.log(seasons);
   return function (entity) {
-    console.log(entity.setSeasons);
     return entity.setSeasons(seasons)
       .then(function () {
         return entity;
       });
+  };
+}
+
+
+function addImages(updates) {
+  return function (entity) {
+    var chainer = sqldb.Sequelize.Promise.join;
+    var poster = Image.build(updates.poster);
+    var thumb = Image.build(updates.thumb);
+    var logo = Image.build(updates.logo);
+    return chainer(
+      entity.setPoster(poster),
+      entity.setThumb(thumb),
+      entity.setLogo(logo)
+    );
   };
 }
 
@@ -89,7 +103,10 @@ exports.index = function (req, res) {
   var paramsObj = {
     include: [
       {model: Category, as: 'categorys'}, // load all episodes
-      {model: Season, as: 'seasons'} // load all seasons
+      {model: Season, as: 'seasons'}, // load all seasons
+      {model: Image, as: 'logo'}, // load all seasons
+      {model: Image, as: 'poster'}, // load all seasons
+      {model: Image, as: 'thumb'} // load all seasons
     ]
   };
 
@@ -126,6 +143,9 @@ exports.show = function (req, res) {
 // Creates a new movie in the DB
 exports.create = function (req, res) {
   Movie.create(req.body)
+    .then(addCategorys(req.body))
+    .then(addSeasons(req.body))
+    .then(addImages(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
@@ -144,6 +164,7 @@ exports.update = function (req, res) {
     .then(saveUpdates(req.body))
     .then(addCategorys(req.body))
     .then(addSeasons(req.body))
+    .then(addImages(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };

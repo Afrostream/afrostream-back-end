@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('ModalDialogCtrl', function ($scope, $sce, $log, $http, $modalInstance, item, type, Slug, ngToast) {
+  .controller('ModalDialogCtrl', function ($scope, $sce, $log, $http, $modalInstance, item, type, Slug, ngToast, Image) {
 
     $scope.item = item;
 
@@ -101,5 +101,14 @@ angular.module('afrostreamAdminApp')
     };
 
     $scope.format = 'yyyy-MMMM-dd';
+
+    $scope.loadImages = function (query) {
+      var p = Image.query({query: query}).$promise;
+      p.then(function (response) {
+        console.log(response)
+        return response;
+      });
+      return p;
+    };
 
   });

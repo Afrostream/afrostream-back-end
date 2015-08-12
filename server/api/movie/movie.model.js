@@ -12,11 +12,11 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.STRING,
       defaultValue: 'title'
     },
-    poster: DataTypes.STRING,
+    //poster: DataTypes.STRING,
+    //logo: DataTypes.STRING,
+    //thumb: DataTypes.STRING,
     dateFrom: DataTypes.DATE,
     dateTo: DataTypes.DATE,
-    logo: DataTypes.STRING,
-    thumb: DataTypes.STRING,
     synopsis: DataTypes.TEXT,
     type: {
       type: DataTypes.STRING,

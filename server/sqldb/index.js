@@ -120,6 +120,10 @@ var CaptionLanguages = db.sequelize.define('CaptionLanguages', {});
 db.Movie.belongsToMany(db.Category, {through: CategoryMovies, as: 'categorys'});
 db.Category.belongsToMany(db.Movie, {through: CategoryMovies, as: 'movies'});
 
+db.Movie.hasMany(db.Image);
+db.Movie.belongsTo(db.Image, {as: 'poster', constraints: false});
+db.Movie.belongsTo(db.Image, {as: 'logo', constraints: false});
+db.Movie.belongsTo(db.Image, {as: 'thumb', constraints: false});
 
 db.Movie.belongsToMany(db.Season, {through: MovieSeasons, as: 'seasons'});
 db.Season.belongsToMany(db.Movie, {through: MovieSeasons, as: 'movie'});

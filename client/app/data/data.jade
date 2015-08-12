@@ -34,9 +34,9 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                     tr(ng-repeat='item in items | filter:searchField')
                       td.text-center
                         span {{item._id}}
-                      td(ng-if='item.poster || item.imgix')
+                      td
                         .thumbnail
-                          img.poster.img-responsive(src='{{item.poster || item.imgix}}')
+                          img.poster.img-responsive(src='{{item.poster.imgix}}')
                       td.text-center
                         strong {{item.title || item.label}}
                         br
