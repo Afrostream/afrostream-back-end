@@ -14,6 +14,7 @@ var sqldb = require('../../sqldb');
 var Season = sqldb.Season;
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
+var Image = sqldb.Image;
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -73,6 +74,18 @@ function addEpisodes(updates) {
   };
 }
 
+function addImages(updates) {
+  return function (entity) {
+    var chainer = sqldb.Sequelize.Promise.join;
+    var poster = Image.build(updates.poster);
+    var thumb = Image.build(updates.thumb);
+    return chainer(
+      entity.setPoster(poster),
+      entity.setThumb(thumb)
+    );
+  };
+}
+
 function removeEntity(res) {
   return function (entity) {
     if (entity) {
@@ -126,6 +139,9 @@ exports.show = function (req, res) {
 // Creates a new season in the DB
 exports.create = function (req, res) {
   Season.create(req.body)
+    .then(addEpisodes(req.body))
+    .then(addMovie(req.body))
+    .then(addImages(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
@@ -144,6 +160,7 @@ exports.update = function (req, res) {
     .then(saveUpdates(req.body))
     .then(addEpisodes(req.body))
     .then(addMovie(req.body))
+    .then(addImages(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };

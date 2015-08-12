@@ -14,14 +14,6 @@ var db = {
   sequelize: new Sequelize(config.sequelize.uri, config.sequelize.options)
 };
 
-db.Thing = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'thing',
-  'thing.model'
-));
-
 db.User = db.sequelize.import(path.join(
   config.root,
   'server',
@@ -125,13 +117,24 @@ db.Movie.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Movie.belongsTo(db.Image, {as: 'logo', constraints: false});
 db.Movie.belongsTo(db.Image, {as: 'thumb', constraints: false});
 
+db.Movie.hasMany(db.Comment, {as: 'comments'});
+db.Movie.hasMany(db.Tag, {as: 'tags'});
+db.Comment.belongsTo(db.Movie, {as: 'movie', constraints: false});
+db.Comment.belongsTo(db.Video, {as: 'video', constraints: false});
+
 db.Movie.belongsToMany(db.Season, {through: MovieSeasons, as: 'seasons'});
 db.Season.belongsToMany(db.Movie, {through: MovieSeasons, as: 'movie'});
 
+db.Season.hasMany(db.Image);
+db.Season.belongsTo(db.Image, {as: 'poster', constraints: false});
+db.Season.belongsTo(db.Image, {as: 'thumb', constraints: false});
 
 db.Season.belongsToMany(db.Episode, {through: SeasonEpisodes, as: 'episodes'});
 db.Episode.belongsToMany(db.Season, {through: SeasonEpisodes, as: 'season'});
 
+db.Episode.hasMany(db.Image);
+db.Episode.belongsTo(db.Image, {as: 'poster', constraints: false});
+db.Episode.belongsTo(db.Image, {as: 'thumb', constraints: false});
 //db.Movie.hasMany(db.Season, {as: 'seasons', foreignKey: 'movieId', constraints: false});
 //db.Season.hasOne(db.Movie, {as: 'movie', foreignKey: '_id', constraints: false});
 //

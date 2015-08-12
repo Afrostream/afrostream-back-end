@@ -37,7 +37,7 @@ script(type='text/ng-template' id='imagesTemplate.html')
       .form-group
         label(for='poster').control-label Poster
         //input.form-control(id='poster' type='text' ng-model='item.poster' placeholder='Poster Url/Id')
-        input.form-control(type='text' ng-model='item.poster' placeholder='Search poster' typeahead='image as image.name for image in loadImages($viewVal,"poster") | visible | limitTo: 5 typeahead-template-url='imagesTemplate.html' typeahead-min-length='3')
+        input.form-control(type='text' ng-model='item.poster' placeholder='Search poster' typeahead='image as image.name for image in loadImages($viewVal,"poster") | visible | limitTo: 5' typeahead-template-url='imagesTemplate.html' typeahead-min-length='3')
 
       .form-group
         label(for='thumb').control-label Thumb

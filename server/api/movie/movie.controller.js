@@ -71,7 +71,6 @@ function addSeasons(updates) {
   };
 }
 
-
 function addImages(updates) {
   return function (entity) {
     var chainer = sqldb.Sequelize.Promise.join;
