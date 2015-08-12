@@ -8,7 +8,7 @@
   .row
     label.control-label Select File
     div(ng-show='uploader.isHTML5')
-      .well.my-drop-zone(nv-file-over='' uploader='uploader') Drop file here
+      .well.my-drop-zone(nv-file-over='' nv-file-drop uploader='uploader') Drop file here
     input.form-control(type='file' ng-model='item.label' nv-file-select='' uploader='uploader' multiple)
   .row
     h3 Upload Queue
