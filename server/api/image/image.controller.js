@@ -144,7 +144,7 @@ exports.create = function (req, res) {
       var hashFilename = key + '-' + filename;
       var fileType = itemData.imgType || 'poster';
 
-      var pathFile = '/' + fileType + '/' + datePrefix + '/' + hashFilename;
+      var pathFile = '/website/' + datePrefix + '/' + hashFilename;
 
       var headers = {
         'Content-Length': finalBuffer.length,
