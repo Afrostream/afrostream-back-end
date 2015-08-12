@@ -6,13 +6,11 @@ angular.module('afrostreamAdminApp')
         id: '@_id'
       },
       {
-        update: {
-          method: 'PUT'
-        },
-        get: {
+        query: {
+          isArray: true,
           method: 'GET',
           params: {
-            id: 'me'
+            query: '@query'
           }
         }
       });

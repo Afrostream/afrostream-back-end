@@ -6,21 +6,35 @@ angular.module('afrostreamAdminApp')
     $scope.items = [];
     $scope.currentItem = {};
     $scope.searchField = '';
-
+    console.log($scope.type)
     var modalOpts = {
-      templateUrl: 'app/images/modal/images.html', // Url du template HTML
-      controller: 'ImagesDialogCtrl',
-      size: 'lg',
-      scope: $scope,
-      resolve: {
-        item: function () {
-          return $scope.currentItem;
-        },
-        type: function () {
-          return $scope.type;
+        templateUrl: 'app/images/modal/images.html', // Url du template HTML
+        controller: 'ImagesDialogCtrl',
+        size: 'lg',
+        scope: $scope,
+        resolve: {
+          item: function () {
+            return $scope.currentItem;
+          },
+          type: function () {
+            return $scope.type;
+          }
         }
-      }
-    };
+      },
+      modalEditOpts = {
+        templateUrl: 'app/modal/modal.html', // Url du template HTML
+        controller: 'ImagesDialogCtrl',
+        size: 'lg',
+        scope: $scope,
+        resolve: {
+          item: function () {
+            return $scope.currentItem;
+          },
+          type: function () {
+            return 'image';
+          }
+        }
+      };
 
     $http.get('/api/' + $scope.type + 's').success(function (items) {
       $scope.items = items;
@@ -37,7 +51,7 @@ angular.module('afrostreamAdminApp')
 
     $scope.editItem = function (item) {
       $scope.currentItem = item;
-      $modal.open(modalOpts);
+      $modal.open(modalEditOpts);
     };
 
     $scope.newItem = function () {

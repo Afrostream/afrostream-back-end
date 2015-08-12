@@ -9,7 +9,10 @@ module.exports = function (sequelize, DataTypes) {
       primaryKey: true
     },
     name: DataTypes.STRING,
-    type: DataTypes.STRING,
+    type: {
+      type: DataTypes.STRING,
+      defaultValue: 'poster'
+    },
     path: DataTypes.STRING,
     url: DataTypes.STRING,
     imgix: DataTypes.STRING,

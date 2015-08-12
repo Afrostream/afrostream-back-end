@@ -18,7 +18,10 @@ script(type='text/ng-template' id='imagesTemplate.html')
     div(ng-if='type === "language"')
       languages
 
-    div(ng-if='type !== "category" && type !== "video" && type !== "language"')
+    div(ng-if='type === "image"')
+      images
+
+    div(ng-if='type !== "category" && type !== "video" && type !== "language" && type !== "image"')
       .form-group
         label(for='type').control-label Type
       .form-group
@@ -37,11 +40,11 @@ script(type='text/ng-template' id='imagesTemplate.html')
       .form-group
         label(for='poster').control-label Poster
         //input.form-control(id='poster' type='text' ng-model='item.poster' placeholder='Poster Url/Id')
-        input.form-control(type='text' ng-model='item.poster' placeholder='Search poster' typeahead='image as image.name for image in loadImages($viewVal,"poster") | visible | limitTo: 5' typeahead-template-url='imagesTemplate.html' typeahead-min-length='3')
+        input.form-control(type='text' ng-model='item.poster' placeholder='Search poster' typeahead='image as image.name for image in loadImages($viewVal,"poster") | limitTo: 5' typeahead-template-url='imagesTemplate.html' typeahead-min-length='3')
 
       .form-group
         label(for='thumb').control-label Thumb
-        input.form-control(type='text' ng-model='item.thumb' placeholder='Search thumb' typeahead='image as image.name for image in loadImages($viewVal, "thumb") | visible | limitTo: 30' typeahead-template-url='imagesTemplate.html' typeahead-min-length='3')
+        input.form-control(type='text' ng-model='item.thumb' placeholder='Search thumb' typeahead='image as image.name for image in loadImages($viewVal, "thumb") | limitTo: 30' typeahead-template-url='imagesTemplate.html' typeahead-min-length='3')
 
 
       .form-group

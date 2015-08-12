@@ -3,8 +3,8 @@
 angular.module('afrostreamAdminApp')
   .directive('images', function () {
     return {
-      templateUrl: 'app/images/images.html',
+      templateUrl: 'app/images/item.html',
       restrict: 'E',
-      controller: 'ImagesCtrl'
+      controller: 'DataCtrl'
     };
   });

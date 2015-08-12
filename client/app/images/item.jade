@@ -1,0 +1,14 @@
+.form-group
+  label(for='name').control-label Name
+  input.form-control(id='name' type='text' ng-model='item.name' placeholder='Name')
+
+.form-group
+  label.control-label Type
+.form-group
+  .btn-group
+    button.btn.btn-xs.btn-info(ng-model='item.file.imgType' btn-radio='"poster"' )
+      span Poster
+    button.btn.btn-xs.btn-info(ng-model='item.file.imgType' btn-radio='"thumb"' )
+      span Thumb
+    button.btn.btn-xs.btn-info(ng-model='item.file.imgType' btn-radio='"logo"' )
+      span Logo

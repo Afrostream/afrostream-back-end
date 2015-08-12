@@ -6,6 +6,7 @@ angular.module('afrostreamAdminApp')
     $scope.item = item;
 
     $scope.item.type = $scope.item.type || type;
+
     $scope.directiveType = $scope.item.type + 's';
     $scope.isFilm = function () {
       return type === 'movie' || type === 'serie';
@@ -103,7 +104,7 @@ angular.module('afrostreamAdminApp')
     $scope.format = 'yyyy-MMMM-dd';
 
     $scope.loadImages = function (query, param) {
-      var p = Image.query({query: query, param: param}).$promise;
+      var p = Image.query({query: query}).$promise;
       p.then(function (response) {
         console.log(response)
         return response;
