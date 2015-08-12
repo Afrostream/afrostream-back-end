@@ -6,6 +6,10 @@ angular.module('afrostreamAdminApp')
       return Episode.query({query: query}).$promise;
     }
     $scope.loadMovies = function (query) {
-      return Movie.query({query: query}).$promise;
-    }
+      var p = Movie.query({query: query}).$promise;
+      p.then(function (response) {
+        return response;
+      });
+      return p;
+    };
   });

@@ -52,12 +52,12 @@ function saveUpdates(updates) {
 }
 
 function addMovie(updates) {
-  var movie = Movie.build(_.map(updates.movie || [], _.partialRight(_.pick, '_id')));
+  var movie = Movie.build(updates.movie);
   return function (entity) {
-    if (!movie || !movie.length) {
+    if (!movie) {
       return entity
     }
-    return entity.setMovie(movie[0])
+    return entity.setMovie(movie)
       .then(function () {
         return entity;
       });
@@ -67,6 +67,9 @@ function addMovie(updates) {
 function addEpisodes(updates) {
   var episodes = Episode.build(_.map(updates.episodes || [], _.partialRight(_.pick, '_id')));
   return function (entity) {
+    if (!episodes || !episodes.length) {
+      return entity
+    }
     return entity.setEpisodes(episodes)
       .then(function () {
         return entity;
@@ -103,7 +106,9 @@ exports.index = function (req, res) {
   var paramsObj = {
     include: [
       {model: Episode, as: 'episodes'}, // load all episodes
-      {model: Movie, as: 'movie'} // load related movie
+      {model: Movie, as: 'movie'}, // load related movie
+      {model: Image, as: 'poster'}, // load poster image
+      {model: Image, as: 'thumb'} // load thumb image
     ]
   };
 
@@ -128,7 +133,9 @@ exports.show = function (req, res) {
     },
     include: [
       {model: Episode, as: 'episodes'}, // load all episodes
-      {model: Movie, as: 'movie'} // load related movie
+      {model: Movie, as: 'movie'}, // load related movie
+      {model: Image, as: 'poster'}, // load poster image
+      {model: Image, as: 'thumb'} // load thumb image
     ]
   })
     .then(handleEntityNotFound(res))

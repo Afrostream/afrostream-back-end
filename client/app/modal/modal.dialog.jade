@@ -1,9 +1,9 @@
 script(type='text/ng-template' id='imagesTemplate.html')
   a
     img(ng-src='{{match.model.imgix}}?fit=crop&w=100&h=30')
-    span(bind-html-unsafe='match.label | typeaheadHighlight:query')
+    span(ng-bind-html='match.label | typeaheadHighlight:query')
 
-.modal-header(style='background-image:url({{item.poster.imgix}});')
+.modal-header(style='background-image:url({{item.poster.imgix}}?fit=crop&w=600&h=200);')
   button.close(data-dismiss='modal' aria-hidden='true')
   h4.modal-title {{item.title | limitTo:50}}
 .modal-body

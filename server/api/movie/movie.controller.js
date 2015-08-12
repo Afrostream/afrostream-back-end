@@ -103,9 +103,9 @@ exports.index = function (req, res) {
     include: [
       {model: Category, as: 'categorys'}, // load all episodes
       {model: Season, as: 'seasons'}, // load all seasons
-      {model: Image, as: 'logo'}, // load all seasons
-      {model: Image, as: 'poster'}, // load all seasons
-      {model: Image, as: 'thumb'} // load all seasons
+      {model: Image, as: 'logo'}, // load logo image
+      {model: Image, as: 'poster'}, // load poster image
+      {model: Image, as: 'thumb'} // load thumb image
     ]
   };
 
@@ -131,7 +131,10 @@ exports.show = function (req, res) {
     },
     include: [
       {model: Category, as: 'categorys'}, // load all categorys
-      {model: Season, as: 'seasons'} // load all seasons
+      {model: Season, as: 'seasons'}, // load all seasons
+      {model: Image, as: 'logo'}, // load logo image
+      {model: Image, as: 'poster'}, // load poster image
+      {model: Image, as: 'thumb'} // load thumb image
     ]
   })
     .then(handleEntityNotFound(res))

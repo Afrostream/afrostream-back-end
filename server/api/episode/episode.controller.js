@@ -13,6 +13,7 @@ var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;
+var Video = sqldb.Video;
 var keyAssoc = 'season';
 var Image = sqldb.Image;
 
@@ -51,13 +52,22 @@ function saveUpdates(updates) {
   };
 }
 
-
 function addSeason(updates) {
-  var movies = Season.build(_.map(updates.season || [], _.partialRight(_.pick, '_id')));
+  var season = Season.build(updates.season);
   return function (entity) {
-    return entity.setSeason(movies[0])
-      .then(function (updated) {
-        return updated;
+    return entity.setSeason(season)
+      .then(function () {
+        return entity;
+      });
+  };
+}
+
+function addVideo(updates) {
+  var video = Video.build(updates.video);
+  return function (entity) {
+    return entity.setVideo(video)
+      .then(function () {
+        return entity;
       });
   };
 }
@@ -90,7 +100,10 @@ exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
     include: [
-      {model: Season, as: keyAssoc} // load all episodes
+      {model: Season, as: keyAssoc}, // load all episodes
+      {model: Video, as: 'video'}, // load video data
+      {model: Image, as: 'poster'}, // load poster image
+      {model: Image, as: 'thumb'} // load thumb image
     ]
   };
 
@@ -115,7 +128,10 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
-      {model: Season, as: keyAssoc} // load all episodes
+      {model: Season, as: keyAssoc}, // load all episodes
+      {model: Video, as: 'video'}, // load video data
+      {model: Image, as: 'poster'}, // load poster image
+      {model: Image, as: 'thumb'} // load thumb image
     ]
   })
     .then(handleEntityNotFound(res))
@@ -127,6 +143,7 @@ exports.show = function (req, res) {
 exports.create = function (req, res) {
   Episode.create(req.body)
     .then(addSeason(req.body))
+    .then(addVideo(req.body))
     .then(addImages(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
@@ -145,6 +162,7 @@ exports.update = function (req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addSeason(req.body))
+    .then(addVideo(req.body))
     .then(addImages(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));

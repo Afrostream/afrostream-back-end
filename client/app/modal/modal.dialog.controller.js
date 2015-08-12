@@ -106,7 +106,6 @@ angular.module('afrostreamAdminApp')
     $scope.loadImages = function (query, param) {
       var p = Image.query({query: query}).$promise;
       p.then(function (response) {
-        console.log(response)
         return response;
       });
       return p;

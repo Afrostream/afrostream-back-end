@@ -21,6 +21,7 @@ module.exports = function (sequelize, DataTypes) {
     },
     duration: DataTypes.DECIMAL,
     seasonId: DataTypes.INTEGER,
+    videoId: DataTypes.UUID,
     slug: DataTypes.STRING,
     active: DataTypes.BOOLEAN
   });

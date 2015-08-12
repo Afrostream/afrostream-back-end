@@ -1,8 +1,17 @@
-tags-input(ng-model='item.season' placeholder='Search season' add-from-autocomplete-only='true' display-property='title' key-property='_id' max-tags='1')
-  auto-complete(source='loadSeasons($query)' template='season-template' min-length='0'
-  load-on-focus='true'
-  load-on-empty='true'
-  max-results-to-show='32')
-script(type='text/ng-template' id='season-template')
-  .tag-template
-    span {{data.title}}
+//tags-input(ng-model='item.season' placeholder='Search season' add-from-autocomplete-only='true' display-property='title' key-property='_id' max-tags='1')
+//  auto-complete(source='loadSeasons($query)' template='season-template' min-length='0'
+//  load-on-focus='true'
+//  load-on-empty='true'
+//  max-results-to-show='32')
+//script(type='text/ng-template' id='season-template')
+//  .tag-template
+//    span {{data.title}}
+
+.form-group
+  label.control-label Season
+  input.form-control(type='text' ng-model='item.season' placeholder='Search season' typeahead='season as season.title for season in loadSeasons($viewVal) | limitTo: 5' typeahead-template-url='imagesTemplate.html' typeahead-min-length='3')
+
+.form-group
+  label.control-label Video
+  input.form-control(type='text' ng-model='item.video' placeholder='Search video' typeahead='video as video.name for video in loadVideo($viewVal) | limitTo: 5' typeahead-template-url='imagesTemplate.html' typeahead-min-length='3')
+

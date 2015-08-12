@@ -103,11 +103,6 @@ db.Movie = db.sequelize.import(path.join(
 
 
 var CategoryMovies = db.sequelize.define('CategoryMovies', {});
-var MovieSeasons = db.sequelize.define('MovieSeasons', {});
-var SeasonEpisodes = db.sequelize.define('SeasonEpisodes', {});
-var VideoAssets = db.sequelize.define('VideoAssets', {});
-var VideoCaptions = db.sequelize.define('VideoCaptions', {});
-var CaptionLanguages = db.sequelize.define('CaptionLanguages', {});
 
 db.Movie.belongsToMany(db.Category, {through: CategoryMovies, as: 'categorys'});
 db.Category.belongsToMany(db.Movie, {through: CategoryMovies, as: 'movies'});
@@ -122,50 +117,27 @@ db.Movie.hasMany(db.Tag, {as: 'tags'});
 db.Comment.belongsTo(db.Movie, {as: 'movie', constraints: false});
 db.Comment.belongsTo(db.Video, {as: 'video', constraints: false});
 
-db.Movie.belongsToMany(db.Season, {through: MovieSeasons, as: 'seasons'});
-db.Season.belongsToMany(db.Movie, {through: MovieSeasons, as: 'movie'});
+db.Movie.hasMany(db.Season, {as: 'seasons', foreignKey: 'movieId'});
+db.Season.belongsTo(db.Movie, {as: 'movie', foreignKey: 'movieId', constraints: false});
 
 db.Season.hasMany(db.Image);
 db.Season.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Season.belongsTo(db.Image, {as: 'thumb', constraints: false});
 
-db.Season.belongsToMany(db.Episode, {through: SeasonEpisodes, as: 'episodes'});
-db.Episode.belongsToMany(db.Season, {through: SeasonEpisodes, as: 'season'});
+db.Season.hasMany(db.Episode, {as: 'episodes', foreignKey: 'seasonId'});
+db.Episode.belongsTo(db.Season, {as: 'season', foreignKey: 'seasonId', constraints: false});
 
 db.Episode.hasMany(db.Image);
 db.Episode.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Episode.belongsTo(db.Image, {as: 'thumb', constraints: false});
-//db.Movie.hasMany(db.Season, {as: 'seasons', foreignKey: 'movieId', constraints: false});
-//db.Season.hasOne(db.Movie, {as: 'movie', foreignKey: '_id', constraints: false});
-//
-//
-//db.Season.hasMany(db.Episode, {as: 'episodes', foreignKey: 'seasonId', constraints: false});
-//db.Episode.belongsTo(db.Season, {as: 'season', foreignKey: '_id', constraints: false});
+db.Episode.belongsTo(db.Video, {as: 'video', constraints: false});
 
-//db.Video.belongsToMany(db.Asset, {through: VideoAssets, as: 'assets', foreignKey: '_id'});
-//db.Asset.belongsTo(db.Video, {through: VideoAssets, as: 'video', foreignKey: 'videoId', constraints: false});
+db.Video.hasMany(db.Asset, {as: 'sources', foreignKey: 'videoId'});
+db.Asset.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
 
-//db.Video.belongsToMany(db.Caption, {through: VideoCaptions, as: 'captions'});
-//db.Caption.belongsTo(db.Video, {through: VideoCaptions, as: 'video', foreignKey: 'videoId', constraints: false});
+db.Video.hasMany(db.Caption, {as: 'captions', foreignKey: 'videoId'});
+db.Caption.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
 
-//db.Video.hasMany(db.Asset, {as: 'assets', foreignKey: '_id', constraints: false});
-//db.Video.hasMany(db.Asset, {as: 'assets', foreignKey: '_id', constraints: false});
-db.Video.belongsToMany(db.Asset, {through: VideoAssets, as: 'sources'});
-db.Asset.belongsToMany(db.Video, {through: VideoAssets, as: 'videos'});
-//db.Asset.belongsTo(db.Video, {as: 'video', foreignKey: '_id', constraints: false});
-//
-//db.Video.hasMany(db.Caption, {as: 'captions', foreignKey: '_id', constraints: false});
-//db.Video.hasMany(db.Caption, {as: 'captions', foreignKey: '_id', constraints: false});
-db.Video.belongsToMany(db.Caption, {through: VideoCaptions, as: 'captions'});
-db.Caption.belongsToMany(db.Video, {through: VideoCaptions, as: 'videos'});
-//db.Caption.belongsTo(db.Video, {as: 'video', foreignKey: '_id', constraints: false});
-
-//db.Video.hasMany(db.Asset, {as: 'sources'});
-//db.Asset.belongsTo(db.Video, {as: 'video', foreignKey: 'videoId', constraints: false});
-
-//db.Video.hasMany(db.Caption, {as: 'captions'});
-//db.Caption.belongsTo(db.Video, {as: 'video', foreignKey: 'videoId', constraints: false});
-
-//db.Caption.belongsToMany(db.Language, {through: CaptionLanguages, as: 'lang'});
+db.Caption.hasMany(db.Language, {as: 'lang'});
 
 module.exports = db;
