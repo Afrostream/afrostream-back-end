@@ -104,8 +104,7 @@ exports.create = function (req, res) {
   req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
     if (!filename) {
       // If filename is not truthy it means there's no file
-      console.log('no filename');
-      return;
+      return handleError(res);
     }
     // Create the initial array containing the stream's chunks
     file.fileRead = [];
@@ -117,6 +116,7 @@ exports.create = function (req, res) {
 
     file.on('error', function (err) {
       console.log('Error while buffering the stream: ', err);
+      return handleError(res);
     });
 
     file.on('end', function () {
@@ -135,20 +135,16 @@ exports.create = function (req, res) {
         'Content-Type': mimetype,
         'x-amz-acl': 'public-read'
       };
-      console.log('try to parse file to aws', finalBuffer, pathFile, headers);
 
       Knox.aws.putBuffer(finalBuffer, pathFile, headers, function (err, response) {
         if (err) {
           console.error('error streaming image: ', new Date(), err);
-          return next(err);
+          return handleError(res);
         }
         if (response.statusCode !== 200) {
           console.error('error streaming image: ', new Date(), err);
-          return next(err);
+          return handleError(res);
         }
-        console.log('Amazon response statusCode: ', response.statusCode);
-        console.log('Your file was uploaded', response.req);
-        //next();
         Image.create({
           type: 'poster',
           path: response.req.path,
@@ -167,12 +163,6 @@ exports.create = function (req, res) {
 
   req.busboy.on('error', function (err) {
     handleError(err)
-  });
-
-  req.busboy.on('finish', function () {
-    console.log('Done parsing the form!');
-    // When everythin's done, render the view
-    //next(null, 'http://www.google.com');
   });
 
   // Start the parsing
