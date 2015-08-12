@@ -1,15 +1,15 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('DataCtrl', function ($scope, $http, socket, $modal, $state) {
+  .controller('ImagesCtrl', function ($scope, $http, socket, $modal, $state) {
     $scope.type = $state.current.type || 'movie';
     $scope.items = [];
     $scope.currentItem = {};
     $scope.searchField = '';
 
     var modalOpts = {
-      templateUrl: 'app/modal/modal.html', // Url du template HTML
-      controller: 'ModalDialogCtrl',
+      templateUrl: 'app/images/modal/images.html', // Url du template HTML
+      controller: 'ImagesDialogCtrl',
       size: 'lg',
       scope: $scope,
       resolve: {
@@ -44,5 +44,4 @@ angular.module('afrostreamAdminApp')
       $scope.currentItem = {};
       $modal.open(modalOpts);
     };
-  })
-;
+  });

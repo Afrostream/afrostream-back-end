@@ -31,6 +31,10 @@ angular.module('afrostreamAdminApp')
       'state': 'languages',
       'icon': 'fa-globe'
     }, {
+      'title': 'Images',
+      'state': 'images',
+      'icon': 'fa-picture-o'
+    }, {
       'title': 'Users',
       'state': 'users',
       'icon': 'fa-users'

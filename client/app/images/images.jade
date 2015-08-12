@@ -19,15 +19,15 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                 table.table
                   colgroup
                     col.col-md-1
-                    col.col-md-2(ng-if='type !== "category"')
+                    col.col-md-2
                     col.col-md-7
                     col.col-md-1
                     col.col-md-1
                   thead
                     tr
                       th.text-center ID
-                      th.text-center(ng-if='type !== "category"') Thumb
-                      th.text-center Title
+                      th.text-center Thumb
+                      th.text-center Name
                       th.text-center In prod
                       th.text-center Actions
                   tbody
@@ -36,16 +36,12 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         span {{item._id}}
                       td(ng-if='item.poster || item.imgix')
                         .thumbnail
-                          img.poster.img-responsive(src='{{item.poster || item.imgix}}')
+                          img.poster.img-responsive(src='{{item.imgix}}')
                       td.text-center
-                        strong {{item.title || item.label}}
-                        br
-                        span.text-muted {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
+                        strong {{item.name}}
                       td.text-center
                         span.text-success
                           i.fa(class='fa-check')
                       td.pull-right
-                        button.btn.btn-xs.btn-primary(ng-click='editItem(item)')
-                          span.glyphicon.glyphicon-pencil
                         button.btn.btn-xs.btn-danger(ng-click='deleteItem(item)')
                           span.glyphicon.glyphicon-trash
