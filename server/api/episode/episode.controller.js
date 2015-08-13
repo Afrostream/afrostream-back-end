@@ -17,6 +17,13 @@ var Video = sqldb.Video;
 var keyAssoc = 'season';
 var Image = sqldb.Image;
 
+var includedModel = [
+  {model: Season, as: keyAssoc}, // load all episodes
+  {model: Video, as: 'video'}, // load video data
+  {model: Image, as: 'poster'}, // load poster image
+  {model: Image, as: 'thumb'} // load thumb image
+];
+
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
@@ -99,12 +106,7 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
-    include: [
-      {model: Season, as: keyAssoc}, // load all episodes
-      {model: Video, as: 'video'}, // load video data
-      {model: Image, as: 'poster'}, // load poster image
-      {model: Image, as: 'thumb'} // load thumb image
-    ]
+    include: includedModel
   };
 
   if (queryName) {
@@ -127,12 +129,7 @@ exports.show = function (req, res) {
     where: {
       _id: req.params.id
     },
-    include: [
-      {model: Season, as: keyAssoc}, // load all episodes
-      {model: Video, as: 'video'}, // load video data
-      {model: Image, as: 'poster'}, // load poster image
-      {model: Image, as: 'thumb'} // load thumb image
-    ]
+    include: includedModel
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
@@ -157,7 +154,8 @@ exports.update = function (req, res) {
   Episode.find({
     where: {
       _id: req.params.id
-    }
+    },
+    include: includedModel
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))

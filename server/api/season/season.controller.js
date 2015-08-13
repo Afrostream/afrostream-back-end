@@ -16,6 +16,13 @@ var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Image = sqldb.Image;
 
+var includedModel = [
+  {model: Episode, as: 'episodes'}, // load all episodes
+  {model: Movie, as: 'movie'}, // load related movie
+  {model: Image, as: 'poster'}, // load poster image
+  {model: Image, as: 'thumb'} // load thumb image
+];
+
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
@@ -104,12 +111,7 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
-    include: [
-      {model: Episode, as: 'episodes'}, // load all episodes
-      {model: Movie, as: 'movie'}, // load related movie
-      {model: Image, as: 'poster'}, // load poster image
-      {model: Image, as: 'thumb'} // load thumb image
-    ]
+    include: includedModel
   };
 
   if (queryName) {
@@ -131,12 +133,7 @@ exports.show = function (req, res) {
     where: {
       _id: req.params.id
     },
-    include: [
-      {model: Episode, as: 'episodes'}, // load all episodes
-      {model: Movie, as: 'movie'}, // load related movie
-      {model: Image, as: 'poster'}, // load poster image
-      {model: Image, as: 'thumb'} // load thumb image
-    ]
+    include: includedModel
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
@@ -161,7 +158,8 @@ exports.update = function (req, res) {
   Season.find({
     where: {
       _id: req.params.id
-    }
+    },
+    include: includedModel
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
