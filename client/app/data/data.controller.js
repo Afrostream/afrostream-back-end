@@ -40,9 +40,19 @@ angular.module('afrostreamAdminApp')
       $modal.open(modalOpts);
     };
 
-    $scope.copyItem = function (item) {
+    $scope.cloneItem = function (item) {
       var copyItem = angular.copy(item);
       delete copyItem._id;
+      if (copyItem.title) {
+        copyItem.title = copyItem.title + '(clone)'
+      }
+      if (copyItem.name) {
+        copyItem.name = copyItem.name + '(clone)'
+      }
+      if (copyItem.label) {
+        copyItem.label = copyItem.label + '(clone)'
+      }
+
       $http.post('/api/' + $scope.type + 's/', copyItem).then(function (result) {
       }, function (err) {
         $log.debug(err.statusText);
