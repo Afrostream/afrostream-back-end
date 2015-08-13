@@ -13,7 +13,7 @@ angular.module('afrostreamAdminApp')
     }, {
       'title': 'Licensors',
       'state': 'licensors',
-      'icon': 'fa-bookmark'
+      'icon': 'fa-trophy'
     }, {
       'title': 'Movies',
       'state': 'movies',
