@@ -138,7 +138,9 @@ exports.show = function (req, res) {
 
 // Creates a new episode in the DB
 exports.create = function (req, res) {
-  Episode.create(req.body)
+  Episode.create(req.body, {
+    include: includedModel
+  })
     .then(addSeason(req.body))
     .then(addVideo(req.body))
     .then(addImages(req.body))

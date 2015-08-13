@@ -142,7 +142,9 @@ exports.show = function (req, res) {
 
 // Creates a new season in the DB
 exports.create = function (req, res) {
-  Season.create(req.body)
+  Season.create(req.body, {
+    include: includedModel
+  })
     .then(addEpisodes(req.body))
     .then(addMovie(req.body))
     .then(addImages(req.body))
