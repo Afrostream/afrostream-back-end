@@ -21,6 +21,7 @@ module.exports = function (app) {
   app.use('/api/tags', require('./api/tag'));
   app.use('/api/categorys', require('./api/category'));
   app.use('/api/movies', require('./api/movie'));
+  app.use('/api/series', require('./api/movie'));
   app.use('/api/users', require('./api/user'));
 
   app.use('/auth', require('./auth'));

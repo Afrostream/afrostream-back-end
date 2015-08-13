@@ -8,6 +8,7 @@ angular.module('afrostreamAdminApp')
     $scope.item.type = $scope.item.type || type;
 
     $scope.directiveType = $scope.item.type + 's';
+
     $scope.isFilm = function () {
       return type === 'movie' || type === 'serie';
     };
