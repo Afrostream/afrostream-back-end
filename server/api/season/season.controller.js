@@ -65,8 +65,8 @@ function addMovie(updates) {
       return entity
     }
     return entity.setMovie(movie)
-      .then(function () {
-        return entity;
+      .then(function (updated) {
+        return updated;
       });
   };
 }
@@ -78,8 +78,8 @@ function addEpisodes(updates) {
       return entity
     }
     return entity.setEpisodes(episodes)
-      .then(function () {
-        return entity;
+      .then(function (updated) {
+        return updated;
       });
   };
 }
@@ -92,7 +92,9 @@ function addImages(updates) {
     return chainer(
       entity.setPoster(poster),
       entity.setThumb(thumb)
-    );
+    ).then(function (updated) {
+        return updated;
+      });
   };
 }
 
@@ -142,9 +144,7 @@ exports.show = function (req, res) {
 
 // Creates a new season in the DB
 exports.create = function (req, res) {
-  Season.create(req.body, {
-    include: includedModel
-  })
+  Season.create(req.body)
     .then(addEpisodes(req.body))
     .then(addMovie(req.body))
     .then(addImages(req.body))

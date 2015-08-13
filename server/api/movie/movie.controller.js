@@ -62,9 +62,12 @@ function saveUpdates(updates) {
 function addCategorys(updates) {
   var categorys = Category.build(_.map(updates.categorys || [], _.partialRight(_.pick, '_id')));
   return function (entity) {
+    if (!categorys || !categorys.length) {
+      return entity;
+    }
     return entity.setCategorys(categorys)
-      .then(function () {
-        return entity;
+      .then(function (updated) {
+        return updated;
       });
   };
 }
@@ -72,9 +75,12 @@ function addCategorys(updates) {
 function addSeasons(updates) {
   var seasons = Season.build(_.map(updates.seasons || [], _.partialRight(_.pick, '_id')));
   return function (entity) {
+    if (!seasons || !seasons.length) {
+      return entity;
+    }
     return entity.setSeasons(seasons)
-      .then(function () {
-        return entity;
+      .then(function (updated) {
+        return updated;
       });
   };
 }
@@ -89,7 +95,9 @@ function addImages(updates) {
       entity.setPoster(poster),
       entity.setThumb(thumb),
       entity.setLogo(logo)
-    );
+    ).then(function (updated) {
+        return updated;
+      });
   };
 }
 
@@ -139,9 +147,7 @@ exports.show = function (req, res) {
 
 // Creates a new movie in the DB
 exports.create = function (req, res) {
-  Movie.create(req.body, {
-    include: includedModel
-  })
+  Movie.create(req.body)
     .then(addCategorys(req.body))
     .then(addSeasons(req.body))
     .then(addImages(req.body))

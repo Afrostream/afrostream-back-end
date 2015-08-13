@@ -63,8 +63,8 @@ function addSeason(updates) {
   var season = Season.build(updates.season);
   return function (entity) {
     return entity.setSeason(season)
-      .then(function () {
-        return entity;
+      .then(function (updated) {
+        return updated;
       });
   };
 }
@@ -73,8 +73,8 @@ function addVideo(updates) {
   var video = Video.build(updates.video);
   return function (entity) {
     return entity.setVideo(video)
-      .then(function () {
-        return entity;
+      .then(function (updated) {
+        return updated;
       });
   };
 }
@@ -87,7 +87,9 @@ function addImages(updates) {
     return chainer(
       entity.setPoster(poster),
       entity.setThumb(thumb)
-    );
+    ).then(function (updated) {
+        return updated;
+      });
   };
 }
 
@@ -138,9 +140,7 @@ exports.show = function (req, res) {
 
 // Creates a new episode in the DB
 exports.create = function (req, res) {
-  Episode.create(req.body, {
-    include: includedModel
-  })
+  Episode.create(req.body)
     .then(addSeason(req.body))
     .then(addVideo(req.body))
     .then(addImages(req.body))
