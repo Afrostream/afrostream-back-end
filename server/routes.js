@@ -10,6 +10,7 @@ var path = require('path');
 module.exports = function (app) {
 
   // Insert routes below
+  app.use('/api/licensors', require('./api/licensor'));
   app.use('/api/languages', require('./api/language'));
   app.use('/api/comments', require('./api/comment'));
   app.use('/api/captions', require('./api/caption'));

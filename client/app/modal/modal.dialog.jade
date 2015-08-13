@@ -21,12 +21,15 @@ script(type='text/ng-template' id='imagesTemplate.html')
     div(ng-if='type === "image"')
       images
 
-    div(ng-if='type !== "category" && type !== "video" && type !== "language" && type !== "image"')
+    div(ng-if='type === "licensor"')
+      licensors
+
+    div(ng-if='type !== "category" && type !== "video" && type !== "language" && type !== "image" && type !== "licensor"')
       .form-group
         label(for='type').control-label Type
       .form-group
         .btn-group
-          label.btn.btn-primary(ng-model='item.type' btn-radio='"item"' ng-if='isFilm()') Movie
+          label.btn.btn-primary(ng-model='item.type' btn-radio='"movie"' ng-if='isFilm()') Movie
           label.btn.btn-primary(ng-model='item.type' btn-radio='"serie"' ng-if='isFilm()') Série
           label.btn.btn-primary(ng-model='item.type' btn-radio='"season"' ng-if='isSeason()') Season
           label.btn.btn-primary(ng-model='item.type' btn-radio='"episode"' ng-if='isEpisode()') Episode

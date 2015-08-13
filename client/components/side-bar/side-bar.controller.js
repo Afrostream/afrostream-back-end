@@ -11,6 +11,10 @@ angular.module('afrostreamAdminApp')
       'state': 'categorys',
       'icon': 'fa-bookmark'
     }, {
+      'title': 'Licensors',
+      'state': 'licensors',
+      'icon': 'fa-bookmark'
+    }, {
       'title': 'Movies',
       'state': 'movies',
       'icon': 'fa-video-camera'

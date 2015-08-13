@@ -1,0 +1,14 @@
+.form-group
+  label(for='name').control-label Name
+  input.form-control(id='name' type='text' ng-model='item.name' placeholder='Name')
+
+.form-group
+  label(for='title').control-label Associated Movies
+  tags-input(ng-model='item.movies' placeholder='Search movie' add-from-autocomplete-only='true' display-property='title' key-property='_id')
+    auto-complete(source='loadMovies($query)' template='movie-template' min-length='0'
+    load-on-focus='true'
+    load-on-empty='true'
+    max-results-to-show='32')
+  script(type='text/ng-template' id='movie-template')
+    .tag-template
+      span {{data.title}}

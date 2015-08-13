@@ -23,6 +23,13 @@ db.User = db.sequelize.import(path.join(
 ));
 
 // Insert models below
+db.Licensor = db.sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'licensor',
+  'licensor.model'
+));
 db.Language = db.sequelize.import(path.join(
   config.root,
   'server',
@@ -104,6 +111,9 @@ db.Movie = db.sequelize.import(path.join(
 
 var CategoryMovies = db.sequelize.define('CategoryMovies', {});
 
+db.Licensor.hasMany(db.Movie, {as: 'movies', foreignKey: 'licensorId'});
+db.Movie.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
+
 db.Movie.belongsToMany(db.Category, {through: CategoryMovies, as: 'categorys'});
 db.Category.belongsToMany(db.Movie, {through: CategoryMovies, as: 'movies'});
 
@@ -111,6 +121,7 @@ db.Movie.hasMany(db.Image);
 db.Movie.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Movie.belongsTo(db.Image, {as: 'logo', constraints: false});
 db.Movie.belongsTo(db.Image, {as: 'thumb', constraints: false});
+db.Movie.belongsTo(db.Video, {as: 'video', constraints: false});
 
 db.Movie.hasMany(db.Comment, {as: 'comments'});
 db.Movie.hasMany(db.Tag, {as: 'tags'});

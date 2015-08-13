@@ -15,13 +15,15 @@ var Movie = sqldb.Movie;
 var Category = sqldb.Category;
 var Season = sqldb.Season;
 var Image = sqldb.Image;
+var Licensor = sqldb.Licensor;
 
 var includedModel = [
   {model: Category, as: 'categorys'}, // load all episodes
   {model: Season, as: 'seasons'}, // load all seasons
   {model: Image, as: 'logo'}, // load logo image
   {model: Image, as: 'poster'}, // load poster image
-  {model: Image, as: 'thumb'} // load thumb image
+  {model: Image, as: 'thumb'}, // load thumb image
+  {model: Licensor, as: 'licensor'} // load thumb image
 ];
 
 function handleError(res, statusCode) {
@@ -80,6 +82,28 @@ function addSeasons(updates) {
       return entity;
     }
     return entity.setSeasons(seasons)
+      .then(function (updated) {
+        return updated;
+      });
+  };
+}
+
+
+function addLicensor(updates) {
+  var licensor = Licensor.build(updates.licensor);
+  return function (entity) {
+    return entity.setLicensor(licensor)
+      .then(function (updated) {
+        return updated;
+      });
+  };
+}
+
+
+function addVideo(updates) {
+  var video = Video.build(updates.video);
+  return function (entity) {
+    return entity.setVideo(video)
       .then(function (updated) {
         return updated;
       });
@@ -152,6 +176,8 @@ exports.create = function (req, res) {
     .then(addCategorys(req.body))
     .then(addSeasons(req.body))
     .then(addImages(req.body))
+    .then(addLicensor(req.body))
+    .then(addVideo(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
@@ -171,6 +197,8 @@ exports.update = function (req, res) {
     .then(addCategorys(req.body))
     .then(addSeasons(req.body))
     .then(addImages(req.body))
+    .then(addLicensor(req.body))
+    .then(addVideo(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };

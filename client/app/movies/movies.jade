@@ -1,4 +1,8 @@
 .form-group
+  label.control-label Licensor
+  input.form-control(type='text' ng-model='item.licensor' placeholder='Search licensor' typeahead='licensor as licensor.name for licensor in loadLicensors($viewValue) | limitTo: 5')
+
+.form-group
   label.control-label Category
   tags-input(ng-model='item.categorys' placeholder='Search category' add-from-autocomplete-only='true' display-property='label' key-property='_id')
     auto-complete(source='loadCategorys($query)' template='category-template' min-length='0'
@@ -9,7 +13,7 @@
     .tag-template
       span {{data.label}}
 
-.form-group
+.form-group(ng-if='isSerie()')
   label.control-label Seasons
   tags-input(ng-model='item.seasons' placeholder='Search seasons' add-from-autocomplete-only='true' display-property='title' key-property='_id')
     auto-complete(source='loadSeasons($query)' template='season-template' min-length='0'
@@ -19,3 +23,8 @@
   script(type='text/ng-template' id='season-template')
     .tag-template
       span {{data.title}}
+
+.form-group(ng-if='isMovie()')
+  label.control-label Video
+  input.form-control(type='text' ng-model='item.video' placeholder='Search video' typeahead='video as video.name for video in loadVideo($viewValue) | limitTo: 5' typeahead-template-url='imagesTemplate.html')
+

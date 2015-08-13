@@ -67,6 +67,7 @@ angular.module('afrostreamAdminApp')
     $scope.hasThumb = function () {
       var hasTmb = true;
       switch ($scope.type) {
+        case'licensor':
         case'category':
         case'language':
         case'video':
