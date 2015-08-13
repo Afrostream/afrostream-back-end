@@ -150,7 +150,7 @@ exports.create = function (req, res) {
       var hashFilename = key + '-' + filename;
       var fileType = itemData.imgType || 'poster';
 
-      var pathFile = '/website/' + datePrefix + '/' + hashFilename;
+      var pathFile = '/' + config.env + '/' + datePrefix + '/' + hashFilename;
 
       var headers = {
         'Content-Length': finalBuffer.length,
@@ -188,7 +188,9 @@ exports.create = function (req, res) {
   });
 
   req.busboy.on('field', function (fieldname, val) {
-    itemData[fieldname] = val;
+    if (val !== undefined) {
+      itemData[fieldname] = val;
+    }
   });
   // Start the parsing
   req.pipe(req.busboy);

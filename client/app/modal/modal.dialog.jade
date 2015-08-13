@@ -7,7 +7,7 @@ script(type='text/ng-template' id='imagesTemplate.html')
   button.close(data-dismiss='modal' aria-hidden='true')
   h4.modal-title {{item.title | limitTo:50}}
 .modal-body
-  form.form-horizontal(role='form')
+  form(role='form')
 
     div(ng-if='type === "category"')
       categorys

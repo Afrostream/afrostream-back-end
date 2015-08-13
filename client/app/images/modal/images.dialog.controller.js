@@ -37,7 +37,7 @@ angular.module('afrostreamAdminApp')
 
     // CALLBACKS
     uploader.onBeforeUploadItem = function (item) {
-      item.formData.push({imgType: item.file.imgType});
+      item.formData.push({imgType: item.file.imgType || 'poster'});
       item.headers = {
         'Authorization': 'Bearer ' + $cookies.get('token')
       };
