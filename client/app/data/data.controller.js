@@ -44,5 +44,19 @@ angular.module('afrostreamAdminApp')
       $scope.currentItem = {};
       $modal.open(modalOpts);
     };
+
+    $scope.hasThumb = function () {
+      var hasTmb = true;
+      switch ($scope.type) {
+        case'category':
+        case'language':
+        case'video':
+          hasTmb = false;
+          break;
+        default:
+          break;
+      }
+      return hasTmb;
+    }
   })
 ;

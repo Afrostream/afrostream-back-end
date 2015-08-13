@@ -105,7 +105,7 @@ angular.module('afrostreamAdminApp')
     $scope.format = 'yyyy-MMMM-dd';
 
     $scope.loadImages = function (query, param) {
-      var p = Image.query({query: query}).$promise;
+      var p = Image.query({query: query, type: param}).$promise;
       p.then(function (response) {
         return response;
       });

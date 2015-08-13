@@ -90,7 +90,13 @@ exports.index = function (req, res) {
     paramsObj = _.merge(paramsObj, {
       where: {
         name: {$iLike: '%' + queryName + '%'},
-        type: typeName || 'poster'
+      }
+    })
+  }
+  if (typeName) {
+    paramsObj = _.merge(paramsObj, {
+      where: {
+        type: typeName
       }
     })
   }

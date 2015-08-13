@@ -19,14 +19,14 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                 table.table
                   colgroup
                     col.col-md-1
-                    col.col-md-2(ng-if='type !== "category"')
+                    col.col-md-2(ng-if='hasThumb()')
                     col.col-md-7
                     col.col-md-1
                     col.col-md-1
                   thead
                     tr
                       th.text-center ID
-                      th.text-center(ng-if='type !== "category"') Thumb
+                      th.text-center(ng-if='hasThumb()') Thumb
                       th.text-center Title
                       th.text-center In prod
                       th.text-center Actions
@@ -34,11 +34,11 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                     tr(ng-repeat='item in items | filter:searchField')
                       td.text-center
                         span {{item._id}}
-                      td(ng-if='type !== "category"')
+                      td(ng-if='hasThumb()')
                         .thumbnail
                           img.poster.img-responsive(src='{{item.poster.imgix}}?fit=crop&w=200&h=160')
                       td.text-center
-                        strong {{item.title || item.label}}
+                        strong {{item.title || item.label || item.name}}
                         br
                         span.text-muted {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
                       td.text-center
