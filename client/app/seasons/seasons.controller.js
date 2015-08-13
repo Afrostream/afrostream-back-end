@@ -6,7 +6,6 @@ angular.module('afrostreamAdminApp')
       return Episode.query({query: query}).$promise;
     }
     $scope.loadMovies = function (query) {
-      console.log(query)
       return Movie.query({query: query}).$promise;
     };
   });

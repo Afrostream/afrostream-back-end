@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('DataCtrl', function ($scope, $http, socket, $modal, $state) {
+  .controller('DataCtrl', function ($scope, $log, $http, socket, $modal, $state) {
     $scope.type = $state.current.type || 'movie';
     $scope.items = [];
     $scope.currentItem = {};
@@ -38,6 +38,15 @@ angular.module('afrostreamAdminApp')
     $scope.editItem = function (item) {
       $scope.currentItem = item;
       $modal.open(modalOpts);
+    };
+
+    $scope.copyItem = function (item) {
+      var copyItem = angular.copy(item);
+      delete copyItem._id;
+      $http.post('/api/' + $scope.type + 's/', copyItem).then(function (result) {
+      }, function (err) {
+        $log.debug(err.statusText);
+      });
     };
 
     $scope.newItem = function () {

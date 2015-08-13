@@ -118,7 +118,6 @@ exports.index = function (req, res) {
       }
     })
   }
-  console.log(paramsObj)
   Movie.findAll(paramsObj)
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
