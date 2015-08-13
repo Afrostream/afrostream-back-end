@@ -67,6 +67,7 @@ function addCategorys(updates) {
     }
     return entity.setCategorys(categorys)
       .then(function (updated) {
+        console.log(updated)
         return updated;
       });
   };
