@@ -10,6 +10,10 @@ var path = require('path');
 module.exports = function (app) {
 
   // Insert routes below
+  app.use('/api/refreshTokens', require('./api/refreshToken'));
+  app.use('/api/accessTokens', require('./api/accessToken'));
+  app.use('/api/authCodes', require('./api/authCode'));
+  app.use('/api/clients', require('./api/client'));
   app.use('/api/licensors', require('./api/licensor'));
   app.use('/api/languages', require('./api/language'));
   app.use('/api/comments', require('./api/comment'));

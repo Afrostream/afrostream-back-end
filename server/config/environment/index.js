@@ -31,9 +31,9 @@ var all = {
   secrets: {
     session: 'afrostream-admin-secret'
   },
-
+  oauth2: true,
   // List of user roles
-  userRoles: ['guest', 'user', 'admin'],
+  userRoles: ['guest', 'user', 'client', 'admin'],
 
   // MongoDB connection options
   mongo: {

@@ -16,6 +16,7 @@ var path = require('path');
 var config = require('./environment');
 var passport = require('passport');
 var busboy = require('connect-busboy');
+var session = require('express-session');
 
 module.exports = function (app) {
   var env = app.get('env');
@@ -27,8 +28,10 @@ module.exports = function (app) {
   app.use(bodyParser.json());
   app.use(methodOverride());
   app.use(cookieParser());
+  app.use(session({secret: config.secrets.session}));
   app.use(busboy());
   app.use(passport.initialize());
+  app.use(passport.session());
   app.set('appPath', path.join(config.root, 'client'));
 
   if ('production' === env) {

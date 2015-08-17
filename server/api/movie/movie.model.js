@@ -29,6 +29,7 @@ module.exports = function (sequelize, DataTypes) {
     //provider
     //rating
     //TODO users joint http://docs.sequelizejs.com/en/latest/docs/associations/
+    imdbId: DataTypes.STRING,
     seasonId: DataTypes.INTEGER,
     slug: DataTypes.STRING,
     active: DataTypes.BOOLEAN

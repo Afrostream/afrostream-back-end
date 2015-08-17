@@ -3,6 +3,10 @@
   input.form-control(type='text' ng-model='item.licensor' placeholder='Search licensor' typeahead='licensor as licensor.name for licensor in loadLicensors($viewValue) | limitTo: 5')
 
 .form-group
+  label.control-label ImdbId
+  input.form-control(type='text' ng-model='item.imdbId')
+
+.form-group
   label.control-label Category
   tags-input(ng-model='item.categorys' placeholder='Search category' add-from-autocomplete-only='true' display-property='label' key-property='_id')
     auto-complete(source='loadCategorys($query)' template='category-template' min-length='0'

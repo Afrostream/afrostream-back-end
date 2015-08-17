@@ -5,6 +5,7 @@ var config = require('../config/environment');
 var jwt = require('jsonwebtoken');
 var expressJwt = require('express-jwt');
 var compose = require('composable-middleware');
+var login = require('connect-ensure-login');
 var User = require('../sqldb').User;
 var validateJwt = expressJwt({
   secret: config.secrets.session
@@ -15,33 +16,39 @@ var validateJwt = expressJwt({
  * Otherwise returns 403
  */
 function isAuthenticated() {
+  if (config.oauth2 !== undefined) {
+    return compose()
+      .use(passport.authenticate('bearer', {session: false}));
+  }
   return compose()
-    // Validate jwt
-    .use(function(req, res, next) {
+    //Validate jwt
+    .use(function (req, res, next) {
       // allow access_token to be passed through query parameter as well
       if (req.query && req.query.hasOwnProperty('access_token')) {
         req.headers.authorization = 'Bearer ' + req.query.access_token;
       }
       validateJwt(req, res, next);
     })
-    // Attach user to request
-    .use(function(req, res, next) {
+    //// Attach user to request
+    .use(function (req, res, next) {
       User.find({
         where: {
           _id: req.user._id
         }
       })
-        .then(function(user) {
+        .then(function (user) {
+          console.log(user);
           if (!user) {
             return res.status(401).end();
           }
           req.user = user;
           next();
         })
-        .catch(function(err) {
+        .catch(function (err) {
           return next(err);
         });
     });
+
 }
 
 /**
@@ -55,8 +62,9 @@ function hasRole(roleRequired) {
   return compose()
     .use(isAuthenticated())
     .use(function meetsRequirements(req, res, next) {
+      console.log('meetsRequirements')
       if (config.userRoles.indexOf(req.user.role) >=
-          config.userRoles.indexOf(roleRequired)) {
+        config.userRoles.indexOf(roleRequired)) {
         next();
       }
       else {
@@ -69,7 +77,7 @@ function hasRole(roleRequired) {
  * Returns a jwt token signed by the app secret
  */
 function signToken(id) {
-  return jwt.sign({ _id: id }, config.secrets.session, {
+  return jwt.sign({_id: id}, config.secrets.session, {
     expiresInMinutes: 60 * 5
   });
 }
