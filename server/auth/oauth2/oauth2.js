@@ -97,7 +97,6 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
       if (entity === null) {
         return done(null, false);
       }
-
       if (entity.secret !== client.secret) {
         return done(null, false);
       }
@@ -113,6 +112,7 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
       })
         .then(function (tokenEntity) {
           return done(null, tokenEntity.token);
+          console.log('tokenEntity', tokenEntity.secret);
         }).catch(function (err) {
           return done(err)
         });

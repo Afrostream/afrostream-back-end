@@ -129,7 +129,7 @@ exports.setup = function (Client, User, AccessToken, config) {
                 done(err)
               });
           }
-          if (token.userId !== undefined) {
+          if (token.userId !== null) {
             User.find({
               where: {
                 _id: token.userId
