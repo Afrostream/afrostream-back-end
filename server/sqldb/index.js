@@ -23,6 +23,34 @@ db.User = db.sequelize.import(path.join(
 ));
 
 // Insert models below
+db.RefreshToken = db.sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'refreshToken',
+  'refreshToken.model'
+));
+db.AccessToken = db.sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'accessToken',
+  'accessToken.model'
+));
+db.AuthCode = db.sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'authCode',
+  'authCode.model'
+));
+db.Client = db.sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'client',
+  'client.model'
+));
 db.Licensor = db.sequelize.import(path.join(
   config.root,
   'server',

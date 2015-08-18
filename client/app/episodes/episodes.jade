@@ -1,8 +1,13 @@
 .form-group
+  label.control-label Episode Number
+  input.form-control(type='number' min='1' ng-model='item.episodeNumber')
+
+.form-group
   label.control-label Season
   input.form-control(type='text' ng-model='item.season' placeholder='Search season' typeahead='season as season.title for season in loadSeasons($viewValue) | limitTo: 5' typeahead-template-url='imagesTemplate.html')
 
 .form-group
   label.control-label Video
   input.form-control(type='text' ng-model='item.video' placeholder='Search video' typeahead='video as video.name for video in loadVideo($viewValue) | limitTo: 5' typeahead-template-url='imagesTemplate.html')
+
 

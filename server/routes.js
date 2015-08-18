@@ -10,6 +10,10 @@ var path = require('path');
 module.exports = function (app) {
 
   // Insert routes below
+  app.use('/api/refreshTokens', require('./api/refreshToken'));
+  app.use('/api/accessTokens', require('./api/accessToken'));
+  app.use('/api/authCodes', require('./api/authCode'));
+  app.use('/api/clients', require('./api/client'));
   app.use('/api/licensors', require('./api/licensor'));
   app.use('/api/languages', require('./api/language'));
   app.use('/api/comments', require('./api/comment'));
@@ -27,9 +31,15 @@ module.exports = function (app) {
 
   app.use('/auth', require('./auth'));
 
+  app.route('/doc')
+    .get(function (req, res) {
+      res.sendFile(path.resolve(app.get('docPath') + '/index.html'));
+    });
+
   // All undefined asset or api routes should return a 404
   app.route('/:url(api|auth|components|app|bower_components|assets)/*')
     .get(errors[404]);
+
 
   // All other routes should redirect to the index.html
   app.route('/*')

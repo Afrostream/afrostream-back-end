@@ -616,6 +616,17 @@ module.exports = function (grunt) {
         }
       }
     },
+    apidoc: {
+      myapp: {
+        src: 'dist/server/api',
+        dest: 'dist/apidoc/',
+        options: {
+          debug: true,
+          includeFilters: [".*\\.js$"],
+          excludeFilters: ["node_modules/"]
+        }
+      }
+    }
   });
 
   // Used for delaying livereload until after server has restarted
@@ -779,7 +790,8 @@ module.exports = function (grunt) {
     'cssmin',
     'uglify',
     'filerev',
-    'usemin'
+    'usemin',
+    'apidoc'
   ]);
 
   grunt.registerTask('default', [

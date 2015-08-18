@@ -10,6 +10,7 @@ module.exports = function (sequelize, DataTypes) {
     },
     src: DataTypes.STRING,
     videoId: DataTypes.UUID,
+    sort: DataTypes.INTEGER,
     active: DataTypes.BOOLEAN
   });
 };

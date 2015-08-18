@@ -21,8 +21,10 @@ module.exports = function (sequelize, DataTypes) {
     },
     duration: DataTypes.DECIMAL,
     seasonId: DataTypes.INTEGER,
+    episodeNumber: DataTypes.INTEGER,
     videoId: DataTypes.UUID,
     slug: DataTypes.STRING,
+    sort: DataTypes.INTEGER,
     active: DataTypes.BOOLEAN
   });
 };

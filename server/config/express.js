@@ -16,6 +16,7 @@ var path = require('path');
 var config = require('./environment');
 var passport = require('passport');
 var busboy = require('connect-busboy');
+var session = require('express-session');
 
 module.exports = function (app) {
   var env = app.get('env');
@@ -27,13 +28,17 @@ module.exports = function (app) {
   app.use(bodyParser.json());
   app.use(methodOverride());
   app.use(cookieParser());
+  app.use(session({secret: config.secrets.session}));
   app.use(busboy());
   app.use(passport.initialize());
+  app.use(passport.session());
   app.set('appPath', path.join(config.root, 'client'));
+  app.set('docPath', path.join(config.root, 'apidoc'));
 
   if ('production' === env) {
     app.use(favicon(path.join(config.root, 'client', 'favicon.ico')));
     app.use(express.static(app.get('appPath')));
+    app.use(express.static(app.get('docPath')));
     app.use(morgan('dev'));
   }
 
@@ -41,6 +46,7 @@ module.exports = function (app) {
     app.use(require('connect-livereload')());
     app.use(express.static(path.join(config.root, '.tmp')));
     app.use(express.static(app.get('appPath')));
+    app.use(express.static(app.get('docPath')));
     app.use(morgan('dev'));
     app.use(errorHandler()); // Error handler - has to be last
   }

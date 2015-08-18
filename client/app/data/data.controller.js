@@ -70,6 +70,7 @@ angular.module('afrostreamAdminApp')
         case'licensor':
         case'category':
         case'language':
+        case'client':
         case'video':
           hasTmb = false;
           break;

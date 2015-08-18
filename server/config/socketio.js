@@ -18,6 +18,10 @@ function onConnect(socket) {
   });
 
   // Insert sockets below
+  require('../api/refreshToken/refreshToken.socket').register(socket);
+  require('../api/accessToken/accessToken.socket').register(socket);
+  require('../api/authCode/authCode.socket').register(socket);
+  require('../api/client/client.socket').register(socket);
   require('../api/licensor/licensor.socket').register(socket);
   require('../api/language/language.socket').register(socket);
   require('../api/comment/comment.socket').register(socket);

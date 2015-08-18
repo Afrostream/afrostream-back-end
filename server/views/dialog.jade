@@ -1,0 +1,6 @@
+p  hi #{locals.user}
+p Do you approve?
+form(action='/auth/oauth2/decision' method='post')
+  input(name='transaction_id' type='hidden' value='#{locals.transactionID}')
+  button.btn.btn-primary(type='submit' value='Allow' id='allow') Allow
+  button.btn.btn-primary(type='submit' value='Deny' name='cancel' id='deny') Cancel

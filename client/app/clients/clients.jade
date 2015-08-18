@@ -1,0 +1,12 @@
+.form-group
+  label(for='label').control-label Name
+  input.form-control(id='label' type='text' ng-model='item.name'  placeholder='Name of client')
+.form-group(ng-if='item._id')
+  label(for='id').control-label Client Id
+  input.form-control(id='id' type='text' ng-model='item._id' disabled)
+.form-group(ng-if='item.secret')
+  label(for='secret').control-label Client SECRET KEY
+  input.form-control(id='secret' type='text' ng-model='item.secret' disabled)
+.form-group(ng-if='item._id')
+  label(for='redirect').control-label Redirect Url
+  input.form-control(id='redirect' type='text' ng-model='item.redirectUrl')
