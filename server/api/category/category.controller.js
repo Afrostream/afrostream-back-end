@@ -15,6 +15,11 @@ var Category = sqldb.Category;
 var Movie = sqldb.Movie;
 var keyAssoc = 'movies';
 
+
+var includedModel = [
+  {model: Movie, as: keyAssoc}, // load all movies
+];
+
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
@@ -99,7 +104,8 @@ exports.show = function (req, res) {
   Category.find({
     where: {
       _id: req.params.id
-    }
+    },
+    include: includedModel
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
@@ -121,7 +127,8 @@ exports.update = function (req, res) {
   Category.find({
     where: {
       _id: req.params.id
-    }
+    },
+    include: includedModel
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
