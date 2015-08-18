@@ -10,6 +10,7 @@ module.exports = function (sequelize, DataTypes) {
     },
     label: DataTypes.STRING,
     lang: DataTypes.STRING,
+    sort: DataTypes.INTEGER,
     active: DataTypes.BOOLEAN
   });
 };

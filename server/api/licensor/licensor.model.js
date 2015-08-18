@@ -15,6 +15,7 @@ module.exports = function (sequelize, DataTypes) {
     //TODO teritories,lang
     dateFrom: DataTypes.DATE,
     dateTo: DataTypes.DATE,
+    sort: DataTypes.INTEGER,
     active: DataTypes.BOOLEAN
   });
 };

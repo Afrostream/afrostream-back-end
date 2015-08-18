@@ -32,6 +32,7 @@ module.exports = function (sequelize, DataTypes) {
     imdbId: DataTypes.STRING,
     seasonId: DataTypes.INTEGER,
     slug: DataTypes.STRING,
+    sort: DataTypes.INTEGER,
     active: DataTypes.BOOLEAN
   });
 };

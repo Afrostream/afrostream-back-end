@@ -24,6 +24,7 @@ module.exports = function (sequelize, DataTypes) {
     episodeNumber: DataTypes.INTEGER,
     videoId: DataTypes.UUID,
     slug: DataTypes.STRING,
+    sort: DataTypes.INTEGER,
     active: DataTypes.BOOLEAN
   });
 };
