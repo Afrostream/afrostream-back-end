@@ -1,5 +1,17 @@
 'use strict';
 
+/**
+ * @api {get} /users/:id Request User information
+ * @apiName GetUser
+ * @apiGroup User
+ *
+ * @apiParam {Number} id User unique ID.
+ *
+ * @apiSuccess {String} name Name of the User.
+ * @apiSuccess {String} email  Email of the User.
+ * @apiSuccess {String} role  Role of the User.
+ */
+
 var express = require('express');
 var controller = require('./user.controller');
 var auth = require('../../auth/auth.service');

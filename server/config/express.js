@@ -33,6 +33,7 @@ module.exports = function (app) {
   app.use(passport.initialize());
   app.use(passport.session());
   app.set('appPath', path.join(config.root, 'client'));
+  app.set('docPath', path.join(config.root, 'apidoc'));
 
   if ('production' === env) {
     app.use(favicon(path.join(config.root, 'client', 'favicon.ico')));
