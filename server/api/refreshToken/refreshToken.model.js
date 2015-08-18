@@ -8,10 +8,15 @@ module.exports = function (sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
+    token: DataTypes.STRING,
     userId: DataTypes.INTEGER,
     clientId: DataTypes.UUID,
-    token: DataTypes.STRING,
     created: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    expirationDate: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW

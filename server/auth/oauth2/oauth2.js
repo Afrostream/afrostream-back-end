@@ -2,9 +2,11 @@ var oauth2orize = require('oauth2orize');
 var passport = require('passport');
 var crypto = require('crypto');
 var utils = require('./utils');
+var config = require('../../config/environment');
 var Client = require('../../sqldb').Client;
 var AuthCode = require('../../sqldb').AuthCode;
 var AccessToken = require('../../sqldb').AccessToken;
+var RefreshToken = require('../../sqldb').RefreshToken;
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
 server.serializeClient(function (client, done) {
@@ -25,6 +27,95 @@ server.deserializeClient(function (id, done) {
     });
 });
 
+
+var generateTokenData = function (client, user, code) {
+  var token = utils.uid(256);
+  var refreshToken = utils.uid(256);
+  var tokenHash = crypto.createHash('sha1', config.secrets.session).update(token).digest('hex');
+  var refreshTokenHash = crypto.createHash('sha1', config.secrets.session).update(refreshToken).digest('hex');
+  var expiresIn = config.secrets.expire;
+  var expirationDate = new Date(new Date().getTime() + (expiresIn * 1000));
+  var clientId = null;
+  var userId = null;
+
+  switch (true) {
+    case client !== null:
+      clientId = client._id;
+      break;
+    case user !== null:
+      userId = user._id;
+      break;
+    case code !== null:
+      clientId = code.clientId;
+      userId = code.userId;
+      break;
+    default:
+      break;
+  }
+
+  return {
+    token: tokenHash,
+    refresh: refreshTokenHash,
+    clientId: clientId,
+    userId: userId,
+    expirationDate: expirationDate
+  }
+};
+
+var generateToken = function (client, user, code, done) {
+
+  var tokenData = generateTokenData(client, user, code);
+  AccessToken.create({
+    token: tokenData.token,
+    clientId: tokenData.clientId,
+    userId: tokenData.userId,
+    expirationDate: tokenData.expirationDate
+  })
+    .then(function (tokenEntity) {
+      if (client === null) {
+        return done(null, tokenEntity.token, null, {expires_in: tokenEntity.expirationDate});
+      }
+
+      RefreshToken.create({
+        token: tokenData.refresh,
+        clientId: tokenData.clientId,
+        userId: tokenData.userId,
+        expirationDate: tokenData.expirationDate
+      })
+        .then(function (refreshTokenEntity) {
+          return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationDate});
+        }).catch(function (err) {
+          console.log('RefreshToken', err);
+          return done(err)
+        });
+
+    }).catch(function (err) {
+      console.log('AccessToken', err);
+      return done(err)
+    });
+};
+
+var refreshToken = function (client, done) {
+
+  var tokenData = generateTokenData(client, null, null);
+  AccessToken.find({
+    where: {
+      clientId: client._id
+    }
+  })
+    .then(function (tokenEntity) {
+      return tokenEntity.updateAttributes({token: tokenData.token, expirationDate: tokenData.expirationDate})
+        .then(function (updated) {
+          return done(null, updated.token, updated.token, {expires_in: updated.expirationDate});
+        }).catch(function (err) {
+          return done(err)
+        });
+
+    }).catch(function (err) {
+      return done(err)
+    });
+};
+
 server.grant(oauth2orize.grant.code(function (client, redirectURI, user, ares, done) {
   AuthCode.create({clientId: client._id, redirectURI: redirectURI, userId: user._id})
     .then(function (entity) {
@@ -35,17 +126,7 @@ server.grant(oauth2orize.grant.code(function (client, redirectURI, user, ares, d
 }));
 
 server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
-  var token = utils.uid(256);
-  AccessToken.create({
-    token: token,
-    userID: user._id,
-    clientID: client._id
-  })
-    .then(function (entity) {
-      return done(null, entity.token);
-    }).catch(function (err) {
-      return done(err)
-    });
+  return generateToken(client, user, null, done);
 }));
 
 server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, done) {
@@ -69,17 +150,7 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 
     entity.destroy().
       then(function () {
-        var token = utils.uid(256)
-        AccessToken.create({
-          token: token,
-          userID: entity.userID,
-          clientID: entity.clientID
-        })
-          .then(function (entity) {
-            return done(null, entity.token);
-          }).catch(function (err) {
-            return done(err)
-          });
+        return generateToken(null, null, entity, done);
       })
       .catch(function (err) {
         return done(err);
@@ -100,28 +171,32 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
       if (entity.secret !== client.secret) {
         return done(null, false);
       }
-
-      var token = utils.uid(256);
-      var tokenHash = crypto.createHash('sha1').update(token).digest('hex');
-      var expiresIn = 1800;
-      var expirationDate = new Date(new Date().getTime() + (expiresIn * 1000));
-      AccessToken.create({
-        token: tokenHash,
-        clientId: entity._id,
-        expirationDate: expirationDate
-      })
-        .then(function (tokenEntity) {
-          return done(null, tokenEntity.token);
-          console.log('tokenEntity', tokenEntity.secret);
-        }).catch(function (err) {
-          return done(err)
-        });
-      //var token = auth.signToken(entity._id, entity.role);
-      //return done(null, token);
+      return generateToken(entity, null, null, done);
     })
     .catch(function (err) {
       return done(err);
     });
+}));
+
+server.exchange(oauth2orize.exchange.refreshToken(function (client, token, scope, done) {
+  RefreshToken.find({
+    where: {
+      token: token
+    }
+  })
+    .then(function (tokenRefresh) {
+      if (!tokenRefresh) {
+        done(err);
+      }
+      if (!tokenRefresh.clientId !== client._id) {
+        done(null, false);
+      }
+      return refreshToken(client, done);
+
+    }).catch(function (err) {
+      done(err);
+    });
+
 }));
 
 exports.authorization = [
@@ -153,34 +228,24 @@ exports.token = [
   server.errorHandler()
 ];
 
-//exports.login = [
-//  function (req, res, done) {
-//    passport.authenticate('local', function (err, user, info) {
-//      console.log(user._id)
-//      done();
-//    })
-//  },
-//  function (req, res, done) {
-//    var user = req.user;
-//    if (!user) {
-//      return res.status(404).json({message: 'Something went wrong, please try again.'});
-//    }
-//
-//    //var token = auth.signToken(user._id, user.role);
-//    var token = utils.uid(256);
-//    var tokenHash = crypto.createHash('sha1').update(token).digest('hex');
-//    var expiresIn = 1800;
-//    var expirationDate = new Date(new Date().getTime() + (expiresIn * 1000));
-//    AccessToken.create({
-//      token: tokenHash,
-//      userId: user._id,
-//      expirationDate: expirationDate
-//    })
-//      .then(function (tokenEntity) {
-//        return done(null, tokenEntity.token);
-//      }).catch(function (err) {
-//        return done(err)
-//      });
-//
-//  }
-//];
+exports.login = [
+  function (req, res, next) {
+    passport.authenticate('local', function (err, user, info) {
+      var error = err || info;
+      if (error) {
+        return res.status(401).json(error);
+      }
+      if (!user) {
+        return res.status(404).json({message: 'Something went wrong, please try again.'});
+      }
+
+      return generateToken(null, user, null, function (err, token, refreshToken, info) {
+        if (err) {
+          return res.status(401).json(err);
+        }
+        return res.json({token: token, info: info});
+      });
+
+    })(req, res, next)
+  }
+];
