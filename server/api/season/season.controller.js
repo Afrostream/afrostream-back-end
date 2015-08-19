@@ -74,7 +74,7 @@ function addMovie(updates) {
 
 function addEpisodes(updates) {
   if (updates.episodes !== undefined && typeof updates.episodes === 'number') {
-    var copy = _.pick(updates, ['title', 'synopsis', 'posterId', 'thumbId']);
+    var copy = _.pick(updates, ['title', 'synopsis', 'poster', 'thumb']);
     var datas = _.range(updates.episodes).map(function () {
       return _.cloneDeep(copy);
     });
@@ -84,7 +84,7 @@ function addEpisodes(updates) {
         item.title = item.title + ' episode ' + itemId;
         item.episodeNumber = itemId;
         itemId++;
-        return Episode.create(item);
+        return Episode.create(item).then(addImages(copy));
       }).then(function (inserts) {
         if (!inserts || !inserts.length) {
           return entity;
