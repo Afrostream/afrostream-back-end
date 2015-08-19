@@ -16,6 +16,7 @@ var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Image = sqldb.Image;
 var Promise = sqldb.Sequelize.Promise;
+var slugify = require('slugify');
 
 var includedModel = [
   {model: Episode, as: 'episodes'}, // load all episodes
@@ -82,6 +83,7 @@ function addEpisodes(updates) {
       var itemId = 1;
       return Promise.map(datas, function (item) {
         item.title = item.title + ' episode ' + itemId;
+        item.slug = slugify(item.title);
         item.episodeNumber = itemId;
         itemId++;
         return Episode.create(item).then(addImages(copy));

@@ -15,7 +15,6 @@ var Category = sqldb.Category;
 var Movie = sqldb.Movie;
 var keyAssoc = 'movies';
 
-
 var includedModel = [
   {model: Movie, as: keyAssoc}, // load all movies
 ];
