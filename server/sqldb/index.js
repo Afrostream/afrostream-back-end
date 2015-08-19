@@ -144,6 +144,7 @@ db.Movie.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
 
 db.Movie.belongsToMany(db.Category, {through: CategoryMovies, as: 'categorys'});
 db.Category.belongsToMany(db.Movie, {through: CategoryMovies, as: 'movies'});
+db.Category.hasMany(db.Movie, {as: 'adSpots', foreignKey: 'adSpotId'});
 
 db.Movie.hasMany(db.Image);
 db.Movie.belongsTo(db.Image, {as: 'poster', constraints: false});

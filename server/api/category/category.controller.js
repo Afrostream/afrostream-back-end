@@ -13,10 +13,10 @@ var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var Category = sqldb.Category;
 var Movie = sqldb.Movie;
-var keyAssoc = 'movies';
 
 var includedModel = [
-  {model: Movie, as: keyAssoc}, // load all movies
+  {model: Movie, as: 'movies'}, // load all movies
+  {model: Movie, as: 'adSpots'} // load all adSpots
 ];
 
 function handleError(res, statusCode) {
@@ -58,6 +58,16 @@ function addMovies(updates) {
   var movies = Movie.build(_.map(updates.movies || [], _.partialRight(_.pick, '_id')));
   return function (entity) {
     return entity.setMovies(movies)
+      .then(function () {
+        return entity;
+      });
+  };
+}
+
+function addAdSpots(updates) {
+  var movies = Movie.build(_.map(updates.adSpots || [], _.partialRight(_.pick, '_id')));
+  return function (entity) {
+    return entity.setAdSpots(movies)
       .then(function () {
         return entity;
       });
@@ -110,6 +120,9 @@ exports.show = function (req, res) {
 // Creates a new category in the DB
 exports.create = function (req, res) {
   Category.create(req.body)
+    .then(saveUpdates(req.body))
+    .then(addMovies(req.body))
+    .then(addAdSpots(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
@@ -128,6 +141,7 @@ exports.update = function (req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addMovies(req.body))
+    .then(addAdSpots(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };

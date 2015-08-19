@@ -94,7 +94,7 @@ angular.module('afrostreamAdminApp')
     var showError = function () {
       ngToast.create({
         className: 'warning',
-        content: 'Erreur lors de l\'ajout au catalogue '
+        content: 'API Error'
       });
     };
 
