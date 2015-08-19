@@ -11,7 +11,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
               .row
                 input.form-control.input-sm(type='text' placeholder='Find a {{type}} here.' ng-model='$parent.$parent.searchField')
               .row
-                button.btn.btn-xs.btn-primary.pull-right(ng-click='newItem()')
+                button.btn.btn-xs.btn-primary.pull-right(ng-click='newIndex()')
                   span.glyphicon.glyphicon-plus
                   span Add new
             rd-widget-body.medium.no-padding
@@ -30,7 +30,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                       th.text-center Title
                       th.text-center In prod
                       th.text-center Actions
-                  tbody
+                  tbody(ui-sortable='sortableOptions' ng-model='items')
                     tr(ng-repeat='item in items | filter:searchField')
                       td.text-center
                         span {{item._id}}
@@ -45,9 +45,9 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         span.text-success
                           i.fa(class='fa-check')
                       td.pull-right
-                        button.btn.btn-xs.btn-primary(ng-click='editItem(item)' tooltip='Edit' )
+                        button.btn.btn-xs.btn-primary(ng-click='editIndex(item)' tooltip='Edit' )
                           span.glyphicon.glyphicon-pencil
-                        button.btn.btn-xs.btn-info(ng-click='cloneItem(item)' tooltip='Clone' )
+                        button.btn.btn-xs.btn-info(ng-click='cloneIndex(item)' tooltip='Clone' )
                           span.fa.fa-clone
-                        button.btn.btn-xs.btn-danger(ng-click='deleteItem(item)' tooltip='Delete' )
+                        button.btn.btn-xs.btn-danger(ng-click='deleteIndex(item)' tooltip='Delete' )
                           span.glyphicon.glyphicon-trash

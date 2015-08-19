@@ -21,13 +21,33 @@ angular.module('afrostreamAdminApp')
         }
       }
     };
+    $scope.sortableOptions = {
+      stop: function () {
+        for (var index in $scope.items) {
+          var item = $scope.items[index];
+          if (item.sort !== index) {
+            item.sort = index;
+            $scope.updateIndex(item);
+          }
+        }
+      }
+    };
 
     $http.get('/api/' + $scope.type + 's').success(function (items) {
       $scope.items = items;
+      $scope.items.sort(function (a, b) {
+        return a.sort > b.sort;
+      });
       socket.syncUpdates($scope.type, $scope.items);
     });
 
-    $scope.deleteItem = function (item) {
+    $scope.updateIndex = function (item) {
+      $http.put('/api/' + $scope.type + 's/' + item._id, item).then(function (result) {
+      }, function (err) {
+      });
+    };
+
+    $scope.deleteIndex = function (item) {
       $http.delete('/api/' + $scope.type + 's/' + item._id);
     };
 
@@ -35,12 +55,12 @@ angular.module('afrostreamAdminApp')
       socket.unsyncUpdates($scope.type);
     });
 
-    $scope.editItem = function (item) {
+    $scope.editIndex = function (item) {
       $scope.currentItem = item;
       $modal.open(modalOpts);
     };
 
-    $scope.cloneItem = function (item) {
+    $scope.cloneIndex = function (item) {
       var copyItem = angular.copy(item);
       delete copyItem._id;
       if (copyItem.title) {
@@ -59,7 +79,7 @@ angular.module('afrostreamAdminApp')
       });
     };
 
-    $scope.newItem = function () {
+    $scope.newIndex = function () {
       $scope.currentItem = {};
       $modal.open(modalOpts);
     };
