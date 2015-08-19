@@ -13,6 +13,7 @@ var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var Category = sqldb.Category;
 var Movie = sqldb.Movie;
+var Image = sqldb.Image;
 
 var includedModel = [
   {model: Movie, as: 'movies'}, // load all movies
@@ -39,7 +40,13 @@ function responseWithAdSpot(res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
     if (entity) {
-      return entity.getAdSpots().then(function (adSpots) {
+      return entity.getAdSpots({
+        include: [
+          {model: Image, as: 'logo'}, // load logo image
+          {model: Image, as: 'poster'}, // load poster image
+          {model: Image, as: 'thumb'}// load thumb image
+        ]
+      }).then(function (adSpots) {
         res.status(statusCode).json(adSpots);
       })
     }

@@ -7,7 +7,7 @@ var router = express.Router();
 
 router.get('/', auth.isAuthenticated(), controller.index);
 router.get('/:id', auth.isAuthenticated(), controller.show);
-router.get('/:id/spots', auth.isAuthenticated(), controller.adSpot);
+router.get('/:id/spots', controller.adSpot);
 router.post('/', auth.hasRole('admin'), controller.create);
 router.put('/:id', auth.hasRole('admin'), controller.update);
 router.patch('/:id', auth.hasRole('admin'), controller.update);
