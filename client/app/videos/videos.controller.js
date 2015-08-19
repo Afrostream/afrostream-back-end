@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('VideosCtrl', function ($scope, Asset, Caption, Lang) {
+  .controller('VideosCtrl', function ($scope, $log, $http, Asset, Caption, Lang) {
 
     $scope.languages = Lang.query();
 
@@ -25,8 +25,16 @@ angular.module('afrostreamAdminApp')
       data.push({});
     };
 
-    $scope.removeElem = function (data, $index) {
-      data.splice($index, 1);
+    $scope.removeElem = function (item, data, type, $index) {
+      if (item._id) {
+        $http.delete('/api/' + type + 's/' + item._id).then(function () {
+          data.splice($index, 1);
+        }, function (err) {
+          $log.debug(err);
+        });
+      } else {
+        data.splice($index, 1);
+      }
     };
 
   });

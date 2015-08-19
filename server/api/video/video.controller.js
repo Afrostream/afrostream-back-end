@@ -54,8 +54,13 @@ function saveUpdates(updates) {
 function addAssets(updates) {
   return function (entity) {
     return Promise.map(updates.sources || [], function (item) {
-      return Asset.findOrCreate({where: item}).then(function (elem) {
-        return elem[0];
+      return Asset.findOrCreate({where: {_id: item._id}, defaults: item}).then(function (elem) {
+        //console.log(elem)
+        var elem = elem[0];
+        if (!elem.isNewRecord) {
+          return elem.updateAttributes(item);
+        }
+        return elem;
       });
     }).then(function (inserts) {
       if (!inserts || !inserts.length) {
@@ -72,7 +77,7 @@ function addAssets(updates) {
 function addCaptions(updates) {
   return function (entity) {
     return Promise.map(updates.captions || [], function (item) {
-      return Caption.findOrCreate({where: item}).then(function (elem) {
+      return Caption.findOrCreate({where: {_id: item._id}}).then(function (elem) {
         return elem[0];
       });
     }).then(function (inserts) {

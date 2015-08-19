@@ -18,7 +18,7 @@
           select.form-control.input-sm(id='type' type='text' ng-model='asset.type' placeholder='Type' ng-options='f for f in formats')
         .col-md-2
           .button-group-vertical
-            button.btn.btn-xs.btn-danger(ng-click='removeElem(item.sources,$index)')
+            button.btn.btn-xs.btn-danger(ng-click='removeElem(asset,item.sources,"asset",$index)')
               span.glyphicon.glyphicon-trash.pull-right
 .form-group.form-group-heading
   .row.row-header
@@ -36,5 +36,5 @@
           select.form-control.input-sm(id='lang' type='text' ng-model='caption.langId' placeholder='Lang key' ng-options='f._id as f.label for f in languages')
         .col-md-2
           .button-group-vertical
-            button.btn.btn-xs.btn-danger(ng-click='removeElem(item.captions,$index)')
+            button.btn.btn-xs.btn-danger(ng-click='removeElem(caption,item.captions,"caption",$index)')
               span.glyphicon.glyphicon-trash.pull-right
