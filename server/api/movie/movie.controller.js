@@ -16,6 +16,7 @@ var Category = sqldb.Category;
 var Season = sqldb.Season;
 var Image = sqldb.Image;
 var Licensor = sqldb.Licensor;
+var Video = sqldb.Video;
 
 var includedModel = [
   {model: Category, as: 'categorys'}, // load all episodes
