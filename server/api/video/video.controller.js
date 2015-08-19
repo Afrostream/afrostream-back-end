@@ -55,7 +55,6 @@ function addAssets(updates) {
   return function (entity) {
     return Promise.map(updates.sources || [], function (item) {
       return Asset.findOrCreate({where: {_id: item._id}, defaults: item}).then(function (elem) {
-        //console.log(elem)
         var elem = elem[0];
         if (!elem.isNewRecord) {
           return elem.updateAttributes(item);
@@ -78,7 +77,11 @@ function addCaptions(updates) {
   return function (entity) {
     return Promise.map(updates.captions || [], function (item) {
       return Caption.findOrCreate({where: {_id: item._id}}).then(function (elem) {
-        return elem[0];
+        var elem = elem[0];
+        if (!elem.isNewRecord) {
+          return elem.updateAttributes(item);
+        }
+        return elem;
       });
     }).then(function (inserts) {
       if (!inserts || !inserts.length) {
