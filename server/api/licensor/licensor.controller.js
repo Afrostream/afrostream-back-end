@@ -77,9 +77,7 @@ function removeEntity(res) {
 // Gets a list of licensors
 exports.index = function (req, res) {
   var queryName = req.param('query');
-  var paramsObj = {
-    include: includedModel
-  };
+  var paramsObj = {};
 
   if (queryName) {
     paramsObj = _.merge(paramsObj, {

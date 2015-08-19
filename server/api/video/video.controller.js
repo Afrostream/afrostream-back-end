@@ -15,7 +15,10 @@ var Video = sqldb.Video;
 var Asset = sqldb.Asset;
 var Caption = sqldb.Caption;
 var Promise = sqldb.Sequelize.Promise;
-
+var includedModel = [
+  {model: Asset, as: 'sources'}, // load all sources assets
+  {model: Caption, as: 'captions'} // load all sources captions
+];
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
@@ -109,12 +112,7 @@ function removeEntity(res) {
 // Gets a list of videos
 exports.index = function (req, res) {
   var queryName = req.param('query');
-  var paramsObj = {
-    include: [
-      {model: Asset, as: 'sources'}, // load all sources assets
-      {model: Caption, as: 'captions'} // load all sources captions
-    ]
-  };
+  var paramsObj = {};
 
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
@@ -132,10 +130,7 @@ exports.index = function (req, res) {
 // Gets a single video from the DB
 exports.show = function (req, res) {
   var paramsObj = {
-    include: [
-      {model: Asset, as: 'sources'}, // load all sources assets
-      {model: Caption, as: 'captions'} // load all sources captions
-    ]
+    include: includedModel
   };
 
   paramsObj = _.merge(paramsObj, {

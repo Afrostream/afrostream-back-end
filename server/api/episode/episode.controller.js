@@ -108,7 +108,10 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
-    include: includedModel
+    include: [
+      {model: Image, as: 'poster'}, // load poster image
+      {model: Image, as: 'thumb'} // load thumb image
+    ]
   };
 
   if (queryName) {

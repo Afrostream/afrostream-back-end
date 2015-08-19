@@ -79,11 +79,7 @@ function removeEntity(res) {
 // Gets a list of categorys
 exports.index = function (req, res) {
   var queryName = req.param('query');
-  var paramsObj = {
-    include: [
-      {model: Movie, as: keyAssoc} // load all episodes
-    ]
-  };
+  var paramsObj = {};
 
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
