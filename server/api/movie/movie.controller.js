@@ -68,9 +68,8 @@ function addCategorys(updates) {
       return entity;
     }
     return entity.setCategorys(categorys)
-      .then(function (updated) {
-        console.log(updated)
-        return updated;
+      .then(function () {
+        return entity;
       });
   };
 }
@@ -82,8 +81,8 @@ function addSeasons(updates) {
       return entity;
     }
     return entity.setSeasons(seasons)
-      .then(function (updated) {
-        return updated;
+      .then(function () {
+        return entity;
       });
   };
 }
@@ -93,8 +92,8 @@ function addLicensor(updates) {
   var licensor = Licensor.build(updates.licensor);
   return function (entity) {
     return entity.setLicensor(licensor)
-      .then(function (updated) {
-        return updated;
+      .then(function () {
+        return entity;
       });
   };
 }
@@ -104,8 +103,8 @@ function addVideo(updates) {
   var video = Video.build(updates.video);
   return function (entity) {
     return entity.setVideo(video)
-      .then(function (updated) {
-        return updated;
+      .then(function () {
+        return entity;
       });
   };
 }
@@ -120,8 +119,8 @@ function addImages(updates) {
       entity.setPoster(poster),
       entity.setThumb(thumb),
       entity.setLogo(logo)
-    ).then(function (updated) {
-        return updated;
+    ).then(function () {
+        return entity;
       });
   };
 }

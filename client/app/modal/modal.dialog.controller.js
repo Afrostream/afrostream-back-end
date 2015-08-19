@@ -3,12 +3,6 @@
 angular.module('afrostreamAdminApp')
   .controller('ModalDialogCtrl', function ($scope, $sce, $log, $http, $modalInstance, item, type, Slug, ngToast, Image) {
 
-    $scope.item = item;
-
-    $scope.item.type = $scope.item.type || type;
-
-    $scope.directiveType = $scope.item.type + 's';
-
     $scope.isFilm = function () {
       return type === 'movie' || type === 'serie';
     };
@@ -50,7 +44,7 @@ angular.module('afrostreamAdminApp')
         $modalInstance.close();
       }, function (err) {
         showError();
-        $log.debug(err.statusText);
+        $log.debug(err);
       });
     };
 
@@ -62,7 +56,7 @@ angular.module('afrostreamAdminApp')
         $modalInstance.close();
       }, function (err) {
         showError();
-        $log.debug(err.statusText);
+        $log.debug(err);
       });
     };
 
@@ -74,9 +68,28 @@ angular.module('afrostreamAdminApp')
         $modalInstance.close();
       }, function (err) {
         showError();
-        $log.debug(err.statusText);
+        $log.debug(err);
       });
     };
+
+    $scope.getItem = function () {
+      $scope.directiveType = (item.type || type) + 's';
+
+      if (!item || !item._id) {
+        $scope.item = item;
+        $scope.item.type = item.type || type;
+        return;
+      }
+      $http.get('/api/' + $scope.directiveType + '/' + item._id).then(function (result) {
+        $scope.item = result.data;
+      }, function (err) {
+        showError();
+        $log.debug(err);
+      });
+    };
+
+    //Load Item
+    $scope.getItem();
 
     var showError = function () {
       ngToast.create({

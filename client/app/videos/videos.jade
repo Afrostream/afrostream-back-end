@@ -7,7 +7,7 @@
 .form-group.form-group-heading
   .row.row-header
     label.control-label Assets
-    button.btn.btn-xs.btn-primary.pull-right(ng-click='newAsset(item.sources)')
+    button.btn.btn-xs.btn-primary.pull-right(ng-click='newElem(item.sources)')
       span.glyphicon.glyphicon-plus
   .row
     .col-lg-12
@@ -18,14 +18,12 @@
           select.form-control.input-sm(id='type' type='text' ng-model='asset.type' placeholder='Type' ng-options='f for f in formats')
         .col-md-2
           .button-group-vertical
-            button.btn.btn-xs.btn-primary.pull-right(ng-click='saveAsset(asset)')
-              span.glyphicon.glyphicon-floppy-disk
-            button.btn.btn-xs.btn-danger(ng-click='removeAsset(asset,$index)')
+            button.btn.btn-xs.btn-danger(ng-click='removeElem(item.sources,$index)')
               span.glyphicon.glyphicon-trash.pull-right
 .form-group.form-group-heading
   .row.row-header
     label.control-label Captions
-    button.btn.btn-xs.btn-primary.pull-right(ng-click='newCaption(item.captions)')
+    button.btn.btn-xs.btn-primary.pull-right(ng-click='newElem(item.captions)')
       span.glyphicon.glyphicon-plus
   .row
     .col-lg-12
@@ -35,10 +33,8 @@
           input.form-control.input-sm(id='src' type='text' ng-model='caption.src' placeholder='Source url')
         .col-md-4
           label(for='type').control-label Lang
-          select.form-control.input-sm(id='lang' type='text' ng-model='caption.lang' placeholder='Lang key' ng-options='f.label for f in languages')
+          select.form-control.input-sm(id='lang' type='text' ng-model='caption.langId' placeholder='Lang key' ng-options='f._id as f.label for f in languages')
         .col-md-2
           .button-group-vertical
-            button.btn.btn-xs.btn-primary.pull-right(ng-click='saveCaption(caption)')
-              span.glyphicon.glyphicon-floppy-disk
-            button.btn.btn-xs.btn-danger(ng-click='removeCaption(caption,$index)')
+            button.btn.btn-xs.btn-danger(ng-click='removeElem(item.captions,$index)')
               span.glyphicon.glyphicon-trash.pull-right

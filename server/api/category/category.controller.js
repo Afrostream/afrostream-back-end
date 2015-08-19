@@ -59,8 +59,8 @@ function addMovies(updates) {
   var movies = Movie.build(_.map(updates.movies || [], _.partialRight(_.pick, '_id')));
   return function (entity) {
     return entity.setMovies(movies)
-      .then(function (updated) {
-        return updated;
+      .then(function () {
+        return entity;
       });
   };
 }

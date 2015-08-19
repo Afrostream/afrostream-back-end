@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.min.css" />
   <link rel="stylesheet" href="bower_components/ngtoast/dist/ngToast.css" />
   <link rel="stylesheet" href="bower_components/ng-tags-input/ng-tags-input.min.css" />
+  <link rel="stylesheet" href="bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css" />
   <!-- endbower -->
   <!-- endbuild -->
   <!-- build:css({.tmp,client}) app/app.css -->
@@ -36,6 +37,7 @@
 <![endif]-->
 
 <!-- Add your site or application content here -->
+<toast></toast>
 <div ui-view=""></div>
 <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
 <script>
@@ -61,6 +63,7 @@
 <![endif]-->
 <!-- build:js({client,node_modules}) app/vendor.js -->
 <!-- bower:js -->
+<script src="bower_components/modernizr/modernizr.js"></script>
 <script src="bower_components/jquery/dist/jquery.js"></script>
 <script src="bower_components/angular/angular.js"></script>
 <script src="bower_components/angular-resource/angular-resource.js"></script>
@@ -76,6 +79,9 @@
 <script src="bower_components/ngtoast/dist/ngToast.js"></script>
 <script src="bower_components/ng-tags-input/ng-tags-input.min.js"></script>
 <script src="bower_components/ng-file-upload/ng-file-upload.js"></script>
+<script src="bower_components/jquery-bridget/jquery.bridget.js"></script>
+<script src="bower_components/seiyria-bootstrap-slider/js/bootstrap-slider.js"></script>
+<script src="bower_components/angular-bootstrap-slider/slider.js"></script>
 <!-- endbower -->
 <script src="socket.io-client/socket.io.js"></script>
 <!-- endbuild -->

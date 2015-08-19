@@ -6,11 +6,16 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
+      unique: true,
       primaryKey: true
     },
     src: DataTypes.STRING,
     videoId: DataTypes.UUID,
+    langId: DataTypes.INTEGER,
     sort: DataTypes.INTEGER,
-    active: DataTypes.BOOLEAN
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   });
 };

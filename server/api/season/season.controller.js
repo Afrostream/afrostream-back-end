@@ -15,6 +15,7 @@ var Season = sqldb.Season;
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Image = sqldb.Image;
+var Promise = sqldb.Sequelize.Promise;
 
 var includedModel = [
   {model: Episode, as: 'episodes'}, // load all episodes
@@ -65,23 +66,50 @@ function addMovie(updates) {
       return entity
     }
     return entity.setMovie(movie)
-      .then(function (updated) {
-        return updated;
+      .then(function () {
+        return entity;
       });
   };
 }
 
 function addEpisodes(updates) {
-  var episodes = Episode.build(_.map(updates.episodes || [], _.partialRight(_.pick, '_id')));
-  return function (entity) {
-    if (!episodes || !episodes.length) {
-      return entity
-    }
-    return entity.setEpisodes(episodes)
-      .then(function (updated) {
-        return updated;
+  if (updates.episodes !== undefined && typeof updates.episodes === 'number') {
+    var copy = _.pick(updates, ['title', 'synopsis', 'posterId', 'thumbId']);
+    var datas = _.range(updates.episodes).map(function () {
+      return _.cloneDeep(copy);
+    });
+    return function (entity) {
+      var itemId = 1;
+      return Promise.map(datas, function (item) {
+        item.title = item.title + ' episode ' + itemId;
+        item.episodeNumber = itemId;
+        itemId++;
+        return Episode.create(item);
+      }).then(function (inserts) {
+        if (!inserts || !inserts.length) {
+          return entity;
+        }
+        return entity.setEpisodes(inserts)
+          .then(function () {
+            return entity;
+          });
       });
-  };
+    };
+
+
+  } else {
+    var episodes = Episode.build(_.map(updates.episodes || [], _.partialRight(_.pick, '_id')));
+
+    return function (entity) {
+      if (!episodes || !episodes.length) {
+        return entity
+      }
+      return entity.setEpisodes(episodes)
+        .then(function () {
+          return entity;
+        });
+    };
+  }
 }
 
 function addImages(updates) {
@@ -92,8 +120,8 @@ function addImages(updates) {
     return chainer(
       entity.setPoster(poster),
       entity.setThumb(thumb)
-    ).then(function (updated) {
-        return updated;
+    ).then(function () {
+        return entity;
       });
   };
 }

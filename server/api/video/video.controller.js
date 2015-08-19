@@ -14,6 +14,7 @@ var sqldb = require('../../sqldb');
 var Video = sqldb.Video;
 var Asset = sqldb.Asset;
 var Caption = sqldb.Caption;
+var Promise = sqldb.Sequelize.Promise;
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -51,22 +52,38 @@ function saveUpdates(updates) {
 }
 
 function addAssets(updates) {
-  var assets = Asset.build(updates.sources || []);
   return function (entity) {
-    return entity.setSources(assets)
-      .then(function () {
-        return entity;
+    return Promise.map(updates.sources || [], function (item) {
+      return Asset.findOrCreate({where: item}).then(function (elem) {
+        return elem[0];
       });
+    }).then(function (inserts) {
+      if (!inserts || !inserts.length) {
+        return entity;
+      }
+      return entity.setSources(inserts)
+        .then(function () {
+          return entity;
+        });
+    });
   };
 }
 
 function addCaptions(updates) {
-  var captions = Caption.build(updates.captions || []);
   return function (entity) {
-    return entity.setCaptions(captions)
-      .then(function () {
-        return entity;
+    return Promise.map(updates.captions || [], function (item) {
+      return Caption.findOrCreate({where: item}).then(function (elem) {
+        return elem[0];
       });
+    }).then(function (inserts) {
+      if (!inserts || !inserts.length) {
+        return entity;
+      }
+      return entity.setCaptions(inserts)
+        .then(function () {
+          return entity;
+        });
+    });
   };
 }
 
