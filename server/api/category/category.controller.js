@@ -129,7 +129,7 @@ exports.show = function (req, res) {
 };
 
 // Gets all AdSpots in selected category
-exports.spot = function (req, res) {
+exports.adSpot = function (req, res) {
   Category.find({
     where: {
       _id: req.params.id
