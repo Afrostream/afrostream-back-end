@@ -43,6 +43,18 @@ function responseWithResult(res, statusCode) {
   };
 }
 
+
+function responseWithSeasons(res, statusCode) {
+  statusCode = statusCode || 200;
+  return function (entity) {
+    if (entity) {
+      return entity.getSeasons().then(function (seasons) {
+        res.status(statusCode).json(seasons);
+      })
+    }
+  };
+}
+
 function handleEntityNotFound(res) {
   return function (entity) {
     if (!entity) {
@@ -171,6 +183,18 @@ exports.show = function (req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
+    .catch(handleError(res));
+};
+
+// Gets all Seasons in selected category
+exports.seasons = function (req, res) {
+  Movie.find({
+    where: {
+      _id: req.params.id
+    }
+  })
+    .then(handleEntityNotFound(res))
+    .then(responseWithSeasons(res))
     .catch(handleError(res));
 };
 

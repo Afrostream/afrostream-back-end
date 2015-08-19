@@ -35,6 +35,17 @@ function responseWithResult(res, statusCode) {
   };
 }
 
+function responseWithAdSpot(res, statusCode) {
+  statusCode = statusCode || 200;
+  return function (entity) {
+    if (entity) {
+      return entity.getAdSpots().then(function (adSpots) {
+        res.status(statusCode).json(adSpots);
+      })
+    }
+  };
+}
+
 function handleEntityNotFound(res) {
   return function (entity) {
     if (!entity) {
@@ -114,6 +125,18 @@ exports.show = function (req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
+    .catch(handleError(res));
+};
+
+// Gets all AdSpots in selected category
+exports.spot = function (req, res) {
+  Category.find({
+    where: {
+      _id: req.params.id
+    }
+  })
+    .then(handleEntityNotFound(res))
+    .then(responseWithAdSpot(res))
     .catch(handleError(res));
 };
 
