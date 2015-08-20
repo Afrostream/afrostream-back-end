@@ -7,7 +7,7 @@ var router = express.Router();
 
 router.get('/', auth.isAuthenticated(), controller.index);
 router.get('/menu', auth.isAuthenticated(), controller.menu);
-router.get('/meas', controller.mea);
+router.get('/meas', auth.isAuthenticated(), controller.mea);
 router.get('/:id', auth.isAuthenticated(), controller.show);
 router.get('/:id/spots', auth.isAuthenticated(), controller.adSpot);
 router.post('/', auth.hasRole('admin'), controller.create);
