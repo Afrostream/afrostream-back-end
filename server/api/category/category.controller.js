@@ -19,7 +19,7 @@ var includedModel = [
   {model: Movie, as: 'movies'}, // load all movies
   {
     model: Movie, as: 'adSpots',
-    order: [['sort', 'DESC']]
+    order: [['sort', 'ASC']]
   } // load all adSpots
 ];
 
@@ -44,7 +44,7 @@ function responseWithAdSpot(res, statusCode) {
   return function (entity) {
     if (entity) {
       return entity.getAdSpots({
-        order: [['sort', 'DESC']],
+        order: [['sort', 'ASC']],
         include: [
           {model: Image, as: 'logo'}, // load logo image
           {model: Image, as: 'poster'}, // load poster image
@@ -111,7 +111,7 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
-    order: [['sort', 'DESC']]
+    order: [['sort', 'ASC']]
   };
 
   if (queryName) {
@@ -144,9 +144,9 @@ exports.show = function (req, res) {
 // Gets a single category from the DB
 exports.mea = function (req, res) {
   Category.findAll({
-    order: [['sort', 'DESC']],
+    order: [['sort', 'ASC']],
     include: [
-      {model: Movie, as: 'movies', limit: 30, order: [['sort', 'DESC']]} // load 20 top movies
+      {model: Movie, as: 'movies', limit: 30, order: [['sort', 'ASC']]} // load 20 top movies
     ]
   })
     .then(handleEntityNotFound(res))
@@ -168,10 +168,10 @@ exports.adSpot = function (req, res) {
 // Gets all AdSpots in selected category
 exports.menu = function (req, res) {
   Category.findAll({
-    order: [['sort', 'DESC']]
+    order: [['sort', 'ASC']]
   })
     .then(handleEntityNotFound(res))
-    .then(responseWithAdSpot(res))
+    .then(responseWithResult(res))
     .catch(handleError(res));
 };
 

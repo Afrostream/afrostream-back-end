@@ -21,7 +21,7 @@ var slugify = require('slugify');
 var includedModel = [
   {
     model: Episode, as: 'episodes',
-    order: [['sort', 'DESC']]
+    order: [['sort', 'ASC']]
   }, // load all episodes
   {model: Movie, as: 'movie'}, // load related movie
   {model: Image, as: 'poster'}, // load poster image

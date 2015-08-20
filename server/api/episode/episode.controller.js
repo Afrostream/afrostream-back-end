@@ -19,7 +19,7 @@ var Image = sqldb.Image;
 var includedModel = [
   {
     model: Season, as: 'season',
-    order: [['sort', 'DESC']]
+    order: [['sort', 'ASC']]
   }, // load all episodes
   {model: Video, as: 'video'}, // load video data
   {model: Image, as: 'poster'}, // load poster image
