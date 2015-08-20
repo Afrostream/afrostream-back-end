@@ -14,11 +14,13 @@ var sqldb = require('../../sqldb');
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;
 var Video = sqldb.Video;
-var keyAssoc = 'season';
 var Image = sqldb.Image;
 
 var includedModel = [
-  {model: Season, as: keyAssoc}, // load all episodes
+  {
+    model: Season, as: 'season',
+    order: [['sort', 'DESC']]
+  }, // load all episodes
   {model: Video, as: 'video'}, // load video data
   {model: Image, as: 'poster'}, // load poster image
   {model: Image, as: 'thumb'} // load thumb image
