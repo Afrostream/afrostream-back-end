@@ -21,7 +21,11 @@ var slugify = require('slugify');
 var includedModel = [
   {
     model: Episode, as: 'episodes',
-    order: [['sort', 'ASC']]
+    order: [['sort', 'ASC']],
+    include: [
+      {model: Image, as: 'poster'}, // load poster image
+      {model: Image, as: 'thumb'} // load thumb image
+    ]
   }, // load all episodes
   {model: Movie, as: 'movie'}, // load related movie
   {model: Image, as: 'poster'}, // load poster image
