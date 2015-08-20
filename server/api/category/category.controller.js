@@ -181,7 +181,16 @@ exports.mea = function (req, res) {
   Category.findAll({
     order: [['sort', 'ASC']],
     include: [
-      {model: Movie, as: 'movies', required: false, order: ['sort', 'ASC']} // load 30 top movies
+      {
+        model: Movie,
+        as: 'movies',
+        required: false,
+        order: ['sort', 'ASC'],
+        include: [{model: Image, as: 'logo'}, // load logo image
+          {model: Image, as: 'poster'}, // load poster image
+          {model: Image, as: 'thumb'}// load thumb image
+        ]
+      } // load 30 top movies
     ]
   })
     .then(handleEntityNotFound(res))
