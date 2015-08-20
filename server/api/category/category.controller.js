@@ -19,7 +19,10 @@ var includedModel = [
   {
     model: Movie, as: 'movies',
     order: [['sort', 'ASC']]
-  }
+  }, {
+    model: Movie, as: 'adSpots',
+    order: [['sort', 'ASC']]
+  } // load all adSpots
 ];
 
 function handleError(res, statusCode) {

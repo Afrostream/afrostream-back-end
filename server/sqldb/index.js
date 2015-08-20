@@ -145,13 +145,14 @@ db.Movie = db.sequelize.import(path.join(
 
 
 var CategoryMovies = db.sequelize.define('CategoryMovies', {});
+var CategoryAdSpots = db.sequelize.define('CategoryAdSpots', {});
 
 db.Licensor.hasMany(db.Movie, {as: 'movies', foreignKey: 'licensorId'});
 db.Movie.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
 
 db.Movie.belongsToMany(db.Category, {through: CategoryMovies, as: 'categorys'});
 db.Category.belongsToMany(db.Movie, {through: CategoryMovies, as: 'movies'});
-db.Category.hasMany(db.Movie, {as: 'adSpots', foreignKey: 'adSpotId'});
+db.Category.belongsToMany(db.Movie, {through: CategoryAdSpots, as: 'adSpots'});
 
 db.Movie.hasMany(db.Image);
 db.Movie.belongsTo(db.Image, {as: 'poster', constraints: false});
