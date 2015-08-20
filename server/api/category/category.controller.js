@@ -16,17 +16,29 @@ var Movie = sqldb.Movie;
 var Image = sqldb.Image;
 
 var includedModel = [
-  {model: Movie, as: 'movies'}, // load all movies
   {
-    model: Movie, as: 'adSpots',
+    model: Movie, as: 'movies',
     order: [['sort', 'ASC']]
-  } // load all adSpots
+  }
 ];
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
     res.status(statusCode).send(err);
+  };
+}
+/**
+ * Limit result in included model because it's not possible with Sequelize
+ * @param res
+ * @param statusCode
+ * @returns {Function}
+ */
+function limitResult(res, key, limit) {
+  return function (entity) {
+    if (entity) {
+      res.status(200).json(entity);
+    }
   };
 }
 
@@ -141,18 +153,6 @@ exports.show = function (req, res) {
     .catch(handleError(res));
 };
 
-// Gets a single category from the DB
-exports.mea = function (req, res) {
-  Category.findAll({
-    order: [['sort', 'ASC']],
-    include: [
-      {model: Movie, as: 'movies', limit: 30, order: [['sort', 'ASC']]} // load 20 top movies
-    ]
-  })
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
 // Gets all AdSpots in selected category
 exports.adSpot = function (req, res) {
   Category.find({
@@ -165,13 +165,27 @@ exports.adSpot = function (req, res) {
     .catch(handleError(res));
 };
 
-// Gets all AdSpots in selected category
+// Gets all categorys for menu
 exports.menu = function (req, res) {
   Category.findAll({
     order: [['sort', 'ASC']]
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
+    .catch(handleError(res));
+};
+
+
+// Gets all submovies limited
+exports.mea = function (req, res) {
+  Category.findAll({
+    order: [['sort', 'ASC']],
+    include: [
+      {model: Movie, as: 'movies', required: false, order: ['sort', 'ASC']} // load 30 top movies
+    ]
+  })
+    .then(handleEntityNotFound(res))
+    .then(limitResult(res, 'movies', 30))
     .catch(handleError(res));
 };
 
