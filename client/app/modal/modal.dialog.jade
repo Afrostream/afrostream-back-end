@@ -27,7 +27,10 @@ script(type='text/ng-template' id='imagesTemplate.html')
     div(ng-if='type === "client"')
       clients
 
-    div(ng-if='type !== "category" && type !== "video" && type !== "language" && type !== "image" && type !== "licensor" && type !== "client"')
+    div(ng-if='type === "subscription"')
+      subscriptions
+
+    div(ng-if='type !== "category" && type !== "video" && type !== "language" && type !== "image" && type !== "licensor" && type !== "client" && type !== "subscription"')
       .form-group
         label(for='type').control-label Type
       .form-group

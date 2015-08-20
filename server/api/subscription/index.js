@@ -1,15 +1,13 @@
 'use strict';
 
 var express = require('express');
-var controller = require('./category.controller');
+var controller = require('./subscription.controller');
 var auth = require('../../auth/auth.service');
+
 var router = express.Router();
 
-router.get('/', auth.isAuthenticated(), controller.index);
-router.get('/menu', auth.isAuthenticated(), controller.menu);
-router.get('/meas', auth.isAuthenticated(), controller.mea);
-router.get('/:id', auth.isAuthenticated(), controller.show);
-router.get('/:id/spots', auth.isAuthenticated(), controller.adSpot);
+router.get('/', auth.hasRole('admin'), controller.index);
+router.get('/:id', auth.hasRole('admin'), controller.show);
 router.post('/', auth.hasRole('admin'), controller.create);
 router.put('/:id', auth.hasRole('admin'), controller.update);
 router.patch('/:id', auth.hasRole('admin'), controller.update);

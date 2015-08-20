@@ -17,7 +17,10 @@ var Image = sqldb.Image;
 
 var includedModel = [
   {model: Movie, as: 'movies'}, // load all movies
-  {model: Movie, as: 'adSpots'} // load all adSpots
+  {
+    model: Movie, as: 'adSpots',
+    order: [['sort', 'DESC']]
+  } // load all adSpots
 ];
 
 function handleError(res, statusCode) {
@@ -135,12 +138,40 @@ exports.show = function (req, res) {
     .catch(handleError(res));
 };
 
+// Gets a single category from the DB
+exports.mea = function (req, res) {
+  Category.find({
+    where: {
+      _id: req.params.id
+    },
+    include: [
+      {model: Movie, as: 'movies', limit: 30, order: [['sort', 'DESC']]} // load 20 top movies
+    ]
+  })
+    .then(handleEntityNotFound(res))
+    .then(responseWithResult(res))
+    .catch(handleError(res));
+};
 // Gets all AdSpots in selected category
 exports.adSpot = function (req, res) {
   Category.find({
     where: {
       _id: req.params.id
     }
+  })
+    .then(handleEntityNotFound(res))
+    .then(responseWithAdSpot(res))
+    .catch(handleError(res));
+};
+
+// Gets all AdSpots in selected category
+exports.menu = function (req, res) {
+  Category.find({
+    where: {
+      _id: req.params.id
+    },
+    order: [['sort', 'DESC']]
+
   })
     .then(handleEntityNotFound(res))
     .then(responseWithAdSpot(res))

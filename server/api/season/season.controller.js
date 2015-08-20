@@ -19,7 +19,10 @@ var Promise = sqldb.Sequelize.Promise;
 var slugify = require('slugify');
 
 var includedModel = [
-  {model: Episode, as: 'episodes'}, // load all episodes
+  {
+    model: Episode, as: 'episodes',
+    order: [['sort', 'DESC']]
+  }, // load all episodes
   {model: Movie, as: 'movie'}, // load related movie
   {model: Image, as: 'poster'}, // load poster image
   {model: Image, as: 'thumb'} // load thumb image
