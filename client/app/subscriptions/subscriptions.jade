@@ -1,0 +1,8 @@
+.form-group(ng-if='item._id')
+  label(for='id').control-label Subscription Id
+  input.form-control(id='id' type='text' ng-model='item._id' disabled)
+.form-group(ng-if='item.user')
+  label(for='secret').control-label Email
+  input.form-control(id='secret' type='text' ng-model='item.user.name' disabled)
+  label(for='redirect').control-label Name
+  input.form-control(id='redirect' type='text' ng-model='item.user.email' disabled)
