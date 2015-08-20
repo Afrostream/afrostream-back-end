@@ -44,6 +44,7 @@ function responseWithAdSpot(res, statusCode) {
   return function (entity) {
     if (entity) {
       return entity.getAdSpots({
+        order: [['sort', 'DESC']],
         include: [
           {model: Image, as: 'logo'}, // load logo image
           {model: Image, as: 'poster'}, // load poster image
@@ -109,7 +110,9 @@ function removeEntity(res) {
 // Gets a list of categorys
 exports.index = function (req, res) {
   var queryName = req.param('query');
-  var paramsObj = {};
+  var paramsObj = {
+    order: [['sort', 'DESC']]
+  };
 
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
@@ -140,10 +143,8 @@ exports.show = function (req, res) {
 
 // Gets a single category from the DB
 exports.mea = function (req, res) {
-  Category.find({
-    where: {
-      _id: req.params.id
-    },
+  Category.findAll({
+    order: [['sort', 'DESC']],
     include: [
       {model: Movie, as: 'movies', limit: 30, order: [['sort', 'DESC']]} // load 20 top movies
     ]
@@ -166,12 +167,8 @@ exports.adSpot = function (req, res) {
 
 // Gets all AdSpots in selected category
 exports.menu = function (req, res) {
-  Category.find({
-    where: {
-      _id: req.params.id
-    },
+  Category.findAll({
     order: [['sort', 'DESC']]
-
   })
     .then(handleEntityNotFound(res))
     .then(responseWithAdSpot(res))
