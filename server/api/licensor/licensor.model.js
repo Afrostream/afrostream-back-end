@@ -17,6 +17,9 @@ module.exports = function (sequelize, DataTypes) {
     dateFrom: DataTypes.DATE,
     dateTo: DataTypes.DATE,
     sort: DataTypes.INTEGER,
-    active: DataTypes.BOOLEAN
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   });
 };

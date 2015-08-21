@@ -42,8 +42,9 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         br
                         span.text-muted {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
                       td.text-center
-                        span.text-success
-                          i.fa(class='fa-check')
+                        button.btn.btn-xs.btn-danger(ng-click='activateIndex(item)' tooltip='Delete' )
+                          span.text-success
+                            i.fa(class='fa-check')
                       td.pull-right
                         button.btn.btn-xs.btn-primary(ng-click='editIndex(item)' tooltip='Edit' )
                           span.glyphicon.glyphicon-pencil

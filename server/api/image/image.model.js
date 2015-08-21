@@ -18,6 +18,9 @@ module.exports = function (sequelize, DataTypes) {
     url: DataTypes.STRING,
     imgix: DataTypes.STRING,
     mimetype: DataTypes.STRING,
-    active: DataTypes.BOOLEAN
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    }
   });
 };

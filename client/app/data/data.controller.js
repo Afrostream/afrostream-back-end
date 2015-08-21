@@ -46,6 +46,12 @@ angular.module('afrostreamAdminApp')
       }, function (err) {
       });
     };
+    $scope.activateIndex = function (item) {
+      item.active != item.active;
+      $http.put('/api/' + $scope.type + 's/' + item._id, item).then(function (result) {
+      }, function (err) {
+      });
+    };
 
     $scope.deleteIndex = function (item) {
       $http.delete('/api/' + $scope.type + 's/' + item._id);

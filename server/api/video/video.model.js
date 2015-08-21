@@ -13,6 +13,9 @@ module.exports = function (sequelize, DataTypes) {
     info: DataTypes.STRING,
     assetId: DataTypes.UUID,
     captionId: DataTypes.UUID,
-    active: DataTypes.BOOLEAN
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   });
 };

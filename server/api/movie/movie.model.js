@@ -34,6 +34,9 @@ module.exports = function (sequelize, DataTypes) {
     seasonId: DataTypes.INTEGER,
     slug: DataTypes.STRING,
     sort: DataTypes.INTEGER,
-    active: DataTypes.BOOLEAN
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   });
 };

@@ -22,11 +22,13 @@ module.exports = function (sequelize, DataTypes) {
     },
     duration: DataTypes.DECIMAL,
     seasonId: DataTypes.INTEGER,
-    episodeNumber: DataTypes.INTEGER,
     videoId: DataTypes.UUID,
     imdbId: DataTypes.STRING,
     slug: DataTypes.STRING,
     sort: DataTypes.INTEGER,
-    active: DataTypes.BOOLEAN
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    }
   });
 };
