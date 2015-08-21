@@ -85,7 +85,7 @@ function signToken(id) {
  * Returns a jwt token signed by the app secret
  */
 function mergeQuery(params) {
-  var isUser = hasRole('user');
+  var isUser = hasRole('client|user');
   if (isUser) {
     params = _.merge(params, {
       where: {
