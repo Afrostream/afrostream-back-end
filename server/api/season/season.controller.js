@@ -164,7 +164,7 @@ exports.index = function (req, res) {
       }
     })
   }
-  Season.findAll(auth.mergeQuery(paramsObj))
+  Season.findAll(auth.mergeQuery(req, paramsObj))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -172,7 +172,7 @@ exports.index = function (req, res) {
 
 // Gets a single season from the DB
 exports.show = function (req, res) {
-  Season.find(auth.mergeQuery({
+  Season.find(auth.mergeQuery(req, {
     where: {
       _id: req.params.id
     },

@@ -52,6 +52,11 @@ function isAuthenticated() {
 
 }
 
+function validRole(req, roleRequired) {
+  return config.userRoles.indexOf(req.user.role) >=
+    config.userRoles.indexOf(roleRequired);
+}
+
 /**
  * Checks if the user role meets the minimum requirements of the route
  */
@@ -63,9 +68,7 @@ function hasRole(roleRequired) {
   return compose()
     .use(isAuthenticated())
     .use(function meetsRequirements(req, res, next) {
-      console.log('meetsRequirements')
-      if (config.userRoles.indexOf(req.user.role) >=
-        config.userRoles.indexOf(roleRequired)) {
+      if (validRole(req, roleRequired)) {
         next();
       }
       else {
@@ -85,9 +88,11 @@ function signToken(id) {
 /**
  * Returns a jwt token signed by the app secret
  */
-function mergeQuery(params) {
-  var isUser = hasRole('client|user');
-  if (isUser) {
+function mergeQuery(req, params) {
+  var roleRequired = 'admin';
+  var isAdmin = validRole(req, roleRequired);
+
+  if (!isAdmin) {
     params = _.merge(params, {
       where: {
         active: true
