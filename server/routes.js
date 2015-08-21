@@ -29,6 +29,7 @@ module.exports = function (app) {
   app.use('/api/movies', require('./api/movie'));
   app.use('/api/series', require('./api/movie'));
   app.use('/api/users', require('./api/user'));
+  app.use('/api/digibos', require('./api/digibos'));
 
   app.use('/auth', require('./auth'));
 

@@ -36,6 +36,8 @@
     "passport-oauth2-client-password": "^0.1.2",
     "pg": "^4.4.1",
     "pg-hstore": "^2.3.2",
+    "request": "^2.61.0",
+    "request-promise": "^0.4.3",
     "sequelize": "^3.5.1",
     "serve-favicon": "~2.0.1",
     "slugify": "^0.1.1",

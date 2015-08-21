@@ -56,6 +56,10 @@ var all = {
     domain: process.env.IMGIX_DOMAIN || 'afrostream.imgix.net'
   },
 
+  digibos: {
+    domain: process.env.DIGIBOS_DOMAIN || 'http://mam.integ.zantetsuken.org:3000/api/contents'
+  },
+
   google: {
     clientID: process.env.GOOGLE_ID || 'id',
     clientSecret: process.env.GOOGLE_SECRET || 'secret',

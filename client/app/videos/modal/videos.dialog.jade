@@ -1,0 +1,28 @@
+.modal-header(style='background-image:url({{item.poster}});')
+  button.close(data-dismiss='modal' aria-hidden='true')
+  h4.modal-title Digibos sources assets
+.modal-body
+  .row
+    table.table.table-striped.table-hover.table-condensed
+      colgroup
+        col.col-md-2
+        col.col-md-6
+        col.col-md-2
+        col.col-md-2
+      thead
+        tr
+          th Id
+          th Title
+          th State
+          th Duration
+      tbody
+        tr(ng-repeat='item in digibosSources' ng-click='selectVideo(item)')
+          td
+            span {{item.id}}
+          td
+            strong {{item.title}}
+          td.text-center
+            i.glyphicon(ng-class='item.state ==="ready" ? "glyphicon-ok" : "glyphicon-ko"')
+          td
+            strong {{item.duration}}
+.modal-footer

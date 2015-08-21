@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('VideosCtrl', function ($scope, $log, $http, Asset, Caption, Lang) {
+  .controller('VideosCtrl', function ($scope, $log, $http, $modal, Asset, Caption, Lang) {
 
     $scope.languages = Lang.query();
 
@@ -17,6 +17,20 @@ angular.module('afrostreamAdminApp')
       $scope.item.sources = $scope.item.sources || [];
       $scope.item.captions = $scope.item.captions || [];
     });
+
+    $scope.newElemFromLudobos = function (data) {
+      $modal.open({
+        templateUrl: 'app/videos/modal/videos.html', // Url du template HTML
+        controller: 'VideosDialogCtrl',
+        size: 'lg',
+        scope: $scope,
+        resolve: {
+          item: function () {
+            return data;
+          }
+        }
+      });
+    };
 
     $scope.newElem = function (data) {
       if (!data) {
