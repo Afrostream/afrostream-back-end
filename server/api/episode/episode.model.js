@@ -24,6 +24,7 @@ module.exports = function (sequelize, DataTypes) {
     seasonId: DataTypes.INTEGER,
     episodeNumber: DataTypes.INTEGER,
     videoId: DataTypes.UUID,
+    imdbId: DataTypes.STRING,
     slug: DataTypes.STRING,
     sort: DataTypes.INTEGER,
     active: DataTypes.BOOLEAN
