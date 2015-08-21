@@ -81,6 +81,20 @@ function signToken(id) {
     expiresInMinutes: 60 * 5
   });
 }
+/**
+ * Returns a jwt token signed by the app secret
+ */
+function mergeQuery(params) {
+  var isUser = hasRole('user');
+  if (isUser) {
+    params = _.merge(params, {
+      where: {
+        active: true
+      }
+    })
+  }
+  return params;
+}
 
 /**
  * Set token cookie directly for oAuth strategies
@@ -98,3 +112,4 @@ exports.isAuthenticated = isAuthenticated;
 exports.hasRole = hasRole;
 exports.signToken = signToken;
 exports.setTokenCookie = setTokenCookie;
+exports.mergeQuery = mergeQuery;

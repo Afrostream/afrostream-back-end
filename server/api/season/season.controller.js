@@ -17,6 +17,7 @@ var Episode = sqldb.Episode;
 var Image = sqldb.Image;
 var Promise = sqldb.Sequelize.Promise;
 var slugify = require('slugify');
+var auth = require('../../auth/auth.service');
 
 var includedModel = [
   {
@@ -163,7 +164,7 @@ exports.index = function (req, res) {
       }
     })
   }
-  Season.findAll(paramsObj)
+  Season.findAll(auth.mergeQuery(paramsObj))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -171,12 +172,12 @@ exports.index = function (req, res) {
 
 // Gets a single season from the DB
 exports.show = function (req, res) {
-  Season.find({
+  Season.find(auth.mergeQuery({
     where: {
       _id: req.params.id
     },
     include: includedModel
-  })
+  }))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));

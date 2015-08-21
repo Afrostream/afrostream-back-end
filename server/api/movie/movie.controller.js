@@ -17,6 +17,7 @@ var Season = sqldb.Season;
 var Image = sqldb.Image;
 var Licensor = sqldb.Licensor;
 var Video = sqldb.Video;
+var auth = require('../../auth/auth.service');
 
 var includedModel = [
   {model: Category, as: 'categorys'}, // load all episodes
@@ -167,7 +168,7 @@ exports.index = function (req, res) {
       }
     })
   }
-  Movie.findAll(paramsObj)
+  Movie.findAll(auth.mergeQuery(paramsObj))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -175,12 +176,12 @@ exports.index = function (req, res) {
 
 // Gets a single movie from the DB
 exports.show = function (req, res) {
-  Movie.find({
+  Movie.find(auth.mergeQuery({
     where: {
       _id: req.params.id
     },
     include: includedModel
-  })
+  }))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -188,11 +189,11 @@ exports.show = function (req, res) {
 
 // Gets all Seasons in selected category
 exports.seasons = function (req, res) {
-  Movie.find({
+  Movie.find(auth.mergeQuery({
     where: {
       _id: req.params.id
     }
-  })
+  }))
     .then(handleEntityNotFound(res))
     .then(responseWithSeasons(res))
     .catch(handleError(res));

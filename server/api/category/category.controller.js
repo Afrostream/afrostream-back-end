@@ -14,6 +14,7 @@ var sqldb = require('../../sqldb');
 var Category = sqldb.Category;
 var Movie = sqldb.Movie;
 var Image = sqldb.Image;
+var auth = require('../../auth/auth.service');
 
 var includedModel = [
   {
@@ -137,7 +138,7 @@ exports.index = function (req, res) {
     })
   }
 
-  Category.findAll(paramsObj)
+  Category.findAll(auth.mergeQuery(paramsObj))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -145,12 +146,12 @@ exports.index = function (req, res) {
 
 // Gets a single category from the DB
 exports.show = function (req, res) {
-  Category.find({
+  Category.find(auth.mergeQuery({
     where: {
       _id: req.params.id
     },
     include: includedModel
-  })
+  }))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -158,11 +159,11 @@ exports.show = function (req, res) {
 
 // Gets all AdSpots in selected category
 exports.adSpot = function (req, res) {
-  Category.find({
+  Category.find(auth.mergeQuery({
     where: {
       _id: req.params.id
     }
-  })
+  }))
     .then(handleEntityNotFound(res))
     .then(responseWithAdSpot(res))
     .catch(handleError(res));
@@ -170,9 +171,9 @@ exports.adSpot = function (req, res) {
 
 // Gets all categorys for menu
 exports.menu = function (req, res) {
-  Category.findAll({
+  Category.findAll(auth.mergeQuery({
     order: [['sort', 'ASC']]
-  })
+  }))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -181,7 +182,7 @@ exports.menu = function (req, res) {
 
 // Gets all submovies limited
 exports.mea = function (req, res) {
-  Category.findAll({
+  Category.findAll(auth.mergeQuery({
     order: [['sort', 'ASC']],
     include: [
       {
@@ -195,7 +196,7 @@ exports.mea = function (req, res) {
         ]
       } // load 30 top movies
     ]
-  })
+  }))
     .then(handleEntityNotFound(res))
     .then(limitResult(res, 'movies', 30))
     .catch(handleError(res));
