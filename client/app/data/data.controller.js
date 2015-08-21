@@ -47,7 +47,7 @@ angular.module('afrostreamAdminApp')
       });
     };
     $scope.activateIndex = function (item) {
-      item.active != item.active;
+      item.active = !item.active;
       $http.put('/api/' + $scope.type + 's/' + item._id, item).then(function (result) {
       }, function (err) {
       });
