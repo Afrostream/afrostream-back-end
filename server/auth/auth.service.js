@@ -1,5 +1,6 @@
 'use strict';
 
+var _ = require('lodash');
 var passport = require('passport');
 var config = require('../config/environment');
 var jwt = require('jsonwebtoken');
