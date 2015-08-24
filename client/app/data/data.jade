@@ -9,7 +9,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
           rd-widget
             rd-widget-header(icon='fa-tasks' title='{{type}}')
               .row
-                input.form-control.input-sm(type='text' placeholder='Find a {{type}} here.' ng-model='$parent.$parent.searchField')
+                input.form-control.input-sm(type='text' placeholder='Find a {{type}} here.' ng-model='$parent.$parent.$parent.searchField')
               .row
                 button.btn.btn-xs.btn-primary.pull-right(ng-click='newIndex()')
                   span.glyphicon.glyphicon-plus
@@ -33,7 +33,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                       th.text-center In prod
                       th.text-center Actions
                   tbody(ui-sortable='sortableOptions' ng-model='items')
-                    tr(ng-repeat='item in items')
+                    tr(dir-paginate='item in items | itemsPerPage: itemsPerPage' total-items='totalItems' current-page='pagination.current')
                       td.text-center
                         span {{item._id}}
                       td(ng-if='hasThumb()')
@@ -54,4 +54,5 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                           span.fa.fa-clone
                         button.btn.btn-xs.btn-danger(ng-click='deleteIndex(item)' tooltip='Delete' )
                           span.glyphicon.glyphicon-trash
-              div(bgf-pagination collection='items' url='apiRessourceUrl' url-params='apiParamsUrl')
+              //div(bgf-pagination collection='items' url='apiRessourceUrl' url-params='apiParamsUrl' )
+              dir-pagination-controls(on-page-change='pageChanged(newPageNumber)')
