@@ -1,9 +1,12 @@
 .modal-header(style='background-image:url({{item.poster}});')
   button.close(data-dismiss='modal' aria-hidden='true')
   h4.modal-title Digibos sources assets
+
 .modal-body
   .row
-    table.table.table-striped.table-hover.table-condensed
+    input.form-control.input-sm(type='text' placeholder='Find a {{type}} here.' ng-model='searchField')
+  .row
+    table.table.table-striped.table-hover.table-condensed(data-click-to-select='true')
       colgroup
         col.col-md-2
         col.col-md-6
@@ -16,7 +19,7 @@
           th State
           th Duration
       tbody
-        tr(ng-repeat='item in digibosSources' ng-click='selectVideo(item)')
+        tr(ng-repeat='item in digibosSources | filter:searchField' ng-click='selectVideo(item)' ng-class='{"selected":item.id == selectedItem.id}')
           td
             span {{item.id}}
           td
@@ -26,3 +29,5 @@
           td
             strong {{item.duration}}
 .modal-footer
+  button.btn.btn-primary(type='submit' ng-click='addVideo()' ng-disabled='!selectedItem.id') Import
+  button.btn.btn-primary(ng-click='cancel()') Cancel
