@@ -11,8 +11,15 @@
 
 var _ = require('lodash');
 var sqldb = require('../../sqldb');
+var config = require('../../config/environment');
+var Promise = sqldb.Sequelize.Promise;
+var jwt = require('jsonwebtoken');
+var jwtVerifyAsync = Promise.promisify(jwt.verify, jwt);
 var Asset = sqldb.Asset;
 var Episode = sqldb.Episode;
+
+// extend with Request#proxy()
+//require('superagent-proxy')(request);
 
 Asset.belongsTo(Episode, {foreignKey: 'episode'}); // Adds episodeId to Asset
 
@@ -20,6 +27,18 @@ function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
     res.status(statusCode).send(err);
+  };
+}
+
+function responseWithTokenResult(req, res, statusCode) {
+  statusCode = statusCode || 200;
+  return function (entity) {
+    if (entity) {
+      // verify a token symmetric
+      return jwtVerifyAsync(req.params.token, config.secrets.session).then(function () {
+        res.redirect(entity.src);
+      })
+    }
   };
 }
 
@@ -77,7 +96,19 @@ exports.show = function (req, res) {
     }
   })
     .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(responseWithTokenResult(req, res))
+    .catch(handleError(res));
+};
+
+//get single Asset but validate jwt tokenized
+exports.showToken = function (req, res) {
+  Asset.find({
+    where: {
+      _id: req.params.id
+    }
+  })
+    .then(handleEntityNotFound(res))
+    .then(responseWithTokenResult(req, res))
     .catch(handleError(res));
 };
 

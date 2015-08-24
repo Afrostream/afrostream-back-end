@@ -7,8 +7,8 @@
 .form-group.form-group-heading
   .row.row-header
     label.control-label Assets
-    button.btn.btn-xs.btn-primary.pull-right(ng-click='newElemFromLudobos(item.sources)')
-      span.glyphicon.glyphicon-plus Add from ludobos
+    button.btn.btn-xs.btn-primary.pull-right(ng-click='newElem(item.sources)')
+      span.glyphicon.glyphicon-plus
   .row
     .col-lg-12
       .row(ng-repeat='asset in item.sources')
@@ -20,11 +20,6 @@
           .button-group-vertical
             button.btn.btn-xs.btn-danger(ng-click='removeElem(asset,item.sources,"asset",$index)')
               span.glyphicon.glyphicon-trash.pull-right
-
-  .row.row-header
-    label.control-label Assets
-    button.btn.btn-xs.btn-primary.pull-right(ng-click='newElem(item.sources)')
-      span.glyphicon.glyphicon-plus
 
 .form-group.form-group-heading
   .row.row-header

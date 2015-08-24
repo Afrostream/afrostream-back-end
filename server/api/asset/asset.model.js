@@ -12,6 +12,7 @@ module.exports = function (sequelize, DataTypes) {
     src: DataTypes.STRING,
     type: DataTypes.STRING,
     videoId: DataTypes.UUID,
+    importId: DataTypes.INTEGER,
     sort: DataTypes.INTEGER,
     active: {
       type: DataTypes.BOOLEAN,

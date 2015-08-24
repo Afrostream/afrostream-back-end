@@ -30,7 +30,8 @@ var all = {
   // Secret for session, you will want to change this and make it an environment variable
   secrets: {
     session: 'afrostream-admin-secret',
-    expire: 1800
+    expire: 1800,
+    videoExpire: 5
   },
   oauth2: true,
   // List of user roles

@@ -22,6 +22,7 @@ angular.module('afrostreamAdminApp')
       }
     };
     $scope.sortableOptions = {
+      axis: 'y',
       stop: function () {
         for (var index in $scope.items) {
           var item = $scope.items[index];

@@ -32,7 +32,7 @@ exports.index = function (req, res) {
 
 // Gets a single accessToken from the DB
 exports.show = function (req, res) {
-  request(config.digibos.domain + '/' / req.params.id)
+  request(config.digibos.domain + '/' + req.params.id)
     .then(responseWithResult(res))
     .catch(handleError(res));
 };

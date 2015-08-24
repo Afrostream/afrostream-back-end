@@ -10,12 +10,10 @@ module.exports = function (sequelize, DataTypes) {
       primaryKey: true
     },
     name: DataTypes.STRING,
-    info: DataTypes.STRING,
-    assetId: DataTypes.UUID,
-    captionId: DataTypes.UUID,
+    importId: DataTypes.INTEGER,
     active: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false
+      defaultValue: true
     }
   });
 };

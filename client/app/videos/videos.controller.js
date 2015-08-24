@@ -9,6 +9,7 @@ angular.module('afrostreamAdminApp')
       'video/mp4',
       'video/webm',
       'video/ogg',
+      'application/x-mpegURL',
       'application/dash+xml'
     ];
 

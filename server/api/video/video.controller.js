@@ -10,11 +10,16 @@
 'use strict';
 
 var _ = require('lodash');
+var path = require('path');
 var sqldb = require('../../sqldb');
+var config = require('../../config/environment');
 var Video = sqldb.Video;
 var Asset = sqldb.Asset;
 var Caption = sqldb.Caption;
 var Promise = sqldb.Sequelize.Promise;
+var jwt = require('jsonwebtoken');
+var jwtSignAsync = Promise.promisify(jwt.sign, jwt);
+
 var includedModel = [
   {model: Asset, as: 'sources'}, // load all sources assets
   {model: Caption, as: 'captions'} // load all sources captions
@@ -31,6 +36,26 @@ function responseWithResult(res, statusCode) {
   return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity);
+    }
+  };
+}
+
+/**
+ * Tokenize videoId
+ * @returns {Function}
+ */
+function tokenizeResult(res) {
+  return function (entity) {
+    if (entity) {
+      var token = jwt.sign({_id: entity._id}, config.secrets.session, {
+        expiresInMinutes: config.secrets.videoExpire
+      });
+      entity.dataValues.sources = _.forEach(entity.dataValues.sources, function (asset) {
+        _.assign(asset.dataValues, {
+          src: path.join('/assets', token, asset._id)
+        });
+      });
+      res.status(200).json(entity);
     }
   };
 }
@@ -141,6 +166,25 @@ exports.show = function (req, res) {
 
   Video.find(paramsObj)
     .then(handleEntityNotFound(res))
+    .then(responseWithResult(res))
+    .catch(handleError(res));
+};
+
+// Gets a single video from the DB width tokenized url
+exports.showToken = function (req, res) {
+  var paramsObj = {
+    include: includedModel
+  };
+
+  paramsObj = _.merge(paramsObj, {
+    where: {
+      _id: req.params.id
+    }
+  });
+
+  Video.find(paramsObj)
+    .then(handleEntityNotFound(res))
+    .then(tokenizeResult(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
