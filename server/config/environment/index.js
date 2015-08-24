@@ -65,6 +65,10 @@ var all = {
     clientID: process.env.GOOGLE_ID || 'id',
     clientSecret: process.env.GOOGLE_SECRET || 'secret',
     callbackURL: (process.env.DOMAIN || '') + '/auth/google/callback'
+  },
+  pagination: {
+    total: 10000,
+    max: 10000
   }
 };
 

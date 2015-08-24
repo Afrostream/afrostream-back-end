@@ -14,7 +14,8 @@ angular.module('afrostreamAdminApp', [
   'ngToast',
   'ngTagsInput',
   'ui.bootstrap-slider',
-  'ui.sortable'
+  'ui.sortable',
+  'angularUtils.directives.dirPagination'
 ])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $urlRouterProvider
