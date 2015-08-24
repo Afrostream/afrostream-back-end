@@ -34,28 +34,31 @@ angular.module('afrostreamAdminApp')
       }
     };
 
-    $http.get('/api/' + $scope.type + 's').success(function (items) {
-      $scope.items = items;
-      $scope.items.sort(function (a, b) {
-        return a.sort > b.sort;
-      });
-      socket.syncUpdates($scope.type, $scope.items);
-    });
+
+    $scope.apiRessourceUrl = '/api/' + $scope.type + 's';
+
+    //$http.get($scope.apiRessourceUrl).success(function (items) {
+    //  $scope.items = items;
+    //  $scope.items.sort(function (a, b) {
+    //    return a.sort > b.sort;
+    //  });
+    //  socket.syncUpdates($scope.type, $scope.items);
+    //});
 
     $scope.updateIndex = function (item) {
-      $http.put('/api/' + $scope.type + 's/' + item._id, item).then(function (result) {
+      $http.put($scope.apiRessourceUrl + '/' + item._id, item).then(function (result) {
       }, function (err) {
       });
     };
     $scope.activateIndex = function (item) {
       item.active = !item.active;
-      $http.put('/api/' + $scope.type + 's/' + item._id, item).then(function (result) {
+      $http.put($scope.apiRessourceUrl + '/' + item._id, item).then(function (result) {
       }, function (err) {
       });
     };
 
     $scope.deleteIndex = function (item) {
-      $http.delete('/api/' + $scope.type + 's/' + item._id);
+      $http.delete($scope.apiRessourceUrl + '/' + item._id);
     };
 
     $scope.$on('$destroy', function () {
@@ -80,7 +83,7 @@ angular.module('afrostreamAdminApp')
         copyItem.label = copyItem.label + '(clone)'
       }
 
-      $http.post('/api/' + $scope.type + 's/', copyItem).then(function (result) {
+      $http.post($scope.apiRessourceUrl + '/', copyItem).then(function (result) {
       }, function (err) {
         $log.debug(err.statusText);
       });

@@ -138,7 +138,7 @@ exports.index = function (req, res) {
     })
   }
 
-  Category.findAll(auth.mergeQuery(req, paramsObj))
+  Category.findAll(auth.mergeQuery(req, res, paramsObj))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -146,7 +146,7 @@ exports.index = function (req, res) {
 
 // Gets a single category from the DB
 exports.show = function (req, res) {
-  Category.find(auth.mergeQuery(req, {
+  Category.find(auth.mergeQuery(req, res, {
     where: {
       _id: req.params.id
     },
@@ -159,7 +159,7 @@ exports.show = function (req, res) {
 
 // Gets all AdSpots in selected category
 exports.adSpot = function (req, res) {
-  Category.find(auth.mergeQuery(req, {
+  Category.find(auth.mergeQuery(req, res, {
     where: {
       _id: req.params.id
     }
@@ -171,7 +171,7 @@ exports.adSpot = function (req, res) {
 
 // Gets all categorys for menu
 exports.menu = function (req, res) {
-  Category.findAll(auth.mergeQuery(req, {
+  Category.findAll(auth.mergeQuery(req, res, {
     order: [['sort', 'ASC']]
   }))
     .then(handleEntityNotFound(res))
@@ -182,7 +182,7 @@ exports.menu = function (req, res) {
 
 // Gets all submovies limited
 exports.mea = function (req, res) {
-  Category.findAll(auth.mergeQuery(req, {
+  Category.findAll(auth.mergeQuery(req, res, {
     order: [['sort', 'ASC']],
     include: [
       {

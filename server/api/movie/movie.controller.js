@@ -168,7 +168,7 @@ exports.index = function (req, res) {
       }
     })
   }
-  Movie.findAll(auth.mergeQuery(req, paramsObj))
+  Movie.findAll(auth.mergeQuery(req, res, paramsObj))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -176,7 +176,7 @@ exports.index = function (req, res) {
 
 // Gets a single movie from the DB
 exports.show = function (req, res) {
-  Movie.find(auth.mergeQuery(req, {
+  Movie.find(auth.mergeQuery(req, res, {
     where: {
       _id: req.params.id
     },
@@ -189,7 +189,7 @@ exports.show = function (req, res) {
 
 // Gets all Seasons in selected category
 exports.seasons = function (req, res) {
-  Movie.find(auth.mergeQuery(req, {
+  Movie.find(auth.mergeQuery(req, res, {
     where: {
       _id: req.params.id
     }

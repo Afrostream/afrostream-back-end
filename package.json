@@ -26,6 +26,7 @@
     "mongoose": "~4.0.3",
     "mongoose-bird": "~0.0.1",
     "morgan": "~1.0.0",
+    "node-paginate-anything": "0.0.5",
     "oauth2orize": "^1.0.1",
     "oauthorize": "^0.1.0",
     "passport": "~0.2.0",
