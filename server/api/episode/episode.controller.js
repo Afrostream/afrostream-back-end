@@ -15,6 +15,7 @@ var Episode = sqldb.Episode;
 var Season = sqldb.Season;
 var Video = sqldb.Video;
 var Image = sqldb.Image;
+var auth = require('../../auth/auth.service');
 
 var includedModel = [
   {
@@ -124,7 +125,7 @@ exports.index = function (req, res) {
     })
   }
 
-  Episode.findAll(paramsObj)
+  Episode.findAll(auth.mergeQuery(req, res, paramsObj))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -132,12 +133,12 @@ exports.index = function (req, res) {
 
 // Gets a single episode from the DB
 exports.show = function (req, res) {
-  Episode.find({
+  Episode.find(auth.mergeQuery(req, res, {
     where: {
       _id: req.params.id
     },
     include: includedModel
-  })
+  }))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));

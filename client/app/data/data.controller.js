@@ -6,6 +6,15 @@ angular.module('afrostreamAdminApp')
     $scope.items = [];
     $scope.currentItem = {};
     $scope.searchField = '';
+    $scope.$watch('searchField', function () {
+      $http.get($scope.apiRessourceUrl, {query: $scope.searchField}).success(function (items) {
+        $scope.items = items;
+        $scope.items.sort(function (a, b) {
+          return a.sort > b.sort;
+        });
+        socket.syncUpdates($scope.type, $scope.items);
+      });
+    });
 
     var modalOpts = {
       templateUrl: 'app/modal/modal.html', // Url du template HTML
@@ -38,14 +47,7 @@ angular.module('afrostreamAdminApp')
     $scope.apiRessourceUrl = '/api/' + $scope.type + 's';
     $scope.apiParamsUrl = {
       query: $scope.searchField
-    }
-    //$http.get($scope.apiRessourceUrl).success(function (items) {
-    //  $scope.items = items;
-    //  $scope.items.sort(function (a, b) {
-    //    return a.sort > b.sort;
-    //  });
-    //  socket.syncUpdates($scope.type, $scope.items);
-    //});
+    };
 
     $scope.updateIndex = function (item) {
       $http.put($scope.apiRessourceUrl + '/' + item._id, item).then(function (result) {

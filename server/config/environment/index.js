@@ -67,7 +67,7 @@ var all = {
     callbackURL: (process.env.DOMAIN || '') + '/auth/google/callback'
   },
   pagination: {
-    total: 100,
+    total: 10000,
     max: 10000
   }
 };

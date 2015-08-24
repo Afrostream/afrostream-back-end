@@ -101,10 +101,10 @@ function mergeQuery(req, res, params) {
       }
     })
   }
-  params = _.merge({
+  params = _.merge(params, {
     offset: queryParameters.skip,
     limit: queryParameters.limit
-  }, params);
+  });
   return params;
 }
 
