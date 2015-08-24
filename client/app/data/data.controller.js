@@ -36,7 +36,9 @@ angular.module('afrostreamAdminApp')
 
 
     $scope.apiRessourceUrl = '/api/' + $scope.type + 's';
-
+    $scope.apiParamsUrl = {
+      query: $scope.searchField
+    }
     //$http.get($scope.apiRessourceUrl).success(function (items) {
     //  $scope.items = items;
     //  $scope.items.sort(function (a, b) {
