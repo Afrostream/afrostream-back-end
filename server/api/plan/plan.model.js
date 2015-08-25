@@ -15,6 +15,11 @@ module.exports = function (sequelize, DataTypes) {
       allowNull: false,
       defaultValue: 0
     },
+    recurring: {
+      type: DataTypes.ENUM,
+      values: ['monthly', 'annual'],
+      defaultValue: 'monthly'
+    },
     planCode: DataTypes.STRING,
     active: DataTypes.BOOLEAN
   });
