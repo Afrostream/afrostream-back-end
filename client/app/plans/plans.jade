@@ -7,6 +7,13 @@
   input.form-control(type='text' ng-model='item.planCode')
 
 .form-group
+  label(for='type').control-label Recurring
+.form-group
+  .btn-group
+    label.btn.btn-primary(ng-model='item.recurring' btn-radio='"monthly"' ) Monthly
+    label.btn.btn-primary(ng-model='item.recurring' btn-radio='"annual"' ) Annual
+
+.form-group
   label.control-label Info
   textarea.form-control(rows='4' cols='50' ng-model='item.info')
 
