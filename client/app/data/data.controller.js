@@ -2,9 +2,10 @@
 
 angular.module('afrostreamAdminApp')
   .controller('DataCtrl', function ($scope, $log, $http, socket, $modal, $state) {
+    var defaultPerPage = 25;
     $scope.type = $state.current.type || 'movie';
     $scope.items = [];
-    $scope.itemsPerPage = 25;
+    $scope.itemsPerPage = defaultPerPage;
     $scope.totalItems = 0;
     $scope.currentItem = {};
     $scope.searchField = '';
@@ -57,6 +58,9 @@ angular.module('afrostreamAdminApp')
           $scope.items.sort(function (a, b) {
             return a.sort > b.sort;
           });
+
+          $scope.numPages = Math.ceil($scope.totalItems / ($scope.itemsPerPage || defaultPerPage));
+
           socket.syncUpdates($scope.type, $scope.items);
         });
     }

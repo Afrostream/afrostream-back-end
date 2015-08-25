@@ -24,7 +24,9 @@ angular.module('afrostreamAdminApp', [
     $locationProvider.html5Mode(true);
     $httpProvider.interceptors.push('authInterceptor');
   })
-
+  //.config(function (paginationTemplateProvider) {
+  //  paginationTemplateProvider.setPath('components/pagination/pagination.html');
+  //})
   .factory('authInterceptor', function ($rootScope, $q, $cookies, $injector) {
     var state;
     return {
