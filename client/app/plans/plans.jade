@@ -12,4 +12,5 @@
 
 .form-group
   label.control-label Price in cents {{item.price / 100}} €
-  slider(min='0' step='1' max='10000' ng-model='item.price' precision='0')
+  input.form-control(type='number' ng-model='item.price')
+  //slider(min='0' step='0.1' max='10000' ng-model='item.price' precision='0')
