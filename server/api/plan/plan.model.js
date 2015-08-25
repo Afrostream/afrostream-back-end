@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function (sequelize, DataTypes) {
-  return sequelize.define('Subscription', {
+  return sequelize.define('Plan', {
     _id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -10,10 +10,12 @@ module.exports = function (sequelize, DataTypes) {
     },
     name: DataTypes.STRING,
     info: DataTypes.STRING,
-    planId: DataTypes.INTEGER,
-    active: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
-    }
+    price: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    planCode: DataTypes.STRING,
+    active: DataTypes.BOOLEAN
   });
 };

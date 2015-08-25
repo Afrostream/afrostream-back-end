@@ -18,6 +18,7 @@ function onConnect(socket) {
   });
 
   // Insert sockets below
+  require('../api/plan/plan.socket').register(socket);
   require('../api/subscription/subscription.socket').register(socket);
   require('../api/refreshToken/refreshToken.socket').register(socket);
   require('../api/accessToken/accessToken.socket').register(socket);

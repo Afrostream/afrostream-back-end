@@ -156,6 +156,8 @@ angular.module('afrostreamAdminApp')
         case'language':
         case'client':
         case'video':
+        case'plan':
+        case'subscription':
           hasTmb = false;
           break;
         default:
