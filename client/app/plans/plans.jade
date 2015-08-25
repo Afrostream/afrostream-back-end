@@ -1,0 +1,15 @@
+.form-group
+  label.control-label Name
+  input.form-control(type='text' ng-model='item.name')
+
+.form-group
+  label.control-label Plan Code
+  input.form-control(type='text' ng-model='item.planCode')
+
+.form-group
+  label.control-label Info
+  textarea.form-control(rows='4' cols='50' ng-model='item.info')
+
+.form-group
+  label.control-label Price in cents {{item.price / 100}} €
+  slider(min='0' step='1' max='10000' ng-model='item.price' precision='0')

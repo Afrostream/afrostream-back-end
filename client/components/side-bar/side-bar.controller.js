@@ -43,6 +43,10 @@ angular.module('afrostreamAdminApp')
       'state': 'users',
       'icon': 'fa-users'
     }, {
+      'title': 'Plans',
+      'state': 'plans',
+      'icon': 'fa-cc-mastercard'
+    }, {
       'title': 'Subscriptions',
       'state': 'subscriptions',
       'icon': 'fa-credit-card'

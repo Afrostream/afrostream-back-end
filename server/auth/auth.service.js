@@ -92,7 +92,7 @@ function signToken(id) {
 function mergeQuery(req, res, params) {
   var roleRequired = 'admin';
   var isAdmin = validRole(req, roleRequired);
-  var queryParameters = paginate(req, res, config.pagination.total, config.pagination.max);
+  var queryParameters = paginate(req, res);
 
   if (!isAdmin) {
     params = _.merge(params, {
