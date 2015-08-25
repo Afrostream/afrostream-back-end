@@ -52,7 +52,7 @@ function tokenizeResult(res) {
       });
       entity.dataValues.sources = _.forEach(entity.dataValues.sources, function (asset) {
         _.assign(asset.dataValues, {
-          src: path.join('/assets', token, asset._id)
+          src: path.join('/assets', asset._id, token)
         });
       });
       res.status(200).json(entity);

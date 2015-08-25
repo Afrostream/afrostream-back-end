@@ -30,8 +30,7 @@ function handleError(res, statusCode) {
   };
 }
 
-function responseWithTokenResult(req, res, statusCode) {
-  statusCode = statusCode || 200;
+function responseWithTokenResult(req, res) {
   return function (entity) {
     if (entity) {
       // verify a token symmetric
@@ -96,7 +95,7 @@ exports.show = function (req, res) {
     }
   })
     .then(handleEntityNotFound(res))
-    .then(responseWithTokenResult(req, res))
+    .then(responseWithResult(res))
     .catch(handleError(res));
 };
 
