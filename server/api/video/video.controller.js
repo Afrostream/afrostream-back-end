@@ -11,6 +11,7 @@
 
 var _ = require('lodash');
 var path = require('path');
+var url = require('url');
 var sqldb = require('../../sqldb');
 var config = require('../../config/environment');
 var Video = sqldb.Video;
@@ -18,7 +19,7 @@ var Asset = sqldb.Asset;
 var Caption = sqldb.Caption;
 var Promise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
-var jwtSignAsync = Promise.promisify(jwt.sign, jwt);
+var auth = require('../../auth/auth.service');
 
 var includedModel = [
   {model: Asset, as: 'sources'}, // load all sources assets
@@ -50,9 +51,9 @@ function tokenizeResult(res) {
       var token = jwt.sign({_id: entity._id}, config.secrets.session, {
         expiresInMinutes: config.secrets.videoExpire
       });
-      entity.dataValues.sources = _.forEach(entity.dataValues.sources, function (asset) {
-        _.assign(asset.dataValues, {
-          src: path.join('/assets', token, asset._id)
+      entity.sources = _.forEach(entity.sources, function (asset) {
+        _.assign(asset, {
+          src: path.join('/assets', asset._id, token, url.parse(asset.src).pathname)
         });
       });
       res.status(200).json(entity);
@@ -163,30 +164,20 @@ exports.show = function (req, res) {
       _id: req.params.id
     }
   });
+  if (config.digibos.showToken && !auth.hasRole('admin')) {
+    Video.find(paramsObj)
+      .then(handleEntityNotFound(res))
+      .then(tokenizeResult(res))
+      .then(responseWithResult(res))
+      .catch(handleError(res));
 
-  Video.find(paramsObj)
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+  } else {
+    Video.find(paramsObj)
+      .then(handleEntityNotFound(res))
+      .then(responseWithResult(res))
+      .catch(handleError(res));
+  }
 
-// Gets a single video from the DB width tokenized url
-exports.showToken = function (req, res) {
-  var paramsObj = {
-    include: includedModel
-  };
-
-  paramsObj = _.merge(paramsObj, {
-    where: {
-      _id: req.params.id
-    }
-  });
-
-  Video.find(paramsObj)
-    .then(handleEntityNotFound(res))
-    .then(tokenizeResult(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
 };
 
 // Creates a new video in the DB

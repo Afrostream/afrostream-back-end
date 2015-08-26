@@ -17,9 +17,15 @@ var jwt = require('jsonwebtoken');
 var jwtVerifyAsync = Promise.promisify(jwt.verify, jwt);
 var Asset = sqldb.Asset;
 var Episode = sqldb.Episode;
-
-// extend with Request#proxy()
-//require('superagent-proxy')(request);
+var fs = require('fs');
+var http = require('http');
+var url = require('url');
+var httpProxy = require('http-proxy');
+var proxy = httpProxy.createProxyServer({
+  prependPath: false,
+  ignorePath: true,
+  changeOrigin: true
+});
 
 Asset.belongsTo(Episode, {foreignKey: 'episode'}); // Adds episodeId to Asset
 
@@ -30,8 +36,7 @@ function handleError(res, statusCode) {
   };
 }
 
-function responseWithTokenResult(req, res, statusCode) {
-  statusCode = statusCode || 200;
+function responseWithTokenResult(req, res) {
   return function (entity) {
     if (entity) {
       // verify a token symmetric
@@ -96,10 +101,24 @@ exports.show = function (req, res) {
     }
   })
     .then(handleEntityNotFound(res))
-    .then(responseWithTokenResult(req, res))
+    .then(responseWithResult(res))
     .catch(handleError(res));
 };
 
+//get single Asset but validate jwt tokenized
+exports.proxify = function (req, res) {
+  jwtVerifyAsync(req.params.token, config.secrets.session).then(function () {
+    var splitted = req.url.split('/');
+    var sliced = splitted.slice(3, splitted.length);
+    var final = '/' + sliced.join('/');
+    proxy.proxyRequest(req, res, {
+      target: config.digibos.proxy
+    });
+    proxy.on('proxyReq', function (proxyReq, req, res, options) {
+      proxyReq.path = final;
+    });
+  })
+};
 //get single Asset but validate jwt tokenized
 exports.showToken = function (req, res) {
   Asset.find({

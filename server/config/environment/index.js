@@ -58,7 +58,9 @@ var all = {
   },
 
   digibos: {
-    domain: process.env.DIGIBOS_DOMAIN || 'http://mam.integ.zantetsuken.org:3000/api/contents'
+    domain: process.env.DIGIBOS_DOMAIN || 'http://mam.integ.zantetsuken.org:3000/api/contents',
+    proxy: process.env.DIGIBOS_PROXY || 'http://origin.afrostream.tv',
+    useToken: process.env.DIGIBOS_TOKEN || false
   },
 
   google: {

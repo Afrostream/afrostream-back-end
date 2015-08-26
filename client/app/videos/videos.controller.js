@@ -7,6 +7,7 @@ angular.module('afrostreamAdminApp')
 
     $scope.formats = [
       'video/mp4',
+      'video/dash',
       'video/webm',
       'video/ogg',
       'application/x-mpegURL',
