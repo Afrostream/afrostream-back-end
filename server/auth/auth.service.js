@@ -54,7 +54,7 @@ function isAuthenticated() {
 }
 
 function validRole(req, roleRequired) {
-  return config.userRoles.indexOf(req.user.role) >=
+  return req.user && config.userRoles.indexOf(req.user.role) >=
     config.userRoles.indexOf(roleRequired);
 }
 
@@ -122,6 +122,7 @@ function setTokenCookie(req, res) {
 
 exports.isAuthenticated = isAuthenticated;
 exports.hasRole = hasRole;
+exports.validRole = validRole;
 exports.signToken = signToken;
 exports.setTokenCookie = setTokenCookie;
 exports.mergeQuery = mergeQuery;
