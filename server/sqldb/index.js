@@ -23,20 +23,6 @@ db.User = db.sequelize.import(path.join(
 ));
 
 // Insert models below
-db.Plan = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'plan',
-  'plan.model'
-));
-db.Subscription = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'subscription',
-  'subscription.model'
-));
 db.RefreshToken = db.sequelize.import(path.join(
   config.root,
   'server',
@@ -194,10 +180,5 @@ db.Video.hasMany(db.Caption, {onDelete: 'cascade', as: 'captions', foreignKey: '
 db.Caption.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
 
 db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints: false});
-
-db.User.hasOne(db.Subscription, {as: 'subscription', foreignKey: 'userId'});
-db.Plan.hasMany(db.Subscription, {as: 'subscriptions', foreignKey: 'planId'});
-db.Subscription.belongsTo(db.User, {as: 'user', foreignKey: 'subscriptionId', constraints: false});
-db.Subscription.belongsTo(db.Plan, {as: 'plan', foreignKey: 'planId', constraints: false});
 
 module.exports = db;

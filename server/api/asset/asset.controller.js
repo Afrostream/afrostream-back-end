@@ -111,12 +111,17 @@ exports.proxify = function (req, res) {
     var splitted = req.url.split('/');
     var sliced = splitted.slice(3, splitted.length);
     var final = '/' + sliced.join('/');
-    proxy.proxyRequest(req, res, {
+    proxy.web(req, res, {
       target: config.digibos.proxy
     });
     proxy.on('proxyReq', function (proxyReq, req, res, options) {
       proxyReq.path = final;
     });
+    proxy.on('error', function () {
+      handleError(res);
+    });
+  }).catch(function () {
+    handleError(res);
   })
 };
 //get single Asset but validate jwt tokenized

@@ -37,6 +37,9 @@ module.exports = function (sequelize, DataTypes) {
         notEmpty: true
       }
     },
+    account_code: DataTypes.STRING,
+    first_name: DataTypes.STRING,
+    last_name: DataTypes.STRING,
     provider: DataTypes.STRING,
     salt: DataTypes.STRING,
     google: DataTypes.TEXT,
