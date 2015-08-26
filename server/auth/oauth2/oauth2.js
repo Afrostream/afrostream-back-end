@@ -4,6 +4,7 @@ var crypto = require('crypto');
 var utils = require('./utils');
 var config = require('../../config/environment');
 var Client = require('../../sqldb').Client;
+var User = require('../../sqldb').User;
 var AuthCode = require('../../sqldb').AuthCode;
 var AccessToken = require('../../sqldb').AccessToken;
 var RefreshToken = require('../../sqldb').RefreshToken;
@@ -156,6 +157,52 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
         return done(err);
       });
   });
+}));
+
+
+server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, done) {
+  Client.find({
+    where: {
+      _id: client._id
+    }
+  })
+    .then(function (entity) {
+      if (entity === null) {
+        return done(null, false);
+      }
+      if (entity.secret !== client.secret) {
+        return done(null, false);
+      }
+      User.find({
+        where: {
+          email: username
+        }
+      })
+        .then(function (user) {
+          if (user === null) {
+            return done(null, false);
+          }
+          user.authenticate(password, function (authError, authenticated) {
+            if (authError) {
+              return done(authError);
+            }
+            if (!authenticated) {
+              return done(null, false, {
+                message: 'This password is not correct.'
+              });
+            } else {
+              return generateToken(entity, user, null, done);
+            }
+          });
+
+        })
+        .catch(function (err) {
+          return done(err);
+        });
+    })
+    .catch(function (err) {
+      return done(err);
+    });
 }));
 
 server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, done) {

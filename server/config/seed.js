@@ -12,6 +12,7 @@ var Episode = sqldb.Episode;
 var Season = sqldb.Season;
 var Language = sqldb.Language;
 var User = sqldb.User;
+var Client = sqldb.Client;
 
 Category.sync()
   .then(function () {
@@ -123,6 +124,21 @@ User.sync()
       name: 'Admin',
       email: 'admin@admin.com',
       password: 'admin'
+    }])
+      .then(function () {
+        console.log('finished populating users');
+      });
+  });
+
+Client.sync()
+  .then(function () {
+    return Client.destroy({where: {}});
+  })
+  .then(function () {
+    Client.bulkCreate([{
+      name: 'Test Client',
+      _id: '8c261045-89a3-44bb-af38-65a847269605',
+      secret: '3dc3cae6-9c79-487a-9e0f-712be857dcee'
     }])
       .then(function () {
         console.log('finished populating users');

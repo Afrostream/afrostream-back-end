@@ -83,6 +83,7 @@ exports.setup = function (Client, User, AccessToken, config) {
     usernameField: 'email',
     passwordField: 'password' // this is the virtual field on the model
   }, function (email, password, done) {
+    console.log('localAuthenticate')
     return localAuthenticate(User, email, password, done);
   }));
   /**
