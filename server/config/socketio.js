@@ -18,22 +18,20 @@ function onConnect(socket) {
   });
 
   // Insert sockets below
-  require('../api/plan/plan.socket').register(socket);
-  require('../api/subscription/subscription.socket').register(socket);
-  require('../api/refreshToken/refreshToken.socket').register(socket);
-  require('../api/accessToken/accessToken.socket').register(socket);
-  require('../api/authCode/authCode.socket').register(socket);
-  require('../api/client/client.socket').register(socket);
-  require('../api/licensor/licensor.socket').register(socket);
-  require('../api/language/language.socket').register(socket);
-  require('../api/comment/comment.socket').register(socket);
-  require('../api/caption/caption.socket').register(socket);
+  //require('../api/refreshToken/refreshToken.socket').register(socket);
+  //require('../api/accessToken/accessToken.socket').register(socket);
+  //require('../api/authCode/authCode.socket').register(socket);
+  //require('../api/client/client.socket').register(socket);
+  //require('../api/licensor/licensor.socket').register(socket);
+  //require('../api/language/language.socket').register(socket);
+  //require('../api/comment/comment.socket').register(socket);
+  //require('../api/caption/caption.socket').register(socket);
   require('../api/video/video.socket').register(socket);
-  require('../api/image/image.socket').register(socket);
-  require('../api/asset/asset.socket').register(socket);
+  //require('../api/image/image.socket').register(socket);
+  //require('../api/asset/asset.socket').register(socket);
   require('../api/episode/episode.socket').register(socket);
   require('../api/season/season.socket').register(socket);
-  require('../api/tag/tag.socket').register(socket);
+  //require('../api/tag/tag.socket').register(socket);
   require('../api/category/category.socket').register(socket);
   require('../api/movie/movie.socket').register(socket);
 }
