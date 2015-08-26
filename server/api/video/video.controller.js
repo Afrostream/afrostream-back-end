@@ -167,7 +167,7 @@ exports.show = function (req, res) {
     }
   });
 
-  if (config.digibos.useToken && !auth.validRole(req, 'admin')) {
+  if (config.digibos.useToken == true && !auth.validRole(req, 'admin')) {
     Video.find(paramsObj)
       .then(handleEntityNotFound(res))
       .then(tokenizeResult(req, res))
