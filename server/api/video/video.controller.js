@@ -164,7 +164,7 @@ exports.show = function (req, res) {
       _id: req.params.id
     }
   });
-  if (config.digibos.showToken && !auth.hasRole('admin')) {
+  if (config.digibos.useToken && !auth.hasRole('admin')) {
     Video.find(paramsObj)
       .then(handleEntityNotFound(res))
       .then(tokenizeResult(res))
