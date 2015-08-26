@@ -30,8 +30,8 @@ var all = {
   // Secret for session, you will want to change this and make it an environment variable
   secrets: {
     session: 'afrostream-admin-secret',
-    expire: 1800,
-    videoExpire: 5
+    expire: process.env.USER_TOKEN_EXPIRE || 1800,
+    videoExpire: process.env.VIDEO_TOKEN_EXPIRE || 300
   },
   oauth2: true,
   // List of user roles
@@ -60,7 +60,7 @@ var all = {
   digibos: {
     domain: process.env.DIGIBOS_DOMAIN || 'http://mam.integ.zantetsuken.org:3000/api/contents',
     proxy: process.env.DIGIBOS_PROXY || 'http://origin.afrostream.tv',
-    useToken: process.env.DIGIBOS_TOKEN || false
+    useToken: process.env.DIGIBOS_TOKEN || true
   },
 
   google: {

@@ -9,7 +9,7 @@ var router = express.Router();
 router.get('/', auth.hasRole('admin'), controller.index);
 router.get('/:id', auth.hasRole('admin'), controller.show);
 if (config.digibos.useToken) {
-  router.get('/:id/:token/*', auth.isAuthenticated(), controller.proxify);
+  router.get('/:id/:token/*', controller.proxify);
 }
 router.post('/', auth.hasRole('admin'), controller.create);
 router.put('/:id', auth.hasRole('admin'), controller.update);
