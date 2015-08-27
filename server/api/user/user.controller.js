@@ -112,12 +112,12 @@ exports.auth0ChangePassword = function (req, res, next) {
   })
     .then(function (user) {
       if (!user) {
-        return validationError(res);
+        return res.status(422).end();
       }
       user.password = newPass;
       return user.save()
         .then(function () {
-          res.status(200).end();
+          res.json(user.profile);
         })
         .catch(validationError(res));
     })
@@ -186,12 +186,12 @@ exports.verify = function (req, res) {
   })
     .then(function (user) {
       if (!user) {
-        return validationError(res);
+        return res.status(422).end();
       }
       user.active = true;
       return user.save()
         .then(function () {
-          res.status(200).end();
+          res.json(user.profile);
         })
         .catch(validationError(res));
     })
