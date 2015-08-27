@@ -55,18 +55,18 @@ function responseWithResult(res, statusCode) {
   };
 }
 
-function responseWithAdSpot(res, statusCode) {
+function responseWithAdSpot(req,res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
     if (entity) {
-      return entity.getAdSpots({
+      return entity.getAdSpots(auth.mergeIncludeValid(req, res, {
         order: [['sort', 'ASC']],
         include: [
           {model: Image, as: 'logo'}, // load logo image
           {model: Image, as: 'poster'}, // load poster image
           {model: Image, as: 'thumb'}// load thumb image
         ]
-      }).then(function (adSpots) {
+      })).then(function (adSpots) {
         res.status(statusCode).json(adSpots);
       })
     }
@@ -165,7 +165,7 @@ exports.adSpot = function (req, res) {
     }
   }))
     .then(handleEntityNotFound(res))
-    .then(responseWithAdSpot(res))
+    .then(responseWithAdSpot(req,res))
     .catch(handleError(res));
 };
 
@@ -185,7 +185,7 @@ exports.mea = function (req, res) {
   Category.findAll(auth.mergeQuery(req, res, {
     order: [['sort', 'ASC']],
     include: [
-      {
+      auth.mergeIncludeValid(req, res, {
         model: Movie,
         as: 'movies',
         required: false,
@@ -194,7 +194,7 @@ exports.mea = function (req, res) {
           {model: Image, as: 'poster'}, // load poster image
           {model: Image, as: 'thumb'}// load thumb image
         ]
-      } // load 30 top movies
+      }) // load 30 top movies
     ]
   }))
     .then(handleEntityNotFound(res))

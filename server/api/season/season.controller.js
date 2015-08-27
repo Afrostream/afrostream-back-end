@@ -176,7 +176,19 @@ exports.show = function (req, res) {
     where: {
       _id: req.params.id
     },
-    include: includedModel
+    include: [
+      auth.mergeIncludeValid(req, res, {
+        model: Episode, as: 'episodes',
+        order: [['sort', 'ASC']],
+        include: [
+          {model: Image, as: 'poster'}, // load poster image
+          {model: Image, as: 'thumb'} // load thumb image
+        ]
+      }), // load all episodes
+      {model: Movie, as: 'movie'}, // load related movie
+      {model: Image, as: 'poster'}, // load poster image
+      {model: Image, as: 'thumb'} // load thumb image
+    ]
   }))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))

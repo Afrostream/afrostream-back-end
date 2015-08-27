@@ -45,11 +45,11 @@ function responseWithResult(res, statusCode) {
 }
 
 
-function responseWithSeasons(res, statusCode) {
+function responseWithSeasons(req, res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
     if (entity) {
-      return entity.getSeasons().then(function (seasons) {
+      return entity.getSeasons(auth.mergeIncludeValid(req, res, {order: [['sort', 'ASC']]})).then(function (seasons) {
         res.status(statusCode).json(seasons);
       })
     }
@@ -180,7 +180,14 @@ exports.show = function (req, res) {
     where: {
       _id: req.params.id
     },
-    include: includedModel
+    include: [
+      {model: Category, as: 'categorys'}, // load all episodes
+      auth.mergeIncludeValid(req, res, {model: Season, as: 'seasons', order: [['sort', 'ASC']]}), // load all seasons
+      {model: Image, as: 'logo'}, // load logo image
+      {model: Image, as: 'poster'}, // load poster image
+      {model: Image, as: 'thumb'}, // load thumb image
+      {model: Licensor, as: 'licensor'} // load thumb image
+    ]
   }))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
@@ -195,7 +202,7 @@ exports.seasons = function (req, res) {
     }
   }))
     .then(handleEntityNotFound(res))
-    .then(responseWithSeasons(res))
+    .then(responseWithSeasons(req, res))
     .catch(handleError(res));
 };
 

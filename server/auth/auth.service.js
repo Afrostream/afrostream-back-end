@@ -107,6 +107,24 @@ function mergeQuery(req, res, params) {
   });
   return params;
 }
+/**
+ * Returns a jwt token signed by the app secret
+ */
+function mergeIncludeValid(req, res, params, merge) {
+  var roleRequired = 'admin';
+  var isAdmin = validRole(req, roleRequired);
+  var mergeable = merge || {}
+  if (!isAdmin) {
+    mergeable = _.merge(mergeable, {
+      where: {
+        active: true
+      }
+    });
+
+    params = _.merge(params, mergeable)
+  }
+  return params;
+}
 
 /**
  * Set token cookie directly for oAuth strategies
@@ -126,3 +144,4 @@ exports.validRole = validRole;
 exports.signToken = signToken;
 exports.setTokenCookie = setTokenCookie;
 exports.mergeQuery = mergeQuery;
+exports.mergeIncludeValid = mergeIncludeValid;
