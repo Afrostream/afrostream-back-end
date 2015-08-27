@@ -98,7 +98,33 @@ exports.destroy = function (req, res) {
     })
     .catch(handleError(res));
 };
+/**
+ * Change a users password
+ */
+exports.auth0ChangePassword = function (req, res, next) {
+  var userMail = req.param('email');
+  var newPass = req.param('password');
 
+  User.find({
+    where: {
+      email: userMail
+    }
+  })
+    .then(function (user) {
+      if (!user) {
+        return validationError(res);
+      }
+      user.password = newPass;
+      return user.save()
+        .then(function () {
+          res.status(200).end();
+        })
+        .catch(validationError(res));
+    })
+    .catch(function (err) {
+      return validationError(err);
+    });
+};
 /**
  * Change a users password
  */
@@ -145,6 +171,32 @@ exports.changeRole = function (req, res) {
           res.status(200).end();
         })
         .catch(validationError(res));
+    });
+};
+/**
+ * Change a users role
+ */
+exports.verify = function (req, res) {
+
+  var userMail = req.param('email');
+  User.find({
+    where: {
+      email: userMail
+    }
+  })
+    .then(function (user) {
+      if (!user) {
+        return validationError(res);
+      }
+      user.active = true;
+      return user.save()
+        .then(function () {
+          res.status(200).end();
+        })
+        .catch(validationError(res));
+    })
+    .catch(function (err) {
+      return validationError(err);
     });
 };
 

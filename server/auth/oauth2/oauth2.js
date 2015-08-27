@@ -39,19 +39,15 @@ var generateTokenData = function (client, user, code) {
   var clientId = null;
   var userId = null;
 
-  switch (true) {
-    case client !== null:
-      clientId = client._id;
-      break;
-    case user !== null:
-      userId = user._id;
-      break;
-    case code !== null:
-      clientId = code.clientId;
-      userId = code.userId;
-      break;
-    default:
-      break;
+  if (client !== null) {
+    clientId = client._id;
+  }
+  if (user !== null) {
+    userId = user._id;
+  }
+  if (code !== null) {
+    clientId = code.clientId;
+    userId = code.userId;
   }
 
   return {
