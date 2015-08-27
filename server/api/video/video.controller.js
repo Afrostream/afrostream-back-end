@@ -54,7 +54,8 @@ function tokenizeResult(req, res) {
       var requestHost = req.get('Referrer') || req.headers.referrer || req.headers.referer || req.get('host');
       entity.sources = _.forEach(entity.sources, function (asset) {
         _.assign(asset, {
-          src: '//' + path.join(requestHost, 'api', '/assets', asset._id, token, url.parse(asset.src).pathname)
+          //src: '//' + path.join(requestHost, 'api', 'assets', asset._id, token, url.parse(asset.src).pathname)
+          src: path.join('/assets', asset._id, token, url.parse(asset.src).pathname)
         });
       });
       res.status(200).json(entity);
@@ -166,7 +167,7 @@ exports.show = function (req, res) {
     }
   });
 
-  if (config.digibos.useToken && !auth.validRole(req, 'admin')) {
+  if (config.digibos.useToken == 'true' && !auth.validRole(req, 'admin')) {
     Video.find(paramsObj)
       .then(handleEntityNotFound(res))
       .then(tokenizeResult(req, res))

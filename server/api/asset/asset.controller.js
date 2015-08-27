@@ -111,13 +111,15 @@ exports.proxify = function (req, res) {
     var splitted = req.url.split('/');
     var sliced = splitted.slice(3, splitted.length);
     var final = '/' + sliced.join('/');
+    console.log('proxify', config.digibos.proxy, final);
     proxy.web(req, res, {
       target: config.digibos.proxy
     });
-    proxy.on('proxyReq', function (proxyReq, req, res, options) {
+    proxy.on('proxyReq', function (proxyReq) {
       proxyReq.path = final;
     });
     proxy.on('error', function () {
+      console.log('error');
       handleError(res);
     });
   }).catch(function () {

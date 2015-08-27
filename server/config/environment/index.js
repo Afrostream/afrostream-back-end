@@ -71,6 +71,10 @@ var all = {
   pagination: {
     total: 10000,
     max: 10000
+  },
+  recurly: {
+    subdomain: process.env.RECURLY_SUB_DOMAIN || 'johnarch',
+    apiKey: process.env.RECURLY_API_KEY || '67dbb29f0dbe4e219bc247a3b5387652'
   }
 };
 
