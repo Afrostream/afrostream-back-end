@@ -1,17 +1,10 @@
-div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
-  side-bar
-
-  div(id='content-wrapper')
-    navbar
-    .page-content
-      .row
-        .col-lg-12
-          p
-            | The delete user and user index api routes are restricted to users with the 'admin' role.
-          ul.list-group
-            li.list-group-item(ng-repeat='user in users')
-              strong {{user.name}}
-              br
-              span.text-muted {{user.email}}
-              a.trash(ng-click='delete(user)')
-                span.glyphicon.glyphicon-trash.pull-right
+label(for='id').control-label User Role
+.form-group
+  .btn-group
+    label.btn.btn-primary(ng-model='item.role' btn-radio='"user"' ) User
+    label.btn.btn-primary(ng-model='item.role' btn-radio='"admin"' ) Admin
+.form-group
+  label(for='name').control-label Name
+  input.form-control(id='name' type='text' ng-model='item.name')
+  label(for='email').control-label Subscription Plan
+  input.form-control(id='plancode' type='text' ng-model='item.planCode')

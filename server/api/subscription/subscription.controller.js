@@ -12,9 +12,10 @@
 var _ = require('lodash');
 var recurly = require('recurring')();
 var config = require('../../config/environment');
+var sqldb = require('../../sqldb');
+var User = sqldb.User;
+var Promise = sqldb.Sequelize.Promise;
 recurly.setAPIKey(config.recurly.apiKey);
-
-var Subscription = recurly.Subscription;
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -71,7 +72,43 @@ exports.index = function (req, res) {
 };
 
 // Gets a single subscription from the DB
-exports.show = function (req, res) {
+exports.show = function (req, res, next) {
+
+  var userId = req.params.id;
+
+  User.find({
+    where: {
+      _id: userId
+    }
+  })
+    .then(function (user) {
+      if (!user) {
+        return res.status(404).end();
+      }
+      if (user.account_code === null) {
+        return res.json(user.profile);
+      }
+      var account = new recurly.Account();
+      account.id = user.account_code;
+      var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
+      var profile = user.profile;
+      return fetchAsync().then(function (subscriptions) {
+        _.forEach(subscriptions, function (subscription) {
+          if (subscription.properties.state === 'active') {
+            profile.planCode = subscription.properties.plan.plan_code;
+            return profile;
+          }
+        });
+        return res.json(profile);
+      }).catch(function (err) {
+        return next(err);
+      });
+
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+
 };
 
 // Creates a new subscription in the DB

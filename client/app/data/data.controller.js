@@ -157,8 +157,21 @@ angular.module('afrostreamAdminApp')
         case'client':
         case'video':
         case'plan':
+        case'user':
         case'subscription':
           hasTmb = false;
+          break;
+        default:
+          break;
+      }
+      return hasTmb;
+    }
+
+    $scope.hasMail = function () {
+      var hasTmb = false;
+      switch ($scope.type) {
+        case'user':
+          hasTmb = true;
           break;
         default:
           break;

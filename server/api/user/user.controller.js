@@ -6,6 +6,7 @@ var User = sqldb.User;
 var passport = require('passport');
 var config = require('../../config/environment');
 var jwt = require('jsonwebtoken');
+var subscriptionController = require('../subscription/subscription.controller');
 
 function validationError(res, statusCode) {
   statusCode = statusCode || 422;
@@ -80,7 +81,7 @@ exports.show = function (req, res, next) {
       if (!user) {
         return res.status(404).end();
       }
-      res.json(user.profile);
+      return subscriptionController.show(req, res, next)
     })
     .catch(function (err) {
       return next(err);
