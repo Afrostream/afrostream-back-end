@@ -1,6 +1,6 @@
 .modal-header(style='background-image:url({{item.poster}});')
   button.close(data-dismiss='modal' aria-hidden='true')
-  h4.modal-title Upload images to S3 service
+  h4.modal-title Upload file to S3 service
 .modal-body
   form.form-horizontal(role='form')
 
@@ -36,7 +36,7 @@
           td(ng-show='uploader.isHTML5')
             .progress.progress-striped.active
               .progress-bar(role='progressbar' type='dynamic' ng-style="{ 'width': item.isUploading * item.progress + '%' }")
-          td.text-center
+          td.text-center(ng-if='type == "image"')
             .btn-group
               button.btn.btn-xs.btn-info(ng-model='item.file.imgType' btn-radio='"poster"' )
                 span Poster

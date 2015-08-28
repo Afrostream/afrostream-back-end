@@ -10,20 +10,11 @@
 'use strict';
 
 var _ = require('lodash');
+var path = require('path');
 var sqldb = require('../../sqldb');
 var Image = sqldb.Image;
-var moment = require('moment');
-var crypto = require('crypto');
 var config = require('../../config/environment');
-var Knox = require('knox');
-
-// Create the knox client with your aws settings
-Knox.aws = Knox.createClient({
-  key: config.amazon.key,
-  secret: config.amazon.secret,
-  bucket: config.amazon.s3Bucket,
-  region: config.amazon.region
-});
+var AwsUploader = require('../../components/upload');
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -120,80 +111,19 @@ exports.show = function (req, res) {
 
 // Creates a new image in the DB
 exports.create = function (req, res) {
-  var itemData = {imgType: 'poster'};
-
-  req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-    if (!filename) {
-      // If filename is not truthy it means there's no file
-      return handleError(res);
-    }
-    // Create the initial array containing the stream's chunks
-    file.fileRead = [];
-
-    file.on('data', function (chunk) {
-      // Push chunks into the fileRead array
-      this.fileRead.push(chunk);
-    });
-
-    file.on('error', function (err) {
-      console.log('Error while buffering the stream: ', err);
-      return handleError(res);
-    });
-
-    file.on('end', function () {
-      // Concat the chunks into a Buffer
-      var finalBuffer = Buffer.concat(this.fileRead);
-
-      // Generate date based folder prefix
-      var datePrefix = moment().format('YYYY[/]MM');
-      var key = crypto.randomBytes(10).toString('hex');
-      var hashFilename = key + '-' + filename;
-      var fileType = itemData.imgType || 'poster';
-
-      var pathFile = '/' + config.env + '/' + datePrefix + '/' + hashFilename;
-
-      var headers = {
-        'Content-Length': finalBuffer.length,
-        'Content-Type': mimetype,
-        'x-amz-acl': 'public-read'
-      };
-
-      Knox.aws.putBuffer(finalBuffer, pathFile, headers, function (err, response) {
-        if (err) {
-          console.error('error streaming image: ', new Date(), err);
-          return handleError(res);
-        }
-        if (response.statusCode !== 200) {
-          console.error('error streaming image: ', new Date(), err);
-          return handleError(res);
-        }
-        Image.create({
-          type: fileType,
-          path: response.req.path,
-          url: response.req.url,
-          mimetype: mimetype,
-          imgix: config.imgix.domain + response.req.path,
-          active: true,
-          name: filename
-        })
-          .then(responseWithResult(res, 201))
-          .catch(handleError(res));
-      });
-
-    });
+  AwsUploader.uploadFile(req, res, 'poster').then(function (data) {
+    Image.create({
+      type: data.dataType,
+      path: data.req.path,
+      url: data.req.url,
+      mimetype: data.mimeType,
+      imgix: config.imgix.domain + data.req.path,
+      active: true,
+      name: data.fileName
+    })
+      .then(responseWithResult(res, 201))
+      .catch(handleError(res));
   });
-
-  req.busboy.on('error', function (err) {
-    handleError(err)
-  });
-
-  req.busboy.on('field', function (fieldname, val) {
-    if (val !== undefined) {
-      itemData[fieldname] = val;
-    }
-  });
-  // Start the parsing
-  req.pipe(req.busboy);
 };
 
 // Updates an existing image in the DB
