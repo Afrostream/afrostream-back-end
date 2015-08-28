@@ -53,7 +53,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                       td.pull-right
                         button.btn.btn-xs.btn-primary(ng-click='editIndex(item)' tooltip='Edit' )
                           span.glyphicon.glyphicon-pencil
-                        button.btn.btn-xs.btn-info(ng-click='cloneIndex(item)' tooltip='Clone' )
+                        button.btn.btn-xs.btn-info(ng-click='cloneIndex(item)' tooltip='Clone' ng-if='!hasMail()')
                           span.fa.fa-clone
                         button.btn.btn-xs.btn-danger(ng-click='deleteIndex(item)' tooltip='Delete' )
                           span.glyphicon.glyphicon-trash

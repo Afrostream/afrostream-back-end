@@ -11,10 +11,12 @@
 
 var _ = require('lodash');
 var recurly = require('recurring')();
+var auth = require('../../auth/auth.service');
 var config = require('../../config/environment');
 var sqldb = require('../../sqldb');
 var User = sqldb.User;
 var Promise = sqldb.Sequelize.Promise;
+var Subscription = recurly.Subscription;
 recurly.setAPIKey(config.recurly.apiKey);
 
 function handleError(res, statusCode) {
@@ -85,13 +87,17 @@ exports.show = function (req, res, next) {
       if (!user) {
         return res.status(404).end();
       }
+      var profile = user.profile;
+
+      if (auth.validRole(req, 'admin')) {
+        _.merge(profile, user);
+      }
       if (user.account_code === null) {
-        return res.json(user.profile);
+        return res.json(profile);
       }
       var account = new recurly.Account();
       account.id = user.account_code;
       var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
-      var profile = user.profile;
       return fetchAsync().then(function (subscriptions) {
         _.forEach(subscriptions, function (subscription) {
           if (subscription.properties.state === 'active') {
@@ -100,15 +106,37 @@ exports.show = function (req, res, next) {
           }
         });
         return res.json(profile);
-      }).catch(function (err) {
-        return next(err);
+      }).catch(function () {
+        return res.json(profile);
       });
 
     })
     .catch(function (err) {
-      return next(err);
+      return handleError(err);
     });
 
+};
+// Gets a single subscription from the DB
+exports.me = function (user, req, res, next) {
+  var account_code = user.account_code;
+  delete user.account_code
+  if (account_code === null) {
+    return res.json(user);
+  }
+  var account = new recurly.Account();
+  account.id = account_code;
+  var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
+  return fetchAsync().then(function (subscriptions) {
+    _.forEach(subscriptions, function (subscription) {
+      if (subscription.properties.state === 'active') {
+        user.planCode = subscription.properties.plan.plan_code;
+        return user;
+      }
+    });
+    return res.json(user);
+  }).catch(function () {
+    return res.json(user);
+  });
 };
 
 // Creates a new subscription in the DB

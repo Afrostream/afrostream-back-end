@@ -40,6 +40,7 @@ exports.index = function (req, res) {
       'name',
       'email',
       'role',
+      'active',
       'provider'
     ]
   })
@@ -216,14 +217,15 @@ exports.me = function (req, res, next) {
       'name',
       'email',
       'role',
-      'provider'
+      'provider',
+      'account_code'
     ]
   })
     .then(function (user) { // don't ever give out the password or salt
       if (!user) {
         return res.status(401).end();
       }
-      res.json(user);
+      return subscriptionController.me(user, req, res, next);
     })
     .catch(function (err) {
       return next(err);
