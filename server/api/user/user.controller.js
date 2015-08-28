@@ -6,6 +6,7 @@ var User = sqldb.User;
 var passport = require('passport');
 var config = require('../../config/environment');
 var jwt = require('jsonwebtoken');
+var subscriptionController = require('../subscription/subscription.controller');
 
 function validationError(res, statusCode) {
   statusCode = statusCode || 422;
@@ -39,6 +40,7 @@ exports.index = function (req, res) {
       'name',
       'email',
       'role',
+      'active',
       'provider'
     ]
   })
@@ -80,7 +82,7 @@ exports.show = function (req, res, next) {
       if (!user) {
         return res.status(404).end();
       }
-      res.json(user.profile);
+      return subscriptionController.show(req, res, next)
     })
     .catch(function (err) {
       return next(err);
@@ -215,14 +217,15 @@ exports.me = function (req, res, next) {
       'name',
       'email',
       'role',
-      'provider'
+      'provider',
+      'account_code'
     ]
   })
     .then(function (user) { // don't ever give out the password or salt
       if (!user) {
         return res.status(401).end();
       }
-      res.json(user);
+      return subscriptionController.me(user, req, res, next);
     })
     .catch(function (err) {
       return next(err);

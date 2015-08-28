@@ -30,6 +30,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                       th.text-center ID
                       th.text-center(ng-if='hasThumb()') Thumb
                       th.text-center Title
+                      th.text-center(ng-if='hasMail()') Email
                       th.text-center In prod
                       th.text-center Actions
                   tbody(ui-sortable='sortableOptions' ng-model='items')
@@ -43,6 +44,8 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         strong {{item.title || item.label || item.name}}
                         br
                         span.text-muted {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
+                      td.text-center(ng-if='hasMail()')
+                        strong {{item.email}}
                       td.text-center
                         button.btn.btn-xs.btn-default(ng-click='activateIndex(item)' tooltip='{{item.active ? "remove from prod" : "push in prod"}}' )
                           span(ng-class='item.active ? "text-success":"text-danger"')
@@ -50,7 +53,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                       td.pull-right
                         button.btn.btn-xs.btn-primary(ng-click='editIndex(item)' tooltip='Edit' )
                           span.glyphicon.glyphicon-pencil
-                        button.btn.btn-xs.btn-info(ng-click='cloneIndex(item)' tooltip='Clone' )
+                        button.btn.btn-xs.btn-info(ng-click='cloneIndex(item)' tooltip='Clone' ng-if='!hasMail()')
                           span.fa.fa-clone
                         button.btn.btn-xs.btn-danger(ng-click='deleteIndex(item)' tooltip='Delete' )
                           span.glyphicon.glyphicon-trash

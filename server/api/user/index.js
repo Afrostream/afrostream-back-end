@@ -23,8 +23,8 @@ router.delete('/:id', auth.hasRole('admin'), controller.destroy);
 router.get('/me', auth.isAuthenticated(), controller.me);
 router.put('/verify', auth.isAuthenticated(), controller.verify);
 router.put('/password', auth.isAuthenticated(), controller.auth0ChangePassword);
-router.put('/:id/password', auth.isAuthenticated(), controller.changePassword);
-router.put('/:id/role', auth.isAuthenticated(), controller.changeRole);
+router.put('/:id/password', auth.hasRole('admin'), controller.changePassword);
+router.put('/:id/role', auth.hasRole('admin'), controller.changeRole);
 router.get('/:id', auth.isAuthenticated(), controller.show);
 router.post('/', controller.create);
 

@@ -20,11 +20,11 @@ angular.module('afrostreamAdminApp')
           $state.go(referrer);
         }
       })
-      .state('signup', {
-        url: '/signup',
-        templateUrl: 'app/account/signup/signup.html',
-        controller: 'SignupCtrl'
-      })
+      //.state('signup', {
+      //  url: '/signup',
+      //  templateUrl: 'app/account/signup/signup.html',
+      //  controller: 'SignupCtrl'
+      //})
       .state('settings', {
         url: '/settings',
         templateUrl: 'app/account/settings/settings.html',

@@ -18,16 +18,4 @@ angular.module('afrostreamAdminApp')
           });
       }
     };
-    $scope.changeRole = function (form) {
-      $scope.submitted = true;
-      if (form.$valid) {
-        Auth.changeRole($scope.user.role)
-          .then(function () {
-            $scope.message = 'Role successfully changed.';
-          })
-          .catch(function () {
-            $scope.message = '';
-          });
-      }
-    };
   });

@@ -5,7 +5,8 @@ angular.module('afrostreamAdminApp')
     $stateProvider
       .state('users', {
         url: '/users',
-        templateUrl: 'app/users/users.html',
-        controller: 'UsersCtrl'
+        templateUrl: 'app/data/data.html',
+        controller: 'DataCtrl',
+        type: 'user'
       });
   });
