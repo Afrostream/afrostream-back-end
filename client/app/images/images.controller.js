@@ -15,6 +15,9 @@ angular.module('afrostreamAdminApp')
           item: function () {
             return $scope.currentItem;
           },
+          list: function () {
+            return [];
+          },
           type: function () {
             return $scope.type;
           }

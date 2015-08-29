@@ -12,7 +12,6 @@
 var _ = require('lodash');
 var recurly = require('recurring')();
 var uuid = require('node-uuid');
-var auth = require('../../auth/auth.service');
 var config = require('../../config/environment');
 var sqldb = require('../../sqldb');
 var User = sqldb.User;
@@ -115,12 +114,9 @@ exports.me = function (req, res, next) {
   })
     .then(function (user) {
       if (!user) {
-        return res.status(404).end();
+        return res.status(401).end();
       }
       var profile = user.profile;
-      if (auth.validRole(req, 'admin')) {
-        _.merge(profile, user);
-      }
       if (user.account_code === null) {
         return res.json(profile);
       }
@@ -134,6 +130,7 @@ exports.me = function (req, res, next) {
             return profile;
           }
         });
+        return res.json(profile);
       }).catch(function () {
         return res.json(profile);
       });

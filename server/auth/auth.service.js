@@ -102,6 +102,9 @@ function mergeQuery(req, res, params) {
     })
   }
   params = _.merge(params, {
+    //todo trier par sort, episodeNumber
+    //order: [['sort', 'ASC'], ['_id', 'ASC']],
+    order: [['_id', 'ASC']],
     offset: queryParameters.skip,
     limit: queryParameters.limit
   });

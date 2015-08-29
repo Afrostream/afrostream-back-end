@@ -34,7 +34,8 @@ function respondWith(res, statusCode) {
  * restriction: 'admin'
  */
 exports.index = function (req, res) {
-  User.findAll({
+  var queryName = req.param('query');
+  var paramsObj = {
     attributes: [
       '_id',
       'name',
@@ -43,7 +44,17 @@ exports.index = function (req, res) {
       'active',
       'provider'
     ]
-  })
+  };
+
+  if (queryName) {
+    paramsObj = _.merge(paramsObj, {
+      where: {
+        email: {$iLike: '%' + queryName + '%'}
+      }
+    })
+  }
+
+  User.findAll(paramsObj)
     .then(function (users) {
       res.status(200).json(users);
     })
@@ -59,6 +70,7 @@ exports.create = function (req, res, next) {
   newUser.setDataValue('role', 'user');
   newUser.save()
     .then(function (user) {
+      //TODO verifier la creation du token en oauth2
       var token = jwt.sign({_id: user._id}, config.secrets.session, {
         expiresInMinutes: 60 * 5
       });
@@ -82,7 +94,7 @@ exports.show = function (req, res, next) {
       if (!user) {
         return res.status(404).end();
       }
-      return subscriptionController.me(user, req, res, next)
+      return res.json(user.profile);
     })
     .catch(function (err) {
       return next(err);

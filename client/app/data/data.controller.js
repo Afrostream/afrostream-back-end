@@ -2,7 +2,7 @@
 
 angular.module('afrostreamAdminApp')
   .controller('DataCtrl', function ($scope, $log, $http, socket, $modal, $state) {
-    var defaultPerPage = 25;
+    var defaultPerPage = 10000;//25
     $scope.type = $state.current.type || 'movie';
     $scope.items = [];
     $scope.itemsPerPage = defaultPerPage;
@@ -55,9 +55,9 @@ angular.module('afrostreamAdminApp')
             $scope.totalItems = response ? response.total : result.data.length;
             $scope.items = result.data || [];
           }
-          $scope.items.sort(function (a, b) {
-            return a.sort > b.sort;
-          });
+          //$scope.items.sort(function (a, b) {
+          //  return a.sort > b.sort;
+          //});
 
           $scope.numPages = Math.ceil($scope.totalItems / ($scope.itemsPerPage || defaultPerPage));
 

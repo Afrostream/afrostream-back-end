@@ -6,5 +6,10 @@ label(for='id').control-label User Role
 .form-group
   label(for='name').control-label Name
   input.form-control(id='name' type='text' ng-model='item.name')
-  label(for='email').control-label Subscription Plan
+  label(for='email').control-label Email
+  input.form-control(id='email' type='text' ng-model='item.email')
+  label(for='plancode').control-label Subscription Plan
   input.form-control(id='plancode' type='text' ng-model='item.planCode')
+.form-group(ng-if='!item._id')
+  label(for='password').control-label Password
+  input.form-control(id='password' type='text' ng-model='item.password')
