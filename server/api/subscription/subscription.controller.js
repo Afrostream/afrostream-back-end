@@ -144,6 +144,7 @@ exports.me = function (req, res, next) {
 // Creates a new subscription in the DB
 exports.create = function (req, res) {
   var email = req.user.email;
+  console.log(req.user.email)
   User.find({
     where: {
       email: email

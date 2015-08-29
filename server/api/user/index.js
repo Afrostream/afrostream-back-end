@@ -19,7 +19,7 @@ var auth = require('../../auth/auth.service');
 var router = express.Router();
 
 router.get('/', auth.hasRole('admin'), controller.index);
-router.delete('/:id', auth.hasRole('admin'), controller.destroy);
+router.delete('/:id', auth.hasRole('client'), controller.destroy);
 router.get('/me', auth.isAuthenticated(), controller.me);
 router.put('/verify', auth.isAuthenticated(), controller.verify);
 router.put('/password', auth.isAuthenticated(), controller.auth0ChangePassword);

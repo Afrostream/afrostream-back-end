@@ -6,7 +6,7 @@ angular.module('afrostreamAdminApp')
     $scope.item = item;
 
     $scope.item.type = $scope.item.type || type;
-    $scope.directiveType = $scope.item.type + 's';
+    $scope.directiveType = type + 's';
     $scope.list = list || [];
 
     $scope.cancel = function () {

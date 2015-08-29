@@ -19,7 +19,7 @@ angular.module('afrostreamAdminApp')
             return [];
           },
           type: function () {
-            return $scope.type;
+            return 'image';
           }
         }
       },
@@ -31,6 +31,9 @@ angular.module('afrostreamAdminApp')
         resolve: {
           item: function () {
             return $scope.currentItem;
+          },
+          list: function () {
+            return [];
           },
           type: function () {
             return 'image';
