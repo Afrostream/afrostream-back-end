@@ -138,17 +138,17 @@ exports.me = function (req, res, next) {
 
 // Creates a new subscription in the DB
 exports.create = function (req, res) {
-  //var userId = req.user._id;
-  //User.find({
-  //  where: {
-  //    _id: userId
-  //  }
-  //})
+  var userId = req.user._id;
   User.find({
     where: {
-      email: 'benjamin@afrostream.tv'
+      _id: userId
     }
   })
+    //User.find({
+    //  where: {
+    //    email: 'benjamin@afrostream.tv'
+    //  }
+    //})
     .then(function (user) { // don't ever give out the password or salt
       if (!user) {
         return res.status(401).end();
