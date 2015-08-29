@@ -82,7 +82,7 @@ exports.show = function (req, res, next) {
       if (!user) {
         return res.status(404).end();
       }
-      return subscriptionController.show(req, res, next)
+      return subscriptionController.me(user, req, res, next)
     })
     .catch(function (err) {
       return next(err);
@@ -225,7 +225,7 @@ exports.me = function (req, res, next) {
       if (!user) {
         return res.status(401).end();
       }
-      return subscriptionController.me(user, req, res, next);
+      return subscriptionController.me(req, res, next);
     })
     .catch(function (err) {
       return next(err);

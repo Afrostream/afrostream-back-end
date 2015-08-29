@@ -11,12 +11,12 @@
 
 var _ = require('lodash');
 var recurly = require('recurring')();
+var uuid = require('node-uuid');
 var auth = require('../../auth/auth.service');
 var config = require('../../config/environment');
 var sqldb = require('../../sqldb');
 var User = sqldb.User;
 var Promise = sqldb.Sequelize.Promise;
-var Subscription = recurly.Subscription;
 recurly.setAPIKey(config.recurly.apiKey);
 
 function handleError(res, statusCode) {
@@ -67,7 +67,7 @@ function removeEntity(res) {
 
 // Gets a list of subscriptions
 exports.index = function (req, res) {
-  Subscription.all(function (accounts) {
+  recurly.Subscription.all(function (accounts) {
     // accounts is an array containing all customer accounts
     res.status(200).json(accounts);
   });
@@ -87,8 +87,37 @@ exports.show = function (req, res, next) {
       if (!user) {
         return res.status(404).end();
       }
-      var profile = user.profile;
+      if (user.account_code === null) {
+        return handleError(err);
+      }
+      var account = new recurly.Account();
+      account.id = user.account_code;
+      var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
+      return fetchAsync().then(function (subscriptions) {
+        return res.json(subscriptions);
+      }).catch(function (err) {
+        return handleError(err);
+      });
 
+    })
+    .catch(function (err) {
+      return handleError(err);
+    });
+
+};
+// Gets a single subscription from the DB
+exports.me = function (req, res, next) {
+  var userId = req.user._id;
+  User.find({
+    where: {
+      _id: userId
+    }
+  })
+    .then(function (user) {
+      if (!user) {
+        return res.status(404).end();
+      }
+      var profile = user.profile;
       if (auth.validRole(req, 'admin')) {
         _.merge(profile, user);
       }
@@ -105,7 +134,6 @@ exports.show = function (req, res, next) {
             return profile;
           }
         });
-        return res.json(profile);
       }).catch(function () {
         return res.json(profile);
       });
@@ -114,33 +142,44 @@ exports.show = function (req, res, next) {
     .catch(function (err) {
       return handleError(err);
     });
-
-};
-// Gets a single subscription from the DB
-exports.me = function (user, req, res, next) {
-  var account_code = user.account_code;
-  delete user.account_code
-  if (account_code === null) {
-    return res.json(user);
-  }
-  var account = new recurly.Account();
-  account.id = account_code;
-  var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
-  return fetchAsync().then(function (subscriptions) {
-    _.forEach(subscriptions, function (subscription) {
-      if (subscription.properties.state === 'active') {
-        user.planCode = subscription.properties.plan.plan_code;
-        return user;
-      }
-    });
-    return res.json(user);
-  }).catch(function () {
-    return res.json(user);
-  });
 };
 
 // Creates a new subscription in the DB
 exports.create = function (req, res) {
+  var email = req.user.email;
+  User.find({
+    where: {
+      email: email
+    }
+  })
+    .then(function (user) { // don't ever give out the password or salt
+      if (!user) {
+        return res.status(401).end();
+      }
+      var profile = user.profile;
+      var account = new recurly.Account();
+      account.id = user.account_code || uuid.v1();
+
+      var subscription = new recurly.Subscription({
+        plan_code: req.body['plan-code'],
+        coupon_code: req.body['coupon_code'],
+        unit_amount_in_cents: req.body['unit-amount-in-cents'],
+        currency: 'EUR',
+        account: account
+      });
+
+      var createAsync = Promise.promisify(subscription.create, subscription);
+      return createAsync().then(function (subscription) {
+        console.log(subscription);
+        user.account_code = subscription.account_code;
+        return res.json(profile);
+      }).catch(function () {
+        return res.json(profile);
+      });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
 };
 
 // Updates an existing subscription in the DB

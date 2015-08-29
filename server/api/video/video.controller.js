@@ -17,13 +17,14 @@ var config = require('../../config/environment');
 var Video = sqldb.Video;
 var Asset = sqldb.Asset;
 var Caption = sqldb.Caption;
+var Language = sqldb.Language;
 var Promise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
 var auth = require('../../auth/auth.service');
 
 var includedModel = [
   {model: Asset, as: 'sources'}, // load all sources assets
-  {model: Caption, as: 'captions'} // load all sources captions
+  {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]} // load all sources captions
 ];
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -38,6 +39,17 @@ function responseWithResult(res, statusCode) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
+  };
+}
+/**
+ * Used for import from digibos
+ * @param res
+ * @param statusCode
+ * @returns {Function}
+ */
+function responseWithData() {
+  return function (entity) {
+    return entity;
   };
 }
 
@@ -190,6 +202,16 @@ exports.create = function (req, res) {
     .then(addCaptions(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
+};
+// Creates a new video in the DB
+exports.import = function (data) {
+  Video.create(data)
+    .then(addAssets(data))
+    .then(addCaptions(data))
+    .then(responseWithData())
+    .catch(function (err) {
+      console.log('import error', err)
+    });
 };
 
 // Updates an existing video in the DB

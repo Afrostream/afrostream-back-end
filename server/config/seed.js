@@ -13,6 +13,7 @@ var Season = sqldb.Season;
 var Language = sqldb.Language;
 var User = sqldb.User;
 var Client = sqldb.Client;
+var Video = sqldb.Video;
 
 Category.sync()
   .then(function () {
@@ -26,6 +27,14 @@ Category.sync()
       label: 'Nouveauté',
       slug: 'nouveaute'
     }]);
+  });
+
+Video.sync()
+  .then(function () {
+    return Video.destroy({where: {}});
+  })
+  .then(function () {
+
   });
 
 Movie.sync()
