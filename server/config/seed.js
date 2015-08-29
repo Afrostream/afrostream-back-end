@@ -129,6 +129,11 @@ User.sync()
       password: 'test'
     }, {
       provider: 'local',
+      name: 'Test User',
+      email: 'benjamin@afrostream.tv',
+      password: 'test'
+    }, {
+      provider: 'local',
       role: 'admin',
       name: 'Admin',
       email: 'admin@admin.com',

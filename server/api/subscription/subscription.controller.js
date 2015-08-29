@@ -21,6 +21,7 @@ recurly.setAPIKey(config.recurly.apiKey);
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
+    console.log('subscription', err);
     res.status(statusCode).send(err);
   };
 }
@@ -87,21 +88,17 @@ exports.show = function (req, res, next) {
         return res.status(404).end();
       }
       if (user.account_code === null) {
-        return handleError(err);
+        return handleError(res);
       }
       var account = new recurly.Account();
       account.id = user.account_code;
       var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
       return fetchAsync().then(function (subscriptions) {
         return res.json(subscriptions);
-      }).catch(function (err) {
-        return handleError(err);
-      });
+      }).catch(handleError(res));
 
     })
-    .catch(function (err) {
-      return handleError(err);
-    });
+    .catch(handleError(res));
 
 };
 // Gets a single subscription from the DB
@@ -136,18 +133,20 @@ exports.me = function (req, res, next) {
       });
 
     })
-    .catch(function (err) {
-      return handleError(err);
-    });
+    .catch(handleError(res));
 };
 
 // Creates a new subscription in the DB
 exports.create = function (req, res) {
-  var email = req.user.email;
-  console.log(req.user.email)
+  //var userId = req.user._id;
+  //User.find({
+  //  where: {
+  //    _id: userId
+  //  }
+  //})
   User.find({
     where: {
-      email: email
+      email: 'benjamin@afrostream.tv'
     }
   })
     .then(function (user) { // don't ever give out the password or salt
@@ -155,29 +154,45 @@ exports.create = function (req, res) {
         return res.status(401).end();
       }
       var profile = user.profile;
-      var account = new recurly.Account();
-      account.id = user.account_code || uuid.v1();
-
-      var subscription = new recurly.Subscription({
+      var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
+      var data = {
         plan_code: req.body['plan-code'],
         coupon_code: req.body['coupon_code'],
         unit_amount_in_cents: req.body['unit-amount-in-cents'],
         currency: 'EUR',
-        account: account
-      });
+        account: {
+          account_code: user.account_code || uuid.v1(),
+          email: user.email,//req.body['email'],
+          first_name: req.body['firstName'],
+          last_name: req.body['lastName'],
+          billing_info: {
+            token_id: req.body['recurly-token']
+          }
+        }
+      };
+      return createAsync(data).then(function (item) {
+        console.log('subscription', item);
+        user.account_code = data.account.account_code;
+        return user.save()
+          .then(function () {
+            profile.planCode = item.properties.plan.plan_code;
+            //todo get Invoice and send mail
+            //if (req.body['is_gift'] === '1') {
+            //  var emailer = EmailClient(req.body, invoiceNumber);
+            //  emailer.sendReceiverEmail();
+            //  emailer.sendGiverEmail();
+            //} else {
+            //
+            //  var emailer = EmailClient(req.body, invoiceNumber);
+            //  emailer.sendStandardEmail();
+            //}
+            return res.json(profile);
+          })
+          .catch(handleError(res));
 
-      var createAsync = Promise.promisify(subscription.create, subscription);
-      return createAsync().then(function (subscription) {
-        console.log(subscription);
-        user.account_code = subscription.account_code;
-        return res.json(profile);
-      }).catch(function () {
-        return res.json(profile);
-      });
+      }).catch(handleError(res));
     })
-    .catch(function (err) {
-      return next(err);
-    });
+    .catch(handleError(res));
 };
 
 // Updates an existing subscription in the DB
