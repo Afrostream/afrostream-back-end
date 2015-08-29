@@ -4,7 +4,11 @@
 
 .modal-body.videos
   .row
+    .col-md-6
     input.form-control.input-sm(type='text' placeholder='Find a {{type}} here.' ng-model='searchField')
+    .col-md-6
+    button.btn.btn-xs.btn-primary.pull-right(ng-click='allFromLudobos()' ng-disabled='!importEnabled')
+      span.glyphicon.glyphicon-plus Import all
   .row
     table.table.table-striped.table-hover.table-condensed(data-click-to-select='true')
       colgroup
@@ -29,5 +33,5 @@
           td
             strong {{item.duration}}
 .modal-footer
-  button.btn.btn-primary(type='submit' ng-click='addVideo()' ng-disabled='!selectedItem.id') Import
+  button.btn.btn-primary(type='submit' ng-click='addVideo()' ng-disabled='!selectedItem.id && !importEnabled') Import
   button.btn.btn-primary(ng-click='cancel()') Cancel

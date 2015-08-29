@@ -41,6 +41,27 @@ angular.module('afrostreamAdminApp')
       data.push({});
     };
 
+    $scope.uploadCaptions = function (data) {
+
+      $modal.open({
+        templateUrl: 'app/images/modal/images.html', // Url du template HTML
+        controller: 'ImagesDialogCtrl',
+        size: 'lg',
+        scope: $scope,
+        resolve: {
+          list: function () {
+            return data;
+          },
+          item: function () {
+            return {};
+          },
+          type: function () {
+            return 'caption';
+          }
+        }
+      });
+    };
+
     $scope.removeElem = function (item, data, type, $index) {
       if (item._id) {
         $http.delete('/api/' + type + 's/' + item._id).then(function () {

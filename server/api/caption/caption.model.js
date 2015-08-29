@@ -13,6 +13,10 @@ module.exports = function (sequelize, DataTypes) {
     videoId: DataTypes.UUID,
     langId: DataTypes.INTEGER,
     sort: DataTypes.INTEGER,
+    kind: {
+      type: DataTypes.STRING,
+      defaultValue: 'captions'
+    },
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false

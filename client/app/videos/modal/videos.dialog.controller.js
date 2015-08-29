@@ -5,6 +5,7 @@ angular.module('afrostreamAdminApp')
 
     $scope.digibosSources = Digibos.query();
     $scope.selectedItem = null;
+    $scope.importEnabled = true;
     $scope.selectVideo = function ($item) {
       return Digibos.get({id: $item.id}, function (data) {
         data.importId = data.id;
@@ -16,6 +17,18 @@ angular.module('afrostreamAdminApp')
         data.sources = data.manifests;
 
         $scope.selectedItem = data;
+      });
+    };
+    $scope.allFromLudobos = function () {
+      $scope.importEnabled = false;
+      $http.post('/api/digibos/all', $scope.selectedItem).then(function () {
+        ngToast.create({
+          content: 'Les videos ont été ajoutées au catalogue'
+        });
+        $modalInstance.close();
+      }, function (err) {
+        $scope.importEnabled = true;
+        $log.debug(err);
       });
     };
 
