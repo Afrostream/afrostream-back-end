@@ -11,6 +11,8 @@ module.exports = function (sequelize, DataTypes) {
     },
     name: DataTypes.STRING,
     importId: DataTypes.INTEGER,
+    movieId: DataTypes.INTEGER,
+    episodeId: DataTypes.INTEGER,
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true

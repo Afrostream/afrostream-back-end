@@ -75,6 +75,10 @@ var all = {
   recurly: {
     subdomain: process.env.RECURLY_SUB_DOMAIN || 'johnarch',
     apiKey: process.env.RECURLY_API_KEY || '67dbb29f0dbe4e219bc247a3b5387652'
+  },
+  algolia: {
+    appId: process.env.ALGOLIA_APP_ID || '3OKNPL7ZVA',
+    apiKey: process.env.ALGOLIA_API_KEY || '47d48040a13e973aca2ea9f492eca17e'
   }
 };
 

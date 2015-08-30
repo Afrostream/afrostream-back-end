@@ -2,7 +2,7 @@
 
 angular.module('afrostreamAdminApp')
   .controller('DataCtrl', function ($scope, $log, $http, socket, $modal, $state) {
-    var defaultPerPage = 10000;//25
+    var defaultPerPage = 25
     $scope.type = $state.current.type || 'movie';
     $scope.items = [];
     $scope.itemsPerPage = defaultPerPage;

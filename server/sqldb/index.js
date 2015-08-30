@@ -179,6 +179,9 @@ db.Asset.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: 
 db.Video.hasMany(db.Caption, {onDelete: 'cascade', as: 'captions', foreignKey: 'videoId'});
 db.Caption.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
 
+db.Video.belongsTo(db.Movie, {as: 'movie', foreignKey: 'movieId'});
+db.Video.belongsTo(db.Episode, {as: 'episode', foreignKey: 'episodeId'});
+
 db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints: false});
 
 module.exports = db;

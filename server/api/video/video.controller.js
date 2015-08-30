@@ -16,6 +16,8 @@ var sqldb = require('../../sqldb');
 var config = require('../../config/environment');
 var Video = sqldb.Video;
 var Asset = sqldb.Asset;
+var Movie = sqldb.Movie;
+var Episode = sqldb.Episode;
 var Caption = sqldb.Caption;
 var Language = sqldb.Language;
 var Promise = sqldb.Sequelize.Promise;
@@ -23,6 +25,8 @@ var jwt = require('jsonwebtoken');
 var auth = require('../../auth/auth.service');
 
 var includedModel = [
+  {model: Movie, as: 'movie'}, // load all sources assets
+  {model: Episode, as: 'episode'}, // load all sources assets
   {model: Asset, as: 'sources'}, // load all sources assets
   {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]} // load all sources captions
 ];
