@@ -21,6 +21,7 @@ var Video = sqldb.Video;
 var auth = require('../../auth/auth.service');
 
 var includedModel = [
+  {model: Video, as: 'video'}, // load all episodes
   {model: Category, as: 'categorys'}, // load all episodes
   {model: Season, as: 'seasons'}, // load all seasons
   {model: Image, as: 'logo'}, // load logo image
@@ -182,8 +183,9 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
+      {model: Video, as: 'video'}, // load all episodes
       {model: Category, as: 'categorys'}, // load all episodes
-      auth.mergeIncludeValid(req, res, {model: Season, as: 'seasons', order: [['sort', 'ASC']]}), // load all seasons
+      auth.mergeIncludeValid(req, res, {model: Season, required: false, as: 'seasons', order: [['sort', 'ASC']]}), // load all seasons
       {model: Image, as: 'logo'}, // load logo image
       {model: Image, as: 'poster'}, // load poster image
       {model: Image, as: 'thumb'}, // load thumb image

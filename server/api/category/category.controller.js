@@ -55,7 +55,7 @@ function responseWithResult(res, statusCode) {
   };
 }
 
-function responseWithAdSpot(req,res, statusCode) {
+function responseWithAdSpot(req, res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
     if (entity) {
@@ -165,7 +165,7 @@ exports.adSpot = function (req, res) {
     }
   }))
     .then(handleEntityNotFound(res))
-    .then(responseWithAdSpot(req,res))
+    .then(responseWithAdSpot(req, res))
     .catch(handleError(res));
 };
 
