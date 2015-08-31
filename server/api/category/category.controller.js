@@ -13,6 +13,9 @@ var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var Category = sqldb.Category;
 var Movie = sqldb.Movie;
+var Season = sqldb.Season;
+var Video = sqldb.Video;
+var Episode = sqldb.Episode;
 var Image = sqldb.Image;
 var auth = require('../../auth/auth.service');
 
@@ -62,6 +65,30 @@ function responseWithAdSpot(req, res, statusCode) {
       return entity.getAdSpots(auth.mergeIncludeValid(req, res, {
         order: [['sort', 'ASC']],
         include: [
+          auth.mergeIncludeValid(req, res, {
+            model: Video, attributes: ['_id'],
+            required: false,
+            as: 'video'
+          }), // load all episodes
+          auth.mergeIncludeValid(req, res, {
+            model: Season,
+            required: false,
+            as: 'seasons',
+            attributes: ['_id', 'slug'],
+            order: [['sort', 'ASC']],
+            include: [auth.mergeIncludeValid(req, res, {
+              model: Episode,
+              attributes: ['_id', 'slug'],
+              order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
+              as: 'episodes',
+              required: false,
+              include: [
+                auth.mergeIncludeValid(req, res, {model: Video, as: 'video', attributes: ['_id'], required: false}), // load poster image
+                {model: Image, as: 'poster'}, // load poster image
+                {model: Image, as: 'thumb'}// load thumb image
+              ]
+            })]
+          }), // load all seasons
           {model: Image, as: 'logo'}, // load logo image
           {model: Image, as: 'poster'}, // load poster image
           {model: Image, as: 'thumb'}// load thumb image

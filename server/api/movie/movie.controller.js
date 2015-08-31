@@ -13,6 +13,7 @@ var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var algolia = require('../../components/algolia');
 var Movie = sqldb.Movie;
+var Episode = sqldb.Movie;
 var Category = sqldb.Category;
 var Season = sqldb.Season;
 var Image = sqldb.Image;
@@ -183,9 +184,31 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
-      {model: Video, as: 'video'}, // load all episodes
       {model: Category, as: 'categorys'}, // load all episodes
-      auth.mergeIncludeValid(req, res, {model: Season, required: false, as: 'seasons', order: [['sort', 'ASC']]}), // load all seasons
+      auth.mergeIncludeValid(req, res, {
+          model: Season,
+          required: false,
+          as: 'seasons',
+          order: [['sort', 'ASC']],
+          include: [auth.mergeIncludeValid(req, res, {
+            model: Episode,
+            attributes: ['_id', 'slug', 'title'],
+            order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
+            as: 'episodes',
+            required: false,
+            include: [
+              auth.mergeIncludeValid(req, res, {model: Video, as: 'video', attributes: ['_id'], required: false}), // load poster image
+              {model: Image, as: 'poster'}, // load poster image
+              {model: Image, as: 'thumb'}// load thumb image
+            ]
+          })]
+        }
+      ), // load all seasons
+      auth.mergeIncludeValid(req, res, {
+        model: Video, attributes: ['_id'],
+        required: false,
+        as: 'video'
+      }), // load all episodes
       {model: Image, as: 'logo'}, // load logo image
       {model: Image, as: 'poster'}, // load poster image
       {model: Image, as: 'thumb'}, // load thumb image
