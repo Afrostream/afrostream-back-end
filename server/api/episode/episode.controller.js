@@ -11,6 +11,7 @@
 
 var _ = require('lodash');
 var sqldb = require('../../sqldb');
+var algolia = require('../../components/algolia');
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;
 var Video = sqldb.Video;
@@ -170,6 +171,19 @@ exports.update = function (req, res) {
     .then(addSeason(req.body))
     .then(addVideo(req.body))
     .then(addImages(req.body))
+    .then(responseWithResult(res))
+    .catch(handleError(res));
+};
+// Updates an existing episode in the DB
+exports.algolia = function (req, res) {
+  Episode.findAll({
+    include: includedModel,
+    where: {
+      active: true
+    }
+  })
+    .then(handleEntityNotFound(res))
+    .then(algolia.importAll(res, 'episodes'))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };

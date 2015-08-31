@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('DataCtrl', function ($scope, $log, $http, socket, $modal, $state) {
+  .controller('DataCtrl', function ($scope, $log, $http, socket, $modal, ngToast, $state) {
     var defaultPerPage = 25
     $scope.type = $state.current.type || 'movie';
     $scope.items = [];
@@ -146,6 +146,20 @@ angular.module('afrostreamAdminApp')
     $scope.newIndex = function () {
       $scope.currentItem = {};
       $modal.open(modalOpts);
+    };
+
+    $scope.importAlgolia = function () {
+      $http.post($scope.apiRessourceUrl + '/algolia').then(function () {
+        ngToast.create({
+          content: 'Import algolia complet'
+        });
+      }, function (err) {
+        ngToast.create({
+          className: 'warning',
+          content: 'API Error' + err.statusText
+        });
+        $log.debug(err.statusText);
+      });
     };
 
     $scope.hasThumb = function () {

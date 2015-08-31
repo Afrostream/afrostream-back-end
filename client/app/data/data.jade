@@ -14,6 +14,10 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                 button.btn.btn-xs.btn-primary.pull-right(ng-click='newIndex()')
                   span.glyphicon.glyphicon-plus
                   span Add new
+              .row
+                button.btn.btn-xs.btn-primary.pull-right(ng-click='importAlgolia()')
+                  span.glyphicon.glyphicon-send
+                  span Import All to algolia
               videos-import
 
             rd-widget-body.medium.no-padding

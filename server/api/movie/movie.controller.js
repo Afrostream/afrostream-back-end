@@ -11,6 +11,7 @@
 
 var _ = require('lodash');
 var sqldb = require('../../sqldb');
+var algolia = require('../../components/algolia');
 var Movie = sqldb.Movie;
 var Category = sqldb.Category;
 var Season = sqldb.Season;
@@ -20,6 +21,7 @@ var Video = sqldb.Video;
 var auth = require('../../auth/auth.service');
 
 var includedModel = [
+  {model: Video, as: 'video'}, // load all episodes
   {model: Category, as: 'categorys'}, // load all episodes
   {model: Season, as: 'seasons'}, // load all seasons
   {model: Image, as: 'logo'}, // load logo image
@@ -181,8 +183,9 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
+      {model: Video, as: 'video'}, // load all episodes
       {model: Category, as: 'categorys'}, // load all episodes
-      auth.mergeIncludeValid(req, res, {model: Season, as: 'seasons', order: [['sort', 'ASC']]}), // load all seasons
+      auth.mergeIncludeValid(req, res, {model: Season, required: false, as: 'seasons', order: [['sort', 'ASC']]}), // load all seasons
       {model: Image, as: 'logo'}, // load logo image
       {model: Image, as: 'poster'}, // load poster image
       {model: Image, as: 'thumb'}, // load thumb image
@@ -218,6 +221,19 @@ exports.create = function (req, res) {
     .catch(handleError(res));
 };
 
+// Updates an existing episode in the DB
+exports.algolia = function (req, res) {
+  Movie.findAll({
+    include: includedModel,
+    where: {
+      active: true
+    }
+  })
+    .then(handleEntityNotFound(res))
+    .then(algolia.importAll(res, 'movies'))
+    .then(responseWithResult(res))
+    .catch(handleError(res));
+};
 // Updates an existing movie in the DB
 exports.update = function (req, res) {
   if (req.body._id) {
