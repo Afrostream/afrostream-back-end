@@ -136,6 +136,31 @@ exports.me = function (req, res, next) {
     .catch(handleError(res));
 };
 
+exports.billing = function (req, res, next) {
+  var userId = req.user._id;
+  User.find({
+    where: {
+      _id: userId
+    }
+  })
+    .then(function (user) {
+      if (!user) {
+        return res.status(401).end();
+      }
+      if (user.account_code === null) {
+        handleError(res);
+      }
+      var account = new recurly.Account();
+      account.id = user.account_code;
+      var fetchAsync = Promise.promisify(account.fetchBillingInfo, account);
+      return fetchAsync().then(function (billingInfo) {
+        return res.json(billingInfo);
+      }).catch(handleError(res));
+
+    })
+    .catch(handleError(res));
+};
+
 // Creates a new subscription in the DB
 exports.create = function (req, res) {
   var userId = req.user._id;
@@ -144,11 +169,6 @@ exports.create = function (req, res) {
       _id: userId
     }
   })
-    //User.find({
-    //  where: {
-    //    email: 'benjamin@afrostream.tv'
-    //  }
-    //})
     .then(function (user) { // don't ever give out the password or salt
       if (!user) {
         return res.status(401).end();
