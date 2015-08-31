@@ -62,36 +62,35 @@ function responseWithAdSpot(req, res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
     if (entity) {
-      return entity.getAdSpots(auth.mergeIncludeValid(req, res, {
+      return entity.getAdSpots(auth.mergeIncludeValid(req, {
         order: [['sort', 'ASC']],
         include: [
-          auth.mergeIncludeValid(req, res, {
-            model: Video, attributes: ['_id'],
+          auth.mergeIncludeValid(req, {
+            model: Video,
             required: false,
             as: 'video'
-          }), // load all episodes
-          auth.mergeIncludeValid(req, res, {
+          }, {attributes: ['_id']}), // load all episodes
+          auth.mergeIncludeValid(req, {
             model: Season,
             required: false,
             as: 'seasons',
             attributes: ['_id', 'slug'],
             order: [['sort', 'ASC']],
-            include: [auth.mergeIncludeValid(req, res, {
+            include: [auth.mergeIncludeValid(req, {
               model: Episode,
-              attributes: ['_id', 'slug'],
               order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
               as: 'episodes',
               required: false,
               include: [
-                auth.mergeIncludeValid(req, res, {model: Video, as: 'video', attributes: ['_id'], required: false}), // load poster image
-                auth.mergeIncludeValid(req, res, {model: Image, as: 'poster', required: false, attributes: ['imgix']}), // load poster image
-                auth.mergeIncludeValid(req, res, {model: Image, as: 'thumb', required: false, attributes: ['imgix']})// load thumb image
+                auth.mergeIncludeValid(req, {model: Video, as: 'video', required: false}, {attributes: ['_id']}), // load poster image
+                auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+                auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
               ]
-            })]
+            }, {attributes: ['_id', 'slug']})]
           }), // load all seasons
-          auth.mergeIncludeValid(req, res, {model: Image, as: 'logo', attributes: ['imgix'], required: false}), // load logo image
-          auth.mergeIncludeValid(req, res, {model: Image, as: 'poster', attributes: ['imgix'], required: false}), // load poster image
-          auth.mergeIncludeValid(req, res, {model: Image, as: 'thumb', attributes: ['imgix'], required: false})// load thumb image
+          auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
+          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
         ]
       })).then(function (adSpots) {
         res.status(statusCode).json(adSpots);
@@ -212,14 +211,14 @@ exports.mea = function (req, res) {
   Category.findAll(auth.mergeQuery(req, res, {
     order: [['sort', 'ASC']],
     include: [
-      auth.mergeIncludeValid(req, res, {
+      auth.mergeIncludeValid(req, {
         model: Movie,
         as: 'movies',
         required: false,
         order: ['sort', 'ASC'],
-        include: [auth.mergeIncludeValid(req, res, {model: Image, as: 'logo', attributes: ['imgix'], required: false}), // load logo image
-          auth.mergeIncludeValid(req, res, {model: Image, as: 'poster', attributes: ['imgix'], required: false}), // load poster image
-          auth.mergeIncludeValid(req, res, {model: Image, as: 'thumb', attributes: ['imgix'], required: false})// load thumb image
+        include: [auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
+          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
         ]
       }) // load 30 top movies
     ]

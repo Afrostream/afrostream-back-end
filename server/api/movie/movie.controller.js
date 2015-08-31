@@ -52,7 +52,7 @@ function responseWithSeasons(req, res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
     if (entity) {
-      return entity.getSeasons(auth.mergeIncludeValid(req, res, {order: [['sort', 'ASC']]})).then(function (seasons) {
+      return entity.getSeasons(auth.mergeIncludeValid(req, {order: [['sort', 'ASC']]})).then(function (seasons) {
         res.status(statusCode).json(seasons);
       })
     }
@@ -158,9 +158,9 @@ exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
     include: [
-      auth.mergeIncludeValid(req, res, {model: Image, as: 'logo', required: false}), // load logo image
-      auth.mergeIncludeValid(req, res, {model: Image, as: 'poster', required: false}), // load poster image
-      auth.mergeIncludeValid(req, res, {model: Image, as: 'thumb', required: false}) // load thumb image
+      {model: Image, as: 'logo', required: false}, // load logo image
+      {model: Image, as: 'poster', required: false}, // load poster image
+      {model: Image, as: 'thumb', required: false} // load thumb image
     ]
   };
 
@@ -184,34 +184,30 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
-      auth.mergeIncludeValid(req, res, {
-        model: Video, attributes: ['_id'],
+      auth.mergeIncludeValid(req, {
+        model: Video,
         required: false,
         as: 'video'
-      }),
+      }, {attributes: ['_id']}),
       {model: Category, as: 'categorys'}, // load all episodes
-      auth.mergeIncludeValid(req, res, {
+      auth.mergeIncludeValid(req, {
         model: Season,
         required: false,
         as: 'seasons',
-        attributes: ['_id', 'slug'],
         order: [['sort', 'ASC']],
-        include: [auth.mergeIncludeValid(req, res, {
+        include: [auth.mergeIncludeValid(req, {
           model: Episode,
-          attributes: ['_id', 'slug'],
           order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
           as: 'episodes',
           required: false,
           include: [
-            auth.mergeIncludeValid(req, res, {model: Video, as: 'video', attributes: ['_id'], required: false}), // load poster image
-            auth.mergeIncludeValid(req, res, {model: Image, as: 'poster', required: false}), // load poster image
-            auth.mergeIncludeValid(req, res, {model: Image, as: 'thumb', required: false})// load thumb image
+            auth.mergeIncludeValid(req, {model: Video, as: 'video', required: false}, {attributes: ['_id']}), // load poster image
           ]
-        })]
+        }, {attributes: ['_id', 'slug']})]
       }), // load all seasons
-      auth.mergeIncludeValid(req, res, {model: Image, as: 'logo', required: false}), // load logo image
-      auth.mergeIncludeValid(req, res, {model: Image, as: 'poster', required: false}), // load poster image
-      auth.mergeIncludeValid(req, res, {model: Image, as: 'thumb', required: false}), // load thumb image
+      auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
+      auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+      auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
       {model: Licensor, as: 'licensor'}// load thumb image
     ]
   }))

@@ -113,7 +113,7 @@ function mergeQuery(req, res, params) {
 /**
  * Returns a jwt token signed by the app secret
  */
-function mergeIncludeValid(req, res, params, merge) {
+function mergeIncludeValid(req, params, merge) {
   var roleRequired = 'admin';
   var isAdmin = validRole(req, roleRequired);
   var mergeable = merge || {}

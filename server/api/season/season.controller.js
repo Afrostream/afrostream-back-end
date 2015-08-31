@@ -153,8 +153,8 @@ exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
     include: [
-      {model: Image, as: 'poster'}, // load poster image
-      {model: Image, as: 'thumb'} // load thumb image
+      auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+      auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
     ]
   };
 
@@ -178,12 +178,12 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
-      auth.mergeIncludeValid(req, res, {
+      auth.mergeIncludeValid(req, {
         model: Episode, as: 'episodes',
         order: [['sort', 'ASC']],
         include: [
-          {model: Image, as: 'poster'}, // load poster image
-          {model: Image, as: 'thumb'} // load thumb image
+          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
         ]
       }), // load all episodes
       {model: Movie, as: 'movie'}, // load related movie
