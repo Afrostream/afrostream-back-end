@@ -31,6 +31,8 @@
     "morgan": "~1.0.0",
     "node-paginate-anything": "0.0.5",
     "node-uuid": "^1.4.3",
+    "nodemailer": "^1.4.0",
+    "nodemailer-sendgrid-transport": "^0.2.0",
     "oauth2orize": "^1.0.1",
     "oauthorize": "^0.1.0",
     "passport": "~0.2.0",

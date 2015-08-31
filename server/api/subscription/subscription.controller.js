@@ -14,6 +14,7 @@ var recurly = require('recurring')();
 var uuid = require('node-uuid');
 var config = require('../../config/environment');
 var sqldb = require('../../sqldb');
+var mailer = require('../../components/mailer');
 var User = sqldb.User;
 var Promise = sqldb.Sequelize.Promise;
 recurly.setAPIKey(config.recurly.apiKey);
@@ -154,7 +155,62 @@ exports.billing = function (req, res, next) {
       account.id = user.account_code;
       var fetchAsync = Promise.promisify(account.fetchBillingInfo, account);
       return fetchAsync().then(function (billingInfo) {
-        return res.json(billingInfo);
+        if (!billingInfo) {
+          return handleError(res);
+        }
+        return res.json(_.pick(billingInfo.properties, [
+          'first_name',
+          'last_name',
+          'country',
+          'card_type',
+          'year',
+          'month',
+          'first_six',
+          'last_four'
+        ]));
+      }).catch(handleError(res));
+
+    })
+    .catch(handleError(res));
+};
+
+exports.invoice = function (req, res, next) {
+  var userId = req.user._id;
+  User.find({
+    where: {
+      _id: userId
+    }
+  })
+    .then(function (user) {
+      if (!user) {
+        return res.status(401).end();
+      }
+      if (user.account_code === null) {
+        handleError(res);
+      }
+      var account = new recurly.Account();
+      account.id = user.account_code;
+      var fetchAsync = Promise.promisify(account.getInvoices, account);
+      return fetchAsync().then(function (invoicesInfo) {
+        if (!invoicesInfo) {
+          handleError(res);
+        }
+
+        var invoicesMapped = _.map(invoicesInfo, _.partialRight(_.pick, [
+            'address',
+            'state',
+            'invoice_number',
+            'subtotal_in_cents',
+            'total_in_cents',
+            'tax_in_cents',
+            'currency',
+            'created_at',
+            'closed_at',
+            'terms_and_conditions',
+            'customer_notes'])
+        );
+
+        return res.json(invoicesMapped);
       }).catch(handleError(res));
 
     })
@@ -182,7 +238,7 @@ exports.create = function (req, res) {
         currency: 'EUR',
         account: {
           account_code: user.account_code || uuid.v1(),
-          email: user.email,//req.body['email'],
+          email: user.email,
           first_name: req.body['firstName'],
           last_name: req.body['lastName'],
           billing_info: {
@@ -191,24 +247,29 @@ exports.create = function (req, res) {
         }
       };
       return createAsync(data).then(function (item) {
-        console.log('subscription', item);
+        //console.log('subscription', item);
         user.account_code = data.account.account_code;
         return user.save()
           .then(function () {
             profile.planCode = item.properties.plan.plan_code;
-            //todo get Invoice and send mail
-            //if (req.body['is_gift'] === '1') {
-            //  var emailer = EmailClient(req.body, invoiceNumber);
-            //  emailer.sendReceiverEmail();
-            //  emailer.sendGiverEmail();
-            //} else {
-            //
-            //  var emailer = EmailClient(req.body, invoiceNumber);
-            //  emailer.sendStandardEmail();
-            //}
-            return res.json(profile);
-          })
-          .catch(handleError(res));
+            var invoiceId = item.resources.invoice.split('/invoices')[1];
+            var fetchAsync = Promise.promisify(account.getInvoices, account);
+            return fetchAsync().then(function (invoicesInfo) {
+              if (!invoicesInfo) {
+                handleError(res);
+              }
+
+              var invoiceFounded = _.find(invoicesInfo, function (inv) {
+                return inv.invoice_number == invoiceId;
+              });
+
+              return mailer.sendStandardEmail(res, data.account, item.properties.plan.name, invoiceFounded)
+                .then(res.json(profile))
+                .catch(res.json(profile));
+
+            }).catch(handleError(res));
+
+          }).catch(handleError(res));
 
       }).catch(handleError(res));
     })
