@@ -13,8 +13,8 @@ var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var algolia = require('../../components/algolia');
 var Movie = sqldb.Movie;
-var Episode = sqldb.Movie;
 var Category = sqldb.Category;
+var Episode = sqldb.Episode;
 var Season = sqldb.Season;
 var Image = sqldb.Image;
 var Licensor = sqldb.Licensor;
@@ -158,9 +158,9 @@ exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
     include: [
-      {model: Image, as: 'logo'}, // load logo image
-      {model: Image, as: 'poster'}, // load poster image
-      {model: Image, as: 'thumb'} // load thumb image
+      auth.mergeIncludeValid(req, res, {model: Image, as: 'logo', required: false}), // load logo image
+      auth.mergeIncludeValid(req, res, {model: Image, as: 'poster', required: false}), // load poster image
+      auth.mergeIncludeValid(req, res, {model: Image, as: 'thumb', required: false}) // load thumb image
     ]
   };
 
@@ -184,35 +184,35 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
-      {model: Category, as: 'categorys'}, // load all episodes
-      auth.mergeIncludeValid(req, res, {
-          model: Season,
-          required: false,
-          as: 'seasons',
-          order: [['sort', 'ASC']],
-          include: [auth.mergeIncludeValid(req, res, {
-            model: Episode,
-            attributes: ['_id', 'slug', 'title'],
-            order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
-            as: 'episodes',
-            required: false,
-            include: [
-              auth.mergeIncludeValid(req, res, {model: Video, as: 'video', attributes: ['_id'], required: false}), // load poster image
-              {model: Image, as: 'poster'}, // load poster image
-              {model: Image, as: 'thumb'}// load thumb image
-            ]
-          })]
-        }
-      ), // load all seasons
       auth.mergeIncludeValid(req, res, {
         model: Video, attributes: ['_id'],
         required: false,
         as: 'video'
-      }), // load all episodes
-      {model: Image, as: 'logo'}, // load logo image
-      {model: Image, as: 'poster'}, // load poster image
-      {model: Image, as: 'thumb'}, // load thumb image
-      {model: Licensor, as: 'licensor'} // load thumb image
+      }),
+      {model: Category, as: 'categorys'}, // load all episodes
+      auth.mergeIncludeValid(req, res, {
+        model: Season,
+        required: false,
+        as: 'seasons',
+        attributes: ['_id', 'slug'],
+        order: [['sort', 'ASC']],
+        include: [auth.mergeIncludeValid(req, res, {
+          model: Episode,
+          attributes: ['_id', 'slug'],
+          order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
+          as: 'episodes',
+          required: false,
+          include: [
+            auth.mergeIncludeValid(req, res, {model: Video, as: 'video', attributes: ['_id'], required: false}), // load poster image
+            auth.mergeIncludeValid(req, res, {model: Image, as: 'poster', required: false}), // load poster image
+            auth.mergeIncludeValid(req, res, {model: Image, as: 'thumb', required: false})// load thumb image
+          ]
+        })]
+      }), // load all seasons
+      auth.mergeIncludeValid(req, res, {model: Image, as: 'logo', required: false}), // load logo image
+      auth.mergeIncludeValid(req, res, {model: Image, as: 'poster', required: false}), // load poster image
+      auth.mergeIncludeValid(req, res, {model: Image, as: 'thumb', required: false}), // load thumb image
+      {model: Licensor, as: 'licensor'}// load thumb image
     ]
   }))
     .then(handleEntityNotFound(res))

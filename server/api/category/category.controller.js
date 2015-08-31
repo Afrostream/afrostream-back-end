@@ -84,14 +84,14 @@ function responseWithAdSpot(req, res, statusCode) {
               required: false,
               include: [
                 auth.mergeIncludeValid(req, res, {model: Video, as: 'video', attributes: ['_id'], required: false}), // load poster image
-                {model: Image, as: 'poster'}, // load poster image
-                {model: Image, as: 'thumb'}// load thumb image
+                auth.mergeIncludeValid(req, res, {model: Image, as: 'poster', required: false, attributes: ['imgix']}), // load poster image
+                auth.mergeIncludeValid(req, res, {model: Image, as: 'thumb', required: false, attributes: ['imgix']})// load thumb image
               ]
             })]
           }), // load all seasons
-          {model: Image, as: 'logo'}, // load logo image
-          {model: Image, as: 'poster'}, // load poster image
-          {model: Image, as: 'thumb'}// load thumb image
+          auth.mergeIncludeValid(req, res, {model: Image, as: 'logo', attributes: ['imgix'], required: false}), // load logo image
+          auth.mergeIncludeValid(req, res, {model: Image, as: 'poster', attributes: ['imgix'], required: false}), // load poster image
+          auth.mergeIncludeValid(req, res, {model: Image, as: 'thumb', attributes: ['imgix'], required: false})// load thumb image
         ]
       })).then(function (adSpots) {
         res.status(statusCode).json(adSpots);
@@ -217,9 +217,9 @@ exports.mea = function (req, res) {
         as: 'movies',
         required: false,
         order: ['sort', 'ASC'],
-        include: [{model: Image, as: 'logo'}, // load logo image
-          {model: Image, as: 'poster'}, // load poster image
-          {model: Image, as: 'thumb'}// load thumb image
+        include: [auth.mergeIncludeValid(req, res, {model: Image, as: 'logo', attributes: ['imgix'], required: false}), // load logo image
+          auth.mergeIncludeValid(req, res, {model: Image, as: 'poster', attributes: ['imgix'], required: false}), // load poster image
+          auth.mergeIncludeValid(req, res, {model: Image, as: 'thumb', attributes: ['imgix'], required: false})// load thumb image
         ]
       }) // load 30 top movies
     ]
