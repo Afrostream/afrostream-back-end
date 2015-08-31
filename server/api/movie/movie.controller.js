@@ -224,7 +224,10 @@ exports.create = function (req, res) {
 // Updates an existing episode in the DB
 exports.algolia = function (req, res) {
   Movie.findAll({
-    include: includedModel
+    include: includedModel,
+    where: {
+      active: true
+    }
   })
     .then(handleEntityNotFound(res))
     .then(algolia.importAll(res, 'movies'))
