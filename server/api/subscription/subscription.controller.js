@@ -253,7 +253,7 @@ exports.create = function (req, res) {
           .then(function () {
             var planName = item.properties.plan.name;
             var planCode = item.properties.plan.plan_code;
-            profile.planCode = planName;
+            profile.planCode = planCode;
             if (!item._resources) {
               return res.json(profile);
             }
@@ -276,7 +276,7 @@ exports.create = function (req, res) {
                 return res.json(profile);
               }
 
-              return mailer.sendStandardEmail(res, data.account, planCode, invoiceFounded)
+              return mailer.sendStandardEmail(res, data.account, planName, invoiceFounded)
                 .then(function () {
                   res.json(profile);
                 })

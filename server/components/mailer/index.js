@@ -10,8 +10,8 @@ exports = module.exports = {
 
     var options = {
       auth: {
-        api_user: config.sendgrid.api_user,
-        api_key: config.sendgrid.api_key
+        api_user: config.sendGrid.api_user,
+        api_key: config.sendGrid.api_key
       }
     };
 
@@ -46,7 +46,9 @@ exports = module.exports = {
     };
     var sendMailAsync = Promise.promisify(client.sendMail, client);
 
-    return sendMailAsync(email);
+    return sendMailAsync(email).then(function () {
+      return true;
+    }).catch(handleError(res));
 
   },
   handleError: function (res) {

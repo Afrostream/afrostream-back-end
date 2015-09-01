@@ -8,7 +8,7 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 var express = require('express');
-var mongoose = require('mongoose-bird')();
+//var mongoose = require('mongoose-bird')();
 var sqldb = require('./sqldb');
 var config = require('./config/environment');
 
@@ -25,11 +25,11 @@ if (config.seedDB) { require('./config/seed'); }
 // Setup server
 var app = express();
 var server = require('http').createServer(app);
-//var socketio = require('socket.io')(server, {
-//  serveClient: config.env !== 'production',
-//  path: '/socket.io-client'
-//});
-//require('./config/socketio')(socketio);
+var socketio = require('socket.io')(server, {
+  serveClient: config.env !== 'production',
+  path: '/socket.io-client'
+});
+require('./config/socketio')(socketio);
 require('./config/express')(app);
 require('./routes')(app);
 
