@@ -73,8 +73,8 @@ var all = {
     max: 10000
   },
   recurly: {
-    subdomain: process.env.RECURLY_SUB_DOMAIN || 'johnarch',
-    apiKey: process.env.RECURLY_API_KEY || '67dbb29f0dbe4e219bc247a3b5387652'
+    subdomain: process.env.RECURLY_SUB_DOMAIN || 'afrostream',
+    apiKey: process.env.RECURLY_API_KEY || '82e5ec329c384b4995b979cc63536796'
   },
   algolia: {
     appId: process.env.ALGOLIA_APP_ID || '3OKNPL7ZVA',

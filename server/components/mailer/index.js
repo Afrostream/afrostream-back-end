@@ -7,7 +7,7 @@ var sgTransport = require('nodemailer-sendgrid-transport');
 var sendgrid = require('sendgrid')(config.sendGrid.api_key);
 
 exports = module.exports = {
-  sendStandardEmail: function (res, account, planName, invoice) {
+  sendStandardEmail: function (res, account, planName, planCode, invoice) {
 
     var options = {
       auth: {
@@ -17,7 +17,7 @@ exports = module.exports = {
     };
 
     var client = nodemailer.createTransport(sgTransport(options));
-    var firstName = (account['first_name'] !== 'undefined' ? account['first_name'] : '');
+    var firstName = (account['first_name'] && account['first_name'] !== 'undefined' ? account['first_name'] : '');
     var email = {
       from: 'abonnement@afrostream.tv',
       to: account['email'],
@@ -26,9 +26,8 @@ exports = module.exports = {
       + firstName,
 
       text: 'Bonjour ' + firstName + ', \n\n' +
-      'Je  suis heureux de te compter parmi nous ! Dès aujourd‘hui '
-      + '(le 1er octobre pour les abonnés "Think Like a Man"), tu peux profiter '
-      + 'des films et séries afro en illimité.\n\n'
+      'Je  suis heureux de te compter parmi nous !'
+      + (planCode === 'afrostreammonthly' ? 'Tu pourras profiter d’Afrostream à partir du 1er ocotbre.' : 'Tu peux dès maintenant profiter d’Afrostream en te connectant sur http://beta.afrostream.tv.')
       + 'Pour satisfaire au mieux tes attentes, peux tu répondre à 6 questions (30 sec.) '
       + 'en cliquant ici: https://docs.google.com/a/afrostream.tv/forms/d/1KyfN8Ng25UZ8KZtNCAr3DPC-ldNwpESDNEig4UQ9LpQ/viewform \n\n'
       + 'Mais si tu le préfères, je peux t’appeler cette semaine pour quelques questions.\n\n'

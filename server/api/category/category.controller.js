@@ -70,7 +70,11 @@ function responseWithAdSpot(req, res, statusCode) {
             model: Video,
             required: false,
             as: 'video'
-          }, {attributes: ['_id']}), // load all episodes
+          }, {
+            attributes: ['_id'], include: [
+              {model: Caption, as: 'captions', attributes: ['_id'], required: false}
+            ]
+          }), // load all episodes
           auth.mergeIncludeValid(req, {
             model: Season,
             required: false,
@@ -85,7 +89,7 @@ function responseWithAdSpot(req, res, statusCode) {
               include: [
                 auth.mergeIncludeValid(req, {model: Video, as: 'video', required: false}, {
                   attributes: ['_id'], include: [
-                    {model: Caption, as: 'captions', attributes: ['_id']}
+                    {model: Caption, as: 'captions', attributes: ['_id'], required: false}
                   ]
                 }), // load poster image
                 auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image

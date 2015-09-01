@@ -254,6 +254,9 @@ exports.create = function (req, res) {
           }
         }
       };
+
+      console.log('subscription create', data.account);
+
       return createAsync(data).then(function (item) {
         console.log('subscription', item);
         user.account_code = data.account.account_code;
@@ -266,12 +269,15 @@ exports.create = function (req, res) {
               return res.json(profile);
             }
             var invoiceId = item._resources.invoice.split('/invoices')[1];
+            if (!invoiceId) {
+              return res.json(profile);
+            }
             var account = new recurly.Account();
             account.id = data.account.account_code;
             var fetchAsync = Promise.promisify(account.getInvoices, account);
             return fetchAsync().then(function (invoicesInfo) {
               if (!invoicesInfo) {
-                handleError(res);
+                return res.json(profile);
               }
 
               console.log('invoiceId', invoiceId);
@@ -284,11 +290,13 @@ exports.create = function (req, res) {
                 return res.json(profile);
               }
 
-              return mailer.sendStandardEmail(res, data.account, planName, invoiceFounded)
+              return mailer.sendStandardEmail(res, data.account, planName, planCode, invoiceFounded)
                 .then(function () {
-                  res.json(profile);
+                  return res.json(profile);
                 })
-                .catch(res.json(profile));
+                .catch(function () {
+                  return res.json(profile)
+                });
 
             }).catch(handleError(res));
 
