@@ -14,6 +14,7 @@ var recurly = require('recurring')();
 var uuid = require('node-uuid');
 var config = require('../../config/environment');
 var sqldb = require('../../sqldb');
+var mailer = require('../../components/mailer');
 var User = sqldb.User;
 var Promise = sqldb.Sequelize.Promise;
 recurly.setAPIKey(config.recurly.apiKey);
@@ -114,6 +115,14 @@ exports.me = function (req, res, next) {
         return res.status(401).end();
       }
       var profile = user.profile;
+      if (user.billing_provider && user.billing_provider == 'celery') {
+        var now = new Date().getTime();
+        var finalDate = new Date('2016/09/01').getTime();
+        if (now > finalDate) {
+          profile.planCode = 'afrostreamambassadeurs';
+          return res.json(profile);
+        }
+      }
       if (user.account_code === null) {
         return res.json(profile);
       }
@@ -136,6 +145,86 @@ exports.me = function (req, res, next) {
     .catch(handleError(res));
 };
 
+exports.billing = function (req, res, next) {
+  var userId = req.user._id;
+  User.find({
+    where: {
+      _id: userId
+    }
+  })
+    .then(function (user) {
+      if (!user) {
+        return res.status(401).end();
+      }
+      if (user.account_code === null) {
+        handleError(res);
+      }
+      var account = new recurly.Account();
+      account.id = user.account_code;
+      var fetchAsync = Promise.promisify(account.fetchBillingInfo, account);
+      return fetchAsync().then(function (billingInfo) {
+        if (!billingInfo) {
+          return handleError(res);
+        }
+        return res.json(_.pick(billingInfo.properties, [
+          'first_name',
+          'last_name',
+          'country',
+          'card_type',
+          'year',
+          'month',
+          'first_six',
+          'last_four'
+        ]));
+      }).catch(handleError(res));
+
+    })
+    .catch(handleError(res));
+};
+
+exports.invoice = function (req, res, next) {
+  var userId = req.user._id;
+  User.find({
+    where: {
+      _id: userId
+    }
+  })
+    .then(function (user) {
+      if (!user) {
+        return res.status(401).end();
+      }
+      if (user.account_code === null) {
+        handleError(res);
+      }
+      var account = new recurly.Account();
+      account.id = user.account_code;
+      var fetchAsync = Promise.promisify(account.getInvoices, account);
+      return fetchAsync().then(function (invoicesInfo) {
+        if (!invoicesInfo) {
+          handleError(res);
+        }
+
+        var invoicesMapped = _.map(invoicesInfo, _.partialRight(_.pick, [
+            'address',
+            'state',
+            'invoice_number',
+            'subtotal_in_cents',
+            'total_in_cents',
+            'tax_in_cents',
+            'currency',
+            'created_at',
+            'closed_at',
+            'terms_and_conditions',
+            'customer_notes'])
+        );
+
+        return res.json(invoicesMapped);
+      }).catch(handleError(res));
+
+    })
+    .catch(handleError(res));
+};
+
 // Creates a new subscription in the DB
 exports.create = function (req, res) {
   var userId = req.user._id;
@@ -144,11 +233,6 @@ exports.create = function (req, res) {
       _id: userId
     }
   })
-    //User.find({
-    //  where: {
-    //    email: 'benjamin@afrostream.tv'
-    //  }
-    //})
     .then(function (user) { // don't ever give out the password or salt
       if (!user) {
         return res.status(401).end();
@@ -162,7 +246,7 @@ exports.create = function (req, res) {
         currency: 'EUR',
         account: {
           account_code: user.account_code || uuid.v1(),
-          email: user.email,//req.body['email'],
+          email: user.email,
           first_name: req.body['firstName'],
           last_name: req.body['lastName'],
           billing_info: {
@@ -175,20 +259,40 @@ exports.create = function (req, res) {
         user.account_code = data.account.account_code;
         return user.save()
           .then(function () {
-            profile.planCode = item.properties.plan.plan_code;
-            //todo get Invoice and send mail
-            //if (req.body['is_gift'] === '1') {
-            //  var emailer = EmailClient(req.body, invoiceNumber);
-            //  emailer.sendReceiverEmail();
-            //  emailer.sendGiverEmail();
-            //} else {
-            //
-            //  var emailer = EmailClient(req.body, invoiceNumber);
-            //  emailer.sendStandardEmail();
-            //}
-            return res.json(profile);
-          })
-          .catch(handleError(res));
+            var planName = item.properties.plan.name;
+            var planCode = item.properties.plan.plan_code;
+            profile.planCode = planCode;
+            if (!item._resources) {
+              return res.json(profile);
+            }
+            var invoiceId = item._resources.invoice.split('/invoices')[1];
+            var account = new recurly.Account();
+            account.id = data.account.account_code;
+            var fetchAsync = Promise.promisify(account.getInvoices, account);
+            return fetchAsync().then(function (invoicesInfo) {
+              if (!invoicesInfo) {
+                handleError(res);
+              }
+
+              console.log('invoiceId', invoiceId);
+              console.log('invoices', invoicesInfo);
+              var invoiceFounded = _.find(invoicesInfo, function (inv) {
+                return inv['invoice_number'] == invoiceId;
+              });
+              console.log('invoiceFounded', invoicesInfo);
+              if (!invoiceFounded) {
+                return res.json(profile);
+              }
+
+              return mailer.sendStandardEmail(res, data.account, planName, invoiceFounded)
+                .then(function () {
+                  res.json(profile);
+                })
+                .catch(res.json(profile));
+
+            }).catch(handleError(res));
+
+          }).catch(handleError(res));
 
       }).catch(handleError(res));
     })

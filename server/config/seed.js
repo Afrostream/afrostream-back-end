@@ -137,7 +137,7 @@ User.sync()
       role: 'admin',
       name: 'Admin',
       email: 'admin@admin.com',
-      account_code: '30dd86878de478338a9e99404aa536fc',
+      account_code: '30920ee0-5012-11e5-890e-6119da7f1e67',
       password: 'admin'
     }])
       .then(function () {
