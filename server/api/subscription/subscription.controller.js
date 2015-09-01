@@ -269,7 +269,7 @@ exports.create = function (req, res) {
               console.log('invoiceId', invoiceId);
               console.log('invoices', invoicesInfo);
               var invoiceFounded = _.find(invoicesInfo, function (inv) {
-                return inv.['invoice_number'] == invoiceId;
+                return inv['invoice_number'] == invoiceId;
               });
               console.log('invoiceFounded', invoicesInfo);
               if (!invoiceFounded) {
