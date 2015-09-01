@@ -47,6 +47,7 @@
     "recurring": "^2.1.0",
     "request": "^2.61.0",
     "request-promise": "^0.4.3",
+    "sendgrid": "^1.9.2",
     "sequelize": "^3.5.1",
     "serve-favicon": "~2.0.1",
     "slugify": "^0.1.1",

@@ -4659,6 +4659,23 @@
         }
       }
     },
+    "sendgrid": {
+      "version": "1.9.2",
+      "from": "sendgrid@*",
+      "resolved": "https://registry.npmjs.org/sendgrid/-/sendgrid-1.9.2.tgz",
+      "dependencies": {
+        "mime": {
+          "version": "1.3.4",
+          "from": "mime@>=1.2.9 <2.0.0",
+          "resolved": "https://registry.npmjs.org/mime/-/mime-1.3.4.tgz"
+        },
+        "smtpapi": {
+          "version": "1.2.0",
+          "from": "smtpapi@>=1.2.0 <2.0.0",
+          "resolved": "https://registry.npmjs.org/smtpapi/-/smtpapi-1.2.0.tgz"
+        }
+      }
+    },
     "sequelize": {
       "version": "3.5.1",
       "from": "sequelize@>=3.5.1 <4.0.0",

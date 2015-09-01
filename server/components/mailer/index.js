@@ -4,6 +4,7 @@ var config = require('../../config/environment');
 var _ = require('lodash');
 var nodemailer = require('nodemailer');
 var sgTransport = require('nodemailer-sendgrid-transport');
+var sendgrid = require('sendgrid')(config.sendGrid.api_key);
 
 exports = module.exports = {
   sendStandardEmail: function (res, account, planName, invoice) {
@@ -44,11 +45,13 @@ exports = module.exports = {
       + firstName.toUpperCase() + '\n\n'
       + '-----------------------------------\n\n'
     };
-    var sendMailAsync = Promise.promisify(client.sendMail, client);
+    var sendMailAsync = Promise.promisify(sendgrid.send, sendgrid);
+    //var sendMailAsync = Promise.promisify(client.sendMail, client);
 
-    return sendMailAsync(email).then(function () {
+    return sendMailAsync(email).then(function (json) {
+      console.log(json);
       return true;
-    }).catch(handleError(res));
+    }).catch(this.handleError(res));
 
   },
   handleError: function (res) {
