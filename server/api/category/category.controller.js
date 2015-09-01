@@ -16,6 +16,7 @@ var Movie = sqldb.Movie;
 var Season = sqldb.Season;
 var Video = sqldb.Video;
 var Episode = sqldb.Episode;
+var Caption = sqldb.Caption;
 var Image = sqldb.Image;
 var auth = require('../../auth/auth.service');
 
@@ -82,7 +83,11 @@ function responseWithAdSpot(req, res, statusCode) {
               as: 'episodes',
               required: false,
               include: [
-                auth.mergeIncludeValid(req, {model: Video, as: 'video', required: false}, {attributes: ['_id']}), // load poster image
+                auth.mergeIncludeValid(req, {model: Video, as: 'video', required: false}, {
+                  attributes: ['_id'], include: [
+                    {model: Caption, as: 'captions', attributes: ['_id']}
+                  ]
+                }), // load poster image
                 auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
                 auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
               ]
