@@ -115,10 +115,10 @@ exports.me = function (req, res, next) {
         return res.status(401).end();
       }
       var profile = user.profile;
-      if (user.billing_provider && user.billing_provider == 'celery') {
+      if (user.billing_provider && user.billing_provider === 'celery') {
         var now = new Date().getTime();
         var finalDate = new Date('2016/09/01').getTime();
-        if (now > finalDate) {
+        if (now < finalDate) {
           profile.planCode = 'afrostreamambassadeurs';
           return res.json(profile);
         }
