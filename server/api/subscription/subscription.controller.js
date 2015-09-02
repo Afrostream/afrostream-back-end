@@ -22,7 +22,6 @@ recurly.setAPIKey(config.recurly.apiKey);
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
-    console.log('subscription', err);
     res.status(statusCode).send(err);
   };
 }
@@ -247,8 +246,8 @@ exports.create = function (req, res) {
         account: {
           account_code: user.account_code || uuid.v1(),
           email: user.email,
-          first_name: req.body['firstName'],
-          last_name: req.body['lastName'],
+          first_name: req.body['first_name'],
+          last_name: req.body['last_name'],
           billing_info: {
             token_id: req.body['recurly-token']
           }
@@ -302,7 +301,9 @@ exports.create = function (req, res) {
 
           }).catch(handleError(res));
 
-      }).catch(handleError(res));
+      }).catch(function (err) {
+        return res.status(500).send(err.errors);
+      });
     })
     .catch(handleError(res));
 };

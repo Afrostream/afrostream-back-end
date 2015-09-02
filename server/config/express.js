@@ -18,6 +18,15 @@ var passport = require('passport');
 var busboy = require('connect-busboy');
 var session = require('express-session');
 
+var allowCrossDomain = function (req, res, next) {
+
+  res.header('Access-Control-Allow-Origin', config.allowOrigin.url);
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
+
+  next();
+};
+
 module.exports = function (app) {
   var env = app.get('env');
 

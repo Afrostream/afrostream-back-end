@@ -19,8 +19,29 @@ var validateJwt = expressJwt({
  */
 function isAuthenticated() {
   if (config.oauth2 !== undefined) {
-    return compose()
-      .use(passport.authenticate('bearer', {session: false}));
+    if (process.env.NODE_ENV === 'development') {
+      return compose()
+        .use(function (req, res, next) {
+          User.find({
+            where: {
+              email: 'admin@admin.com'
+            }
+          })
+            .then(function (user) {
+              if (!user) {
+                return res.status(401).end();
+              }
+              req.user = user;
+              next();
+            })
+            .catch(function (err) {
+              return next(err);
+            });
+        });
+    } else {
+      return compose()
+        .use(passport.authenticate('bearer', {session: false}));
+    }
   }
   return compose()
     //Validate jwt
