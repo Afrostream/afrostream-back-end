@@ -10,6 +10,7 @@ router.get('/', auth.hasRole('admin'), controller.index);
 router.get('/me', auth.isAuthenticated(), controller.me);
 router.get('/billing', auth.isAuthenticated(), controller.billing);
 router.get('/invoice', auth.isAuthenticated(), controller.invoice);
+router.get('/all', auth.isAuthenticated(), controller.all);
 router.get('/:id', auth.hasRole('admin'), controller.show);
 router.post('/', auth.isAuthenticated(), controller.create);
 router.put('/:id', auth.hasRole('admin'), controller.update);

@@ -144,6 +144,43 @@ exports.me = function (req, res, next) {
     .catch(handleError(res));
 };
 
+// Gets a single subscription from the DB
+exports.all = function (req, res, next) {
+  var userId = req.user._id;
+  User.find({
+    where: {
+      _id: userId
+    }
+  })
+    .then(function (user) {
+      if (!user) {
+        return res.status(401).end();
+      }
+      var profile = user.profile;
+      if (user.billing_provider && user.billing_provider === 'celery') {
+        var now = new Date().getTime();
+        var finalDate = new Date('2016/09/01').getTime();
+        if (now < finalDate) {
+          profile.planCode = 'afrostreamambassadeurs';
+          return res.json([]);
+        }
+      }
+      if (user.account_code === null) {
+        return res.json([]);
+      }
+      var account = new recurly.Account();
+      account.id = user.account_code;
+      var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
+      return fetchAsync().then(function (subscriptions) {
+        return res.json(subscriptions);
+      }).catch(function () {
+        return res.json([]);
+      });
+
+    })
+    .catch(handleError(res));
+};
+
 exports.billing = function (req, res, next) {
   var userId = req.user._id;
   User.find({
@@ -302,6 +339,7 @@ exports.create = function (req, res) {
           }).catch(handleError(res));
 
       }).catch(function (err) {
+        // translate this : https://gist.github.com/nerdyglasses/1877375
         return res.status(500).send(err.errors);
       });
     })
