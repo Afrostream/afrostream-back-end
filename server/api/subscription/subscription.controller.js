@@ -339,8 +339,7 @@ exports.create = function (req, res) {
           }).catch(handleError(res));
 
       }).catch(function (err) {
-        // translate this : https://gist.github.com/nerdyglasses/1877375
-        return res.status(500).send(err.errors);
+        return res.status(500).send(err.errors || err);
       });
     })
     .catch(handleError(res));
