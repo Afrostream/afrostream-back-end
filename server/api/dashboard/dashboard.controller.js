@@ -13,7 +13,7 @@ var _ = require('lodash');
 var path = require('path');
 var sqldb = require('../../sqldb');
 var config = require('../../config/environment');
-
+var Promise = sqldb.Sequelize.Promise;
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
@@ -32,26 +32,14 @@ function responseWithResult(res, statusCode) {
 
 // Gets a list of images
 exports.index = function (req, res) {
-  var queryName = req.param('query');
-  var typeName = req.param('type');
-  var paramsObj = {};
+  return Promise.map([sqldb.Licensor, sqldb.User, sqldb.Category, sqldb.Movie, sqldb.Season, sqldb.Episode, sqldb.Video, sqldb.Client], function (sequelise) {
+    return sequelise.count({}).then(function (results) {
+      return {count: results};
+    });
+  }).then(function (importeds) {
+    return res.json(importeds);
+  }).catch(SyntaxError, function (err) {
+    console.log(err);
+  });
 
-  if (queryName) {
-    paramsObj = _.merge(paramsObj, {
-      where: {
-        name: {$iLike: '%' + queryName + '%'},
-      }
-    })
-  }
-  if (typeName) {
-    paramsObj = _.merge(paramsObj, {
-      where: {
-        type: typeName
-      }
-    })
-  }
-
-  Image.findAndCountAll(paramsObj)
-    .then(responseWithResult(res))
-    .catch(handleError(res));
 };
