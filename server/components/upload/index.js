@@ -9,13 +9,13 @@ var Knox = require('knox');
 var asyncUpload = Promise.promisify(Knox.aws.putBuffer, Knox.aws);
 
 exports = module.exports = {
-  uploadFile: function (req, res, dataType) {
+  uploadFile: function (req, res, dataType, bucket) {
 
     // Create the knox client with your aws settings
     Knox.aws = Knox.createClient({
       key: config.amazon.key,
       secret: config.amazon.secret,
-      bucket: dataType === 'captions' ? 'tracks.afrostream.tv' : config.amazon.s3Bucket,
+      bucket: bucket || config.amazon.s3Bucket,
       region: config.amazon.region
     });
 

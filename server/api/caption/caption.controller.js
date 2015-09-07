@@ -83,7 +83,7 @@ exports.show = function (req, res) {
 
 // Creates a new caption in the DB
 exports.create = function (req, res) {
-  AwsUploader.uploadFile(req, res, 'caption').then(function (data) {
+  AwsUploader.uploadFile(req, res, 'caption', 'tracks.afrostream.tv').then(function (data) {
     Caption.create({
       src: data.req.url
     })
