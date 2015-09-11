@@ -20,8 +20,8 @@
  * @apiSuccess {String} captionId  CaptionId Related.
  * @apiSuccess {String} active  Active in production.
  * @apiExample {curl} Example usage:
- *    curl -i https://afrostream-backend.herokuapp.com/api/users/4711
- * @apiSampleRequest https://afrostream-backend.herokuapp.com/api/users/4711
+ *    curl -i http://backend.afrostream.tv/api/users/4711
+ * @apiSampleRequest http://backend.afrostream.tv/api/users/4711
  */
 
 var express = require('express');

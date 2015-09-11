@@ -130,7 +130,7 @@ exports.me = function (req, res, next) {
       var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
       return fetchAsync().then(function (subscriptions) {
         _.forEach(subscriptions, function (subscription) {
-          if (subscription.properties.state === 'active') {
+          if (~'pending,active'.indexOf(subscription.properties.state)) {
             profile.planCode = subscription.properties.plan.plan_code;
             return profile;
           }

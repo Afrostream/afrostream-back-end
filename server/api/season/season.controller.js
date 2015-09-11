@@ -180,7 +180,8 @@ exports.show = function (req, res) {
     include: [
       auth.mergeIncludeValid(req, {
         model: Episode, as: 'episodes',
-        order: [['sort', 'ASC']],
+        required: false,
+        order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
         include: [
           auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
           auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image

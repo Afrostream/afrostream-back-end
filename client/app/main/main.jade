@@ -54,29 +54,29 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                 i.fa.fa-file-video-o
               .title {{videos}}
               .comment Videos
-      .row
-        .col-lg-6
-          rd-widget
-            rd-widget-header(icon='fa-users' title='Users')
-              .row
-                input.form-control.input-sm(type='text' placeholder='Find a user here.' ng-model='$parent.$parent.searchField')
-            rd-widget-body.medium.no-padding
-              .table-responsive
-                table.table
-                  thead
-                    tr
-                      th.text-center ID
-                      th.text-center Username
-                      th.text-center Email
-                      th.text-center Role
-                  tbody
-                    tr(ng-repeat='item in users | filter:searchField')
-                      td.text-center
-                        span {{item._id}}
-                      td.text-center
-                        span {{item.name}}
-                      td.text-center
-                        span {{item.email}}
-                      td.text-center
-                        span {{item.role}}
+      //.row
+      //  .col-lg-6
+      //    rd-widget
+      //      rd-widget-header(icon='fa-users' title='Users')
+      //        .row
+      //          input.form-control.input-sm(type='text' placeholder='Find a user here.' ng-model='$parent.$parent.searchField')
+      //      rd-widget-body.medium.no-padding
+      //        .table-responsive
+      //          table.table
+      //            thead
+      //              tr
+      //                th.text-center ID
+      //                th.text-center Username
+      //                th.text-center Email
+      //                th.text-center Role
+      //            tbody
+      //              tr(ng-repeat='item in users | filter:searchField')
+      //                td.text-center
+      //                  span {{item._id}}
+      //                td.text-center
+      //                  span {{item.name}}
+      //                td.text-center
+      //                  span {{item.email}}
+      //                td.text-center
+      //                  span {{item.role}}
 

@@ -6,7 +6,6 @@ var Promise = require('bluebird');
 var config = require('../../config/environment');
 var Knox = require('knox');
 
-var asyncUpload = Promise.promisify(Knox.aws.putBuffer, Knox.aws);
 
 exports = module.exports = {
   uploadFile: function (req, res, dataType, bucket) {
@@ -18,6 +17,7 @@ exports = module.exports = {
       bucket: bucket || config.amazon.s3Bucket,
       region: config.amazon.region
     });
+    var asyncUpload = Promise.promisify(Knox.aws.putBuffer, Knox.aws);
 
     return new Promise(function (resolve, reject) {
       var itemData = {imgType: dataType};
