@@ -5,18 +5,20 @@ var path = require('path');
 var Promise = require('bluebird');
 var config = require('../../config/environment');
 var Knox = require('knox');
-// Create the knox client with your aws settings
-Knox.aws = Knox.createClient({
-  key: config.amazon.key,
-  secret: config.amazon.secret,
-  bucket: config.amazon.s3Bucket,
-  region: config.amazon.region
-});
 
-var asyncUpload = Promise.promisify(Knox.aws.putBuffer, Knox.aws);
 
 exports = module.exports = {
-  uploadFile: function (req, res, dataType) {
+  uploadFile: function (req, res, dataType, bucket) {
+
+    // Create the knox client with your aws settings
+    Knox.aws = Knox.createClient({
+      key: config.amazon.key,
+      secret: config.amazon.secret,
+      bucket: bucket || config.amazon.s3Bucket,
+      region: config.amazon.region
+    });
+    var asyncUpload = Promise.promisify(Knox.aws.putBuffer, Knox.aws);
+
     return new Promise(function (resolve, reject) {
       var itemData = {imgType: dataType};
       req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {

@@ -3,5 +3,12 @@
   "version": "0.1.0",
   "description": "afrostream api",
   "title": "Afrostream API",
-  "url": "https://afrostream-backend.herokuapp.com/api"
+  "url": "https://afrostream-backend.herokuapp.com/api",
+  "header": {
+    "title": "Afrostream api",
+    "filename": "header.md"
+  },
+  "footer": {
+    "title": "Afrostream api"
+  }
 }

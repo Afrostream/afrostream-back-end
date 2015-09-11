@@ -74,6 +74,12 @@ function tokenizeResult(req, res) {
           src: path.join('/assets', asset._id, token, url.parse(asset.src).pathname)
         });
       });
+      entity.sources = _.forEach(entity.captions, function (caption) {
+        _.assign(caption, {
+          //src: '//' + path.join(requestHost, 'api', 'assets', asset._id, token, url.parse(asset.src).pathname)
+          src: path.join('/captions', caption._id, token, url.parse(caption.src).pathname)
+        });
+      });
       res.status(200).json(entity);
     }
   };

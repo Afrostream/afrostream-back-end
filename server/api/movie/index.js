@@ -1,5 +1,35 @@
 'use strict';
 
+/**
+ * @api {get} /movies/:id Request Movie information
+ * @apiName GetMovie
+ * @apiGroup Movie
+ *
+ * @apiParam {Number} id Movie unique ID.
+ * @apiHeader Authorization Basic Access Authentication token.
+ * @apiHeader Content-Type (application/x-www-form-urlencoded, application/json, application/xml).
+ * @apiSuccess (Success 201) {text} Location URI of created Thing.
+ * @apiSuccess (Success 201) {text} body Thing id.
+ * @apiError {text} 401/Unauthorized.
+ * @apiError {text} 403/Forbidden Required field [...] omitted.
+ *
+ * @apiSuccess {String} title Name of the Movie.
+ * @apiSuccess {String} dateFrom Date start Movie.
+ * @apiSuccess {String} dateTo Date end Movie.
+ * @apiSuccess {String} type Type of the Movie (season/movie).
+ * @apiSuccess {String} synopsis  Description of the Movie..
+ * @apiSuccess {String} duration  Duration in seconds of the Movie..
+ * @apiSuccess {String} slug  Slug url of the Movie..
+ * @apiSuccess {String} active  Active in production.
+ * @apiSuccess {String} categorys Associated Categorys.
+ * @apiSuccess {String} seasons Associated Seasons list.
+ * @apiSuccess {String} poster Poster Image Object.
+ * @apiSuccess {String} thumb Thumb Image Object.
+ * @apiExample {curl} Example usage:
+ *    curl -i http://backend.afrostream.tv/api/movies/29
+ * @apiSampleRequest http://backend.afrostream.tv/api/movies/29
+ */
+
 var express = require('express');
 var controller = require('./movie.controller');
 var auth = require('../../auth/auth.service');

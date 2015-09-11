@@ -10,6 +10,7 @@
  * @apiSuccess {String} name Name of the User.
  * @apiSuccess {String} email  Email of the User.
  * @apiSuccess {String} role  Role of the User.
+ * @apiSuccess {String} planCode  Payment Plan Code of the User.
  */
 
 var express = require('express');
