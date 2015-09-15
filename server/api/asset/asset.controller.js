@@ -27,7 +27,7 @@ var proxy = httpProxy.createProxyServer({
   changeOrigin: true
 });
 
-Asset.belongsTo(Episode, {foreignKey: 'episode'}); // Adds episodeId to Asset
+//Asset.belongsTo(Episode, {foreignKey: 'episode'}); // Adds episodeId to Asset
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;

@@ -140,8 +140,8 @@ db.Movie = db.sequelize.import(path.join(
 var CategoryMovies = db.sequelize.define('CategoryMovies', {});
 var CategoryAdSpots = db.sequelize.define('CategoryAdSpots', {});
 
-db.Licensor.hasMany(db.Movie, {as: 'movies', foreignKey: 'licensorId'});
-db.Movie.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
+//db.Licensor.hasMany(db.Movie, {as: 'movies', foreignKey: 'licensorId'});
+//db.Movie.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
 
 db.Movie.belongsToMany(db.Category, {through: CategoryMovies, as: 'categorys'});
 db.Category.belongsToMany(db.Movie, {through: CategoryMovies, as: 'movies'});
@@ -151,37 +151,37 @@ db.Movie.hasMany(db.Image);
 db.Movie.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Movie.belongsTo(db.Image, {as: 'logo', constraints: false});
 db.Movie.belongsTo(db.Image, {as: 'thumb', constraints: false});
-db.Movie.belongsTo(db.Video, {as: 'video', constraints: false});
+//db.Movie.belongsTo(db.Video, {as: 'video', constraints: false});
 
 db.Movie.hasMany(db.Comment, {as: 'comments'});
 db.Movie.hasMany(db.Tag, {as: 'tags'});
 db.Comment.belongsTo(db.Movie, {as: 'movie', constraints: false});
 db.Comment.belongsTo(db.Video, {as: 'video', constraints: false});
 
-db.Movie.hasMany(db.Season, {as: 'seasons', foreignKey: 'movieId'});
-db.Season.belongsTo(db.Movie, {as: 'movie', foreignKey: 'movieId', constraints: false});
+//db.Movie.hasMany(db.Season, {as: 'seasons', foreignKey: 'movieId'});
+//db.Season.belongsTo(db.Movie, {as: 'movie', foreignKey: 'movieId', constraints: false});
 
 db.Season.hasMany(db.Image);
 db.Season.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Season.belongsTo(db.Image, {as: 'thumb', constraints: false});
 
-db.Season.hasMany(db.Episode, {as: 'episodes', foreignKey: 'seasonId'});
-db.Episode.belongsTo(db.Season, {as: 'season', foreignKey: 'seasonId', constraints: false});
+//db.Season.hasMany(db.Episode, {as: 'episodes', foreignKey: 'seasonId'});
+//db.Episode.belongsTo(db.Season, {as: 'season', foreignKey: 'seasonId', constraints: false});
 
 db.Episode.hasMany(db.Image);
 db.Episode.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Episode.belongsTo(db.Image, {as: 'thumb', constraints: false});
-db.Episode.belongsTo(db.Video, {as: 'video', constraints: false});
+//db.Episode.belongsTo(db.Video, {as: 'video', constraints: false});
 
-db.Video.hasMany(db.Asset, {onDelete: 'cascade', as: 'sources', foreignKey: 'videoId'});
-db.Asset.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
+//db.Video.hasMany(db.Asset, {onDelete: 'cascade', as: 'sources', foreignKey: 'videoId'});
+//db.Asset.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
 
-db.Video.hasMany(db.Caption, {onDelete: 'cascade', as: 'captions', foreignKey: 'videoId'});
-db.Caption.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
+//db.Video.hasMany(db.Caption, {onDelete: 'cascade', as: 'captions', foreignKey: 'videoId'});
+//db.Caption.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
 
-db.Video.belongsTo(db.Movie, {as: 'movie', foreignKey: 'movieId'});
-db.Video.belongsTo(db.Episode, {as: 'episode', foreignKey: 'episodeId'});
+//db.Video.belongsTo(db.Movie, {as: 'movie', foreignKey: 'movieId'});
+//db.Video.belongsTo(db.Episode, {as: 'episode', foreignKey: 'episodeId'});
 
-db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints: false});
+//db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints: false});
 
 module.exports = db;

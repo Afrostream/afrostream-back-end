@@ -1,5 +1,27 @@
 'use strict';
 
+var path = require('path');
+var Sequelize = require('sequelize');
+var config = require('../../config/environment');
+
+var sequelize = new Sequelize(config.sequelize.uri, config.sequelize.options);
+
+var Video = sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'video',
+  'video.model'
+));
+
+var Language = sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'language',
+  'language.model'
+));
+
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Caption', {
     _id: {
@@ -10,8 +32,22 @@ module.exports = function (sequelize, DataTypes) {
       primaryKey: true
     },
     src: DataTypes.STRING,
-    videoId: DataTypes.UUID,
-    langId: DataTypes.INTEGER,
+    "videoId":
+    {
+      type: DataTypes.UUID,
+      references : {
+        model: Video,
+        key: "_id"
+      }
+    },
+    "langId":
+    {
+      type: DataTypes.INTEGER,
+      references: {
+        model: Language,
+        key: "_id"
+      }
+    },
     sort: DataTypes.INTEGER,
     kind: {
       type: DataTypes.STRING,
@@ -19,6 +55,10 @@ module.exports = function (sequelize, DataTypes) {
     },
     active: {
       type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    deleted: {
+      type : DataTypes.BOOLEAN,
       defaultValue: false
     }
   });

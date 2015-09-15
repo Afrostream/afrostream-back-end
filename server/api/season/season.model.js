@@ -1,5 +1,19 @@
 'use strict';
 
+var path = require('path');
+var Sequelize = require('sequelize');
+var config = require('../../config/environment');
+
+var sequelize = new Sequelize(config.sequelize.uri, config.sequelize.options);
+
+var Movie = sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'movie',
+  'movie.model'
+));
+
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Season', {
     _id: {
@@ -20,12 +34,21 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.STRING,
       defaultValue: 'season'
     },
-    movieId: DataTypes.INTEGER,
-    episodeId: DataTypes.INTEGER,
+    "movieId": {
+      type: DataTypes.INTEGER,
+      references: {
+        model: Movie,
+        key : "_id"
+      }
+    },
     slug: DataTypes.STRING,
     sort: DataTypes.INTEGER,
     active: {
       type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    deleted: {
+      type : DataTypes.BOOLEAN,
       defaultValue: false
     }
   });
