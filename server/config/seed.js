@@ -15,39 +15,45 @@ var User = sqldb.User;
 var Client = sqldb.Client;
 var Video = sqldb.Video;
 
-Category.sync()
+var Promise = require('bluebird');
+var promises = [];
+
+promises.push(
+  Category.sync()
   .then(function () {
     return Category.destroy({where: {}});
   })
   .then(function () {
-    Category.bulkCreate([{
+    return Category.bulkCreate([{
       label: 'Sélection',
       slug: 'selection'
     }, {
       label: 'Nouveauté',
       slug: 'nouveaute'
     }]);
-  });
+  })
+);
 
-Video.sync()
+promises.push(
+  Video.sync()
   .then(function () {
     return Video.destroy({where: {}});
   })
-  .then(function () {
+);
 
-  });
-
-Movie.sync()
+promises.push(
+  Movie.sync()
   .then(function () {
     return Movie.destroy({where: {}});
   })
   .then(function () {
-    Movie.bulkCreate([{
+    return Movie.bulkCreate([{
       title: 'In the mood for love',
       synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
       'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
       'Stylus, Sass, CoffeeScript, and Less.',
-      poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
+      poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+      type: 'serie'
     }, {
       title: 'Shauwn the sheep',
       synopsis: 'Built with a powerful and fun stack: MongoDB, Express, ' +
@@ -76,53 +82,102 @@ Movie.sync()
       'and openshift subgenerators',
       poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
     }]);
-  });
+  })
+);
 
-Season.sync()
+promises.push(
+  Season.sync()
   .then(function () {
     return Season.destroy({where: {}});
   })
   .then(function () {
-    Season.bulkCreate([{
+    return Season.bulkCreate([{
       title: 'In the mood for love Season 1',
       synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
       'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
       'Stylus, Sass, CoffeeScript, and Less.',
       poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
     }]);
-  });
+  })
+);
 
-Language.sync()
+promises.push(Language.sync()
   .then(function () {
     return Language.destroy({where: {}});
   })
   .then(function () {
-    Language.bulkCreate([{
+    return Language.bulkCreate([{
       label: 'Français',
       lang: 'fr'
     }]);
-  });
+  })
+);
 
-Episode.sync()
+promises.push(Episode.sync()
   .then(function () {
     return Episode.destroy({where: {}});
   })
   .then(function () {
-    Episode.bulkCreate([{
+    return Episode.bulkCreate([{
       title: 'In the mood for love Episode 1',
       synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
       'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
       'Stylus, Sass, CoffeeScript, and Less.',
-      poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
-    }]);
-  });
+      poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+      episodeNumber: 1,
+      sort: 1
+    }, {
+      title: 'In the mood for love Episode 3',
+      synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
+      'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
+      'Stylus, Sass, CoffeeScript, and Less.',
+      poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+      episodeNumber: 3,
+      sort: 3
+    }, {
+      title: 'In the mood for love Episode 2',
+      synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
+      'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
+      'Stylus, Sass, CoffeeScript, and Less.',
+      poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+      episodeNumber: 2,
+      sort: 2
+    }, {
+      title: 'In the mood for love Episode 6',
+      synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
+      'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
+      'Stylus, Sass, CoffeeScript, and Less.',
+      poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+      episodeNumber: 6,
+      sort: 6
+    }, {
+      title: 'In the mood for love Episode 5',
+      synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
+      'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
+      'Stylus, Sass, CoffeeScript, and Less.',
+      poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+      episodeNumber: 5,
+      sort: 5
+    }, {
+      title: 'In the mood for love Episode 4',
+      synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
+      'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
+      'Stylus, Sass, CoffeeScript, and Less.',
+      poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+      episodeNumber: 4,
+      sort: 4
+    }
+    ]);
+  })
+);
 
-User.sync()
+promises.push(
+  User.sync()
   .then(function () {
     return User.destroy({where: {}});
   })
   .then(function () {
-    User.bulkCreate([{
+    return User.bulkCreate([{
       provider: 'local',
       name: 'Test User',
       email: 'test@test.com',
@@ -139,23 +194,55 @@ User.sync()
       email: 'admin@admin.com',
       account_code: '30920ee0-5012-11e5-890e-6119da7f1e67',
       password: 'admin'
-    }])
-      .then(function () {
-        console.log('finished populating users');
-      });
-  });
+    }]);
+  })
+);
 
-Client.sync()
+promises.push(
+  Client.sync()
   .then(function () {
     return Client.destroy({where: {}});
   })
   .then(function () {
-    Client.bulkCreate([{
+    return Client.bulkCreate([{
       name: 'Test Client',
       _id: '8c261045-89a3-44bb-af38-65a847269605',
       secret: '3dc3cae6-9c79-487a-9e0f-712be857dcee'
-    }])
-      .then(function () {
-        console.log('finished populating users');
-      });
+    }]);
+  })
+);
+
+Promise.all(promises).then(function () {
+  console.log('All rows created. Creating links.');
+  // linking movie <-> season
+  Promise.all([
+    Movie.findOne({ where: { title: 'In the mood for love' }}),
+    Season.findOne({ where: { title: 'In the mood for love Season 1' }})
+  ]).spread(function (movie, season) {
+    season.movieId = movie._id;
+    return season.save();
   });
+  // linking season <-> episodes
+  Promise.all([
+    Season.findOne({ where: { title: 'In the mood for love Season 1' } }),
+    Promise.all([
+      Episode.findOne({ where: { title: 'In the mood for love Episode 1'} }),
+      Episode.findOne({ where: { title: 'In the mood for love Episode 2'} }),
+      Episode.findOne({ where: { title: 'In the mood for love Episode 3'} }),
+      Episode.findOne({ where: { title: 'In the mood for love Episode 4'} }),
+      Episode.findOne({ where: { title: 'In the mood for love Episode 5'} }),
+      Episode.findOne({ where: { title: 'In the mood for love Episode 6'} }),
+    ])
+  ]).then(function (data) {
+    var season = data[0]
+      , episodes = data[1];
+
+    return Promise.all(
+      episodes.map(function (episode) {
+        console.log('assigning season._id' + season._id + ' to episode ' + episode.title)
+        episode.seasonId = season._id;
+        return episode.save();
+      })
+    );
+  });
+});
