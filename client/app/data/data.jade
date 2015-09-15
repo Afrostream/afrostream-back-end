@@ -59,7 +59,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                           span.glyphicon.glyphicon-pencil
                         button.btn.btn-xs.btn-info(ng-click='cloneIndex(item)' tooltip='Clone' ng-if='!hasMail()')
                           span.fa.fa-clone
-                        button.btn.btn-xs.btn-danger(ng-click='deleteIndex(item)' tooltip='Delete' )
+                        button.btn.btn-xs.btn-danger(ng-click='deleteIndex(item.title || item.label || item.name, item)' tooltip='Delete' )
                           span.glyphicon.glyphicon-trash
               //div(bgf-pagination collection='items' url='apiRessourceUrl' url-params='apiParamsUrl' )
               dir-pagination-controls(pagination-id='itemsPagination'  on-page-change='pageChanged(newPageNumber)' boundary-links='true')

@@ -1,8 +1,9 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('DataCtrl', function ($scope, $log, $http, socket, $modal, ngToast, $state) {
-    var defaultPerPage = 25
+  .controller('DataCtrl', function ($scope, $log, $http, socket, $modal, ngToast, $state, Modal) {
+    var defaultPerPage = 25;
+
     $scope.type = $state.current.type || 'movie';
     $scope.items = [];
     $scope.itemsPerPage = defaultPerPage;
@@ -111,9 +112,9 @@ angular.module('afrostreamAdminApp')
       });
     };
 
-    $scope.deleteIndex = function (item) {
+    $scope.deleteIndex = Modal.confirm.delete(function (item) {
       $http.delete($scope.apiRessourceUrl + '/' + item._id);
-    };
+    });
 
     $scope.$on('$destroy', function () {
       socket.unsyncUpdates($scope.type);
