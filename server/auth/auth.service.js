@@ -100,6 +100,17 @@ function hasRole(roleRequired) {
 }
 
 /**
+ * Tels if the user of the request has a minimum role of "admin".
+ * @param req
+ * @returns {*}
+ */
+function reqUserIsAdmin(req) {
+  var roleRequired = 'admin'
+
+  return validRole(req, roleRequired);
+}
+
+/**
  * Returns a jwt token signed by the app secret
  */
 function signToken(id) {
@@ -111,8 +122,7 @@ function signToken(id) {
  * Returns a jwt token signed by the app secret
  */
 function mergeQuery(req, res, params) {
-  var roleRequired = 'admin';
-  var isAdmin = validRole(req, roleRequired);
+  var isAdmin = reqUserIsAdmin(req);
   var queryParameters = paginate(req, res);
 
   if (!isAdmin) {
@@ -123,31 +133,31 @@ function mergeQuery(req, res, params) {
     })
   }
   params = _.merge(params, {
-    //todo trier par sort, episodeNumber
-    //order: [['sort', 'ASC'], ['_id', 'ASC']],
-    order: [['_id', 'ASC']],
     offset: queryParameters.skip,
     limit: queryParameters.limit
   });
+
+  if (!params.order) {
+    params.order = [['_id', 'ASC']];
+  }
+
   return params;
 }
+
 /**
- * Returns a jwt token signed by the app secret
+ * merge include params only for non admin users
+ *  + restrict access to inactive models to non admin users
+ *
+ * FIXME: rename the function.
+ *
+ * @param req
+ * @param params   include model descriptor
+ * @param merge    include additionnal model descriptor to be merged
+ * @returns Object include model descriptor
+ * @see http://docs.sequelizejs.com/en/latest/api/model/
  */
 function mergeIncludeValid(req, params, merge) {
-  var roleRequired = 'admin';
-  var isAdmin = validRole(req, roleRequired);
-  var mergeable = merge || {}
-  if (!isAdmin) {
-    mergeable = _.merge(mergeable, {
-      where: {
-        active: true
-      }
-    });
-
-    params = _.merge(params, mergeable)
-  }
-  return params;
+  return reqUserIsAdmin(req) ? params : _.merge(params, merge || {}, {where: { active: true}});
 }
 
 /**

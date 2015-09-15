@@ -194,10 +194,8 @@ exports.show = function (req, res) {
         model: Season,
         required: false,
         as: 'seasons',
-        order: [['sort', 'ASC']],
         include: [auth.mergeIncludeValid(req, {
           model: Episode,
-          order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
           as: 'episodes',
           required: false,
           include: [
@@ -209,6 +207,10 @@ exports.show = function (req, res) {
       auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
       auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
       {model: Licensor, as: 'licensor'}// load thumb image
+    ],
+    order: [
+      [ { model: Season, as: 'seasons'}, 'sort' ],
+      [ { model: Season, as: 'seasons'}, { model: Episode, as: 'episodes'}, 'sort' ]
     ]
   }))
     .then(handleEntityNotFound(res))
