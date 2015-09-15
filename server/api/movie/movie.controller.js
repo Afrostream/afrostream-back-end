@@ -197,7 +197,7 @@ exports.show = function (req, res) {
         order: [['sort', 'ASC']],
         include: [auth.mergeIncludeValid(req, {
           model: Episode,
-          order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
+          order: [['sort', 'ASC']],
           as: 'episodes',
           required: false,
           include: [
