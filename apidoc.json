@@ -5,8 +5,7 @@
   "title": "Afrostream API",
   "url": "https://afrostream-backend.herokuapp.com/api",
   "header": {
-    "title": "Afrostream api",
-    "filename": "header.md"
+    "title": "Afrostream api"
   },
   "footer": {
     "title": "Afrostream api"
