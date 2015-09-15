@@ -181,7 +181,6 @@ exports.show = function (req, res) {
       auth.mergeIncludeValid(req, {
         model: Episode, as: 'episodes',
         required: false,
-        order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
         include: [
           auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
           auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
@@ -190,6 +189,9 @@ exports.show = function (req, res) {
       {model: Movie, as: 'movie'}, // load related movie
       {model: Image, as: 'poster'}, // load poster image
       {model: Image, as: 'thumb'} // load thumb image
+    ],
+    order: [
+      [ {model: Episode, as: 'episodes'}, 'sort']
     ]
   }))
     .then(handleEntityNotFound(res))
