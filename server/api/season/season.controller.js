@@ -20,19 +20,24 @@ var Promise = sqldb.Sequelize.Promise;
 var slugify = require('slugify');
 var auth = require('../../auth/auth.service');
 
-var includedModel = [
-  {
-    model: Episode, as: 'episodes',
-    order: [['sort', 'ASC']],
-    include: [
-      {model: Image, as: 'poster'}, // load poster image
-      {model: Image, as: 'thumb'} // load thumb image
-    ]
-  }, // load all episodes
-  {model: Movie, as: 'movie'}, // load related movie
-  {model: Image, as: 'poster'}, // load poster image
-  {model: Image, as: 'thumb'} // load thumb image
-];
+var includedModelOptions = {
+  include: [
+    {
+      model: Episode, as: 'episodes',
+      include: [
+        {model: Image, as: 'poster'}, // load poster image
+        {model: Image, as: 'thumb'} // load thumb image
+      ]
+    }, // load all episodes
+    {model: Movie, as: 'movie'}, // load related movie
+    {model: Image, as: 'poster'}, // load poster image
+    {model: Image, as: 'thumb'} // load thumb image
+  ],
+  order: [
+    ['sort', 'ASC'],
+    [{model: Episode, as: 'episodes'}, 'sort']
+  ]
+};
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -183,7 +188,7 @@ exports.show = function (req, res) {
         required: false,
         include: [
           auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
+          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})   // load thumb image
         ]
       }), // load all episodes
       {model: Movie, as: 'movie'}, // load related movie
@@ -191,6 +196,7 @@ exports.show = function (req, res) {
       {model: Image, as: 'thumb'} // load thumb image
     ],
     order: [
+      ['sort', 'ASC'],
       [ {model: Episode, as: 'episodes'}, 'sort']
     ]
   }))
@@ -211,12 +217,12 @@ exports.create = function (req, res) {
 
 // Updates an existing episode in the DB
 exports.algolia = function (req, res) {
-  Season.findAll({
-    include: includedModel,
-    where: {
-      active: true
-    }
-  })
+  var searchScope = _.merge(
+    { where: { active: true } },
+    includedModelOptions
+  );
+
+  Season.findAll(searchScope)
     .then(handleEntityNotFound(res))
     .then(algolia.importAll(res, 'seasons'))
     .then(responseWithResult(res))
@@ -228,12 +234,13 @@ exports.update = function (req, res) {
   if (req.body._id) {
     delete req.body._id;
   }
-  Season.find({
-    where: {
-      _id: req.params.id
-    },
-    include: includedModel
-  })
+
+  var searchScope = _.merge(
+    { where: { _id: req.params.id } },
+    includedModelOptions
+  );
+
+  Season.find(searchScope)
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addEpisodes(req.body))

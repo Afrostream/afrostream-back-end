@@ -57,31 +57,39 @@ describe('Category API:', function () {
   });
 
   describe('GET /api/categorys/:id', function () {
-    var category;
 
-    beforeEach(function (done) {
-      request(app)
-        .get('/api/categorys/' + newCategory._id)
-        .expect(200)
-        .expect('Content-Type', /json/)
-        .end(function (err, res) {
-          if (err) {
-            return done(err);
-          }
-          category = res.body;
-          done();
-        });
+    describe('without nested objects', function () {
+      var category;
+
+      beforeEach(function (done) {
+        request(app)
+          .get('/api/categorys/' + newCategory._id)
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function (err, res) {
+            if (err) {
+              return done(err);
+            }
+            category = res.body;
+            done();
+          });
+      });
+
+      afterEach(function () {
+        category = {};
+      });
+
+      it('should respond with the requested category', function () {
+        category.label.should.equal('New Category');
+        category.slug.should.equal('This is the brand new category!!!');
+      })
     });
 
-    afterEach(function () {
-      category = {};
+    describe('with movies', function () {
+      it('should do something', function () {
+        return false;
+      })
     });
-
-    it('should respond with the requested category', function () {
-      category.label.should.equal('New Category');
-      category.slug.should.equal('This is the brand new category!!!');
-    });
-
   });
 
   describe('PUT /api/categorys/:id', function () {

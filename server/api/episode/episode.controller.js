@@ -18,15 +18,14 @@ var Video = sqldb.Video;
 var Image = sqldb.Image;
 var auth = require('../../auth/auth.service');
 
-var includedModel = [
-  {
-    model: Season, as: 'season',
-    order: [['sort', 'ASC']]
-  }, // load all episodes
-  {model: Video, as: 'video'}, // load video data
-  {model: Image, as: 'poster'}, // load poster image
-  {model: Image, as: 'thumb'} // load thumb image
-];
+var includedModelOptions = {
+  include: [
+    {model: Season, as: 'season'}, // load season
+    {model: Video, as: 'video'},   // load video data
+    {model: Image, as: 'poster'},  // load poster image
+    {model: Image, as: 'thumb'}    // load thumb image
+  ]
+};
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -134,12 +133,12 @@ exports.index = function (req, res) {
 
 // Gets a single episode from the DB
 exports.show = function (req, res) {
-  Episode.find(auth.mergeQuery(req, res, {
-    where: {
-      _id: req.params.id
-    },
-    include: includedModel
-  }))
+  var searchScope = _.merge(
+    { where: { _id: req.params.id } },
+    includedModelOptions
+  );
+
+  Episode.find(auth.mergeQuery(req, res, searchScope))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -160,12 +159,13 @@ exports.update = function (req, res) {
   if (req.body._id) {
     delete req.body._id;
   }
-  Episode.find({
-    where: {
-      _id: req.params.id
-    },
-    include: includedModel
-  })
+
+  var searchScope = _.merge(
+    { where: { _id: req.params.id } },
+    includedModelOptions
+  );
+
+  Episode.find(searchScope)
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addSeason(req.body))
@@ -176,12 +176,12 @@ exports.update = function (req, res) {
 };
 // Updates an existing episode in the DB
 exports.algolia = function (req, res) {
-  Episode.findAll({
-    include: includedModel,
-    where: {
-      active: true
-    }
-  })
+  var searchScope = _.merge(
+    { where: { active: true } },
+    includedModelOptions
+  );
+
+  Episode.findAll(searchScope)
     .then(handleEntityNotFound(res))
     .then(algolia.importAll(res, 'episodes'))
     .then(responseWithResult(res))

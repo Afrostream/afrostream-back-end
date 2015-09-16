@@ -52,7 +52,8 @@ function responseWithSeasons(req, res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
     if (entity) {
-      return entity.getSeasons(auth.mergeIncludeValid(req, {order: [['sort', 'ASC']]})).then(function (seasons) {
+      return entity.getSeasons(auth.mergeIncludeValid(req, {order: [['sort', 'ASC']]}))
+        .then(function (seasons) {
         res.status(statusCode).json(seasons);
       })
     }
@@ -209,6 +210,7 @@ exports.show = function (req, res) {
       {model: Licensor, as: 'licensor'}// load thumb image
     ],
     order: [
+      ['sort', 'ASC'],
       [ { model: Season, as: 'seasons'}, 'sort' ],
       [ { model: Season, as: 'seasons'}, { model: Episode, as: 'episodes'}, 'sort' ]
     ]

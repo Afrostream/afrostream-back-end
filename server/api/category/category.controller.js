@@ -20,15 +20,21 @@ var Caption = sqldb.Caption;
 var Image = sqldb.Image;
 var auth = require('../../auth/auth.service');
 
-var includedModel = [
-  {
-    model: Movie, as: 'movies',
-    order: [['sort', 'ASC']]
-  }, {
-    model: Movie, as: 'adSpots',
-    order: [['sort', 'ASC']]
-  } // load all adSpots
-];
+var includedModelOptions = {
+  include : [
+    {
+      model: Movie, as: 'movies'
+    },
+    {
+      model: Movie, as: 'adSpots'
+    }
+  ],
+  order: [
+    [ 'sort', 'ASC'],
+    [ { model: Movie, as: 'movies' }, 'sort' ],
+    [ { model: Movie, as: 'adSpots' }, 'sort']
+  ]
+};
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -64,7 +70,6 @@ function responseWithAdSpot(req, res, statusCode) {
   return function (entity) {
     if (entity) {
       return entity.getAdSpots(auth.mergeIncludeValid(req, {
-        order: [['sort', 'ASC']],
         include: [
           auth.mergeIncludeValid(req, {
             model: Video,
@@ -80,10 +85,8 @@ function responseWithAdSpot(req, res, statusCode) {
             required: false,
             as: 'seasons',
             attributes: ['_id', 'slug'],
-            order: [['sort', 'ASC']],
             include: [auth.mergeIncludeValid(req, {
               model: Episode,
-              order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
               as: 'episodes',
               required: false,
               include: [
@@ -100,6 +103,11 @@ function responseWithAdSpot(req, res, statusCode) {
           auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
           auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
           auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
+        ],
+        order: [
+          ['sort', 'ASC'],
+          [{model: Season, as: 'seasons'}, 'sort'],
+          [{model: Season, as: 'seasons'}, {model: Episode, as: 'episodes'}, 'sort']
         ]
       })).then(function (adSpots) {
         res.status(statusCode).json(adSpots);
@@ -181,12 +189,11 @@ exports.index = function (req, res) {
 
 // Gets a single category from the DB
 exports.show = function (req, res) {
-  Category.find(auth.mergeQuery(req, res, {
-    where: {
-      _id: req.params.id
-    },
-    include: includedModel
-  }))
+  var searchScope = _.merge(
+    { where: { _id: req.params.id } },
+    includedModelOptions
+  );
+  Category.find(auth.mergeQuery(req, res, searchScope))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -218,18 +225,20 @@ exports.menu = function (req, res) {
 // Gets all submovies limited
 exports.mea = function (req, res) {
   Category.findAll(auth.mergeQuery(req, res, {
-    order: [['sort', 'ASC']],
     include: [
       auth.mergeIncludeValid(req, {
         model: Movie,
         as: 'movies',
         required: false,
-        order: ['sort', 'ASC'],
         include: [auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
           auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
           auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
         ]
       }) // load 30 top movies
+    ],
+    order: [
+      ['sort', 'ASC'],
+      [{model: Movie, as: 'movies'}, 'sort']
     ]
   }))
     .then(handleEntityNotFound(res))
@@ -252,12 +261,12 @@ exports.update = function (req, res) {
   if (req.body._id) {
     delete req.body._id;
   }
-  Category.find({
-    where: {
-      _id: req.params.id
-    },
-    include: includedModel
-  })
+
+  var searchScope = _.merge(
+    { where: { _id: req.params.id }},
+    includedModelOptions
+  );
+  Category.find(searchScope)
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addMovies(req.body))
