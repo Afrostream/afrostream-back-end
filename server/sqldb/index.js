@@ -7,6 +7,7 @@
 var path = require('path');
 var config = require('../config/environment');
 
+var _ = require('lodash');
 var Sequelize = require('sequelize');
 
 var db = {
@@ -183,5 +184,58 @@ db.Video.belongsTo(db.Movie, {as: 'movie', foreignKey: 'movieId'});
 db.Video.belongsTo(db.Episode, {as: 'episode', foreignKey: 'episodeId'});
 
 db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints: false});
+
+/**
+ * **************** FIXME *************
+ * Fluent API used to create [options] passed to find() / findAll() / ...
+ *
+ * newSearchScope()
+ *   .whereId(42)
+ *   .getOptions()
+ * <=>
+ * _.merge({}, { where: { _id: 42 } })
+ *
+ * newSearchScope()
+ *   .addOption({ include: { ... } }) // raw option
+ *   .where({ _id: 42 })
+ *   .getOptions()
+ * <=>
+ * _.merge({}, { include: { ... } }, { where: { _id: 42 } })
+ *
+ * @return Object
+ */
+db.sequelize.newSearchScope = function () {
+  throw "FIXME - do not use - work in progress.";
+
+  var options = [ ];
+
+  return {
+    /**
+     * @param option Object
+     * @return this
+     */
+    addOption: function (option) { options.push(option); return this; },
+    /**
+     * @return Object
+     */
+    getOptions: function () {
+      return options.reduce(_.merge, {});
+    },
+    // alpha api.
+    where: function (param) {
+      this.addOption({where: param});
+    },
+    whereId: function (id) {
+      this.where({_id: id });
+    },
+    include: function (param) {
+      this.addOption({include: param});
+    },
+    order: function (param) {
+      this.addOption({order: param});
+    }
+  }
+};
+
 
 module.exports = db;
