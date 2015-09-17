@@ -47,7 +47,7 @@ promises.push(
     return Movie.destroy({where: {}});
   })
   .then(function () {
-    return Movie.bulkCreate([{
+    var movies = [{
       title: 'In the mood for love',
       synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
       'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
@@ -81,7 +81,15 @@ promises.push(
       synopsis: 'Easily deploy your app to Heroku or Openshift with the heroku ' +
       'and openshift subgenerators',
       poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
-    }]);
+    }];
+    for (var i = 0; i < 50; i++) {
+      movies.push({
+        title: 'Title of random movie ' + i,
+        synopsis: 'synopsis of random movie ' + i,
+        poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
+      });
+    }
+    return Movie.bulkCreate(movies);
   })
 );
 
