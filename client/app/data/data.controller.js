@@ -37,13 +37,16 @@ angular.module('afrostreamAdminApp')
 
     function getResultsPage(pageNumber) {
       // this is just an example, in reality this stuff should be in a service
+      // FIXME: we shouldn't download everything
+      var firstPage = 1;
+
       $http.get($scope.apiRessourceUrl, {
-        params: {query: $scope.searchField, page: pageNumber},
+        params: {query: $scope.searchField, page: firstPage},
         headers: angular.extend(
           {}, $scope.headers,
           {
             'Range-Unit': 'items',
-            Range: [(pageNumber - 1) * $scope.itemsPerPage, (pageNumber) * $scope.itemsPerPage].join('-')
+            Range: [(firstPage - 1) * $scope.itemsPerPage, (firstPage) * $scope.itemsPerPage].join('-')
           }
         )
       })
@@ -53,8 +56,17 @@ angular.module('afrostreamAdminApp')
             $scope.totalItems = 0;
             $scope.items = [];
           } else {
-            $scope.totalItems = response ? response.total : result.data.length;
-            $scope.items = result.data || [];
+            if (result.data) {
+              $scope.totalItems = response ? response.total : result.data.length;
+              $scope.items = result.data.slice(
+                (pageNumber - 1) *  $scope.itemsPerPage,
+                pageNumber * $scope.itemsPerPage
+              );
+            } else {
+              $scope.totalItems = 0;
+              $scope.items = [];
+            }
+
           }
           //$scope.items.sort(function (a, b) {
           //  return a.sort > b.sort;
@@ -62,7 +74,7 @@ angular.module('afrostreamAdminApp')
 
           $scope.numPages = Math.ceil($scope.totalItems / ($scope.itemsPerPage || defaultPerPage));
 
-          socket.syncUpdates($scope.type, $scope.items);
+          // socket.syncUpdates($scope.type, $scope.items);
         });
     }
 
