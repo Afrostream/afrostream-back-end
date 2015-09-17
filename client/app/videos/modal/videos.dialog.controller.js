@@ -52,7 +52,7 @@ angular.module('afrostreamAdminApp')
       var rtType = {};
       switch (type) {
         case 'm3u8':
-          rtType.type = 'application/x-mpegURL';
+          rtType.type = 'application/vnd.apple.mpegurl';
           rtType.format = 'hls';
           break;
         case 'mpd':
