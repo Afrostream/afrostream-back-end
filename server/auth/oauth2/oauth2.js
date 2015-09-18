@@ -55,41 +55,43 @@ var generateTokenData = function (client, user, code) {
     refresh: refreshTokenHash,
     clientId: clientId,
     userId: userId,
-    expirationDate: expirationDate
+    expirationDate: expirationDate, // date
+    expirationTimespan: expiresIn   // int (seconds)
   }
 };
 
 var generateToken = function (client, user, code, done) {
-
   var tokenData = generateTokenData(client, user, code);
+
   AccessToken.create({
     token: tokenData.token,
     clientId: tokenData.clientId,
     userId: tokenData.userId,
-    expirationDate: tokenData.expirationDate
+    expirationDate: tokenData.expirationDate,
+    expirationTimespan: tokenData.expirationTimespan
   })
-    .then(function (tokenEntity) {
-      if (client === null) {
-        return done(null, tokenEntity.token, null, {expires_in: tokenEntity.expirationDate});
-      }
+  .then(function (tokenEntity) {
+    if (client === null) {
+      return done(null, tokenEntity.token, null, {expires_in: tokenEntity.expirationTimespan});
+    }
 
-      RefreshToken.create({
-        token: tokenData.refresh,
-        clientId: tokenData.clientId,
-        userId: tokenData.userId,
-        expirationDate: tokenData.expirationDate
-      })
-        .then(function (refreshTokenEntity) {
-          return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationDate});
-        }).catch(function (err) {
-          console.log('RefreshToken', err);
-          return done(err)
-        });
+    RefreshToken.create({
+      token: tokenData.refresh,
+      clientId: tokenData.clientId,
+      userId: tokenData.userId,
+      expirationDate: tokenData.expirationDate
+    })
+      .then(function (refreshTokenEntity) {
+        return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
+      }).catch(function (err) {
+        console.log('RefreshToken', err);
+        return done(err)
+      });
 
-    }).catch(function (err) {
-      console.log('AccessToken', err);
-      return done(err)
-    });
+  }).catch(function (err) {
+    console.log('AccessToken', err);
+    return done(err)
+  });
 };
 
 var refreshToken = function (client, done) {
@@ -101,9 +103,13 @@ var refreshToken = function (client, done) {
     }
   })
     .then(function (tokenEntity) {
-      return tokenEntity.updateAttributes({token: tokenData.token, expirationDate: tokenData.expirationDate})
+      return tokenEntity.updateAttributes({
+        token: tokenData.token,
+        expirationDate: tokenData.expirationDate,
+        expirationTimespan: tokenData.expirationTimespan
+      })
         .then(function (updated) {
-          return done(null, updated.token, updated.token, {expires_in: updated.expirationDate});
+          return done(null, updated.token, updated.token, {expires_in: updated.expirationTimespan});
         }).catch(function (err) {
           return done(err)
         });
