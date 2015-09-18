@@ -79,7 +79,8 @@ var generateToken = function (client, user, code, done) {
       token: tokenData.refresh,
       clientId: tokenData.clientId,
       userId: tokenData.userId,
-      expirationDate: tokenData.expirationDate
+      expirationDate: tokenData.expirationDate,
+      expirationTimespan: tokenData.expirationTimespan
     })
       .then(function (refreshTokenEntity) {
         return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
