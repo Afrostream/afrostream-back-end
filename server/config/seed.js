@@ -189,7 +189,7 @@ promises.push(Video.sync()
     })
     .then(function () {
       var videos = [];
-      for (var i = 0; i < 50; i++) {
+      for (var i = 0; i < nbGeneratedMovies; i++) {
         videos.push({
           name: getVideoName(i),
           importId: Math.round(Math.random()*1000),
@@ -246,12 +246,12 @@ Promise.all(promises).then(function () {
   // linking movie <-> video
   Promise.all([
     Promise.all(
-      Array.apply(null, Array(50)).map(function (o, i) {
+      Array.apply(null, Array(nbGeneratedMovies)).map(function (o, i) {
         return Video.findOne({ where: { name: getVideoName(i) }});
       })
     ),
     Promise.all(
-      Array.apply(null, Array(50)).map(function (o, i) {
+      Array.apply(null, Array(nbGeneratedMovies)).map(function (o, i) {
         return Movie.findOne({ where: { title: getMovieTitle(i) }});
       })
     )
@@ -259,10 +259,10 @@ Promise.all(promises).then(function () {
       var videos = data[0]
         , movies = data[1];
 
-    return movies.map(function (movie, i) {
+    return Promise.all(movies.map(function (movie, i) {
       movie.videoId = videos[i]._id;
-      movie.save()
-    });
+      return movie.save()
+    }));
   });
   // linking movie <-> season
   Promise.all([
