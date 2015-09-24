@@ -18,6 +18,10 @@ var Video = sqldb.Video;
 var Promise = require('bluebird');
 var promises = [];
 
+var nbGeneratedMovies = 50;
+var getMovieTitle = function (i) { return 'Title of random movie ' + i; };
+var getVideoName = function (i) { return 'video ' + i; };
+
 promises.push(
   Category.sync()
   .then(function () {
@@ -82,9 +86,9 @@ promises.push(
       'and openshift subgenerators',
       poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
     }];
-    for (var i = 0; i < 50; i++) {
+    for (var i = 0; i < nbGeneratedMovies; i++) {
       movies.push({
-        title: 'Title of random movie ' + i,
+        title: getMovieTitle(i),
         synopsis: 'synopsis of random movie ' + i,
         poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
       });
@@ -179,6 +183,23 @@ promises.push(Episode.sync()
   })
 );
 
+promises.push(Video.sync()
+    .then(function () {
+      return Video.destroy({where: {}});
+    })
+    .then(function () {
+      var videos = [];
+      for (var i = 0; i < nbGeneratedMovies; i++) {
+        videos.push({
+          name: getVideoName(i),
+          importId: Math.round(Math.random()*1000),
+          active: true
+        });
+      }
+      return Video.bulkCreate(videos);
+    })
+);
+
 promises.push(
   User.sync()
   .then(function () {
@@ -222,6 +243,27 @@ promises.push(
 
 Promise.all(promises).then(function () {
   console.log('All rows created. Creating links.');
+  // linking movie <-> video
+  Promise.all([
+    Promise.all(
+      Array.apply(null, Array(nbGeneratedMovies)).map(function (o, i) {
+        return Video.findOne({ where: { name: getVideoName(i) }});
+      })
+    ),
+    Promise.all(
+      Array.apply(null, Array(nbGeneratedMovies)).map(function (o, i) {
+        return Movie.findOne({ where: { title: getMovieTitle(i) }});
+      })
+    )
+  ]).then(function (data) {
+      var videos = data[0]
+        , movies = data[1];
+
+    return Promise.all(movies.map(function (movie, i) {
+      movie.videoId = videos[i]._id;
+      return movie.save()
+    }));
+  });
   // linking movie <-> season
   Promise.all([
     Movie.findOne({ where: { title: 'In the mood for love' }}),

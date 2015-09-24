@@ -173,10 +173,10 @@ db.Episode.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Episode.belongsTo(db.Image, {as: 'thumb', constraints: false});
 db.Episode.belongsTo(db.Video, {as: 'video', constraints: false});
 
-db.Video.hasMany(db.Asset, {onDelete: 'cascade', as: 'sources', foreignKey: 'videoId'});
+db.Video.hasMany(db.Asset, {as: 'sources', foreignKey: 'videoId'});
 db.Asset.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
 
-db.Video.hasMany(db.Caption, {onDelete: 'cascade', as: 'captions', foreignKey: 'videoId'});
+db.Video.hasMany(db.Caption, {as: 'captions', foreignKey: 'videoId'});
 db.Caption.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
 
 db.Video.belongsTo(db.Movie, {as: 'movie', foreignKey: 'movieId'});
