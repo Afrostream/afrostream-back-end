@@ -14,6 +14,7 @@ var Language = sqldb.Language;
 var User = sqldb.User;
 var Client = sqldb.Client;
 var Video = sqldb.Video;
+var Image = sqldb.Image;
 
 var Promise = require('bluebird');
 var promises = [];
@@ -95,6 +96,47 @@ promises.push(
     }
     return Movie.bulkCreate(movies);
   })
+);
+
+promises.push(
+  Image.sync()
+    .then(
+    function () {
+      return Image.destroy({where: {}})
+    })
+    .then(function () {
+      var images = [
+        {
+          name: 'my poster for random movie 0',
+          type: 'poster',
+          path: '/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+          poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+          imgix: 'https://afrostream.imgix.net/production/poster/2015/08/fa4bdc4fbce200c1d451-Mann%20and%20wife%202560x1440.jpg',
+          mimetype: 'image/jpeg',
+          active: true
+        },
+        {
+          name: 'my logo for random movie 0',
+          type: 'logo',
+          path: '/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+          poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+          imgix: 'https://afrostream.imgix.net/production/poster/2015/08/fa4bdc4fbce200c1d451-Mann%20and%20wife%202560x1440.jpg',
+          mimetype: 'image/jpeg',
+          active: true
+        },
+        {
+          name: 'my thumb for random movie 0',
+          type: 'thumb',
+          path: '/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+          poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+          imgix: 'https://afrostream.imgix.net/production/poster/2015/08/4a30e42a01bae2b25dfd-for%20better%20or%20worse%20670x1000.jpg',
+          mimetype: 'image/jpeg',
+          active: true
+        }
+
+      ];
+      return Image.bulkCreate(images);
+    })
 );
 
 promises.push(
@@ -263,6 +305,18 @@ Promise.all(promises).then(function () {
       movie.videoId = videos[i]._id;
       return movie.save()
     }));
+  });
+  // linking random movie 0 <-> images
+  Promise.all([
+    Movie.findOne({where: { title: getMovieTitle(0)}}),
+    Image.findOne({where: { type: 'poster'}}),
+    Image.findOne({where: { type: 'logo'}}),
+    Image.findOne({where: { type: 'thumb'}})
+  ]).spread(function (movie, poster, logo, thumb) {
+    movie.posterId = poster._id;
+    movie.logoId = logo._id;
+    movie.thumbId = thumb._id;
+    return movie.save();
   });
   // linking movie <-> season
   Promise.all([
