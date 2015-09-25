@@ -185,7 +185,25 @@ exports.show = function (req, res) {
     where: {
       _id: req.params.id
     },
-    include: includedModel
+    include: [
+      {
+        model: Movie, as: 'movies',
+        order: [['sort', 'ASC']],
+        include: [
+          auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
+          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
+        ]
+      }, {
+        model: Movie, as: 'adSpots',
+        order: [['sort', 'ASC']],
+        include: [
+          auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
+          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
+        ]
+      } // load all adSpots
+    ]
   }))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
