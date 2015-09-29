@@ -5,6 +5,26 @@
 
 'use strict';
 
+// security
+if (!process.env.SEED_DB) {
+  console.error('security: are you sure you want to seed ?');
+  console.error('security: if you want to seed, please export SEED_DB=true before launching node or grunt');
+  console.error('exit 1');
+  process.exit(1);
+}
+if (process.env.NODE_ENV === 'production' || process.env.DATABASE_URL) {
+  console.error('security: cannot seed using production environment');
+  console.error('exit 1');
+  process.exit(1);
+}
+var config = require('./environment');
+if (config.sequelize.uri.indexOf('amazon') !== -1) {
+  console.error('security: the database url seems to contain amazon string, production environment ?');
+  console.error('security: cannot seed using production environment');
+  console.error('exit 1');
+  process.exit(1);
+}
+
 var sqldb = require('../sqldb');
 var Category = sqldb.Category;
 var Movie = sqldb.Movie;
@@ -22,6 +42,8 @@ var promises = [];
 var nbGeneratedMovies = 50;
 var getMovieTitle = function (i) { return 'Title of random movie ' + i; };
 var getVideoName = function (i) { return 'video ' + i; };
+
+console.log('SEEDING DATA IN DATABASE');
 
 promises.push(
   Category.sync()
