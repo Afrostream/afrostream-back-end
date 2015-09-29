@@ -28,6 +28,14 @@ This project was generated with the [Angular Full-Stack Generator](https://githu
 
 Run `grunt build` for building and `grunt serve` for preview.
 
+## Seeding Database
+
+On dev environment, you need to seed the database at least once
+
+```
+export SEED_DB=true && grunt serve
+```
+
 ## Testing
 
 Running `npm test` will run the unit tests with karma.
