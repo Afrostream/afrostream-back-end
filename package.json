@@ -17,6 +17,7 @@
     "crypto": "0.0.3",
     "errorhandler": "~1.0.0",
     "express": "~4.9.0",
+    "express-cluster": "0.0.4",
     "express-jwt": "^3.0.0",
     "express-session": "^1.0.4",
     "http-proxy": "^1.11.1",
@@ -130,7 +131,7 @@
     "node": "0.12.x"
   },
   "scripts": {
-    "start": "node server",
+    "start": "node server.js",
     "test": "grunt test",
     "update-webdriver": "node node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update"
   },
