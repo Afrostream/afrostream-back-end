@@ -41,22 +41,26 @@ module.exports = function (app) {
   app.use(busboy());
   app.use(passport.initialize());
   app.use(passport.session());
-  app.set('appPath', path.join(config.root, 'client'));
-  app.set('docPath', path.join(config.root, 'apidoc'));
 
-  if ('production' === env) {
-    app.use(favicon(path.join(config.root, 'client', 'favicon.ico')));
-    app.use(express.static(app.get('appPath')));
-    app.use(express.static(app.get('docPath')));
-    app.use(morgan('dev'));
-  }
-
-  if ('development' === env || 'test' === env) {
-    app.use(require('connect-livereload')());
-    app.use(express.static(path.join(config.root, '.tmp')));
-    app.use(express.static(app.get('appPath')));
-    app.use(express.static(app.get('docPath')));
-    app.use(morgan('dev'));
-    app.use(errorHandler()); // Error handler - has to be last
+  switch (env) {
+    case 'production':
+    case 'staging':
+      app.set('appPath', path.join(config.root, 'dist', 'client'));
+      app.set('docPath', path.join(config.root, 'dist', 'apidoc'));
+      app.use(favicon(path.join(config.root, 'dist', 'client', 'favicon.ico')));
+      app.use(express.static(app.get('appPath')));
+      app.use(express.static(app.get('docPath')));
+      app.use(morgan('dev'));
+      break;
+    default:
+      app.set('appPath', path.join(config.root, 'client'));
+      app.set('docPath', path.join(config.root, 'apidoc'));
+      app.use(require('connect-livereload')());
+      app.use(express.static(path.join(config.root, '.tmp')));
+      app.use(express.static(app.get('appPath')));
+      app.use(express.static(app.get('docPath')));
+      app.use(morgan('dev'));
+      app.use(errorHandler()); // Error handler - has to be last
+      break;
   }
 };
