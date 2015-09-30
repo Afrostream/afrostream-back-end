@@ -132,7 +132,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "postinstall": "grunt build",
+    "postinstall": "bower install && grunt build",
     "dev": "grunt serve",
     "test": "grunt test",
     "update-webdriver": "node node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update"
