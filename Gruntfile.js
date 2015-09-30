@@ -357,15 +357,6 @@ module.exports = function (grunt) {
           cwd: '.tmp/images',
           dest: '<%= yeoman.dist %>/client/assets/images',
           src: ['generated/*']
-        }, {
-          expand: true,
-          dest: '<%= yeoman.dist %>',
-          src: [
-            'package.json',
-            'npm-shrinkwrap.json',
-            'server.js',
-            'server/**/*'
-          ]
         }]
       },
       styles: {
@@ -620,7 +611,7 @@ module.exports = function (grunt) {
     },
     apidoc: {
       myapp: {
-        src: 'dist/server/api',
+        src: 'server/api',
         dest: 'dist/apidoc/',
         options: {
           debug: true,
