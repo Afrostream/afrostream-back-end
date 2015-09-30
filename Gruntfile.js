@@ -363,6 +363,7 @@ module.exports = function (grunt) {
           src: [
             'package.json',
             'npm-shrinkwrap.json',
+            'server.js',
             'server/**/*'
           ]
         }]
