@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('ImagesCtrl', function ($scope, $http, socket, $modal, $state) {
+  .controller('ImagesCtrl', function ($scope, $http, $modal, $state) {
     $scope.type = $state.current.type || 'movie';
     $scope.items = [];
     $scope.currentItem = {};
@@ -43,7 +43,6 @@ angular.module('afrostreamAdminApp')
 
     $http.get('/api/' + $scope.type + 's').success(function (items) {
       $scope.items = items;
-      socket.syncUpdates($scope.type, $scope.items);
     });
 
     $scope.deleteItem = function (item) {
@@ -51,7 +50,7 @@ angular.module('afrostreamAdminApp')
     };
 
     $scope.$on('$destroy', function () {
-      socket.unsyncUpdates($scope.type);
+      //
     });
 
     $scope.editItem = function (item) {

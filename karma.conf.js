@@ -20,7 +20,6 @@ module.exports = function(config) {
       'client/bower_components/angular-route/angular-route.js',
       'client/bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
       'client/bower_components/lodash/dist/lodash.compat.js',
-      'client/bower_components/angular-socket-io/socket.js',
       'client/bower_components/angular-ui-router/release/angular-ui-router.js',
       'client/app/app.js',
       'client/app/app.coffee',
@@ -49,7 +48,7 @@ module.exports = function(config) {
       stripPrefix: 'client/'
     },
 
-    
+
     babelPreprocessor: {
       options: {
         sourceMap: 'inline'
@@ -61,7 +60,7 @@ module.exports = function(config) {
         return file.originalPath;
       }
     },
-    
+
 
     // list of files / patterns to exclude
     exclude: [],

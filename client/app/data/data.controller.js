@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('DataCtrl', function ($scope, $log, $http, socket, $modal, ngToast, $state, Modal) {
+  .controller('DataCtrl', function ($scope, $log, $http, $modal, ngToast, $state, Modal) {
     var defaultPerPage = 25;
 
     $scope.type = $state.current.type || 'movie';
@@ -73,8 +73,6 @@ angular.module('afrostreamAdminApp')
           //});
 
           $scope.numPages = Math.ceil($scope.totalItems / ($scope.itemsPerPage || defaultPerPage));
-
-          // socket.syncUpdates($scope.type, $scope.items);
         });
     }
 
@@ -129,7 +127,7 @@ angular.module('afrostreamAdminApp')
     });
 
     $scope.$on('$destroy', function () {
-      socket.unsyncUpdates($scope.type);
+      //
     });
 
     $scope.editIndex = function (item) {

@@ -12,7 +12,6 @@
     "angular-bootstrap": "~0.13.0",
     "font-awesome": ">=4.1.0",
     "lodash": "~2.4.1",
-    "angular-socket-io": "~0.7.0",
     "angular-ui-router": "~0.2.15",
     "rdash-ui": "1.0.*",
     "angular-file-upload": "~2.1.1",

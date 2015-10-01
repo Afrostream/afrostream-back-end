@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('MainCtrl', function ($scope, $http, socket, Dashboard) {
+  .controller('MainCtrl', function ($scope, $http, Dashboard) {
     $scope.all = Dashboard.query().$promise.then(function (data) {
       $scope.all = data;
       $scope.licensors = $scope.all[0].count;
@@ -12,7 +12,5 @@ angular.module('afrostreamAdminApp')
       $scope.episodes = $scope.all[5].count;
       $scope.videos = $scope.all[6].count;
       $scope.clients = $scope.all[7].count;
-
     });
-
   });

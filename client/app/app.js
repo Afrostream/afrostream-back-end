@@ -4,7 +4,6 @@ angular.module('afrostreamAdminApp', [
   'ngCookies',
   'ngResource',
   'ngSanitize',
-  'btford.socket-io',
   'ui.router',
   'ui.bootstrap',
   //UPLOAD
