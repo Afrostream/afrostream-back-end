@@ -39,3 +39,13 @@ export SEED_DB=true && grunt serve
 ## Testing
 
 Running `npm test` will run the unit tests with karma.
+
+## Siouxeries
+
+build tools are included as npm dependencies (not devDependecies) in order to be able to build on heroku using npm postinstall
+(Heroku default behavior is to npm install --production)
+If you change heroku by doing : heroku config:set NPM_CONFIG_PRODUCTION=false
+you will end in : 
+ !     Timed out compiling Node.js app (15 minutes)
+ !     See https://devcenter.heroku.com/articles/slug-compiler#time-limit
+on the npm install.

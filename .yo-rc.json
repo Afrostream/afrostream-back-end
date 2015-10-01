@@ -23,7 +23,7 @@
       "auth": true,
       "models": true,
       "sequelizeModels": true,
-      "mongoose": true,
+      "mongoose": false,
       "sequelize": true,
       "oauth": true,
       "googleAuth": true,
