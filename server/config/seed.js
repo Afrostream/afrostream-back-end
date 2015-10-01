@@ -12,15 +12,15 @@ if (!process.env.SEED_DB) {
   console.error('exit 1');
   process.exit(1);
 }
-if (process.env.NODE_ENV === 'production' || process.env.DATABASE_URL) {
-  console.error('security: cannot seed using production environment');
+if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging' || process.env.DATABASE_URL) {
+  console.error('security: cannot seed using production / staging environment');
   console.error('exit 1');
   process.exit(1);
 }
 var config = require('./environment');
 if (config.sequelize.uri.indexOf('amazon') !== -1) {
   console.error('security: the database url seems to contain amazon string, production environment ?');
-  console.error('security: cannot seed using production environment');
+  console.error('security: cannot seed using production / staging environment');
   console.error('exit 1');
   process.exit(1);
 }
