@@ -83,7 +83,7 @@
     "pg": "^4.4.1",
     "pg-hstore": "^2.3.2",
     "proxyquire": "^1.0.1",
-    "recurring": "^2.1.0",
+    "recurring": "2.1.0",
     "request": "^2.61.0",
     "request-promise": "^0.4.3",
     "requirejs": "~2.1.11",
