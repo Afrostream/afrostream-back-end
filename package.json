@@ -10,13 +10,11 @@
     "bluebird": "^2.9.34",
     "body-parser": "~1.5.0",
     "bower": "1.5.3",
-
     "composable-middleware": "^0.3.0",
     "compression": "~1.0.1",
     "connect-busboy": "0.0.2",
     "connect-ensure-login": "^0.1.1",
     "connect-livereload": "^0.5.3",
-    "connect-mongo": "^0.8.1",
     "cookie-parser": "~1.0.1",
     "crypto": "0.0.3",
     "errorhandler": "~1.0.0",
