@@ -130,7 +130,9 @@ exports.me = function (req, res, next) {
       var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
       return fetchAsync().then(function (subscriptions) {
         _.forEach(subscriptions, function (subscription) {
-          if (~'pending,active'.indexOf(subscription.properties.state)) {
+          // @see https://dev.recurly.com/docs/list-subscriptions
+          // possible status: 'pending', 'active', 'canceled', 'expired', 'future'
+          if (~'pending,active,canceled'.indexOf(subscription.properties.state)) {
             profile.planCode = subscription.properties.plan.plan_code;
             return profile;
           }
@@ -261,6 +263,42 @@ exports.invoice = function (req, res, next) {
     .catch(handleError(res));
 };
 
+exports.cancel= function (req, res, next) {
+  var userId = req.user._id;
+  User.find({
+    where: {
+      _id: userId
+    }
+  })
+    .then(function (user) {
+      if (!user) {
+        return res.status(401).end();
+      }
+      if (user.account_code === null) {
+        handleError(res);
+      }
+      var account = new recurly.Account();
+      account.id = user.account_code;
+      var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
+      return fetchAsync();
+    })
+    .then(function (subscriptions) {
+      var actives = _.filter(subscriptions, function (subscription) {
+        // @see https://dev.recurly.com/docs/list-subscriptions
+        // possible status: 'pending', 'active', 'canceled', 'expired', 'future'
+        return 'pending,active'.indexOf(subscription.properties.state) !== -1;
+      });
+      var promises = _.map(actives, function (subscription) {
+        return Promise.promisify(subscription.cancel, subscription);
+      });
+      return Promise.all(promises);
+    })
+    .then(function (canceled) {
+      res.json({canceled:((canceled && canceled.length)?true:false)});
+    })
+    .catch(handleError(res));
+};
+
 // Creates a new subscription in the DB
 exports.create = function (req, res) {
   var userId = req.user._id;
@@ -351,4 +389,5 @@ exports.update = function (req, res) {
 
 // Deletes a subscription from the DB
 exports.destroy = function (req, res) {
+
 };
