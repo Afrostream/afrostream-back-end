@@ -289,7 +289,9 @@ exports.cancel= function (req, res, next) {
         return 'pending,active'.indexOf(subscription.properties.state) !== -1;
       });
       var promises = _.map(actives, function (subscription) {
-        return Promise.promisify(subscription.cancel, subscription);
+
+        var cancel = Promise.promisify(subscription.cancel, subscription);
+        return cancel();
       });
       return Promise.all(promises);
     })
@@ -369,7 +371,7 @@ exports.create = function (req, res) {
                   return res.json(profile);
                 })
                 .catch(function () {
-                  return res.json(profile)
+                  return res.json(profile);
                 });
 
             }).catch(handleError(res));
