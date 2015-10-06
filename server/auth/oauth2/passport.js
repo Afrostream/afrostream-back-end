@@ -116,55 +116,46 @@ exports.setup = function (Client, User, AccessToken, config) {
    */
   passport.use('bearer', new BearerStrategy(
     function (accessToken, done) {
-
       AccessToken.find({
         where: {
           token: accessToken
         }
       })
-        .then(function (token) {
-          if (!token) return done(null, false);
-          if (new Date() > token.expirationDate) {
-            return token.destroy()
-              .then(function () {
-                done(err)
-              });
-          }
-          if (token.userId !== null) {
-            User.find({
-              where: {
-                _id: token.userId
-              }
+      .then(function (token) {
+        if (!token) return done(null, false);
+        if (new Date() > token.expirationDate ) {
+          return token.destroy()
+            .then(function () { done(null, false); }, done);
+        }
+        if (token.userId !== null) {
+          User.find({
+            where: {
+              _id: token.userId
+            }
+          })
+            .then(function (entity) {
+              if (!entity) return done(null, false);
+              // no use of scopes for no
+              var info = {scope: '*'};
+              done(null, entity, info);
             })
-              .then(function (entity) {
-                if (!entity) return done(null, false);
-                // no use of scopes for no
-                var info = {scope: '*'};
-                done(null, entity, info);
-              })
-              .catch(function (err) {
-                return done(err);
-              });
-          } else {
-            Client.find({
-              where: {
-                _id: token.clientId
-              }
+            .catch(done);
+        } else {
+          Client.find({
+            where: {
+              _id: token.clientId
+            }
+          })
+            .then(function (client) {
+              if (!client) return done(null, false);
+              // no use of scopes for no
+              var info = {scope: '*'};
+              done(null, client, info);
             })
-              .then(function (client) {
-                if (!client) return done(null, false);
-                // no use of scopes for no
-                var info = {scope: '*'};
-                done(null, client, info);
-              })
-              .catch(function (err) {
-                return done(err);
-              });
-          }
-        })
-        .catch(function (err) {
-          return done(err);
-        });
+            .catch(done);
+        }
+      })
+      .catch(done);
     }
   ))
 };
