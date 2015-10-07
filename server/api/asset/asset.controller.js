@@ -118,13 +118,11 @@ exports.proxify = function (req, res) {
     proxy.on('proxyReq', function (proxyReq) {
       proxyReq.path = final;
     });
-    proxy.on('error', function () {
+    proxy.on('error', function (e) {
       console.log('error');
-      handleError(res);
+      handleError(res)(e);
     });
-  }).catch(function () {
-    handleError(res);
-  })
+  }).catch(handleError(res));
 };
 //get single Asset but validate jwt tokenized
 exports.showToken = function (req, res) {

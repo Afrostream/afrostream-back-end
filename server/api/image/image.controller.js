@@ -57,10 +57,10 @@ function removeEntity(res) {
       var filesName = [entity.path];
       Knox.aws.deleteMultiple(filesName, {}, function (err, response) {
         if (err) {
-          return handleError(res);
+          return handleError(res)(err);
         }
         if (response.statusCode !== 200) {
-          return handleError(res, response.statusCode);
+          return handleError(res, response.statusCode)('statusCode not 200 OK');
         }
         return entity.destroy()
           .then(function () {

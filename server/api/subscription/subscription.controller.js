@@ -88,7 +88,7 @@ exports.show = function (req, res, next) {
         return res.status(404).end();
       }
       if (user.account_code === null) {
-        return handleError(res);
+        return handleError(res)('missing account code');
       }
       var account = new recurly.Account();
       account.id = user.account_code;
@@ -96,7 +96,6 @@ exports.show = function (req, res, next) {
       return fetchAsync().then(function (subscriptions) {
         return res.json(subscriptions);
       }).catch(handleError(res));
-
     })
     .catch(handleError(res));
 
@@ -195,14 +194,14 @@ exports.billing = function (req, res, next) {
         return res.status(401).end();
       }
       if (user.account_code === null) {
-        handleError(res);
+        return handleError(res)('missing account code');
       }
       var account = new recurly.Account();
       account.id = user.account_code;
       var fetchAsync = Promise.promisify(account.fetchBillingInfo, account);
       return fetchAsync().then(function (billingInfo) {
         if (!billingInfo) {
-          return handleError(res);
+          return handleError(res)('missing billing info');
         }
         return res.json(_.pick(billingInfo.properties, [
           'first_name',
@@ -232,14 +231,14 @@ exports.invoice = function (req, res, next) {
         return res.status(401).end();
       }
       if (user.account_code === null) {
-        handleError(res);
+        return handleError(res)('missing account code');
       }
       var account = new recurly.Account();
       account.id = user.account_code;
       var fetchAsync = Promise.promisify(account.getInvoices, account);
       return fetchAsync().then(function (invoicesInfo) {
         if (!invoicesInfo) {
-          handleError(res);
+          return handleError(res)('missing invoices info');
         }
 
         var invoicesMapped = _.map(invoicesInfo, _.partialRight(_.pick, [
@@ -275,7 +274,7 @@ exports.cancel= function (req, res, next) {
         return res.status(401).end();
       }
       if (user.account_code === null) {
-        handleError(res);
+        return handleError(res)('missing account code');
       }
       var account = new recurly.Account();
       account.id = user.account_code;
