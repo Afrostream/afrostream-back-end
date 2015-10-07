@@ -50,7 +50,7 @@ module.exports = function (app) {
       app.use(favicon(path.join(config.root, 'dist', 'client', 'favicon.ico')));
       app.use(express.static(app.get('appPath')));
       app.use(express.static(app.get('docPath')));
-      app.use(morgan('dev'));
+      app.use(morgan('combined'));
       break;
     default:
       app.set('appPath', path.join(config.root, 'client'));
