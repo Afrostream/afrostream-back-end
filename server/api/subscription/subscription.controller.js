@@ -300,6 +300,126 @@ exports.cancel= function (req, res, next) {
     .catch(handleError(res));
 };
 
+/**
+ * extract the user info from the database using userId = req.user._id
+ * @param req
+ * @returns {*}
+ */
+function reqUser(req) {
+  var userId = req && req.user && req.user._id;
+
+  return User.find({where: { _id: userId } })
+  .then(function (user) {
+    if (!user) {
+      var error = new Error("user doesn't exist");
+      error.httpCode = 401;
+    }
+    return user;
+  });
+}
+
+/**
+ * generic error handler.
+ *
+ * @param res
+ * @returns {Function}
+ */
+function error(res) {
+  return function (err) {
+    err = err || new Error('unknown error');
+    res.status(err.httpCode || 500).send(String(err));
+  };
+}
+
+/**
+ * @param user
+ * @return Promise({
+ *   _id: '...'
+ *   name: '...'
+ *   role: '...'
+ *   email: '...'
+ *   provider: '...'
+ *   planCode: '...'
+ *   accountCode: '...'
+ *   buillingProvider: '...'
+ *   subscriptions: [
+ *     { state: ..., activatedAt:..., canceledAt:..., expiresAt:..., plan: { planCode: ... } }
+ *   ]
+ * })
+ */
+function userInfos(user) {
+  return Promise.resolve({
+    name: user.name,
+    role: user.role,
+    _id: user._id,
+    email: user.email,
+    planCode: '',
+    accountCode: user.account_code,
+    buillingProvider: user.billing_provider,
+    subscriptions : []
+  }).then(function (infos) {
+    if (user.billing_provider === 'celery') {
+      if (Date.now() < new Date('2016/09/01').getTime()) {
+        infos.planCode = 'afrostreamambassadeurs';
+        return infos;
+      }
+    }
+    if (user.account_code === null) {
+      return infos;
+    }
+    //
+    var account = new recurly.Account();
+    account.id = user.account_code;
+
+    return Promise.promisify(account.fetchSubscriptions, account)()
+      .then(function (subscriptions) {
+        _.forEach(subscriptions, function (subscription, i) {
+          infos.subscriptions.push({
+            state: subscription.properties.state,
+            activatedAt: subscription.properties.activated_at,
+            canceledAt: subscription.properties.canceled_at,
+            expiresAt: subscription.properties.expires_at,
+            plan: {planCode: subscription.properties.plan.plan_code}
+          });
+          // @see https://dev.recurly.com/docs/list-subscriptions
+          // possible status: 'pending', 'active', 'canceled', 'expired', 'future'
+          if (~'pending,active,canceled'.indexOf(subscription.properties.state) && !profile.planCode) {
+            infos.planCode = subscription.properties.plan.plan_code;
+          }
+        });
+        return infos;
+      })
+      .catch(function () {
+        return infos;
+      });
+  });
+}
+
+/**
+ * response :
+ * {
+ *   planCode: string,
+ *   subscriptions: [
+ *     { state: .., activatedAt: ..., canceledAt: ..., expiresAt: ..., plan: { planCode: ... } },
+ *     { state: .., activatedAt: ..., canceledAt: ..., expiresAt: ..., plan: { planCode: ... } },
+ *     { state: .., activatedAt: ..., canceledAt: ..., expiresAt: ..., plan: { planCode: ... } }
+ *   ]
+ * }
+ */
+exports.status = function (req, res) {
+  reqUser(req)
+  .then(function (user) {
+    return userInfos(user);
+  })
+  .then(function (infos) {
+    return res.json({
+      planCode: infos.planCode,
+      subscriptions: infos.subscriptions
+    });
+  })
+  .catch(error(res));
+};
+
 // Creates a new subscription in the DB
 exports.create = function (req, res) {
   var userId = req.user._id;
