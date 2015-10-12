@@ -4,7 +4,7 @@
     "registerRoutesFile": "server/routes.js",
     "routesNeedle": "// Insert routes below",
     "routesBase": "/api/",
-    "pluralizeRoutes": true
+    "pluralizeRoutes": true,
     "insertModels": true,
     "registerModelsFile": "server/sqldb/index.js",
     "modelsNeedle": "// Insert models below",

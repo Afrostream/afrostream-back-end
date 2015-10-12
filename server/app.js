@@ -14,7 +14,7 @@ var config = require('./config/environment');
 
 // Populate databases with sample data
 if (config.seedDB) {
-  require('./config/seed');
+  require('./sqldb/seed');
 }
 
 // Setup server

@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging' 
   console.error('exit 1');
   process.exit(1);
 }
-var config = require('./environment');
+var config = require('./../config/environment/index');
 if (config.sequelize.uri.indexOf('amazon') !== -1) {
   console.error('security: the database url seems to contain amazon string, production environment ?');
   console.error('security: cannot seed using production / staging environment');
@@ -25,7 +25,7 @@ if (config.sequelize.uri.indexOf('amazon') !== -1) {
   process.exit(1);
 }
 
-var sqldb = require('../sqldb');
+var sqldb = require('./index.js');
 var Category = sqldb.Category;
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
@@ -35,6 +35,7 @@ var User = sqldb.User;
 var Client = sqldb.Client;
 var Video = sqldb.Video;
 var Image = sqldb.Image;
+var Actor = sqldb.Actor;
 
 var Promise = require('bluebird');
 var promises = [];
@@ -44,6 +45,28 @@ var getMovieTitle = function (i) { return 'Title of random movie ' + i; };
 var getVideoName = function (i) { return 'video ' + i; };
 
 console.log('SEEDING DATA IN DATABASE');
+
+promises.push(
+  Actor.sync()
+    .then(function () {
+      return Actor.destroy({where : {}});
+    })
+    .then(function () {
+      return Actor.bulkCreate([{
+        firstName: 'Will',
+        lastName: 'Smith',
+        imdbId: 'nm0000226'
+      },{
+        firstName: 'Eddie',
+        lastName: 'Murphy',
+        imdbId: 'nm0000552'
+      },{
+        firstName: 'Halle',
+        lastName: 'Berry',
+        imdbId: 'nm0000932'
+      }])
+    })
+);
 
 promises.push(
   Category.sync()
@@ -370,5 +393,17 @@ Promise.all(promises).then(function () {
         return episode.save();
       })
     );
+  });
+  // linking Movies <-> Actors
+  Promise.all([
+    Movie.findOne({where : { title: getMovieTitle(0) }}),
+    Actor.findAll({ where: {} })
+  ]).then(function (data) {
+    var movie = data[0]
+      , actors = data[1];
+
+    return movie.addActors(actors).then(function () {
+      return movie.save();
+    })
   });
 });

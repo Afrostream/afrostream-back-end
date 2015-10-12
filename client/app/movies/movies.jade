@@ -32,3 +32,13 @@
   label.control-label Video
   input.form-control(type='text' ng-model='item.video' placeholder='Search video' typeahead='video as video.name for video in loadVideo($viewValue) | limitTo: 5' typeahead-template-url='imagesTemplate.html')
 
+.form-group
+  label.control-label Actors
+  tags-input(ng-model='item.actors' placeholder='Search actor' add-from-autocomplete-only='true' display-property='lastName' key-property='_id')
+    auto-complete(source='loadActors($query)' template='actor-template' min-length='0'
+    load-on-focus='true'
+    load-on-empty='true'
+    max-results-to-show='32')
+  script(type='text/ng-template' id='actor-template')
+    .tag-template
+      span {{data.firstName + ' ' + data.lastName}}

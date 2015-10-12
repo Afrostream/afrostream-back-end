@@ -19,6 +19,7 @@ var Season = sqldb.Season;
 var Image = sqldb.Image;
 var Licensor = sqldb.Licensor;
 var Video = sqldb.Video;
+var Actor = sqldb.Actor;
 var auth = require('../../auth/auth.service');
 
 var includedModel = [
@@ -28,7 +29,8 @@ var includedModel = [
   {model: Image, as: 'logo'}, // load logo image
   {model: Image, as: 'poster'}, // load poster image
   {model: Image, as: 'thumb'}, // load thumb image
-  {model: Licensor, as: 'licensor'} // load thumb image
+  {model: Licensor, as: 'licensor'}, // load thumb image
+  {model: Actor, as: 'actors'} // load thumb image
 ];
 
 function handleError(res, statusCode) {
@@ -142,6 +144,17 @@ function addImages(updates) {
   };
 }
 
+function addActors(updates) {
+  var actors = Actor.build(_.map(updates.actors || [], _.partialRight(_.pick, '_id')));
+
+  return function (entity) {
+    return entity.setActors(actors)
+      .then(function () {
+        return entity;
+      });
+  };
+}
+
 function removeEntity(res) {
   return function (entity) {
     if (entity) {
@@ -206,7 +219,8 @@ exports.show = function (req, res) {
       auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
       auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
       auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
-      {model: Licensor, as: 'licensor'}// load thumb image
+      {model: Licensor, as: 'licensor'},// load thumb image
+      {model: Actor, as: 'actors'}
     ],
     order: [
       [ { model: Season, as: 'seasons'}, 'sort' ],
@@ -272,6 +286,7 @@ exports.update = function (req, res) {
     .then(addImages(req.body))
     .then(addLicensor(req.body))
     .then(addVideo(req.body))
+    .then(addActors(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
