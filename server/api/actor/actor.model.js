@@ -11,6 +11,10 @@ module.exports = function (sequelize, DataTypes) {
     },
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
-    imdbId: DataTypes.STRING(16)
+    imdbId: DataTypes.STRING(16),
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    }
   });
 };
