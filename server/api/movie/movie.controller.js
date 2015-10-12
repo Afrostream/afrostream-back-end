@@ -212,7 +212,7 @@ exports.show = function (req, res) {
           as: 'episodes',
           required: false,
           include: [
-            auth.mergeIncludeValid(req, {model: Video, as: 'video', required: false}, {attributes: ['_id']}), // load poster image
+            auth.mergeIncludeValid(req, {model: Video, as: 'video', required: false}, {attributes: ['_id']}) // load poster image
           ]
         }, {attributes: ['_id', 'slug']})]
       }), // load all seasons
@@ -220,7 +220,7 @@ exports.show = function (req, res) {
       auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
       auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
       {model: Licensor, as: 'licensor'},// load thumb image
-      {model: Actor, as: 'actors'}
+      {model: Actor, as: 'actors', attributes: [ '_id', 'firstName', 'lastName' ]}
     ],
     order: [
       [ { model: Season, as: 'seasons'}, 'sort' ],
