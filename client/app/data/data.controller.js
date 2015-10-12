@@ -8,6 +8,7 @@ angular.module('afrostreamAdminApp')
          || item.label
          || item.name
          || ((item.firstName || item.lastName) ? item.firstName + ' ' + item.lastName : '' )
+        item.genericThumb = item.thumb || item.picture;
       });
       return items;
     };
@@ -195,7 +196,6 @@ angular.module('afrostreamAdminApp')
         case'plan':
         case'user':
         case'subscription':
-        case'actor':
           hasTmb = false;
           break;
         default:

@@ -7,3 +7,7 @@
 .form-group
     label(for='imdbId').control-label Imdb Id
     input.form-control(id='name' type='text' ng-model='item.imdbId' placeholder='Imdb Id')
+.form-group
+    label(for='picture').control-label Picture
+    //input.form-control(id='poster' type='text' ng-model='item.poster' placeholder='Poster Url/Id')
+    input.form-control(type='text' ng-model='item.picture' placeholder='Search poster' typeahead='image as image.name for image in loadImages($viewValue,"actor") | limitTo: 5' typeahead-template-url='imagesTemplate.html')

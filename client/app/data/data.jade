@@ -43,7 +43,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         span {{item._id}}
                       td(ng-if='hasThumb()')
                         .thumbnail
-                          img.poster.img-responsive(src='{{item.thumb.imgix}}?fit=crop&w=200&h=160')
+                          img.poster.img-responsive(src='{{item.genericThumb.imgix}}?fit=crop&w=200&h=160')
                       td.text-center
                         strong {{item.genericTitle}}
                         br
