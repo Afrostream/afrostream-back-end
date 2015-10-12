@@ -57,7 +57,7 @@ function saveUpdates(updates) {
 function addImages(updates) {
   return function (entity) {
     var picture = Image.build(updates.picture);
-    entity.setPicture(picture).then(function () { return entity; });
+    return entity.setPicture(picture).then(function () { return entity; });
   };
 }
 
