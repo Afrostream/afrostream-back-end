@@ -7,6 +7,10 @@
   input.form-control(type='text' ng-model='item.imdbId')
 
 .form-group
+  label.control-label Release Date
+  input.form-control(type='date' ng-model='item.dateReleased')
+
+.form-group
   label.control-label Category
   tags-input(ng-model='item.categorys' placeholder='Search category' add-from-autocomplete-only='true' display-property='label' key-property='_id')
     auto-complete(source='loadCategorys($query)' template='category-template' min-length='0'
