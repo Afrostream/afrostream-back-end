@@ -65,6 +65,7 @@ module.exports = function (app) {
 
   app.set('views', config.root + '/server/views');
   app.set('view engine', 'jade');
+  app.set('etag', false);
   app.use(compression());
   app.use(bodyParser.urlencoded({extended: false}));
   app.use(bodyParser.json());
