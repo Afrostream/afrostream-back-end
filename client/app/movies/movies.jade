@@ -11,6 +11,14 @@
   input.form-control(type='date' ng-model='item.dateReleased')
 
 .form-group
+  label.control-label Genre
+  select.form-control(type='text' ng-model='item.genre' ng-options='o as o for o in genres')
+
+.form-group
+  label.control-label Creation
+  input.form-control(type='text' ng-model='item.creation')
+
+.form-group
   label.control-label Category
   tags-input(ng-model='item.categorys' placeholder='Search category' add-from-autocomplete-only='true' display-property='label' key-property='_id')
     auto-complete(source='loadCategorys($query)' template='category-template' min-length='0'
