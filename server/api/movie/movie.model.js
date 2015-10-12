@@ -37,6 +37,9 @@ module.exports = function (sequelize, DataTypes) {
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
-    }
+    },
+    dateReleased: DataTypes.DATE,
+    genre: DataTypes.STRING,
+    creation: DataTypes.STRING
   });
 };

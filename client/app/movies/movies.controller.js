@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('MoviesCtrl', function ($scope, Category, Season, Licensor, Video) {
+  .controller('MoviesCtrl', function ($scope, Category, Season, Licensor, Video, Actor) {
     $scope.loadCategorys = function (query) {
       return Category.query({query: query}).$promise;
     };
@@ -25,6 +25,9 @@ angular.module('afrostreamAdminApp')
         return response;
       });
       return p;
+    };
+    $scope.loadActors = function (query) {
+      return Actor.query({query: query}).$promise;
     };
   })
 ;

@@ -1,6 +1,17 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
+  .filter('DataFormater', function () {
+    return function (items) {
+      items.forEach(function (item) {
+        item.genericTitle = item.title
+         || item.label
+         || item.name
+         || ((item.firstName || item.lastName) ? item.firstName + ' ' + item.lastName : '' )
+      });
+      return items;
+    };
+ })
   .controller('DataCtrl', function ($scope, $log, $http, $modal, ngToast, $state, Modal) {
     var defaultPerPage = 25;
 
@@ -184,6 +195,7 @@ angular.module('afrostreamAdminApp')
         case'plan':
         case'user':
         case'subscription':
+        case'actor':
           hasTmb = false;
           break;
         default:

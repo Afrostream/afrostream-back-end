@@ -3,6 +3,15 @@
 angular.module('afrostreamAdminApp')
   .controller('ModalDialogCtrl', function ($scope, $sce, $log, $http, $modalInstance, item, type, Slug, ngToast, Image) {
 
+    // BEGIN temporary fix on dates...
+    // should be generic & added to $httpProvider
+    function parseItemDates(item) {
+      if (typeof item.dateReleased !== 'undefined') {
+        item.dateReleased = new Date(item.dateReleased);
+      }
+      return item;
+    }
+
     $scope.isFilm = function () {
       return type === 'movie' || type === 'serie';
     };
@@ -81,7 +90,9 @@ angular.module('afrostreamAdminApp')
         return;
       }
       $http.get('/api/' + $scope.directiveType + '/' + item._id).then(function (result) {
-        $scope.item = result.data;
+        // FIXME: network code inside modal/* data/* should be in a single place
+        //  & user $httpProvider to filter dates..
+        $scope.item = parseItemDates(result.data);
       }, function (err) {
         showError();
         $log.debug(err);

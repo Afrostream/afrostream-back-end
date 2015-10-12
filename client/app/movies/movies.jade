@@ -7,6 +7,18 @@
   input.form-control(type='text' ng-model='item.imdbId')
 
 .form-group
+  label.control-label Release Date
+  input.form-control(type='date' ng-model='item.dateReleased')
+
+.form-group
+  label.control-label Genre
+  select.form-control(type='text' ng-model='item.genre' ng-options='o as o for o in genres')
+
+.form-group
+  label.control-label Creation
+  input.form-control(type='text' ng-model='item.creation')
+
+.form-group
   label.control-label Category
   tags-input(ng-model='item.categorys' placeholder='Search category' add-from-autocomplete-only='true' display-property='label' key-property='_id')
     auto-complete(source='loadCategorys($query)' template='category-template' min-length='0'
@@ -32,3 +44,13 @@
   label.control-label Video
   input.form-control(type='text' ng-model='item.video' placeholder='Search video' typeahead='video as video.name for video in loadVideo($viewValue) | limitTo: 5' typeahead-template-url='imagesTemplate.html')
 
+.form-group
+  label.control-label Actors
+  tags-input(ng-model='item.actors' placeholder='Search actor' add-from-autocomplete-only='true' display-property='lastName' key-property='_id')
+    auto-complete(source='loadActors($query)' template='actor-template' min-length='0'
+    load-on-focus='true'
+    load-on-empty='true'
+    max-results-to-show='32')
+  script(type='text/ng-template' id='actor-template')
+    .tag-template
+      span {{data.firstName + ' ' + data.lastName}}

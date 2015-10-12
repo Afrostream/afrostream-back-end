@@ -37,6 +37,13 @@ db.AccessToken = db.sequelize.import(path.join(
   'accessToken',
   'accessToken.model'
 ));
+db.Actor = db.sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'actor',
+  'actor.model'
+));
 db.AuthCode = db.sequelize.import(path.join(
   config.root,
   'server',
@@ -139,6 +146,11 @@ db.Movie = db.sequelize.import(path.join(
 
 var CategoryMovies = db.sequelize.define('CategoryMovies', {});
 var CategoryAdSpots = db.sequelize.define('CategoryAdSpots', {});
+var MoviesActors = db.sequelize.define('MoviesActors', {});
+
+db.Actor.belongsTo(db.Image, {as: 'picture', constraints: false});
+db.Actor.belongsToMany(db.Movie, {through: MoviesActors, as: 'movies'});
+db.Movie.belongsToMany(db.Actor, {through: MoviesActors, as: 'actors'});
 
 db.Licensor.hasMany(db.Movie, {as: 'movies', foreignKey: 'licensorId'});
 db.Movie.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
