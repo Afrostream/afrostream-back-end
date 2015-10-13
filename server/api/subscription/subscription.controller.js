@@ -383,13 +383,14 @@ function userInfos(user) {
           });
           // @see https://dev.recurly.com/docs/list-subscriptions
           // possible status: 'pending', 'active', 'canceled', 'expired', 'future'
-          if (~'pending,active,canceled'.indexOf(subscription.properties.state) && !profile.planCode) {
+          if (~'pending,active,canceled'.indexOf(subscription.properties.state) && !infos.planCode) {
             infos.planCode = subscription.properties.plan.plan_code;
           }
         });
         return infos;
       })
-      .catch(function () {
+      .catch(function (e) {
+        console.error('error: subscription.controller.js#userInfos(user) on user_id ' + user._id + ':', e);
         return infos;
       });
   });
