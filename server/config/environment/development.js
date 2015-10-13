@@ -20,5 +20,14 @@ module.exports = {
 
   // if you want to seed:
   // use: export SEED_DB=true before launching node/grunt
-  seedDB: (process.env.SEED_DB === 'true')
+  seedDB: (process.env.SEED_DB === 'true'),
+
+  express: {
+    devErrorHandler: true,
+    path: {
+      app: 'client',
+      doc: 'apidoc'
+    },
+    useDotTmpAsStatic: true // use .tmp as static dir for dev only.
+  }
 };

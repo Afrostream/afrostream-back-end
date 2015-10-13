@@ -19,6 +19,12 @@ module.exports = {
         timestamps: false
       }
     }
-  }
+  },
 
+  express: {
+    path: {
+      app: 'dist/client',
+      doc: 'dist/apidoc'
+    }
+  }
 };
