@@ -90,7 +90,8 @@ var all = {
   sendGrid: {
     api_user: process.env.SEND_GRID_CLIENT_ID || 'azure_3e7c4f32e08f4c0ba3c3ec8eb6c2fe58@azure.com',
     api_key: process.env.SEND_GRID_API_KEY || 'Afr@stream77'
-  }
+  },
+  express: {}
 };
 
 // Export the config object based on the NODE_ENV

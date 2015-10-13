@@ -1,40 +1,50 @@
-/**
- * Main application file
- */
-
 'use strict';
 
 // Set default node environment to development
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-var express = require('express');
-//var mongoose = require('mongoose-bird')();
-var sqldb = require('./sqldb');
-var config = require('./config/environment');
+// build-in
+var path = require('path');
+
+// our code
+var sqldb = require('./sqldb')
+  , config = require('./config/environment');
+
+// 3rd party modules
+var express = require('express')
+  , app = express();
 
 // Populate databases with sample data
 if (config.seedDB) {
   require('./sqldb/seed');
 }
 
-// Setup server
-var app = express();
-var server = require('http').createServer(app);
-require('./config/express')(app);
+// setup express
+app.set('views', config.root + '/server/views');
+app.set('view engine', 'jade');
+app.set('etag', false);
+app.set('appPath', path.join(config.root, config.express.path.app));
+app.set('docPath', path.join(config.root, config.express.path.doc));
+
+// adding middlewares
+require('./middlewares')(app);
+
+// opening routes
 require('./routes')(app);
 
-// Start server
-function startServer() {
-  server.listen(config.port, config.ip, function () {
-    console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
-  });
-}
+// Setup server
+var server = require('http').createServer(app);
 
+// Connect to DB & start the server.
 sqldb.sequelize.sync()
-  .then(startServer)
+  .then(function startServer() {
+    server.listen(config.port, config.ip, function () {
+      console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
+    });
+  })
   .catch(function (err) {
-    console.log('Server failed to start due to error: %s', err);
+    console.error('Server failed to start due to error: %s', err);
   });
 
-// Expose app
-exports = module.exports = app;
+// Export the application
+module.exports = app;
