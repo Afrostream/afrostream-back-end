@@ -59,6 +59,15 @@ morgan.format('afro', function afroLog(tokens, req, res) {
   return fn(tokens, req, res)
 });
 
+var dumpPostData = function (options) {
+  return function (req, res, next) {
+    if (req && req.body) {
+      console.log(req.url + ' postData =', req.body);
+    }
+    next();
+  };
+};
+
 
 module.exports = function (app) {
   var env = app.get('env');
@@ -75,6 +84,8 @@ module.exports = function (app) {
   app.use(busboy());
   app.use(passport.initialize());
   app.use(passport.session());
+
+  app.use(dumpPostData());
 
   switch (env) {
     case 'production':
