@@ -24,38 +24,18 @@ var Promise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
 var auth = require('../../auth/auth.service');
 
+var responses = require('./responses.js')
+  , responseError = responses.error
+  , responseWithResult = responses.withResult;
+var handles = require('./handles.js')
+  , handleEntityNotFound = handles.entityNotFound;
+
 var includedModel = [
   {model: Movie, as: 'movie'}, // load all sources assets
   {model: Episode, as: 'episode'}, // load all sources assets
   {model: Asset, as: 'sources'}, // load all sources assets
   {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]} // load all sources captions
 ];
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
-
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-/**
- * Used for import from digibos
- * @param res
- * @param statusCode
- * @returns {Function}
- */
-function responseWithData() {
-  return function (entity) {
-    return entity;
-  };
-}
 
 /**
  * Tokenize videoId
@@ -85,78 +65,36 @@ function tokenizeResult(req, res) {
   };
 }
 
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
+function hookAddAssets(req, res, entity) {
+  return Promise.map(req.body.sources || [], function (item) {
+    return Asset.findOrCreate({where: {_id: item._id}, defaults: item});
+  }).then(function (elem) {
+    var elem = elem[0];
+    if (!elem.isNewRecord) {
+      return elem.updateAttributes(item);
     }
-    return entity;
-  };
-}
-
-function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
-}
-
-function addAssets(updates) {
-  return function (entity) {
-    return Promise.map(updates.sources || [], function (item) {
-      return Asset.findOrCreate({where: {_id: item._id}, defaults: item}).then(function (elem) {
-        var elem = elem[0];
-        if (!elem.isNewRecord) {
-          return elem.updateAttributes(item);
-        }
-        return elem;
-      });
-    }).then(function (inserts) {
-      if (!inserts || !inserts.length) {
-        return entity;
-      }
-      return entity.setSources(inserts)
-        .then(function () {
-          return entity;
-        });
-    });
-  };
-}
-
-function addCaptions(updates) {
-  return function (entity) {
-    return Promise.map(updates.captions || [], function (item) {
-      return Caption.findOrCreate({where: {_id: item._id}}).then(function (elem) {
-        var elem = elem[0];
-        if (!elem.isNewRecord) {
-          return elem.updateAttributes(item);
-        }
-        return elem;
-      });
-    }).then(function (inserts) {
-      if (!inserts || !inserts.length) {
-        return entity;
-      }
-      return entity.setCaptions(inserts)
-        .then(function () {
-          return entity;
-        });
-    });
-  };
-}
-
-function removeEntity(res) {
-  return function (entity) {
-    if (entity) {
-      return entity.destroy()
-        .then(function () {
-          res.status(204).end();
-        });
+    return elem;
+  }).then(function (inserts) {
+    if (inserts && inserts.length) {
+      entity.setSources(inserts);
     }
-  };
+  });
+}
+
+function hookAddCaptions(req, res, entity) {
+  return Promise.map(req.body.captions || [], function (item) {
+    return Caption.findOrCreate({where: {_id: item._id}});
+  }).then(function (elem) {
+    var elem = elem[0];
+    if (!elem.isNewRecord) {
+      return elem.updateAttributes(item);
+    }
+    return elem;
+  }).then(function (inserts) {
+    if (inserts && inserts.length) {
+      entity.setCaptions(inserts);
+    }
+  });
 }
 
 // Gets a list of videos
@@ -174,7 +112,7 @@ exports.index = function (req, res) {
   Video.findAll(paramsObj)
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(responseError(res));
 };
 
 // Gets a single video from the DB
@@ -194,62 +132,28 @@ exports.show = function (req, res) {
       .then(handleEntityNotFound(res))
       .then(tokenizeResult(req, res))
       .then(responseWithResult(res))
-      .catch(handleError(res));
+      .catch(responseError(res));
 
   } else {
     Video.find(paramsObj)
       .then(handleEntityNotFound(res))
       .then(responseWithResult(res))
-      .catch(handleError(res));
+      .catch(responseError(res));
   }
 
 };
 
 // Creates a new video in the DB
-exports.create = function (req, res) {
-  Video.create(req.body)
-    .then(addAssets(req.body))
-    .then(addCaptions(req.body))
-    .then(responseWithResult(res, 201))
-    .catch(handleError(res));
-};
-// Creates a new video in the DB
-exports.import = function (data) {
-  Video.create(data)
-    .then(addAssets(data))
-    .then(addCaptions(data))
-    .then(responseWithData())
-    .catch(function (err) {
-      console.log('import error', err)
-    });
-};
+exports.create = genericCreate({
+  model: Video,
+  hooks: [ hookAddAssets, hookAddCaptions ]
+});
 
 // Updates an existing video in the DB
-exports.update = function (req, res) {
-  if (req.body._id) {
-    delete req.body._id;
-  }
-  Video.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(saveUpdates(req.body))
-    .then(addAssets(req.body))
-    .then(addCaptions(req.body))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.update = genericUpdate({
+  model: Video,
+  hooks: [ hookAddAssets, hookAddCaptions ]
+});
 
 // Deletes a video from the DB
-exports.destroy = function (req, res) {
-  Video.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(removeEntity(res))
-    .catch(handleError(res));
-};
+exports.destroy = genericDestroy({model: Video});

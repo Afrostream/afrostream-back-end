@@ -27,83 +27,17 @@ var proxy = httpProxy.createProxyServer({
   changeOrigin: true
 });
 
-Asset.belongsTo(Episode, {foreignKey: 'episode'}); // Adds episodeId to Asset
-
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
-
-function responseWithTokenResult(req, res) {
-  return function (entity) {
-    if (entity) {
-      // verify a token symmetric
-      return jwtVerifyAsync(req.params.token, config.secrets.session).then(function () {
-        res.redirect(entity.src);
-      })
-    }
-  };
-}
-
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
-
-function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
-}
-
-function removeEntity(res) {
-  return function (entity) {
-    if (entity) {
-      return entity.destroy()
-        .then(function () {
-          res.status(204).end();
-        });
-    }
-  };
-}
+var responses = require('../responses.js')
+  , responseError = responses.error;
+var generic = require('../generic.js')
+  , genericIndex = generic.index
+  , genericShowToken = generic.showToken;
 
 // Gets a list of assets
-exports.index = function (req, res) {
-  Asset.findAll()
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.index = genericIndex({model: Asset});
 
 // Gets a single asset from the DB
-exports.show = function (req, res) {
-  Asset.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.show = genericShow({model: Asset});
 
 //get single Asset but validate jwt tokenized
 exports.proxify = function (req, res) {
@@ -120,53 +54,19 @@ exports.proxify = function (req, res) {
     });
     proxy.on('error', function (e) {
       console.log('error');
-      handleError(res)(e);
+      responseError(res)(e);
     });
-  }).catch(handleError(res));
+  }).catch(responseError(res));
 };
+
 //get single Asset but validate jwt tokenized
-exports.showToken = function (req, res) {
-  Asset.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(responseWithTokenResult(req, res))
-    .catch(handleError(res));
-};
+exports.showToken = genericShowToken({model: Asset});
 
 // Creates a new asset in the DB
-exports.create = function (req, res) {
-  Asset.create(req.body)
-    .then(responseWithResult(res, 201))
-    .catch(handleError(res));
-};
+exports.create = genericCreate({model: Asset});
 
 // Updates an existing asset in the DB
-exports.update = function (req, res) {
-  if (req.body._id) {
-    delete req.body._id;
-  }
-  Asset.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(saveUpdates(req.body))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.update = genericUpdate({model: Asset});
 
 // Deletes a asset from the DB
-exports.destroy = function (req, res) {
-  Asset.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(removeEntity(res))
-    .catch(handleError(res));
-};
+exports.destroy = genericDestroy({model: Asset});

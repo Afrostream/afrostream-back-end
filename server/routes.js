@@ -11,7 +11,6 @@ module.exports = function (app) {
 
   // Insert routes below
   app.use('/api/actors', require('./api/actor'));
-  app.use('/api/plans', require('./api/plan'));
   app.use('/api/subscriptions', require('./api/subscription'));
   app.use('/api/refreshTokens', require('./api/refreshToken'));
   app.use('/api/accessTokens', require('./api/accessToken'));
@@ -42,7 +41,7 @@ module.exports = function (app) {
     });
 
   // All other routes should redirect to the index.html
-  app.route(/\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|users|plans|subscriptions|clients|actors|settings|logout)/)
+  app.route(/\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|usersl|subscriptions|clients|actors|settings|logout)/)
     .get(function (req, res) {
       res.set('Cache-Control', 'public, max-age=0');
       res.sendFile(path.resolve(app.get('appPath') + '/index.html'));

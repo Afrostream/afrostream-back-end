@@ -9,20 +9,25 @@ module.exports = function (options) {
   options.logger = options.logger || console;
 
   return function (req, res, next) {
-    res.error = function (err) {
-      err = err || new Error('unknown error');
+    res.error = function () {
+      var statusCode = 500, error;
+
+      if (typeof arguments[0] === 'number') {
+        statusCode = arguments[0];
+        error = arguments[1];
+      } else {
+        error = arguments[0];
+      }
+      error =  error instanceof Error ? error : new Error(String(error));
       //
-      var httpCode = err.httpCode || 500;
-      var errorMessage = String(err);
-      var errorCode = err.code || 0;
-      var json = { error: { code: errorCode, message: errorMessage } };
+      var json = { error: { code: statusCode, message: String(error) } };
       //
-      options.logger.error('Error ' + httpCode + ': ' + JSON.stringify(json) + ' on ' + req.url);
+      options.logger.error('Error: ' + JSON.stringify(json) + ' on ' + req.url);
       try {
         res.type('application/json; charset=utf-8');
-        res.status(httpCode).json(json);
+        res.status(statusCode).json(json);
       } catch (e) {
-        options.logger.error('Error sending error !', err, req.url);
+        options.logger.error('Error sending error !', error, req.url);
       }
     };
     next();

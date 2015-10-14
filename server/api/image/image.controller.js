@@ -10,104 +10,65 @@
 'use strict';
 
 var _ = require('lodash');
-var path = require('path');
 var sqldb = require('../../sqldb');
 var Image = sqldb.Image;
 var config = require('../../config/environment');
 var AwsUploader = require('../../components/upload');
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
+var responses = require('../responses.js')
+  , responseError = responses.error
+  , responseWithResult = responses.withResult;
 
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
+var generic = require('../generic.js')
+  , genericCreate = generic.create
+  , genericIndex = generic.index
+  , genericDestroy = generic.destroy
+  , genericShow = generic.show
+  , genericUpdate = generic.update;
 
-function handleEntityNotFound(res) {
+function handleDestroyEntity() {
   return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
-
-function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
-}
-
-function removeEntity(res) {
-  return function (entity) {
-    if (entity) {
-      var filesName = [entity.path];
-      Knox.aws.deleteMultiple(filesName, {}, function (err, response) {
-        if (err) {
-          return handleError(res)(err);
-        }
-        if (response.statusCode !== 200) {
-          return handleError(res, response.statusCode)('statusCode not 200 OK');
-        }
-        return entity.destroy()
-          .then(function () {
-            res.status(204).end();
-          });
-      });
-    }
+    var filesName = [entity.path];
+    Knox.aws.deleteMultiple(filesName, {}, function (err, response) {
+      if (err) {
+        throw err;
+      }
+      if (response.statusCode !== 200) {
+        throw new Error('statusCode not 200 OK');
+      }
+      return entity.destroy();
+    });
   };
 }
 
 // Gets a list of images
-exports.index = function (req, res) {
-  var queryName = req.param('query');
-  var typeName = req.param('type');
-  var paramsObj = {};
+exports.index = genericIndex({
+  model: Image,
+  queryBuilderParameters: function (req, res) {
+    var queryName = req.param('query');
+    var typeName = req.param('type');
+    var paramsObj = {};
 
-  if (queryName) {
-    paramsObj = _.merge(paramsObj, {
-      where: {
-        name: {$iLike: '%' + queryName + '%'},
-      }
-    })
+    if (queryName) {
+      paramsObj = _.merge(paramsObj, {
+        where: {
+          name: {$iLike: '%' + queryName + '%'},
+        }
+      })
+    }
+    if (typeName) {
+      paramsObj = _.merge(paramsObj, {
+        where: {
+          type: typeName
+        }
+      })
+    }
+    return paramsObj;
   }
-  if (typeName) {
-    paramsObj = _.merge(paramsObj, {
-      where: {
-        type: typeName
-      }
-    })
-  }
-
-  Image.findAll(paramsObj)
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+});
 
 // Gets a single image from the DB
-exports.show = function (req, res) {
-  Image.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.show = genericShow({model: Image});
 
 // Creates a new image in the DB
 exports.create = function (req, res) {
@@ -122,35 +83,15 @@ exports.create = function (req, res) {
       name: data.fileName
     })
       .then(responseWithResult(res, 201))
-      .catch(handleError(res));
+      .catch(responseError(res));
   });
 };
 
 // Updates an existing image in the DB
-exports.update = function (req, res) {
-  if (req.body._id) {
-    delete req.body._id;
-  }
-  Image.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(saveUpdates(req.body))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.update = genericUpdate({model: Image});
 
 // Deletes a image from the DB
-exports.destroy = function (req, res) {
-
-  Image.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(removeEntity(res))
-    .catch(handleError(res));
-};
+exports.destroy = genericDestroy({
+  model: Image,
+  handleDestroyEntity: handleDestroyEntity
+});

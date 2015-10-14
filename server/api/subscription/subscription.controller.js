@@ -19,51 +19,12 @@ var User = sqldb.User;
 var Promise = sqldb.Sequelize.Promise;
 recurly.setAPIKey(config.recurly.apiKey);
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
-
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
-
-function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
-}
-
-function removeEntity(res) {
-  return function (entity) {
-    if (entity) {
-      return entity.destroy()
-        .then(function () {
-          res.status(204).end();
-        });
-    }
-  };
-}
+var responses = require('./responses.js')
+  , responseError = responses.error
+  , responseWithResult = responses.withResult;
+var handles = require('./handles.js')
+  , handleEntityNotFound = handles.entityNotFound
+  , handleUserNotFound = handles.userNotFound;
 
 // Gets a list of subscriptions
 exports.index = function (req, res) {
@@ -75,7 +36,6 @@ exports.index = function (req, res) {
 
 // Gets a single subscription from the DB
 exports.show = function (req, res, next) {
-
   var userId = req.params.id;
 
   User.find({
@@ -83,21 +43,20 @@ exports.show = function (req, res, next) {
       _id: userId
     }
   })
+    .then(handleEntityNotFound())
     .then(function (user) {
-      if (!user) {
-        return res.status(404).end();
-      }
       if (user.account_code === null) {
-        return handleError(res)('missing account code');
+        throw new Error('missing account code');
       }
       var account = new recurly.Account();
       account.id = user.account_code;
       var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
-      return fetchAsync().then(function (subscriptions) {
-        return res.json(subscriptions);
-      }).catch(handleError(res));
+      return fetchAsync();
     })
-    .catch(handleError(res));
+    .then(function (subscriptions) {
+      return res.json(subscriptions);
+    })
+    .catch(responseError(res));
 
 };
 // Gets a single subscription from the DB
@@ -108,21 +67,19 @@ exports.me = function (req, res, next) {
       _id: userId
     }
   })
+    .then(handleUserNotFound())
     .then(function (user) {
-      if (!user) {
-        return res.status(401).end();
-      }
       var profile = user.profile;
       if (user.billing_provider && user.billing_provider === 'celery') {
         var now = new Date().getTime();
         var finalDate = new Date('2016/09/01').getTime();
         if (now < finalDate) {
           profile.planCode = 'afrostreamambassadeurs';
-          return res.json(profile);
+          return profile;
         }
       }
       if (user.account_code === null) {
-        return res.json(profile);
+        return profile;
       }
       var account = new recurly.Account();
       account.id = user.account_code;
@@ -136,13 +93,13 @@ exports.me = function (req, res, next) {
             return profile;
           }
         });
-        return res.json(profile);
+        return profile;
       }).catch(function () {
-        return res.json(profile);
+        return profile;
       });
-
     })
-    .catch(handleError(res));
+    .then(function (profile) { res.json(profile); })
+    .catch(responseError(res));
 };
 
 // Gets a single subscription from the DB
@@ -153,33 +110,31 @@ exports.all = function (req, res, next) {
       _id: userId
     }
   })
+    .then(handleUserNotFound())
     .then(function (user) {
-      if (!user) {
-        return res.status(401).end();
-      }
       var profile = user.profile;
       if (user.billing_provider && user.billing_provider === 'celery') {
         var now = new Date().getTime();
         var finalDate = new Date('2016/09/01').getTime();
         if (now < finalDate) {
           profile.planCode = 'afrostreamambassadeurs';
-          return res.json([]);
+          return [];
         }
       }
       if (user.account_code === null) {
-        return res.json([]);
+        return [];
       }
       var account = new recurly.Account();
       account.id = user.account_code;
       var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
       return fetchAsync().then(function (subscriptions) {
-        return res.json(subscriptions);
+        return subscriptions;
       }).catch(function () {
-        return res.json([]);
+        return [];
       });
-
     })
-    .catch(handleError(res));
+    .then(function (subscriptions) { res.json(subscriptions); })
+    .catch(responseError(res));
 };
 
 exports.billing = function (req, res, next) {
@@ -189,34 +144,32 @@ exports.billing = function (req, res, next) {
       _id: userId
     }
   })
+    .then(handleUserNotFound())
     .then(function (user) {
-      if (!user) {
-        return res.status(401).end();
-      }
       if (user.account_code === null) {
-        return handleError(res)('missing account code');
+        throw new Error('missing account code');
       }
       var account = new recurly.Account();
       account.id = user.account_code;
       var fetchAsync = Promise.promisify(account.fetchBillingInfo, account);
-      return fetchAsync().then(function (billingInfo) {
-        if (!billingInfo) {
-          return handleError(res)('missing billing info');
-        }
-        return res.json(_.pick(billingInfo.properties, [
-          'first_name',
-          'last_name',
-          'country',
-          'card_type',
-          'year',
-          'month',
-          'first_six',
-          'last_four'
-        ]));
-      }).catch(handleError(res));
-
+      return fetchAsync();
     })
-    .catch(handleError(res));
+    .then(function (billingInfo) {
+      if (!billingInfo) {
+        throw new Error('missing billing info');
+      }
+      return res.json(_.pick(billingInfo.properties, [
+        'first_name',
+        'last_name',
+        'country',
+        'card_type',
+        'year',
+        'month',
+        'first_six',
+        'last_four'
+      ]));
+    })
+    .catch(responseError(res));
 };
 
 exports.invoice = function (req, res, next) {
@@ -226,40 +179,36 @@ exports.invoice = function (req, res, next) {
       _id: userId
     }
   })
+    .then(handleUserNotFound())
     .then(function (user) {
-      if (!user) {
-        return res.status(401).end();
-      }
       if (user.account_code === null) {
-        return handleError(res)('missing account code');
+        throw new Error('missing account code');
       }
       var account = new recurly.Account();
       account.id = user.account_code;
       var fetchAsync = Promise.promisify(account.getInvoices, account);
-      return fetchAsync().then(function (invoicesInfo) {
-        if (!invoicesInfo) {
-          return handleError(res)('missing invoices info');
-        }
-
-        var invoicesMapped = _.map(invoicesInfo, _.partialRight(_.pick, [
-            'address',
-            'state',
-            'invoice_number',
-            'subtotal_in_cents',
-            'total_in_cents',
-            'tax_in_cents',
-            'currency',
-            'created_at',
-            'closed_at',
-            'terms_and_conditions',
-            'customer_notes'])
-        );
-
-        return res.json(invoicesMapped);
-      }).catch(handleError(res));
-
+      return fetchAsync();
     })
-    .catch(handleError(res));
+    .then(function (invoicesInfo) {
+      if (!invoicesInfo) {
+        throw new Error('missing invoices info');
+      }
+      var invoicesMapped = _.map(invoicesInfo, _.partialRight(_.pick, [
+          'address',
+          'state',
+          'invoice_number',
+          'subtotal_in_cents',
+          'total_in_cents',
+          'tax_in_cents',
+          'currency',
+          'created_at',
+          'closed_at',
+          'terms_and_conditions',
+          'customer_notes'])
+      );
+      return res.json(invoicesMapped);
+    })
+    .catch(responseError(res));
 };
 
 exports.cancel= function (req, res, next) {
@@ -269,12 +218,10 @@ exports.cancel= function (req, res, next) {
       _id: userId
     }
   })
+    .then(handleUserNotFound())
     .then(function (user) {
-      if (!user) {
-        return res.status(401).end();
-      }
       if (user.account_code === null) {
-        return handleError(res)('missing account code');
+        throw new Error('missing account code');
       }
       var account = new recurly.Account();
       account.id = user.account_code;
@@ -288,7 +235,6 @@ exports.cancel= function (req, res, next) {
         return 'pending,active'.indexOf(subscription.properties.state) !== -1;
       });
       var promises = _.map(actives, function (subscription) {
-
         var cancel = Promise.promisify(subscription.cancel, subscription);
         return cancel();
       });
@@ -297,39 +243,8 @@ exports.cancel= function (req, res, next) {
     .then(function (canceled) {
       res.json({canceled:((canceled && canceled.length)?true:false)});
     })
-    .catch(handleError(res));
+    .catch(responseError(res));
 };
-
-/**
- * extract the user info from the database using userId = req.user._id
- * @param req
- * @returns {*}
- */
-function reqUser(req) {
-  var userId = req && req.user && req.user._id;
-
-  return User.find({where: { _id: userId } })
-  .then(function (user) {
-    if (!user) {
-      var error = new Error("user doesn't exist");
-      error.httpCode = 401;
-    }
-    return user;
-  });
-}
-
-/**
- * generic error handler.
- *
- * @param res
- * @returns {Function}
- */
-function error(res) {
-  return function (err) {
-    err = err || new Error('unknown error');
-    res.status(err.httpCode || 500).send(String(err));
-  };
-}
 
 /**
  * @param user
@@ -408,31 +323,38 @@ function userInfos(user) {
  * }
  */
 exports.status = function (req, res) {
-  reqUser(req)
-  .then(function (user) {
-    return userInfos(user);
-  })
-  .then(function (infos) {
-    return res.json({
-      planCode: infos.planCode,
-      subscriptions: infos.subscriptions
-    });
-  })
-  .catch(error(res));
-};
-
-// Creates a new subscription in the DB
-exports.create = function (req, res) {
   var userId = req.user._id;
   User.find({
     where: {
       _id: userId
     }
   })
-    .then(function (user) { // don't ever give out the password or salt
-      if (!user) {
-        return res.status(401).end();
-      }
+    .then(handleUserNotFound())
+    .then(function (user) {
+      return userInfos(user);
+    })
+    .then(function (infos) {
+      return res.json({
+        planCode: infos.planCode,
+        subscriptions: infos.subscriptions
+      });
+    })
+    .catch(responseError(res));
+};
+
+// Creates a new subscription in the DB
+exports.create = function (req, res) {
+  var userId = req.user._id;
+  var user, subscription;
+
+  User.find({
+    where: {
+      _id: userId
+    }
+  })
+    .then(handleUserNotFound())
+    .then(function (data) { // don't ever give out the password or salt
+      user = data;
       var profile = user.profile;
       var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
       var data = {
@@ -450,66 +372,52 @@ exports.create = function (req, res) {
           }
         }
       };
-
       console.log('subscription create', data.account);
+      return createAsync(data)
+    })
+    .then(function (data) {
+      subscription = data;
+      console.log('subscription', subscription);
+      user.account_code = subscription.account.account_code;
+      return user.save();
+    })
+    .then(function () {
+      var planName = subscription.properties.plan.name;
+      var planCode = subscription.properties.plan.plan_code;
 
-      return createAsync(data).then(function (item) {
-        console.log('subscription', item);
-        user.account_code = data.account.account_code;
-        return user.save()
+      profile.planCode = planCode;
+      if (!subscription._resources) {
+        return res.json(profile);
+      }
+      var invoiceId = subscription._resources.invoice.split('/invoices')[1];
+      if (!invoiceId) {
+        return res.json(profile);
+      }
+      var account = new recurly.Account();
+      account.id = data.account.account_code;
+      var fetchAsync = Promise.promisify(account.getInvoices, account);
+      return fetchAsync().then(function (invoicesInfo) {
+        if (!invoicesInfo) {
+          return res.json(profile);
+        }
+        console.log('invoiceId', invoiceId);
+        console.log('invoices', invoicesInfo);
+        var invoiceFounded = _.find(invoicesInfo, function (inv) {
+          return inv['invoice_number'] == invoiceId;
+        });
+        console.log('invoiceFounded', invoicesInfo);
+        if (!invoiceFounded) {
+          return res.json(profile);
+        }
+
+        return mailer.sendStandardEmail(res, data.account, planName, planCode, invoiceFounded)
           .then(function () {
-            var planName = item.properties.plan.name;
-            var planCode = item.properties.plan.plan_code;
-            profile.planCode = planCode;
-            if (!item._resources) {
-              return res.json(profile);
-            }
-            var invoiceId = item._resources.invoice.split('/invoices')[1];
-            if (!invoiceId) {
-              return res.json(profile);
-            }
-            var account = new recurly.Account();
-            account.id = data.account.account_code;
-            var fetchAsync = Promise.promisify(account.getInvoices, account);
-            return fetchAsync().then(function (invoicesInfo) {
-              if (!invoicesInfo) {
-                return res.json(profile);
-              }
-
-              console.log('invoiceId', invoiceId);
-              console.log('invoices', invoicesInfo);
-              var invoiceFounded = _.find(invoicesInfo, function (inv) {
-                return inv['invoice_number'] == invoiceId;
-              });
-              console.log('invoiceFounded', invoicesInfo);
-              if (!invoiceFounded) {
-                return res.json(profile);
-              }
-
-              return mailer.sendStandardEmail(res, data.account, planName, planCode, invoiceFounded)
-                .then(function () {
-                  return res.json(profile);
-                })
-                .catch(function () {
-                  return res.json(profile);
-                });
-
-            }).catch(handleError(res));
-
-          }).catch(handleError(res));
-
-      }).catch(function (err) {
-        return res.status(500).send(err.errors || err);
+            return res.json(profile);
+          })
+          .catch(function () {
+            return res.json(profile);
+          });
       });
     })
-    .catch(handleError(res));
-};
-
-// Updates an existing subscription in the DB
-exports.update = function (req, res) {
-};
-
-// Deletes a subscription from the DB
-exports.destroy = function (req, res) {
-
+    .catch(responseError(res));
 };

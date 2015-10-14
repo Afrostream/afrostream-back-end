@@ -20,6 +20,13 @@ var Caption = sqldb.Caption;
 var Image = sqldb.Image;
 var auth = require('../../auth/auth.service');
 
+var generic = require('../generic.js')
+  , genericCreate = generic.create
+  , genericIndex = generic.index
+  , genericDestroy = generic.destroy
+  , genericShow = generic.show
+  , genericUpdate = generic.update;
+
 var includedModel = [
   {
     model: Movie, as: 'movies',
@@ -29,35 +36,6 @@ var includedModel = [
     order: [['sort', 'ASC']]
   } // load all adSpots
 ];
-
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
-/**
- * Limit result in included model because it's not possible with Sequelize
- * @param res
- * @param statusCode
- * @returns {Function}
- */
-function limitResult(res, key, limit) {
-  return function (entity) {
-    if (entity) {
-      res.status(200).json(entity);
-    }
-  };
-}
-
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
 
 function responseWithAdSpot(req, res, statusCode) {
   statusCode = statusCode || 200;
@@ -108,190 +86,118 @@ function responseWithAdSpot(req, res, statusCode) {
   };
 }
 
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
-
-function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
-}
-
-function addMovies(updates) {
+function hookAddMovies(req, res, updates) {
   var movies = Movie.build(_.map(updates.movies || [], _.partialRight(_.pick, '_id')));
-  return function (entity) {
-    return entity.setMovies(movies)
-      .then(function () {
-        return entity;
-      });
-  };
+  return entity.setMovies(movies);
 }
 
-function addAdSpots(updates) {
+function hookAddAdSpots(req, res, updates) {
   var movies = Movie.build(_.map(updates.adSpots || [], _.partialRight(_.pick, '_id')));
-  return function (entity) {
-    return entity.setAdSpots(movies)
-      .then(function () {
-        return entity;
-      });
-  };
-}
-
-function removeEntity(res) {
-  return function (entity) {
-    if (entity) {
-      return entity.destroy()
-        .then(function () {
-          res.status(204).end();
-        });
-    }
-  };
+  return entity.setAdSpots(movies);
 }
 
 // Gets a list of categorys
-exports.index = function (req, res) {
-  var queryName = req.param('query');
-  var paramsObj = {
-    order: [['sort', 'ASC']]
-  };
+exports.index = genericIndex({
+  model: Category,
+  queryParametersBuilder: function (req, res) {
+    var queryName = req.param('query');
+    var paramsObj = {
+      order: [['sort', 'ASC']]
+    };
 
-  if (queryName) {
-    paramsObj = _.merge(paramsObj, {
-      where: {
-        label: {$iLike: '%' + queryName + '%'}
-      }
-    })
+    if (queryName) {
+      paramsObj = _.merge(paramsObj, {
+        where: {
+          label: {$iLike: '%' + queryName + '%'}
+        }
+      })
+    }
+    return auth.mergeQuery(req, res, paramsObj);
   }
+});
 
-  Category.findAll(auth.mergeQuery(req, res, paramsObj))
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
 
 // Gets a single category from the DB
-exports.show = function (req, res) {
-  Category.find(auth.mergeQuery(req, res, {
-    where: {
-      _id: req.params.id
-    },
-    include: [
-      {
-        model: Movie, as: 'movies',
-        order: [['sort', 'ASC']],
-        include: [
-          auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
-          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
-        ]
-      }, {
-        model: Movie, as: 'adSpots',
-        order: [['sort', 'ASC']],
-        include: [
-          auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
-          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
-        ]
-      } // load all adSpots
-    ]
-  }))
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.show = genericShow({
+  model: Category,
+  queryParametersBuilder: function (req, res) {
+    return auth.mergeQuery(req, res, {
+      where: {
+        _id: req.params.id
+      },
+      include: [
+        {
+          model: Movie, as: 'movies',
+          order: [['sort', 'ASC']],
+          include: [
+            auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
+            auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+            auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
+          ]
+        }, {
+          model: Movie, as: 'adSpots',
+          order: [['sort', 'ASC']],
+          include: [
+            auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
+            auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+            auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}) // load thumb image
+          ]
+        } // load all adSpots
+      ]
+    });
+  }
+});
 
 // Gets all AdSpots in selected category
-exports.adSpot = function (req, res) {
-  Category.find(auth.mergeQuery(req, res, {
-    where: {
-      _id: req.params.id
-    }
-  }))
-    .then(handleEntityNotFound(res))
-    .then(responseWithAdSpot(req, res))
-    .catch(handleError(res));
-};
+exports.adSpot = genericShow({
+  model: Category,
+  response: responseWithAdSpot
+});
 
 // Gets all categorys for menu
-exports.menu = function (req, res) {
-  Category.findAll(auth.mergeQuery(req, res, {
-    order: [['sort', 'ASC']]
-  }))
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
-
+exports.menu = genericIndex({
+  model: Category
+, queryParametersBuilder: function (req, res) {
+  return auth.mergeQuery(req, res, {
+      order: [['sort', 'ASC']]
+    });
+  }
+});
 
 // Gets all submovies limited
-exports.mea = function (req, res) {
-  Category.findAll(auth.mergeQuery(req, res, {
-    order: [['sort', 'ASC']],
-    include: [
-      auth.mergeIncludeValid(req, {
-        model: Movie,
-        as: 'movies',
-        required: false,
-        order: ['sort', 'ASC'],
-        include: [auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
-          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
-        ]
-      }) // load 30 top movies
-    ]
-  }))
-    .then(handleEntityNotFound(res))
-    .then(limitResult(res, 'movies', 30))
-    .catch(handleError(res));
-};
+exports.mea = genericIndex({
+  model: Category
+, queryParametersBuilder: function (req, res) {
+    return auth.mergeQuery(req, res, {
+      order: [['sort', 'ASC']],
+        include: [
+        auth.mergeIncludeValid(req, {
+          model: Movie,
+          as: 'movies',
+          required: false,
+          order: ['sort', 'ASC'],
+          include: [auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
+            auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+            auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
+          ]
+        })
+      ]
+    });
+  }
+});
 
 // Creates a new category in the DB
-exports.create = function (req, res) {
-  Category.create(req.body)
-    .then(saveUpdates(req.body))
-    .then(addMovies(req.body))
-    .then(addAdSpots(req.body))
-    .then(responseWithResult(res, 201))
-    .catch(handleError(res));
-};
+exports.create = genericCreate({
+  model: AccessToken,
+  hooks: [ hookAddMovies, hookAddAdSpots ]
+});
 
 // Updates an existing category in the DB
-exports.update = function (req, res) {
-  if (req.body._id) {
-    delete req.body._id;
-  }
-  Category.find({
-    where: {
-      _id: req.params.id
-    },
-    include: includedModel
-  })
-    .then(handleEntityNotFound(res))
-    .then(saveUpdates(req.body))
-    .then(addMovies(req.body))
-    .then(addAdSpots(req.body))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.update = genericUpdate({
+  model: Category,
+  hooks: [ hookAddMovies, hookAddAdSpots ],
+  includedModel: includedModel
+});
 
 // Deletes a category from the DB
-exports.destroy = function (req, res) {
-  Category.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(removeEntity(res))
-    .catch(handleError(res));
-};
+exports.destroy = genericDestroy({model: Category});

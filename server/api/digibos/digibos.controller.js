@@ -11,25 +11,9 @@ var videoController = require('../video/video.controller');
 var _ = require('lodash');
 var Promise = require('bluebird');
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
-
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (data) {
-    res.status(statusCode).json(JSON.parse(data));
-  }
-}
-function responseWithData(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (data) {
-    res.status(statusCode).json(data);
-  }
-}
+var responses = require('./responses.js')
+  , responseError = responses.error
+  , responseWithResult = responses.withResult;
 
 function extractMime(filename) {
   var reg = /(\/[^?]+).*/;
@@ -38,7 +22,7 @@ function extractMime(filename) {
   var parts = filePath[1].split('.');
   var type = (parts.length > 1) ? parts.pop() : 'mp4';
   return type;
-};
+}
 
 function extractType(value) {
   var type = extractMime(value.url);
@@ -65,7 +49,7 @@ function extractType(value) {
   rtType.importId = value.content_id;
   rtType.src = value.url;
   return rtType;
-};
+}
 
 function importAll() {
   return function (data) {
@@ -113,19 +97,19 @@ function importAll() {
 exports.index = function (req, res) {
   request(config.digibos.domain)
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(responseError(res));
 };
 // Gets a list of accessTokens
 exports.import = function (req, res) {
   request(config.digibos.domain)
     .then(importAll())
-    .then(responseWithData(res))
-    .catch(handleError(res));
+    .then(responseWithResult(res))
+    .catch(responseError(res));
 };
 
 // Gets a single accessToken from the DB
 exports.show = function (req, res) {
   request(config.digibos.domain + '/' + req.params.id)
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(responseError(res));
 };

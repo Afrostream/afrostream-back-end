@@ -20,6 +20,19 @@ var Promise = sqldb.Sequelize.Promise;
 var slugify = require('slugify');
 var auth = require('../../auth/auth.service');
 
+var responses = require('./responses.js')
+  , responseError = responses.error
+  , responseWithResult = responses.withResult;
+var handles = require('./handles.js')
+  , handleEntityNotFound = handles.entityNotFound;
+
+var generic = require('../generic.js')
+  , genericCreate = generic.create
+  , genericIndex = generic.index
+  , genericDestroy = generic.destroy
+  , genericShow = generic.show
+  , genericUpdate = generic.update;
+
 var includedModel = [
   {
     model: Episode, as: 'episodes',
@@ -34,96 +47,45 @@ var includedModel = [
   {model: Image, as: 'thumb'} // load thumb image
 ];
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
-
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
-
-function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
-}
-
-function addMovie(updates) {
-  var movie = Movie.build(updates.movie);
-  return function (entity) {
-    if (!movie) {
-      return entity
-    }
-    return entity.setMovie(movie)
-      .then(function () {
-        return entity;
-      });
-  };
-}
-
-function addEpisodes(updates) {
-  if (updates.episodes !== undefined && typeof updates.episodes === 'number') {
-    var copy = _.pick(updates, ['title', 'synopsis', 'poster', 'thumb']);
-    var datas = _.range(updates.episodes).map(function () {
-      return _.cloneDeep(copy);
-    });
-    return function (entity) {
-      var itemId = 1;
-      return Promise.map(datas, function (item) {
-        item.title = item.title + ' episode ' + itemId;
-        item.slug = slugify(item.title);
-        item.episodeNumber = itemId;
-        itemId++;
-        return Episode.create(item).then(addImages(copy));
-      }).then(function (inserts) {
-        if (!inserts || !inserts.length) {
-          return entity;
-        }
-        return entity.setEpisodes(inserts)
-          .then(function () {
-            return entity;
-          });
-      });
-    };
-
-
-  } else {
-    var episodes = Episode.build(_.map(updates.episodes || [], _.partialRight(_.pick, '_id')));
-
-    return function (entity) {
-      if (!episodes || !episodes.length) {
-        return entity
-      }
-      return entity.setEpisodes(episodes)
-        .then(function () {
-          return entity;
-        });
-    };
+function hookAddMovie(req, res, entity) {
+  var movie = Movie.build(req.body.movie);
+  if (movie) {
+    entity.setMovie(movie);
   }
 }
 
-function addImages(updates) {
+function hookAddEpisodes(req, res, entity) {
+  if (typeof req.body.episodes === 'number') {
+    var copy = _.pick(req.body, ['title', 'synopsis', 'poster', 'thumb']);
+    var datas = _.range(req.body.episodes).map(function () {
+      return _.cloneDeep(copy);
+    });
+    var itemId = 1;
+    return Promise.map(datas, function (item) {
+      item.title = item.title + ' episode ' + itemId;
+      item.slug = slugify(item.title);
+      item.episodeNumber = itemId;
+      itemId++;
+      return Episode.create(item).then(addImages(copy));
+    }).then(function (inserts) {
+      if (!inserts || !inserts.length) {
+        return entity;
+      }
+      return entity.setEpisodes(inserts)
+        .then(function () {
+          return entity;
+        });
+    });
+  } else {
+    var episodes = Episode.build(_.map(req.body.episodes || [], _.partialRight(_.pick, '_id')));
+
+    if (episodes && episodes.length) {
+      return entity.setEpisodes(episodes)
+    }
+  }
+}
+
+function hookAddImages(req, res, entity) {
   return function (entity) {
     var chainer = sqldb.Sequelize.Promise.join;
     var poster = Image.build(updates.poster);
@@ -137,77 +99,62 @@ function addImages(updates) {
   };
 }
 
-function removeEntity(res) {
-  return function (entity) {
-    if (entity) {
-      return entity.destroy()
-        .then(function () {
-          res.status(204).end();
-        });
-    }
-  };
-}
-
 // Gets a list of seasons
-exports.index = function (req, res) {
-  var queryName = req.param('query');
-  var paramsObj = {
-    include: [
-      auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-      auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
-    ]
-  };
+exports.index = genericIndex({
+  model: Season,
+  queryParametersBuilder: function (req, res) {
+    var queryName = req.param('query');
+    var paramsObj = {
+      include: [
+        auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+        auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
+      ]
+    };
 
-  if (queryName) {
-    paramsObj = _.merge(paramsObj, {
-      where: {
-        title: {$iLike: '%' + queryName + '%'}
-      }
-    })
+    if (queryName) {
+      paramsObj = _.merge(paramsObj, {
+        where: {
+          title: {$iLike: '%' + queryName + '%'}
+        }
+      })
+    }
+    return auth.mergeQuery(req, res, paramsObj);
   }
-  Season.findAll(auth.mergeQuery(req, res, paramsObj))
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+});
 
 // Gets a single season from the DB
-exports.show = function (req, res) {
-  Season.find(auth.mergeQuery(req, res, {
-    where: {
-      _id: req.params.id
-    },
-    include: [
-      auth.mergeIncludeValid(req, {
-        model: Episode, as: 'episodes',
-        required: false,
-        include: [
-          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
-        ]
-      }), // load all episodes
-      {model: Movie, as: 'movie'}, // load related movie
-      {model: Image, as: 'poster'}, // load poster image
-      {model: Image, as: 'thumb'} // load thumb image
-    ],
-    order: [
-      [ {model: Episode, as: 'episodes'}, 'sort']
-    ]
-  }))
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.show = genericShow({
+  model: Season,
+  queryParametersBuilder: function (req, res) {
+    return auth.mergeQuery(req, res, {
+      where: {
+        _id: req.params.id
+      },
+      include: [
+        auth.mergeIncludeValid(req, {
+          model: Episode, as: 'episodes',
+          required: false,
+          include: [
+            auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+            auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
+          ]
+        }), // load all episodes
+        {model: Movie, as: 'movie'}, // load related movie
+        {model: Image, as: 'poster'}, // load poster image
+        {model: Image, as: 'thumb'} // load thumb image
+      ],
+      order: [
+        [ {model: Episode, as: 'episodes'}, 'sort']
+      ]
+    });
+  }
+});
 
 // Creates a new season in the DB
-exports.create = function (req, res) {
-  Season.create(req.body)
-    .then(addEpisodes(req.body))
-    .then(addMovie(req.body))
-    .then(addImages(req.body))
-    .then(responseWithResult(res, 201))
-    .catch(handleError(res));
-};
+exports.create = genericCreate({
+  model: Season,
+  hooks: [ hookAddEpisodes, hookAddMovie, hookAddImages ]
+});
 
 // Updates an existing episode in the DB
 exports.algolia = function (req, res) {
@@ -217,40 +164,17 @@ exports.algolia = function (req, res) {
       active: true
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(handleEntityNotFound())
     .then(algolia.importAll(res, 'seasons'))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(responseError(res));
 };
 
 // Updates an existing season in the DB
-exports.update = function (req, res) {
-  if (req.body._id) {
-    delete req.body._id;
-  }
-  Season.find({
-    where: {
-      _id: req.params.id
-    },
-    include: includedModel
-  })
-    .then(handleEntityNotFound(res))
-    .then(saveUpdates(req.body))
-    .then(addEpisodes(req.body))
-    .then(addMovie(req.body))
-    .then(addImages(req.body))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.update = genericUpdate({
+  model: Season,
+  hooks: [ hookAddEpisodes, hookAddMovie, hookAddImages ]
+});
 
 // Deletes a season from the DB
-exports.destroy = function (req, res) {
-  Season.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(removeEntity(res))
-    .catch(handleError(res));
-};
+exports.destroy = genericDestroy({model: Season});

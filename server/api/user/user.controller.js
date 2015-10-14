@@ -8,26 +8,23 @@ var config = require('../../config/environment');
 var jwt = require('jsonwebtoken');
 var subscriptionController = require('../subscription/subscription.controller');
 
-function validationError(res, statusCode) {
-  statusCode = statusCode || 422;
-  return function (err) {
-    res.status(statusCode).json(err);
-  }
-}
+var responses = require('./responses.js')
+  , responseEmpty = responses.empty
+  , responseError = responses.error
+  , responseWithResult = responses.withResult;
+var handles = require('./handles.js')
+  , handleUserNotFound = handles.userNotFound;
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
+var handleUnknownEmail = function () {
+  return function (user) {
+    if (!user) {
+      var error = new Error('email not registered');
+      error.statusCode = 422;
+      throw error;
+    }
+    return user;
   };
-}
-
-function respondWith(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function () {
-    res.status(statusCode).end();
-  };
-}
+};
 
 /**
  * Get list of users
@@ -58,7 +55,7 @@ exports.index = function (req, res) {
     .then(function (users) {
       res.status(200).json(users);
     })
-    .catch(handleError(res));
+    .catch(responseError(res));
 };
 
 /**
@@ -76,7 +73,7 @@ exports.create = function (req, res, next) {
       });
       res.json({token: token});
     })
-    .catch(validationError(res));
+    .catch(responseError(res));
 };
 
 /**
@@ -90,15 +87,11 @@ exports.show = function (req, res, next) {
       _id: userId
     }
   })
+    .then(entityNotFound())
     .then(function (user) {
-      if (!user) {
-        return res.status(404).end();
-      }
       return res.json(user.profile);
     })
-    .catch(function (err) {
-      return next(err);
-    });
+    .catch(responseError(res));
 };
 
 /**
@@ -110,7 +103,7 @@ exports.destroy = function (req, res) {
     .then(function () {
       res.status(204).end();
     })
-    .catch(handleError(res));
+    .catch(responseError(res));
 };
 /**
  * Change a users password
@@ -124,20 +117,15 @@ exports.auth0ChangePassword = function (req, res, next) {
       email: userMail
     }
   })
+    .then(handleUnknownEmail())
     .then(function (user) {
-      if (!user) {
-        return res.status(422).end();
-      }
       user.password = newPass;
       return user.save()
         .then(function () {
           res.json(user.profile);
-        })
-        .catch(validationError(res));
+        });
     })
-    .catch(function (err) {
-      return validationError(err);
-    });
+    .catch(responseError(res));
 };
 /**
  * Change a users password
@@ -153,17 +141,16 @@ exports.changePassword = function (req, res, next) {
     }
   })
     .then(function (user) {
-      if (user.authenticate(oldPass)) {
-        user.password = newPass;
-        return user.save()
-          .then(function () {
-            res.status(200).end();
-          })
-          .catch(validationError(res));
-      } else {
-        return res.status(403).end();
+      if (!user.authenticate(oldPass)) {
+        var error = new Error('forbidden');
+        error.statusCode = 403;
+        throw error;
       }
-    });
+      user.password = newPass;
+      return user.save();
+    })
+    .then(responseEmpty(res))
+    .catch(responseError(res));
 };
 
 /**
@@ -178,14 +165,13 @@ exports.changeRole = function (req, res) {
       _id: userId
     }
   })
+    .then(handleUserNotFound())
     .then(function (user) {
       user.role = role;
       return user.save()
-        .then(function () {
-          res.status(200).end();
-        })
-        .catch(validationError(res));
-    });
+    })
+    .then(responseEmpty(res))
+    .catch(responseError(res));
 };
 /**
  * Change a users role
@@ -198,20 +184,20 @@ exports.verify = function (req, res) {
       email: userMail
     }
   })
+    .then(handleUnknownEmail())
     .then(function (user) {
       if (!user) {
-        return res.status(422).end();
+        var error = new Error('email not registered');
+        error.statusCode = 422;
+        throw error;
       }
       user.active = true;
       return user.save()
         .then(function () {
           res.json(user.profile);
-        })
-        .catch(validationError(res));
+        });
     })
-    .catch(function (err) {
-      return validationError(err);
-    });
+    .catch(responseError);
 };
 
 /**
@@ -233,15 +219,11 @@ exports.me = function (req, res, next) {
       'account_code'
     ]
   })
+    .then(handleUserNotFound())
     .then(function (user) { // don't ever give out the password or salt
-      if (!user) {
-        return res.status(401).end();
-      }
       return subscriptionController.me(req, res, next);
     })
-    .catch(function (err) {
-      return next(err);
-    });
+    .catch(responseError(res));
 };
 
 /**

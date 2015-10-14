@@ -18,6 +18,17 @@ var Video = sqldb.Video;
 var Image = sqldb.Image;
 var auth = require('../../auth/auth.service');
 
+var responses = require('./responses.js')
+  , responseError = responses.error
+  , responseWithResult = responses.withResult;
+
+var generic = require('../generic.js')
+  , genericCreate = generic.create
+  , genericIndex = generic.index
+  , genericDestroy = generic.destroy
+  , genericShow = generic.show
+  , genericUpdate = generic.update;
+
 var includedModel = [
   {
     model: Season, as: 'season',
@@ -28,152 +39,67 @@ var includedModel = [
   {model: Image, as: 'thumb'} // load thumb image
 ];
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
+function hookAddSeason(req, res, entity) {
+  var season = Season.build(req.body.season);
+  return entity.setSeason(season);
 }
 
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
+function hookAddVideo(req, res, entity) {
+  var video = Video.build(req.body.video);
+  return entity.setVideo(video);
 }
 
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
-
-function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
-}
-
-function addSeason(updates) {
-  var season = Season.build(updates.season);
-  return function (entity) {
-    return entity.setSeason(season)
-      .then(function () {
-        return entity;
-      });
-  };
-}
-
-function addVideo(updates) {
-  var video = Video.build(updates.video);
-  return function (entity) {
-    return entity.setVideo(video)
-      .then(function () {
-        return entity;
-      });
-  };
-}
-
-function addImages(updates) {
-  return function (entity) {
-    var chainer = sqldb.Sequelize.Promise.join;
-    var poster = Image.build(updates.poster);
-    var thumb = Image.build(updates.thumb);
-    return chainer(
-      entity.setPoster(poster),
-      entity.setThumb(thumb)
-    ).then(function () {
-        return entity;
-      });
-  };
-}
-
-function removeEntity(res) {
-  return function (entity) {
-    if (entity) {
-      return entity.destroy()
-        .then(function () {
-          res.status(204).end();
-        });
-    }
-  };
+function hookAddImages(req, res, entity) {
+  var chainer = sqldb.Sequelize.Promise.join;
+  var poster = Image.build(req.body.poster);
+  var thumb = Image.build(req.body.thumb);
+  return chainer(
+    entity.setPoster(poster),
+    entity.setThumb(thumb)
+  );
 }
 
 // Gets a list of episodes
-exports.index = function (req, res) {
-  var queryName = req.param('query');
-  var paramsObj = {
-    include: [
-      auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-      auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
-    ]
-  };
+exports.index = genericIndex({
+  model: Episode,
+  queryParametersBuilder: function (req, res) {
+    var queryName = req.param('query');
+    var paramsObj = {
+      include: [
+        auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+        auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
+      ]
+    };
 
-  if (queryName) {
-    paramsObj = _.merge(paramsObj, {
-      where: {
-        title: {$iLike: '%' + queryName + '%'}
-      }
-    })
+    if (queryName) {
+      paramsObj = _.merge(paramsObj, {
+        where: {
+          title: {$iLike: '%' + queryName + '%'}
+        }
+      })
+    }
+    return auth.mergeQuery(req, res, paramsObj);
   }
-
-  Episode.findAll(auth.mergeQuery(req, res, paramsObj))
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+});
 
 // Gets a single episode from the DB
-exports.show = function (req, res) {
-  Episode.find(auth.mergeQuery(req, res, {
-    where: {
-      _id: req.params.id
-    },
-    include: includedModel
-  }))
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.show = genericShow({
+  model: Episode,
+  includedModel: includedModel
+});
 
 // Creates a new episode in the DB
-exports.create = function (req, res) {
-  Episode.create(req.body)
-    .then(addSeason(req.body))
-    .then(addVideo(req.body))
-    .then(addImages(req.body))
-    .then(responseWithResult(res, 201))
-    .catch(handleError(res));
-};
+exports.create = genericCreate({
+  model: AccessToken,
+  hooks: [ hookAddSeason, hookAddVideo, hookAddImages ]
+});
 
 // Updates an existing episode in the DB
-exports.update = function (req, res) {
-  if (req.body._id) {
-    delete req.body._id;
-  }
-  Episode.find({
-    where: {
-      _id: req.params.id
-    },
-    include: includedModel
-  })
-    .then(handleEntityNotFound(res))
-    .then(saveUpdates(req.body))
-    .then(addSeason(req.body))
-    .then(addVideo(req.body))
-    .then(addImages(req.body))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.update = genericUpdate({
+  model: Episode,
+  hooks: [ hookAddSeason, hookAddVideo, hookAddImages ]
+});
+
 // Updates an existing episode in the DB
 exports.algolia = function (req, res) {
   Episode.findAll({
@@ -182,20 +108,10 @@ exports.algolia = function (req, res) {
       active: true
     }
   })
-    .then(handleEntityNotFound(res))
     .then(algolia.importAll(res, 'episodes'))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(responseError(res));
 };
 
 // Deletes a episode from the DB
-exports.destroy = function (req, res) {
-  Episode.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(removeEntity(res))
-    .catch(handleError(res));
-};
+exports.destroy = genericDestroy({model: Episode});

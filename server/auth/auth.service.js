@@ -97,8 +97,9 @@ function signToken(id) {
     expiresInMinutes: 60 * 5
   });
 }
+
 /**
- * Returns a jwt token signed by the app secret
+ *
  */
 function mergeQuery(req, res, params) {
   var isAdmin = reqUserIsAdmin(req);
@@ -158,3 +159,4 @@ exports.signToken = signToken;
 exports.setTokenCookie = setTokenCookie;
 exports.mergeQuery = mergeQuery;
 exports.mergeIncludeValid = mergeIncludeValid;
+exports.reqUserIsAdmin = reqUserIsAdmin;

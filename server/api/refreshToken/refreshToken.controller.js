@@ -9,106 +9,27 @@
 
 'use strict';
 
-var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var RefreshToken = sqldb.RefreshToken;
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function(err) {
-    res.status(statusCode).send(err);
-  };
-}
-
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function(entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function(entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
-
-function saveUpdates(updates) {
-  return function(entity) {
-    return entity.updateAttributes(updates)
-      .then(function(updated) {
-        return updated;
-      });
-  };
-}
-
-function removeEntity(res) {
-  return function(entity) {
-    if (entity) {
-      return entity.destroy()
-        .then(function() {
-          res.status(204).end();
-        });
-    }
-  };
-}
+var generic = require('../generic.js')
+  , genericCreate = generic.create
+  , genericIndex = generic.index
+  , genericDestroy = generic.destroy
+  , genericShow = generic.show
+  , genericUpdate = generic.update;
 
 // Gets a list of refreshTokens
-exports.index = function(req, res) {
-  RefreshToken.findAll()
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.index = genericIndex({model: RefreshToken});
 
 // Gets a single refreshToken from the DB
-exports.show = function(req, res) {
-  RefreshToken.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.show = genericShow({model: RefreshToken});
 
 // Creates a new refreshToken in the DB
-exports.create = function(req, res) {
-  RefreshToken.create(req.body)
-    .then(responseWithResult(res, 201))
-    .catch(handleError(res));
-};
+exports.create = genericCreate({model: RefreshToken});
 
 // Updates an existing refreshToken in the DB
-exports.update = function(req, res) {
-  if (req.body._id) {
-    delete req.body._id;
-  }
-  RefreshToken.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(saveUpdates(req.body))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
+exports.update = genericUpdate({model: RefreshToken});
 
 // Deletes a refreshToken from the DB
-exports.destroy = function(req, res) {
-  RefreshToken.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(removeEntity(res))
-    .catch(handleError(res));
-};
+exports.destroy = genericDestroy({model: RefreshToken});
