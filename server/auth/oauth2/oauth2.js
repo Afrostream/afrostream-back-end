@@ -178,7 +178,9 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
       }
       User.find({
         where: {
-          email: username
+          email: {
+            $iLike: username
+          }
         }
       })
         .then(function (user) {
