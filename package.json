@@ -67,8 +67,6 @@
     "morgan": "^1.6.1",
     "node-paginate-anything": "0.0.5",
     "node-uuid": "^1.4.3",
-    "nodemailer": "^1.4.0",
-    "nodemailer-sendgrid-transport": "^0.2.0",
     "oauth2orize": "^1.0.1",
     "oauthorize": "^0.1.0",
     "open": "~0.0.4",
