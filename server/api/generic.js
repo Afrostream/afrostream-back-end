@@ -16,6 +16,7 @@ var handles = require('./handles.js')
   , handleSaveUpdates = handles.saveUpdates;
 var auth = require('../auth/auth.service');
 
+var assert = require('better-assert');
 
 var queryfilterActive = function (params) {
   return _.merge({}, params, { where: { active: true } });
@@ -55,7 +56,10 @@ var create = function (options) {
     model.create(req.body)
       .then(function (entity) {
         if (hooks.length) {
-          return BluebirdPromise.each(hooks.map(function (h) { return h.bind(null, req, res, entity); }))
+          return BluebirdPromise.reduce(
+            hooks,
+            function (p, hook) { return hook(req, res, entity); }
+            , 42)
             .then(function () { return entity; });
         }
         return entity;
@@ -108,7 +112,10 @@ var index = function (options) {
     model.findAll(queryParameters)
       .then(function (entities) {
         if (hooks.length) {
-          return BluebirdPromise.each(hooks.map(function (h) { return h.bind(null, req, res, entities); }))
+          return BluebirdPromise.reduce(
+            hooks,
+            function (p, hook) { return hook(req, res, entities); }
+            , 42)
             .then(function () { return entities; });
         }
         return entities;
@@ -160,6 +167,8 @@ var update = function (options) {
   var includedModel = options.includedModel;
 
   return function (req, res) {
+    assert(hooks.every(function (f) { return typeof f === 'function'; }));
+
     if (req.body._id) {
       delete req.body._id;
     }
@@ -170,10 +179,13 @@ var update = function (options) {
       includedModel: includedModel
     })
       .then(handleEntityNotFound(res))
-      .then(handleSaveUpdates(res, req.body))
+      .then(handleSaveUpdates(req.body))
       .then(function (entity) {
         if (hooks.length) {
-          return BluebirdPromise.each(hooks.map(function (h) { return h.bind(null, req, res, entity); }))
+          return BluebirdPromise.reduce(
+            hooks,
+            function (p, hook) { return hook(req, res, entity); }
+          , 42)
             .then(function () { return entity; });
         }
         return entity;
