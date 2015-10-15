@@ -20,7 +20,8 @@ var express = require('express')
 // our middlewares
 var error = require('./lib/middleware-error/index.js')
   , morgan = require('./lib/middleware-morgan/index.js')
-  , reqId = require('./lib/middleware-req-id');
+  , reqId = require('./lib/middleware-req-id')
+  , reqClusterId = require('./lib/middleware-req-clusterid');
 
 /**
  * setting up express app middlewares
@@ -40,6 +41,7 @@ module.exports = function (app) {
 
   // our middlewares
   app.use(reqId());
+  app.use(reqClusterId());
   app.use(error());
   app.use(morgan());
 
