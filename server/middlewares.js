@@ -19,7 +19,8 @@ var express = require('express')
 
 // our middlewares
 var error = require('./lib/middleware-error/index.js')
-  , morgan = require('./lib/middleware-morgan/index.js');
+  , morgan = require('./lib/middleware-morgan/index.js')
+  , reqId = require('./lib/middleware-req-id');
 
 /**
  * setting up express app middlewares
@@ -38,6 +39,7 @@ module.exports = function (app) {
   app.use(passport.session());
 
   // our middlewares
+  app.use(reqId());
   app.use(error());
   app.use(morgan());
 
