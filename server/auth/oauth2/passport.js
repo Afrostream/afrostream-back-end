@@ -1,4 +1,7 @@
+'use strict';
+
 var passport = require('passport');
+var BluebirdPromise = require('bluebird');
 var LocalStrategy = require('passport-local').Strategy;
 var BasicStrategy = require('passport-http').BasicStrategy;
 var ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy;
@@ -7,31 +10,32 @@ var BearerStrategy = require('passport-http-bearer').Strategy;
 function localAuthenticate(User, email, password, done) {
   User.find({
     where: {
-      email: email.toLowerCase()
+      email: {
+        $iLike: email
+      }
     }
   })
-    .then(function (user) {
-      if (!user) {
-        return done(null, false, {
-          message: 'This email is not registered.'
-        });
-      }
-      user.authenticate(password, function (authError, authenticated) {
-        if (authError) {
-          return done(authError);
-        }
+  .then(function (user) {
+    if (!user) {
+      throw new Error('This email is not registered');
+    }
+    var userAuthenticate = BluebirdPromise.promisify(user.authenticate.bind(user));
+    return userAuthenticate(password)
+      .then(function (authenticated) {
         if (!authenticated) {
-          return done(null, false, {
-            message: 'This password is not correct.'
-          });
-        } else {
-          return done(null, user);
+          throw new Error('incorrect password');
         }
+        return user;
       });
-    })
-    .catch(function (err) {
-      return done(err);
-    });
+  })
+  .then(function (user) {
+    console.log('auth/oauth2/passeport.js#localAuthenticate OK');
+    done(null, user);
+  })
+  .catch(function (err) {
+    console.error('auth/oauth2/passeport.js#localAuthenticate ERROR', err);
+    done(err);
+  });
 }
 
 function clientAuthenticate(Client, clientId, clientSecret, done) {
@@ -40,22 +44,23 @@ function clientAuthenticate(Client, clientId, clientSecret, done) {
       _id: clientId
     }
   })
-    .then(function (client) {
-      if (!client) {
-        return done(null, false, {
-          message: 'This client is not registered.'
-        });
-      }
-      if (client.secret !== clientSecret) {
-        return done(null, false, {
-          message: 'This secret is not correct.'
-        });
-      }
-      return done(null, client);
-    })
-    .catch(function (err) {
-      return done(err);
-    });
+  .then(function (client) {
+    if (!client) {
+      throw new Error('client not registered');
+    }
+    if (client.secret !== clientSecret) {
+      throw new Error('incorrect secret');
+    }
+    return client;
+  })
+  .then(function (client) {
+    console.log('auth/oauth2/passeport.js#clientAuthenticate OK');
+    done(null, client);
+  })
+  .catch(function (err) {
+    console.error('auth/oauth2/passeport.js#localAuthenticate ERROR', err);
+    done(err);
+  });
 }
 
 exports.setup = function (Client, User, AccessToken/*, config*/) {
@@ -65,13 +70,10 @@ exports.setup = function (Client, User, AccessToken/*, config*/) {
 
   passport.deserializeUser(function (id, done) {
     User.find({where: {_id: id}})
-      .then(function (user) {
-        done(null, user);
-      })
-      .catch(function (err) {
-        done(err);
-      });
+      .then(done.bind(null, null))
+      .catch(done);
   });
+
   /**
    * LocalStrategy
    *
@@ -104,7 +106,8 @@ exports.setup = function (Client, User, AccessToken/*, config*/) {
   passport.use('clientPassword', new ClientPasswordStrategy(
     function (clientId, clientSecret, done) {
       return clientAuthenticate(Client, clientId, clientSecret, done);
-    }));
+    }
+  ));
 
   /**
    * BearerStrategy
@@ -116,55 +119,48 @@ exports.setup = function (Client, User, AccessToken/*, config*/) {
    */
   passport.use('bearer', new BearerStrategy(
     function (accessToken, done) {
-
       AccessToken.find({
         where: {
           token: accessToken
         }
       })
-        .then(function (token) {
-          if (!token) return done(null, false);
-          if (new Date() > token.expirationDate) {
-            return token.destroy()
-              .then(function () {
-                done(new Error('token expired'));
-              });
-          }
-          if (token.userId !== null) {
-            User.find({
-              where: {
-                _id: token.userId
-              }
-            })
-              .then(function (entity) {
-                if (!entity) return done(null, false);
-                // no use of scopes for no
-                var info = {scope: '*'};
-                done(null, entity, info);
-              })
-              .catch(function (err) {
-                return done(err);
-              });
-          } else {
-            Client.find({
-              where: {
-                _id: token.clientId
-              }
-            })
-              .then(function (client) {
-                if (!client) return done(null, false);
-                // no use of scopes for no
-                var info = {scope: '*'};
-                done(null, client, info);
-              })
-              .catch(function (err) {
-                return done(err);
-              });
-          }
-        })
-        .catch(function (err) {
-          return done(err);
-        });
+      .then(function (token) {
+        if (!token) {
+          return done(null, false, { message: 'unknown token'});
+        }
+        if (new Date() > token.expirationDate) {
+          return token.destroy()
+            .then(function () {
+              done(null, false, { message: 'token expired'});
+            });
+        }
+        if (token.userId !== null) {
+          return User.find({
+            where: {
+              _id: token.userId
+            }
+          })
+            .then(function (entity) {
+              if (!entity) return done(null, false, { message: 'unknown user'});
+              // no use of scopes for no
+              var info = {scope: '*'};
+              done(null, entity, info);
+            });
+        } else {
+          return Client.find({
+            where: {
+              _id: token.clientId
+            }
+          })
+            .then(function (client) {
+              if (!client) return done(null, false, { message: 'unknown client'});
+              // no use of scopes for no
+              var info = {scope: '*'};
+              done(null, client, info);
+            });
+        }
+      })
+      .catch(done);
     }
   ));
 };
