@@ -18,10 +18,10 @@ var express = require('express')
   , session = require('express-session');
 
 // our middlewares
-var error = require('./lib/middleware-error/index.js')
-  , morgan = require('./lib/middleware-morgan/index.js')
+var morgan = require('./lib/middleware-morgan/index.js')
   , reqId = require('./lib/middleware-req-id')
   , reqClusterId = require('./lib/middleware-req-clusterid')
+  , reqError = require('./lib/middleware-req-error')
   , reqLog = require('./lib/middleware-req-log');
 
 /**
@@ -44,7 +44,7 @@ module.exports = function (app) {
   app.use(reqId());
   app.use(reqClusterId());
   app.use(reqLog());
-  app.use(error());
+  app.use(reqError());
   app.use(morgan());
 
   // favico
