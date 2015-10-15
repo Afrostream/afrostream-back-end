@@ -1,5 +1,7 @@
 'use strict';
 
+process.env.NO_ASSERT = true;
+
 // Production specific configuration
 // =================================
 module.exports = {
