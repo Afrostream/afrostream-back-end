@@ -1,12 +1,11 @@
 'use strict';
 
-module.exports = function (/*options*/) {
-  options = options || {};
-  var log = options.log || console.log.bind(console);
-
+module.exports = function () {
   return function (req, res, next) {
+    var log = req.log || console.log.bind(console);
+
     if (req && req.body) {
-      log(req.url + ' postData =', req.body);
+      log( + ' postData =', req.body);
     }
     next();
   };
