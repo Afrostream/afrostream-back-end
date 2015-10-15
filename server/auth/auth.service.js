@@ -6,7 +6,6 @@ var config = require('../config/environment');
 var jwt = require('jsonwebtoken');
 var expressJwt = require('express-jwt');
 var compose = require('composable-middleware');
-var login = require('connect-ensure-login');
 var User = require('../sqldb').User;
 var paginate = require('node-paginate-anything');
 var validateJwt = expressJwt({
@@ -84,7 +83,7 @@ function hasRole(roleRequired) {
  * @returns {*}
  */
 function reqUserIsAdmin(req) {
-  var roleRequired = 'admin'
+  var roleRequired = 'admin';
 
   return validRole(req, roleRequired);
 }
@@ -110,7 +109,7 @@ function mergeQuery(req, res, params) {
       where: {
         active: true
       }
-    })
+    });
   }
   params = _.merge(params, {
     offset: queryParameters.skip,

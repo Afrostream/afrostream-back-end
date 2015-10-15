@@ -32,8 +32,8 @@ function hookAddMovies(req, res, entity) {
 
 // Gets a list of licensors
 exports.index = genericIndex({
-  model: AccessToken,
-  queryParametersBuilder: function (req, res) {
+  model: Licensor,
+  queryParametersBuilder: function (req) {
     var queryName = req.param('query');
     var paramsObj = {};
 
@@ -42,7 +42,7 @@ exports.index = genericIndex({
         where: {
           name: {$iLike: '%' + queryName + '%'}
         }
-      })
+      });
     }
     return paramsObj;
   }
@@ -50,19 +50,19 @@ exports.index = genericIndex({
 
 // Gets a single licensor from the DB
 exports.show = genericShow({
-  model: AccessToken,
+  model: Licensor,
   includedModel: includedModel
 });
 
 // Creates a new licensor in the DB
 exports.create = genericCreate({
-  model: AccessToken,
+  model: Licensor,
   hooks: [ hookAddMovies ]
 });
 
 // Updates an existing licensor in the DB
 exports.update = genericUpdate({
-  model: AccessToken,
+  model: Licensor,
   hooks: [ hookAddMovies ]
 });
 

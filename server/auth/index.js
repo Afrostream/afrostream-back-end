@@ -1,7 +1,6 @@
 'use strict';
 
 var express = require('express');
-var passport = require('passport');
 var config = require('../config/environment');
 var User = require('../sqldb').User;
 var Client = require('../sqldb').Client;

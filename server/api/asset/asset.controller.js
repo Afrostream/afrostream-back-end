@@ -9,17 +9,11 @@
 
 'use strict';
 
-var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var config = require('../../config/environment');
-var Promise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
-var jwtVerifyAsync = Promise.promisify(jwt.verify, jwt);
+var jwtVerifyAsync = sqldb.Sequelize.Promise.promisify(jwt.verify, jwt);
 var Asset = sqldb.Asset;
-var Episode = sqldb.Episode;
-var fs = require('fs');
-var http = require('http');
-var url = require('url');
 var httpProxy = require('http-proxy');
 var proxy = httpProxy.createProxyServer({
   prependPath: false,
@@ -30,8 +24,11 @@ var proxy = httpProxy.createProxyServer({
 var responses = require('../responses.js')
   , responseError = responses.error;
 var generic = require('../generic.js')
+  , genericCreate = generic.create
+  , genericDestroy = generic.destroy
   , genericIndex = generic.index
-  , genericShowToken = generic.showToken;
+  , genericShow = generic.show
+  , genericUpdate = generic.update;
 
 // Gets a list of assets
 exports.index = genericIndex({model: Asset});
@@ -60,7 +57,23 @@ exports.proxify = function (req, res) {
 };
 
 //get single Asset but validate jwt tokenized
-exports.showToken = genericShowToken({model: Asset});
+exports.showToken = genericShow({
+  model: Asset
+, queryParametersBuilder: function (req) {
+    return {
+      where: {
+        _id: req.params.id
+      }
+    };
+  }
+, response: function (req, res) {
+    return function (entity) {
+      // verify a token symmetric
+      return jwtVerifyAsync(req.params.token, config.secrets.session)
+        .then(function () { res.redirect(entity.src); });
+    };
+  }
+});
 
 // Creates a new asset in the DB
 exports.create = genericCreate({model: Asset});

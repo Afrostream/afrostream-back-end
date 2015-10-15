@@ -14,13 +14,13 @@ var sqldb = require('../../sqldb');
 var Image = sqldb.Image;
 var config = require('../../config/environment');
 var AwsUploader = require('../../components/upload');
+var Knox = require('knox');
 
 var responses = require('../responses.js')
   , responseError = responses.error
   , responseWithResult = responses.withResult;
 
 var generic = require('../generic.js')
-  , genericCreate = generic.create
   , genericIndex = generic.index
   , genericDestroy = generic.destroy
   , genericShow = generic.show
@@ -44,7 +44,7 @@ function handleDestroyEntity() {
 // Gets a list of images
 exports.index = genericIndex({
   model: Image,
-  queryBuilderParameters: function (req, res) {
+  queryBuilderParameters: function (req) {
     var queryName = req.param('query');
     var typeName = req.param('type');
     var paramsObj = {};
@@ -52,16 +52,16 @@ exports.index = genericIndex({
     if (queryName) {
       paramsObj = _.merge(paramsObj, {
         where: {
-          name: {$iLike: '%' + queryName + '%'},
+          name: {$iLike: '%' + queryName + '%'}
         }
-      })
+      });
     }
     if (typeName) {
       paramsObj = _.merge(paramsObj, {
         where: {
           type: typeName
         }
-      })
+      });
     }
     return paramsObj;
   }

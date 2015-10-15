@@ -81,18 +81,18 @@ function responseWithAdSpot(req, res, statusCode) {
         ]
       })).then(function (adSpots) {
         res.status(statusCode).json(adSpots);
-      })
+      });
     }
   };
 }
 
-function hookAddMovies(req, res, updates) {
-  var movies = Movie.build(_.map(updates.movies || [], _.partialRight(_.pick, '_id')));
+function hookAddMovies(req, res, entity) {
+  var movies = Movie.build(_.map(req.body.movies || [], _.partialRight(_.pick, '_id')));
   return entity.setMovies(movies);
 }
 
-function hookAddAdSpots(req, res, updates) {
-  var movies = Movie.build(_.map(updates.adSpots || [], _.partialRight(_.pick, '_id')));
+function hookAddAdSpots(req, res, entity) {
+  var movies = Movie.build(_.map(req.body.adSpots || [], _.partialRight(_.pick, '_id')));
   return entity.setAdSpots(movies);
 }
 
@@ -110,7 +110,7 @@ exports.index = genericIndex({
         where: {
           label: {$iLike: '%' + queryName + '%'}
         }
-      })
+      });
     }
     return auth.mergeQuery(req, res, paramsObj);
   }
@@ -188,7 +188,7 @@ exports.mea = genericIndex({
 
 // Creates a new category in the DB
 exports.create = genericCreate({
-  model: AccessToken,
+  model: Category,
   hooks: [ hookAddMovies, hookAddAdSpots ]
 });
 

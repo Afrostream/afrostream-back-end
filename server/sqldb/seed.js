@@ -3,6 +3,8 @@
  * to disable, edit config/environment/index.js, and set `seedDB: false`
  */
 
+/*jshint newcap: false*/
+
 'use strict';
 
 // security
@@ -37,7 +39,7 @@ var Video = sqldb.Video;
 var Image = sqldb.Image;
 var Actor = sqldb.Actor;
 
-var Promise = require('bluebird');
+var BluebirdPromise = require('bluebird');
 var promises = [];
 
 var nbGeneratedMovies = 50;
@@ -64,7 +66,7 @@ promises.push(
         firstName: 'Halle',
         lastName: 'Berry',
         imdbId: 'nm0000932'
-      }])
+      }]);
     })
 );
 
@@ -147,7 +149,7 @@ promises.push(
   Image.sync()
     .then(
     function () {
-      return Image.destroy({where: {}})
+      return Image.destroy({where: {}});
     })
     .then(function () {
       var images = [
@@ -328,16 +330,16 @@ promises.push(
   })
 );
 
-Promise.all(promises).then(function () {
+BluebirdPromise.all(promises).then(function () {
   console.log('All rows created. Creating links.');
   // linking movie <-> video
-  Promise.all([
-    Promise.all(
+  BluebirdPromise.all([
+    BluebirdPromise.all(
       Array.apply(null, Array(nbGeneratedMovies)).map(function (o, i) {
         return Video.findOne({ where: { name: getVideoName(i) }});
       })
     ),
-    Promise.all(
+    BluebirdPromise.all(
       Array.apply(null, Array(nbGeneratedMovies)).map(function (o, i) {
         return Movie.findOne({ where: { title: getMovieTitle(i) }});
       })
@@ -346,13 +348,13 @@ Promise.all(promises).then(function () {
       var videos = data[0]
         , movies = data[1];
 
-    return Promise.all(movies.map(function (movie, i) {
+    return BluebirdPromise.all(movies.map(function (movie, i) {
       movie.videoId = videos[i]._id;
-      return movie.save()
+      return movie.save();
     }));
   });
   // linking random movie 0 <-> images
-  Promise.all([
+  BluebirdPromise.all([
     Movie.findOne({where: { title: getMovieTitle(0)}}),
     Image.findOne({where: { type: 'poster'}}),
     Image.findOne({where: { type: 'logo'}}),
@@ -364,7 +366,7 @@ Promise.all(promises).then(function () {
     return movie.save();
   });
   // linking movie <-> season
-  Promise.all([
+  BluebirdPromise.all([
     Movie.findOne({ where: { title: 'In the mood for love' }}),
     Season.findOne({ where: { title: 'In the mood for love Season 1' }})
   ]).spread(function (movie, season) {
@@ -372,9 +374,9 @@ Promise.all(promises).then(function () {
     return season.save();
   });
   // linking season <-> episodes
-  Promise.all([
+  BluebirdPromise.all([
     Season.findOne({ where: { title: 'In the mood for love Season 1' } }),
-    Promise.all([
+    BluebirdPromise.all([
       Episode.findOne({ where: { title: 'In the mood for love Episode 1'} }),
       Episode.findOne({ where: { title: 'In the mood for love Episode 2'} }),
       Episode.findOne({ where: { title: 'In the mood for love Episode 3'} }),
@@ -386,16 +388,16 @@ Promise.all(promises).then(function () {
     var season = data[0]
       , episodes = data[1];
 
-    return Promise.all(
+    return BluebirdPromise.all(
       episodes.map(function (episode) {
-        console.log('assigning season._id' + season._id + ' to episode ' + episode.title)
+        console.log('assigning season._id' + season._id + ' to episode ' + episode.title);
         episode.seasonId = season._id;
         return episode.save();
       })
     );
   });
   // linking Movies <-> Actors
-  Promise.all([
+  BluebirdPromise.all([
     Movie.findOne({where : { title: getMovieTitle(0) }}),
     Actor.findAll({ where: {} })
   ]).then(function (data) {
@@ -404,6 +406,6 @@ Promise.all(promises).then(function () {
 
     return movie.addActors(actors).then(function () {
       return movie.save();
-    })
+    });
   });
 });

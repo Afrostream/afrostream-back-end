@@ -1,7 +1,5 @@
 'use strict';
 
-var config = require('../config/environment');
-
 function error(res) {
   return function (err) {
     err = err instanceof Error ? err : new Error(String(err));
@@ -27,17 +25,7 @@ function entityDestroyed(res, statusCode) {
   };
 }
 
-function withTokenResult(req, res) {
-  return function (entity) {
-    // verify a token symmetric
-    return jwtVerifyAsync(req.params.token, config.secrets.session).then(function () {
-      res.redirect(entity.src);
-    })
-  };
-}
-
 exports.entityDestroyed = entityDestroyed;
 exports.empty = empty;
 exports.error = error;
 exports.withResult = withResult;
-exports.withTokenResult = withTokenResult;

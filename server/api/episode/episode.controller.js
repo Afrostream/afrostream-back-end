@@ -18,7 +18,7 @@ var Video = sqldb.Video;
 var Image = sqldb.Image;
 var auth = require('../../auth/auth.service');
 
-var responses = require('./responses.js')
+var responses = require('../responses.js')
   , responseError = responses.error
   , responseWithResult = responses.withResult;
 
@@ -76,7 +76,7 @@ exports.index = genericIndex({
         where: {
           title: {$iLike: '%' + queryName + '%'}
         }
-      })
+      });
     }
     return auth.mergeQuery(req, res, paramsObj);
   }
@@ -90,7 +90,7 @@ exports.show = genericShow({
 
 // Creates a new episode in the DB
 exports.create = genericCreate({
-  model: AccessToken,
+  model: Episode,
   hooks: [ hookAddSeason, hookAddVideo, hookAddImages ]
 });
 

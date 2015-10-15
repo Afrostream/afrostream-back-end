@@ -681,6 +681,7 @@ module.exports = function (grunt) {
       return grunt.task.run([
         'env:all',
         'env:test',
+        'jshint:server',
         'mochaTest:unit',
         'mochaTest:integration'
       ]);

@@ -9,9 +9,8 @@ var request = require('request-promise');
 var config = require('../../config/environment');
 var videoController = require('../video/video.controller');
 var _ = require('lodash');
-var Promise = require('bluebird');
 
-var responses = require('./responses.js')
+var responses = require('../responses.js')
   , responseError = responses.error
   , responseWithResult = responses.withResult;
 
@@ -52,10 +51,12 @@ function extractType(value) {
 }
 
 function importAll() {
+  var Promise = require('bluebird');
+
   return function (data) {
 // assuming openFiles is an array of file names
     return Promise.map(JSON.parse(data), function (digibosItem) {
-      if (!digibosItem.state || digibosItem.state != 'ready') {
+      if (!digibosItem.state || digibosItem.state !== 'ready') {
         console.log('error not ready', digibosItem.id);
         return;
       }
@@ -82,15 +83,14 @@ function importAll() {
           }
         })
         .catch(function (err) {
-          console.log('error', err)
+          console.log('error', err);
         });
     }).then(function (importeds) {
       return importeds;
     }).catch(SyntaxError, function (e) {
       console.log("Invalid JSON in file " + e.fileName + ": " + e.message);
     });
-
-  }
+  };
 }
 
 // Gets a list of accessTokens

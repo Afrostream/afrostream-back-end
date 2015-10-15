@@ -2,14 +2,13 @@
 
 var _ = require('lodash');
 
-var Promise = require('../sqldb').Sequelize.Promise; // bluebird.
+var BluebirdPromise = require('../sqldb').Sequelize.Promise; // bluebird.
 
 var paginate = require('node-paginate-anything');
 
 var responses = require('./responses.js')
   , responseError = responses.error
   , responseWithResult = responses.withResult
-  , responseWithTokenResult = responses.withTokenResult
   , responseEntityDestroyed = responses.entityDestroyed;
 var handles = require('./handles.js')
   , handleDestroyEntity = handles.destroyEntity
@@ -56,7 +55,7 @@ var create = function (options) {
     model.create(req.body)
       .then(function (entity) {
         if (hooks.length) {
-          return Promise.each(hooks.map(function (h) { return h.bind(null, req, res, entity); }))
+          return BluebirdPromise.each(hooks.map(function (h) { return h.bind(null, req, res, entity); }))
             .then(function () { return entity; });
         }
         return entity;
@@ -109,7 +108,7 @@ var index = function (options) {
     model.findAll(queryParameters)
       .then(function (entities) {
         if (hooks.length) {
-          return Promise.each(hooks.map(function (h) { return h.bind(null, req, res, entities); }))
+          return BluebirdPromise.each(hooks.map(function (h) { return h.bind(null, req, res, entities); }))
             .then(function () { return entities; });
         }
         return entities;
@@ -139,7 +138,7 @@ var show = function (options) {
         }
       };
       if (includedModel) {
-        queryParameters[include] = includedModel;
+        queryParameters.include = includedModel;
       }
       // default security...
       if (!auth.reqUserIsAdmin(req)) {
@@ -150,20 +149,6 @@ var show = function (options) {
     model.find()
       .then(handleEntityNotFound(res))
       .then(response(res))
-      .catch(responseError(res));
-  };
-};
-
-// exports.showToken = genericShowToken({model: FIXME});
-var showToken = function (options) {
-  return function (req, res) {
-    Asset.find({
-      where: {
-        _id: req.params.id
-      }
-    })
-      .then(handleEntityNotFound(res))
-      .then(responseWithTokenResult(req, res))
       .catch(responseError(res));
   };
 };
@@ -188,14 +173,14 @@ var update = function (options) {
       .then(handleSaveUpdates(res, req.body))
       .then(function (entity) {
         if (hooks.length) {
-          return Promise.each(hooks.map(function (h) { return h.bind(null, req, res, entity); }))
+          return BluebirdPromise.each(hooks.map(function (h) { return h.bind(null, req, res, entity); }))
             .then(function () { return entity; });
         }
         return entity;
       })
       .then(responseWithResult(res))
       .catch(responseError(res));
-  }
+  };
 };
 
 var generateDefaultApi = function (options) {
@@ -205,14 +190,13 @@ var generateDefaultApi = function (options) {
     index: index(options),
     show: show(options),
     update: update(options)
-  }
+  };
 };
 
 module.exports.create = create;
 module.exports.destroy = destroy;
 module.exports.index = index;
 module.exports.show = show;
-module.exports.showToken = showToken;
 module.exports.update = update;
 
 module.exports.generateDefaultApi = generateDefaultApi;

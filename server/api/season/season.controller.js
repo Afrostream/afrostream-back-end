@@ -16,14 +16,14 @@ var Season = sqldb.Season;
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Image = sqldb.Image;
-var Promise = sqldb.Sequelize.Promise;
+var BluebirdPromise = sqldb.Sequelize.Promise;
 var slugify = require('slugify');
 var auth = require('../../auth/auth.service');
 
-var responses = require('./responses.js')
+var responses = require('../responses.js')
   , responseError = responses.error
   , responseWithResult = responses.withResult;
-var handles = require('./handles.js')
+var handles = require('../handles.js')
   , handleEntityNotFound = handles.entityNotFound;
 
 var generic = require('../generic.js')
@@ -47,6 +47,21 @@ var includedModel = [
   {model: Image, as: 'thumb'} // load thumb image
 ];
 
+function addImages(entity, updates) {
+  var chainer = sqldb.Sequelize.Promise.join;
+  var poster = Image.build(updates.poster);
+  var thumb = Image.build(updates.thumb);
+
+  return chainer(
+    entity.setPoster(poster),
+    entity.setThumb(thumb)
+  );
+}
+
+function hookAddImages(req, res, entity) {
+  return addImages(entity, req.body);
+}
+
 function hookAddMovie(req, res, entity) {
   var movie = Movie.build(req.body.movie);
   if (movie) {
@@ -61,12 +76,14 @@ function hookAddEpisodes(req, res, entity) {
       return _.cloneDeep(copy);
     });
     var itemId = 1;
-    return Promise.map(datas, function (item) {
+    return BluebirdPromise.map(datas, function (item) {
       item.title = item.title + ' episode ' + itemId;
       item.slug = slugify(item.title);
       item.episodeNumber = itemId;
       itemId++;
-      return Episode.create(item).then(addImages(copy));
+      return Episode.create(item).then(function (entity) {
+        return addImages(entity, copy);
+      });
     }).then(function (inserts) {
       if (!inserts || !inserts.length) {
         return entity;
@@ -80,23 +97,9 @@ function hookAddEpisodes(req, res, entity) {
     var episodes = Episode.build(_.map(req.body.episodes || [], _.partialRight(_.pick, '_id')));
 
     if (episodes && episodes.length) {
-      return entity.setEpisodes(episodes)
+      return entity.setEpisodes(episodes);
     }
   }
-}
-
-function hookAddImages(req, res, entity) {
-  return function (entity) {
-    var chainer = sqldb.Sequelize.Promise.join;
-    var poster = Image.build(updates.poster);
-    var thumb = Image.build(updates.thumb);
-    return chainer(
-      entity.setPoster(poster),
-      entity.setThumb(thumb)
-    ).then(function () {
-        return entity;
-      });
-  };
 }
 
 // Gets a list of seasons
@@ -116,7 +119,7 @@ exports.index = genericIndex({
         where: {
           title: {$iLike: '%' + queryName + '%'}
         }
-      })
+      });
     }
     return auth.mergeQuery(req, res, paramsObj);
   }

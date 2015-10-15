@@ -1,15 +1,16 @@
 {
+  "browser": false,
   "expr": true,
   "node": true,
-  "esnext": true,
-  "bitwise": true,
+  "bitwise": false,
   "eqeqeq": true,
   "immed": true,
-  "latedef": "nofunc",
+  "latedef": true,
   "newcap": true,
   "noarg": true,
+  "node": true,
   "undef": true,
+  "unused": true,
   "smarttabs": true,
-  "asi": true,
-  "debug": true
+  "laxcomma": true
 }

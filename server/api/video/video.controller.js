@@ -20,15 +20,19 @@ var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Caption = sqldb.Caption;
 var Language = sqldb.Language;
-var Promise = sqldb.Sequelize.Promise;
+var BluebirdPromise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
 var auth = require('../../auth/auth.service');
 
-var responses = require('./responses.js')
+var responses = require('../responses.js')
   , responseError = responses.error
   , responseWithResult = responses.withResult;
-var handles = require('./handles.js')
+var handles = require('../handles.js')
   , handleEntityNotFound = handles.entityNotFound;
+var generic = require('../generic.js')
+  , genericCreate = generic.create
+  , genericDestroy = generic.destroy
+  , genericUpdate = generic.update;
 
 var includedModel = [
   {model: Movie, as: 'movie'}, // load all sources assets
@@ -47,16 +51,13 @@ function tokenizeResult(req, res) {
       var token = jwt.sign({_id: entity._id}, config.secrets.session, {
         expiresInSeconds: config.secrets.videoExpire
       });
-      var requestHost = req.get('Referrer') || req.headers.referrer || req.headers.referer || req.get('host');
       entity.sources = _.forEach(entity.sources, function (asset) {
         _.assign(asset, {
-          //src: '//' + path.join(requestHost, 'api', 'assets', asset._id, token, url.parse(asset.src).pathname)
           src: path.join('/assets', asset._id, token, url.parse(asset.src).pathname)
         });
       });
       entity.sources = _.forEach(entity.captions, function (caption) {
         _.assign(caption, {
-          //src: '//' + path.join(requestHost, 'api', 'assets', asset._id, token, url.parse(asset.src).pathname)
           src: path.join('/captions', caption._id, token, url.parse(caption.src).pathname)
         });
       });
@@ -66,34 +67,35 @@ function tokenizeResult(req, res) {
 }
 
 function hookAddAssets(req, res, entity) {
-  return Promise.map(req.body.sources || [], function (item) {
-    return Asset.findOrCreate({where: {_id: item._id}, defaults: item});
-  }).then(function (elem) {
-    var elem = elem[0];
-    if (!elem.isNewRecord) {
-      return elem.updateAttributes(item);
-    }
-    return elem;
-  }).then(function (inserts) {
-    if (inserts && inserts.length) {
-      entity.setSources(inserts);
-    }
+  return BluebirdPromise.map(req.body.sources || [], function (item) {
+    return Asset.findOrCreate({where: {_id: item._id}, defaults: item})
+      .then(function (elem) {
+      elem = elem[0];
+      if (!elem.isNewRecord) {
+        return elem.updateAttributes(item);
+      }
+      return elem;
+    }).then(function (inserts) {
+      if (inserts && inserts.length) {
+        entity.setSources(inserts);
+      }
+    });
   });
 }
 
 function hookAddCaptions(req, res, entity) {
-  return Promise.map(req.body.captions || [], function (item) {
-    return Caption.findOrCreate({where: {_id: item._id}});
-  }).then(function (elem) {
-    var elem = elem[0];
-    if (!elem.isNewRecord) {
-      return elem.updateAttributes(item);
-    }
-    return elem;
-  }).then(function (inserts) {
-    if (inserts && inserts.length) {
-      entity.setCaptions(inserts);
-    }
+  return BluebirdPromise.map(req.body.captions || [], function (item) {
+    return Caption.findOrCreate({where: {_id: item._id}}).then(function (elem) {
+      elem = elem[0];
+      if (!elem.isNewRecord) {
+        return elem.updateAttributes(item);
+      }
+      return elem;
+    }).then(function (inserts) {
+      if (inserts && inserts.length) {
+        entity.setCaptions(inserts);
+      }
+    });
   });
 }
 
@@ -127,7 +129,7 @@ exports.show = function (req, res) {
     }
   });
 
-  if (config.digibos.useToken == 'true' && !auth.validRole(req, 'admin')) {
+  if (config.digibos.useToken === 'true' && !auth.validRole(req, 'admin')) {
     Video.find(paramsObj)
       .then(handleEntityNotFound(res))
       .then(tokenizeResult(req, res))

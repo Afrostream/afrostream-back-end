@@ -57,7 +57,7 @@ var generateTokenData = function (client, user, code) {
     userId: userId,
     expirationDate: expirationDate, // date
     expirationTimespan: expiresIn   // int (seconds)
-  }
+  };
 };
 
 var generateToken = function (client, user, code, done) {
@@ -85,18 +85,16 @@ var generateToken = function (client, user, code, done) {
       .then(function (refreshTokenEntity) {
         return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
       }).catch(function (err) {
-        console.log('RefreshToken', err);
-        return done(err)
+        console.log('AccessToken refreshtoken error', err);
+        return done(err);
       });
-
   }).catch(function (err) {
-    console.log('AccessToken', err);
-    return done(err)
+    console.error('AccessToken error: ', err);
+    return done(err);
   });
 };
 
 var refreshToken = function (client, done) {
-
   var tokenData = generateTokenData(client, null, null);
   AccessToken.find({
     where: {
@@ -109,24 +107,17 @@ var refreshToken = function (client, done) {
         expirationDate: tokenData.expirationDate,
         expirationTimespan: tokenData.expirationTimespan
       })
-        .then(function (updated) {
-          return done(null, updated.token, updated.token, {expires_in: updated.expirationTimespan});
-        }).catch(function (err) {
-          return done(err)
-        });
-
-    }).catch(function (err) {
-      return done(err)
-    });
+      .then(function (updated) {
+        return done(null, updated.token, updated.token, {expires_in: updated.expirationTimespan});
+      });
+    }).catch(done);
 };
 
 server.grant(oauth2orize.grant.code(function (client, redirectURI, user, ares, done) {
   AuthCode.create({clientId: client._id, redirectURI: redirectURI, userId: user._id})
     .then(function (entity) {
       done(null, entity.code);
-    }).catch(function (err) {
-      return done(err);
-    });
+    }).catch(done);
 }));
 
 server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
@@ -176,7 +167,7 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
       if (entity.secret !== client.secret) {
         return done(null, false);
       }
-      User.find({
+      return User.find({
         where: {
           email: {
             $iLike: username
@@ -195,19 +186,12 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
               return done(null, false, {
                 message: 'This password is not correct.'
               });
-            } else {
-              return generateToken(entity, user, null, done);
             }
+            return generateToken(entity, user, null, done);
           });
-
-        })
-        .catch(function (err) {
-          return done(err);
         });
     })
-    .catch(function (err) {
-      return done(err);
-    });
+    .catch(done);
 }));
 
 server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, done) {
@@ -225,9 +209,7 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
       }
       return generateToken(entity, null, null, done);
     })
-    .catch(function (err) {
-      return done(err);
-    });
+    .catch(done);
 }));
 
 server.exchange(oauth2orize.exchange.refreshToken(function (client, token, scope, done) {
@@ -238,17 +220,13 @@ server.exchange(oauth2orize.exchange.refreshToken(function (client, token, scope
   })
     .then(function (tokenRefresh) {
       if (!tokenRefresh) {
-        done(err);
+        return done(new Error('tokenRefresh not found'));
       }
-      if (!tokenRefresh.clientId !== client._id) {
-        done(null, false);
+      if (tokenRefresh.clientId !== client._id) {
+        return done(new Error('clientId mismatch'));
       }
       return refreshToken(client, done);
-
-    }).catch(function (err) {
-      done(err);
-    });
-
+    }).catch(done);
 }));
 
 exports.authorization = [
@@ -298,6 +276,6 @@ exports.login = [
         return res.json({token: token, info: info});
       });
 
-    })(req, res, next)
+    })(req, res, next);
   }
 ];

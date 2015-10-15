@@ -1,3 +1,18 @@
+'use strict';
+
+/**
+ * Return a random int, used by `utils.uid()`
+ *
+ * @param {Number} min
+ * @param {Number} max
+ * @return {Number}
+ * @api private
+ */
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 /**
  * Return a unique identifier with the given `len`.
  *
@@ -19,16 +34,3 @@ exports.uid = function(len) {
 
   return buf.join('');
 };
-
-/**
- * Return a random int, used by `utils.uid()`
- *
- * @param {Number} min
- * @param {Number} max
- * @return {Number}
- * @api private
- */
-
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}

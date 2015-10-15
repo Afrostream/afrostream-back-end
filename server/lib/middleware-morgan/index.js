@@ -10,9 +10,7 @@ morgan.token('fwd-ip', function fwdIp(req) {
   return req.headers['x-from-afrostream-api-v1'] ? req.headers['x-forwarded-for'] : 'N/A';
 });
 morgan.format('afro', function afroLog(tokens, req, res) {
-  var status = res._header
-    ? res.statusCode
-    : undefined;
+  var status = res._header ? res.statusCode : undefined;
 
   // get status color
   var color = status >= 500 ? 31 // red
@@ -31,7 +29,7 @@ morgan.format('afro', function afroLog(tokens, req, res) {
       ' :res[content-length] ":referrer" ":user-agent" | fwd-ip=:fwd-ip \x1b[0m');
   }
 
-  return fn(tokens, req, res)
+  return fn(tokens, req, res);
 });
 
 /**

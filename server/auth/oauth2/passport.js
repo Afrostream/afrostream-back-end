@@ -58,7 +58,7 @@ function clientAuthenticate(Client, clientId, clientSecret, done) {
     });
 }
 
-exports.setup = function (Client, User, AccessToken, config) {
+exports.setup = function (Client, User, AccessToken/*, config*/) {
   passport.serializeUser(function (user, done) {
     done(null, user._id);
   });
@@ -127,7 +127,7 @@ exports.setup = function (Client, User, AccessToken, config) {
           if (new Date() > token.expirationDate) {
             return token.destroy()
               .then(function () {
-                done(err)
+                done(new Error('token expired'));
               });
           }
           if (token.userId !== null) {
@@ -166,5 +166,5 @@ exports.setup = function (Client, User, AccessToken, config) {
           return done(err);
         });
     }
-  ))
+  ));
 };

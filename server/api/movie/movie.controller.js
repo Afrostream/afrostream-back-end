@@ -28,6 +28,13 @@ var responses = require('../responses.js')
 var handles = require('../handles.js')
   , handleEntityNotFound = handles.entityNotFound;
 
+var generic = require('../generic.js')
+  , genericCreate = generic.create
+  , genericIndex = generic.index
+  , genericDestroy = generic.destroy
+  , genericShow = generic.show
+  , genericUpdate = generic.update;
+
 var includedModel = [
   {model: Video, as: 'video'}, // load all episodes
   {model: Category, as: 'categorys'}, // load all episodes
@@ -45,7 +52,7 @@ function responseWithSeasons(req, res, statusCode) {
     if (entity) {
       return entity.getSeasons(auth.mergeIncludeValid(req, {order: [['sort', 'ASC']]})).then(function (seasons) {
         res.status(statusCode).json(seasons);
-      })
+      });
     }
   };
 }
@@ -116,7 +123,7 @@ exports.index = genericIndex({
         where: {
           title: {$iLike: '%' + queryName + '%'}
         }
-      })
+      });
     }
     return auth.mergeQuery(req, res, paramsObj);
   }

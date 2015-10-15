@@ -2,7 +2,7 @@
 var crypto = require('crypto');
 var moment = require('moment');
 var path = require('path');
-var Promise = require('bluebird');
+var BluebirdPromise = require('bluebird');
 var config = require('../../config/environment');
 var Knox = require('knox');
 
@@ -17,9 +17,9 @@ exports = module.exports = {
       bucket: bucket || config.amazon.s3Bucket,
       region: config.amazon.region
     });
-    var asyncUpload = Promise.promisify(Knox.aws.putBuffer, Knox.aws);
+    var asyncUpload = BluebirdPromise.promisify(Knox.aws.putBuffer, Knox.aws);
 
-    return new Promise(function (resolve, reject) {
+    return new BluebirdPromise(function (resolve, reject) {
       var itemData = {imgType: dataType};
       req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
         if (!filename) {
@@ -86,10 +86,3 @@ exports = module.exports = {
     });
   }
 };
-
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}

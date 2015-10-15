@@ -16,13 +16,12 @@ var config = require('../../config/environment');
 var sqldb = require('../../sqldb');
 var mailer = require('../../components/mailer');
 var User = sqldb.User;
-var Promise = sqldb.Sequelize.Promise;
+var BluebirdPromise = sqldb.Sequelize.Promise;
 recurly.setAPIKey(config.recurly.apiKey);
 
-var responses = require('./responses.js')
-  , responseError = responses.error
-  , responseWithResult = responses.withResult;
-var handles = require('./handles.js')
+var responses = require('../responses.js')
+  , responseError = responses.error;
+var handles = require('../handles.js')
   , handleEntityNotFound = handles.entityNotFound
   , handleUserNotFound = handles.userNotFound;
 
@@ -35,7 +34,7 @@ exports.index = function (req, res) {
 };
 
 // Gets a single subscription from the DB
-exports.show = function (req, res, next) {
+exports.show = function (req, res) {
   var userId = req.params.id;
 
   User.find({
@@ -50,7 +49,7 @@ exports.show = function (req, res, next) {
       }
       var account = new recurly.Account();
       account.id = user.account_code;
-      var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
+      var fetchAsync = BluebirdPromise.promisify(account.fetchSubscriptions, account);
       return fetchAsync();
     })
     .then(function (subscriptions) {
@@ -60,7 +59,7 @@ exports.show = function (req, res, next) {
 
 };
 // Gets a single subscription from the DB
-exports.me = function (req, res, next) {
+exports.me = function (req, res) {
   var userId = req.user._id;
   User.find({
     where: {
@@ -83,7 +82,7 @@ exports.me = function (req, res, next) {
       }
       var account = new recurly.Account();
       account.id = user.account_code;
-      var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
+      var fetchAsync = BluebirdPromise.promisify(account.fetchSubscriptions, account);
       return fetchAsync().then(function (subscriptions) {
         _.forEach(subscriptions, function (subscription) {
           // @see https://dev.recurly.com/docs/list-subscriptions
@@ -103,7 +102,7 @@ exports.me = function (req, res, next) {
 };
 
 // Gets a single subscription from the DB
-exports.all = function (req, res, next) {
+exports.all = function (req, res) {
   var userId = req.user._id;
   User.find({
     where: {
@@ -126,7 +125,7 @@ exports.all = function (req, res, next) {
       }
       var account = new recurly.Account();
       account.id = user.account_code;
-      var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
+      var fetchAsync = BluebirdPromise.promisify(account.fetchSubscriptions, account);
       return fetchAsync().then(function (subscriptions) {
         return subscriptions;
       }).catch(function () {
@@ -137,7 +136,7 @@ exports.all = function (req, res, next) {
     .catch(responseError(res));
 };
 
-exports.billing = function (req, res, next) {
+exports.billing = function (req, res) {
   var userId = req.user._id;
   User.find({
     where: {
@@ -151,7 +150,7 @@ exports.billing = function (req, res, next) {
       }
       var account = new recurly.Account();
       account.id = user.account_code;
-      var fetchAsync = Promise.promisify(account.fetchBillingInfo, account);
+      var fetchAsync = BluebirdPromise.promisify(account.fetchBillingInfo, account);
       return fetchAsync();
     })
     .then(function (billingInfo) {
@@ -172,7 +171,7 @@ exports.billing = function (req, res, next) {
     .catch(responseError(res));
 };
 
-exports.invoice = function (req, res, next) {
+exports.invoice = function (req, res) {
   var userId = req.user._id;
   User.find({
     where: {
@@ -186,7 +185,7 @@ exports.invoice = function (req, res, next) {
       }
       var account = new recurly.Account();
       account.id = user.account_code;
-      var fetchAsync = Promise.promisify(account.getInvoices, account);
+      var fetchAsync = BluebirdPromise.promisify(account.getInvoices, account);
       return fetchAsync();
     })
     .then(function (invoicesInfo) {
@@ -211,7 +210,7 @@ exports.invoice = function (req, res, next) {
     .catch(responseError(res));
 };
 
-exports.cancel= function (req, res, next) {
+exports.cancel= function (req, res) {
   var userId = req.user._id;
   User.find({
     where: {
@@ -225,7 +224,7 @@ exports.cancel= function (req, res, next) {
       }
       var account = new recurly.Account();
       account.id = user.account_code;
-      var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
+      var fetchAsync = BluebirdPromise.promisify(account.fetchSubscriptions, account);
       return fetchAsync();
     })
     .then(function (subscriptions) {
@@ -235,10 +234,10 @@ exports.cancel= function (req, res, next) {
         return 'pending,active'.indexOf(subscription.properties.state) !== -1;
       });
       var promises = _.map(actives, function (subscription) {
-        var cancel = Promise.promisify(subscription.cancel, subscription);
+        var cancel = BluebirdPromise.promisify(subscription.cancel, subscription);
         return cancel();
       });
-      return Promise.all(promises);
+      return BluebirdPromise.all(promises);
     })
     .then(function (canceled) {
       res.json({canceled:((canceled && canceled.length)?true:false)});
@@ -248,7 +247,7 @@ exports.cancel= function (req, res, next) {
 
 /**
  * @param user
- * @return Promise({
+ * @return BluebirdPromise({
  *   _id: '...'
  *   name: '...'
  *   role: '...'
@@ -263,7 +262,7 @@ exports.cancel= function (req, res, next) {
  * })
  */
 function userInfos(user) {
-  return Promise.resolve({
+  return BluebirdPromise.resolve({
     name: user.name,
     role: user.role,
     _id: user._id,
@@ -286,9 +285,9 @@ function userInfos(user) {
     var account = new recurly.Account();
     account.id = user.account_code;
 
-    return Promise.promisify(account.fetchSubscriptions, account)()
+    return BluebirdPromise.promisify(account.fetchSubscriptions, account)()
       .then(function (subscriptions) {
-        _.forEach(subscriptions, function (subscription, i) {
+        _.forEach(subscriptions, function (subscription) {
           infos.subscriptions.push({
             state: subscription.properties.state,
             activatedAt: subscription.properties.activated_at,
@@ -345,7 +344,7 @@ exports.status = function (req, res) {
 // Creates a new subscription in the DB
 exports.create = function (req, res) {
   var userId = req.user._id;
-  var user, subscription;
+  var user, subscription, profile;
 
   User.find({
     where: {
@@ -353,70 +352,69 @@ exports.create = function (req, res) {
     }
   })
     .then(handleUserNotFound())
-    .then(function (data) { // don't ever give out the password or salt
-      user = data;
-      var profile = user.profile;
-      var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
+    .then(function (u) { // don't ever give out the password or salt
+      user = u;
+      profile = user.profile;
+      var createAsync = BluebirdPromise.promisify(recurly.Subscription.create, recurly.Subscription);
       var data = {
         plan_code: req.body['plan-code'],
-        coupon_code: req.body['coupon_code'],
+        coupon_code: req.body.coupon_code,
         unit_amount_in_cents: req.body['unit-amount-in-cents'],
         currency: 'EUR',
         account: {
           account_code: user.account_code || uuid.v1(),
           email: user.email,
-          first_name: req.body['first_name'],
-          last_name: req.body['last_name'],
+          first_name: req.body.first_name,
+          last_name: req.body.last_name,
           billing_info: {
             token_id: req.body['recurly-token']
           }
         }
       };
       console.log('subscription create', data.account);
-      return createAsync(data)
+      return createAsync(data);
     })
     .then(function (data) {
       subscription = data;
       console.log('subscription', subscription);
       user.account_code = subscription.account.account_code;
-      return user.save();
-    })
-    .then(function () {
-      var planName = subscription.properties.plan.name;
-      var planCode = subscription.properties.plan.plan_code;
+      return user.save().then(function () {
+        var planName = subscription.properties.plan.name;
+        var planCode = subscription.properties.plan.plan_code;
 
-      profile.planCode = planCode;
-      if (!subscription._resources) {
-        return res.json(profile);
-      }
-      var invoiceId = subscription._resources.invoice.split('/invoices')[1];
-      if (!invoiceId) {
-        return res.json(profile);
-      }
-      var account = new recurly.Account();
-      account.id = data.account.account_code;
-      var fetchAsync = Promise.promisify(account.getInvoices, account);
-      return fetchAsync().then(function (invoicesInfo) {
-        if (!invoicesInfo) {
+        profile.planCode = planCode;
+        if (!subscription._resources) {
           return res.json(profile);
         }
-        console.log('invoiceId', invoiceId);
-        console.log('invoices', invoicesInfo);
-        var invoiceFounded = _.find(invoicesInfo, function (inv) {
-          return inv['invoice_number'] == invoiceId;
-        });
-        console.log('invoiceFounded', invoicesInfo);
-        if (!invoiceFounded) {
+        var invoiceId = subscription._resources.invoice.split('/invoices')[1];
+        if (!invoiceId) {
           return res.json(profile);
         }
-
-        return mailer.sendStandardEmail(res, data.account, planName, planCode, invoiceFounded)
-          .then(function () {
+        var account = new recurly.Account();
+        account.id = data.account.account_code;
+        var fetchAsync = BluebirdPromise.promisify(account.getInvoices, account);
+        return fetchAsync().then(function (invoicesInfo) {
+          if (!invoicesInfo) {
             return res.json(profile);
-          })
-          .catch(function () {
-            return res.json(profile);
+          }
+          console.log('invoiceId', invoiceId);
+          console.log('invoices', invoicesInfo);
+          var invoiceFounded = _.find(invoicesInfo, function (inv) {
+            return inv.invoice_number === invoiceId;
           });
+          console.log('invoiceFounded', invoicesInfo);
+          if (!invoiceFounded) {
+            return res.json(profile);
+          }
+
+          return mailer.sendStandardEmail(res, data.account, planName, planCode, invoiceFounded)
+            .then(function () {
+              return res.json(profile);
+            })
+            .catch(function () {
+              return res.json(profile);
+            });
+        });
       });
     })
     .catch(responseError(res));

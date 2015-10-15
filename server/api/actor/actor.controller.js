@@ -22,8 +22,10 @@ var handles = require('../handles.js')
   , handleEntityNotFound = handles.entityNotFound;
 
 var generic = require('../generic.js')
+  , genericCreate = generic.create
   , genericDestroy = generic.destroy
-  , genericShow = generic.show;
+  , genericShow = generic.show
+  , genericUpdate = generic.update;
 
 var includedModel = [
   {model: Image, as: 'picture'}
@@ -50,7 +52,7 @@ exports.index = function (req, res) {
       }, {
         lastName: {$iLike: '%' + queryName + '%'}
       })
-    })
+    });
   }
 
   Actor.findAll(auth.mergeQuery(req, res, paramsObj))
@@ -67,7 +69,7 @@ exports.show = genericShow({
 
 // Creates a new actor in the DB
 exports.create = genericCreate({
-  model: AccessToken
+  model: Actor
 , hooks: [ hookAddImages ]
 });
 

@@ -3,16 +3,15 @@
 var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var User = sqldb.User;
-var passport = require('passport');
 var config = require('../../config/environment');
 var jwt = require('jsonwebtoken');
 var subscriptionController = require('../subscription/subscription.controller');
 
-var responses = require('./responses.js')
+var responses = require('../responses.js')
   , responseEmpty = responses.empty
-  , responseError = responses.error
-  , responseWithResult = responses.withResult;
-var handles = require('./handles.js')
+  , responseError = responses.error;
+var handles = require('../handles.js')
+  , handleEntityNotFound= handles.entityNotFound
   , handleUserNotFound = handles.userNotFound;
 
 var handleUnknownEmail = function () {
@@ -48,7 +47,7 @@ exports.index = function (req, res) {
       where: {
         email: {$iLike: '%' + queryName + '%'}
       }
-    })
+    });
   }
 
   User.findAll(paramsObj)
@@ -61,7 +60,7 @@ exports.index = function (req, res) {
 /**
  * Creates a new user
  */
-exports.create = function (req, res, next) {
+exports.create = function (req, res) {
   var newUser = User.build(req.body);
   newUser.setDataValue('provider', 'local');
   newUser.setDataValue('role', 'user');
@@ -79,7 +78,7 @@ exports.create = function (req, res, next) {
 /**
  * Get a single user
  */
-exports.show = function (req, res, next) {
+exports.show = function (req, res) {
   var userId = req.params.id;
 
   User.find({
@@ -87,7 +86,7 @@ exports.show = function (req, res, next) {
       _id: userId
     }
   })
-    .then(entityNotFound())
+    .then(handleEntityNotFound())
     .then(function (user) {
       return res.json(user.profile);
     })
@@ -108,7 +107,7 @@ exports.destroy = function (req, res) {
 /**
  * Change a users password
  */
-exports.auth0ChangePassword = function (req, res, next) {
+exports.auth0ChangePassword = function (req, res) {
   var userMail = req.param('email');
   var newPass = req.param('password');
 
@@ -130,7 +129,7 @@ exports.auth0ChangePassword = function (req, res, next) {
 /**
  * Change a users password
  */
-exports.changePassword = function (req, res, next) {
+exports.changePassword = function (req, res) {
   var userId = req.user._id;
   var oldPass = String(req.body.oldPassword);
   var newPass = String(req.body.newPassword);
@@ -168,7 +167,7 @@ exports.changeRole = function (req, res) {
     .then(handleUserNotFound())
     .then(function (user) {
       user.role = role;
-      return user.save()
+      return user.save();
     })
     .then(responseEmpty(res))
     .catch(responseError(res));
@@ -220,7 +219,7 @@ exports.me = function (req, res, next) {
     ]
   })
     .then(handleUserNotFound())
-    .then(function (user) { // don't ever give out the password or salt
+    .then(function (/*user*/) { // don't ever give out the password or salt
       return subscriptionController.me(req, res, next);
     })
     .catch(responseError(res));
@@ -229,6 +228,6 @@ exports.me = function (req, res, next) {
 /**
  * Authentication callback
  */
-exports.authCallback = function (req, res, next) {
+exports.authCallback = function (req, res) {
   res.redirect('/');
 };
