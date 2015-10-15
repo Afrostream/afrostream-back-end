@@ -25,6 +25,7 @@ var morgan = require('./lib/middleware-morgan/index.js')
   , reqLog = require('./lib/middleware-req-log');
 
 var debugPostData = require('./lib/middleware-debug-postdata');
+var debugResponse = require('./lib/middleware-debug-response');
 
 /**
  * setting up express app middlewares
@@ -51,6 +52,7 @@ module.exports = function (app) {
 
   // temporary middleware
   app.use(debugPostData());
+  app.use(debugResponse());
 
   // favico
   app.use(favicon(path.join(app.get('appPath'), 'favicon.ico')));
