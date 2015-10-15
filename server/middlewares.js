@@ -21,7 +21,8 @@ var express = require('express')
 var error = require('./lib/middleware-error/index.js')
   , morgan = require('./lib/middleware-morgan/index.js')
   , reqId = require('./lib/middleware-req-id')
-  , reqClusterId = require('./lib/middleware-req-clusterid');
+  , reqClusterId = require('./lib/middleware-req-clusterid')
+  , reqLog = require('./lib/middleware-req-log');
 
 /**
  * setting up express app middlewares
@@ -42,6 +43,7 @@ module.exports = function (app) {
   // our middlewares
   app.use(reqId());
   app.use(reqClusterId());
+  app.use(reqLog());
   app.use(error());
   app.use(morgan());
 
