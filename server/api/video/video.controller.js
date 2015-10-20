@@ -20,6 +20,7 @@ var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Caption = sqldb.Caption;
 var Language = sqldb.Language;
+var Image = sqldb.Image;
 var Promise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
 var auth = require('../../auth/auth.service');
@@ -179,30 +180,38 @@ exports.index = function (req, res) {
 
 // Gets a single video from the DB
 exports.show = function (req, res) {
-  var paramsObj = {
-    include: includedModel
-  };
-
-  paramsObj = _.merge(paramsObj, {
+  var p = Video.find({
     where: {
       _id: req.params.id
     }
-  });
+    ,include: [
+      {
+        model: Movie,
+        as: 'movie',
+        include: [
+          auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
+          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
+        ]
+      },
+      {
+        model: Episode,
+        as: 'episode',
+        include: [
+          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
+        ]
+      },
+      {model: Asset, as: 'sources'},
+      {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]}
+    ]
+  }).then(handleEntityNotFound(res));
 
   if (config.digibos.useToken == 'true' && !auth.validRole(req, 'admin')) {
-    Video.find(paramsObj)
-      .then(handleEntityNotFound(res))
-      .then(tokenizeResult(req, res))
-      .then(responseWithResult(res))
-      .catch(handleError(res));
-
-  } else {
-    Video.find(paramsObj)
-      .then(handleEntityNotFound(res))
-      .then(responseWithResult(res))
-      .catch(handleError(res));
+    p = p.then(tokenizeResult(req, res));
   }
-
+  p.then(responseWithResult(res))
+   .catch(handleError(res));
 };
 
 // Creates a new video in the DB
