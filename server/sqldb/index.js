@@ -191,8 +191,8 @@ db.Asset.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: 
 db.Video.hasMany(db.Caption, {as: 'captions', foreignKey: 'videoId'});
 db.Caption.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
 
-db.Video.belongsTo(db.Movie, {as: 'movie', foreignKey: 'movieId'});
-db.Video.belongsTo(db.Episode, {as: 'episode', foreignKey: 'episodeId'});
+db.Video.hasOne(db.Movie, {as: 'movie', foreignKey: 'videoId'});
+db.Video.hasOne(db.Episode, {as: 'episode', foreignKey: 'videoId'});
 
 db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints: false});
 
