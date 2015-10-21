@@ -28,7 +28,7 @@
  */
 
 /**
- * @api {post} /seasons/search    Create a new search
+ * @api {post} /seasons/search    Search season
  * @apiName SeasonSearch
  * @apiGroup Search
  */

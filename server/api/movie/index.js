@@ -31,7 +31,7 @@
  */
 
 /**
- * @api {post} /movies/search    Create a new search
+ * @api {post} /movies/search    Search movie
  * @apiName MovieSearch
  * @apiGroup Search
  */
