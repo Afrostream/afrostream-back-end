@@ -155,6 +155,16 @@ exports.create = function (req, res) {
     .catch(handleError(res));
 };
 
+exports.search = function (req, res) {
+  var query = req.body.query || '';
+
+  algolia.searchIndex('episodes', query)
+    .then(function (movies) {
+      res.json(movies);
+    })
+    .catch(handleError(res))
+};
+
 // Updates an existing episode in the DB
 exports.update = function (req, res) {
   if (req.body._id) {

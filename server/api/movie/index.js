@@ -30,6 +30,12 @@
  * @apiSampleRequest http://backend.afrostream.tv/api/movies/29
  */
 
+/**
+ * @api {post} /movies/search    Create a new search
+ * @apiName CreateSearch
+ * @apiGroup Search
+ */
+
 var express = require('express');
 var controller = require('./movie.controller');
 var auth = require('../../auth/auth.service');
@@ -40,6 +46,7 @@ router.get('/', auth.hasRole('admin'), controller.index);
 router.get('/:id', auth.isAuthenticated(), controller.show);
 router.get('/:id/seasons', auth.isAuthenticated(), controller.seasons);
 router.post('/', auth.hasRole('admin'), controller.create);
+router.post('/search', auth.isAuthenticated(), controller.search);
 router.post('/algolia', auth.hasRole('admin'), controller.algolia);
 router.put('/:id', auth.hasRole('admin'), controller.update);
 router.patch('/:id', auth.hasRole('admin'), controller.update);
