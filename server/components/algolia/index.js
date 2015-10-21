@@ -32,6 +32,14 @@ exports = module.exports = {
       }
     }
   },
+
+  searchIndex: function (indexName, querystring) {
+    var index = client.initIndex(indexName);
+
+    var searchAsync = Promise.promisify(index.search, index);
+    return searchAsync(querystring);
+  },
+
   handleError: function (res) {
     return function (err) {
       res.status(500).send(err);
