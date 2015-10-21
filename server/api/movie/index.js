@@ -32,7 +32,7 @@
 
 /**
  * @api {post} /movies/search    Create a new search
- * @apiName CreateSearch
+ * @apiName MovieSearch
  * @apiGroup Search
  */
 

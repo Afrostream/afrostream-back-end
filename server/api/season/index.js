@@ -29,7 +29,7 @@
 
 /**
  * @api {post} /seasons/search    Create a new search
- * @apiName CreateSearch
+ * @apiName SeasonSearch
  * @apiGroup Search
  */
 
