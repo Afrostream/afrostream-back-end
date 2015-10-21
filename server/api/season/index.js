@@ -31,6 +31,8 @@
  * @api {post} /seasons/search    Search season
  * @apiName SeasonSearch
  * @apiGroup Search
+ *
+ * @apiParam {query} query string text
  */
 
 var express = require('express');

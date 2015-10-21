@@ -34,6 +34,8 @@
  * @api {post} /movies/search    Search movie
  * @apiName MovieSearch
  * @apiGroup Search
+ *
+ * @apiParam {query} query string text
  */
 
 var express = require('express');

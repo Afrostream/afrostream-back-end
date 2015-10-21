@@ -35,6 +35,8 @@
  * @api {post} /episodes/search    Search episode
  * @apiName EpisodeSearch
  * @apiGroup Search
+ *
+ * @apiParam {query} query string text
  */
 
 var express = require('express');
