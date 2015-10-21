@@ -32,7 +32,7 @@
  * @apiName SeasonSearch
  * @apiGroup Search
  *
- * @apiParam {query} query string text
+ * @apiParam {String} query query string
  */
 
 var express = require('express');
