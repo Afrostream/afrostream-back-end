@@ -25,6 +25,8 @@ var Promise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
 var auth = require('../../auth/auth.service');
 
+var utils = require('../utils.js');
+
 var includedModel = [
   {model: Movie, as: 'movie'}, // load all sources assets
   {model: Episode, as: 'episode'}, // load all sources assets
@@ -165,6 +167,9 @@ exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {};
 
+  // pagination
+  utils.mergeReqRange(paramsObj, req);
+
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: {
@@ -172,9 +177,9 @@ exports.index = function (req, res) {
       }
     });
   }
-  Video.findAll(paramsObj)
+  Video.findAndCountAll(paramsObj)
     .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 

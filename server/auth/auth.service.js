@@ -8,7 +8,6 @@ var expressJwt = require('express-jwt');
 var compose = require('composable-middleware');
 var login = require('connect-ensure-login');
 var User = require('../sqldb').User;
-var paginate = require('node-paginate-anything');
 var validateJwt = expressJwt({
   secret: config.secrets.session
 });
@@ -84,7 +83,7 @@ function hasRole(roleRequired) {
  * @returns {*}
  */
 function reqUserIsAdmin(req) {
-  var roleRequired = 'admin'
+  var roleRequired = 'admin';
 
   return validRole(req, roleRequired);
 }
@@ -102,7 +101,6 @@ function signToken(id) {
  */
 function mergeQuery(req, res, params) {
   var isAdmin = reqUserIsAdmin(req);
-  var queryParameters = paginate(req, res);
 
   if (!isAdmin) {
     params = _.merge(params, {
@@ -111,10 +109,6 @@ function mergeQuery(req, res, params) {
       }
     })
   }
-  params = _.merge(params, {
-    offset: queryParameters.skip,
-    limit: queryParameters.limit
-  });
 
   if (!params.order) {
     params.order = [['_id', 'ASC']];

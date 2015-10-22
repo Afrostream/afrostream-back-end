@@ -22,6 +22,8 @@ var Video = sqldb.Video;
 var Actor = sqldb.Actor;
 var auth = require('../../auth/auth.service');
 
+var utils = require('../utils.js');
+
 var includedModel = [
   {model: Video, as: 'video'}, // load all episodes
   {model: Category, as: 'categorys'}, // load all episodes
@@ -177,6 +179,9 @@ exports.index = function (req, res) {
     ]
   };
 
+  // pagination
+  utils.mergeReqRange(paramsObj, req);
+
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: {
@@ -184,9 +189,9 @@ exports.index = function (req, res) {
       }
     })
   }
-  Movie.findAll(auth.mergeQuery(req, res, paramsObj))
+  Movie.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
     .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 

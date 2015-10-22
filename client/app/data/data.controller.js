@@ -14,7 +14,7 @@ angular.module('afrostreamAdminApp')
     };
  })
   .controller('DataCtrl', function ($scope, $log, $http, $modal, ngToast, $state, Modal) {
-    var defaultPerPage = 25;
+    var defaultPerPage = 30;
 
     $scope.type = $state.current.type || 'movie';
     $scope.items = [];
@@ -33,57 +33,25 @@ angular.module('afrostreamAdminApp')
       getResultsPage(newPage);
     };
 
-    function parseRange(hdr) {
-      var m = hdr && hdr.match(/^(?:items )?(\d+)-(\d+)\/(\d+|\*)$/);
-      if (m) {
-        return {
-          from: +m[1],
-          to: +m[2],
-          total: m[3] === '*' ? Infinity : +m[3]
-        };
-      } else if (hdr === '*/0') {
-        return {total: 0};
-      }
-      return null;
-    };
-
     function getResultsPage(pageNumber) {
       // this is just an example, in reality this stuff should be in a service
       // FIXME: we shouldn't download everything
       var firstPage = 1;
 
       $http.get($scope.apiRessourceUrl, {
-        params: {query: $scope.searchField, page: firstPage},
+        params: {query: $scope.searchField},
         headers: angular.extend(
-          {}, $scope.headers,
+          {},
+          $scope.headers,
           {
-            'Range-Unit': 'items',
-            Range: [(firstPage - 1) * $scope.itemsPerPage, (firstPage) * $scope.itemsPerPage].join('-')
+            // @see https://www.npmjs.com/package/range-parser
+            Range: 'items='+((pageNumber - 1) * $scope.itemsPerPage) + '-' + ((pageNumber) * $scope.itemsPerPage)
           }
         )
       })
         .then(function (result) {
-          var response = parseRange(result.headers('Content-Range'));
-          if (result.status === 204 || (response && response.total === 0)) {
-            $scope.totalItems = 0;
-            $scope.items = [];
-          } else {
-            if (result.data) {
-              $scope.totalItems = response ? response.total : result.data.length;
-              $scope.items = result.data.slice(
-                (pageNumber - 1) *  $scope.itemsPerPage,
-                pageNumber * $scope.itemsPerPage
-              );
-            } else {
-              $scope.totalItems = 0;
-              $scope.items = [];
-            }
-
-          }
-          //$scope.items.sort(function (a, b) {
-          //  return a.sort > b.sort;
-          //});
-
+          $scope.items = result.data;
+          $scope.totalItems = result.headers('Resource-Count') || result.data.length;
           $scope.numPages = Math.ceil($scope.totalItems / ($scope.itemsPerPage || defaultPerPage));
         });
     }

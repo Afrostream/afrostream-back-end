@@ -16,6 +16,8 @@ var Image = sqldb.Image;
 var config = require('../../config/environment');
 var AwsUploader = require('../../components/upload');
 
+var utils = require('../utils.js');
+
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
@@ -77,6 +79,9 @@ exports.index = function (req, res) {
   var typeName = req.param('type');
   var paramsObj = {};
 
+  // pagination
+  utils.mergeReqRange(paramsObj, req);
+
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: {
@@ -92,8 +97,8 @@ exports.index = function (req, res) {
     })
   }
 
-  Image.findAll(paramsObj)
-    .then(responseWithResult(res))
+  Image.findAndCountAll(paramsObj)
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 
