@@ -13,6 +13,8 @@ var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var Language = sqldb.Language;
 
+var utils = require('../utils.js');
+
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
@@ -61,8 +63,12 @@ function removeEntity(res) {
 
 // Gets a list of languages
 exports.index = function(req, res) {
-  Language.findAll()
-    .then(responseWithResult(res))
+
+  // pagination
+  var paramsObj = utils.mergeReqRange({}, req);
+
+  Language.findAndCountAll(paramsObj)
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 

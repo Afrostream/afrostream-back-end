@@ -18,6 +18,8 @@ var Video = sqldb.Video;
 var Image = sqldb.Image;
 var auth = require('../../auth/auth.service');
 
+var utils = require('../utils.js');
+
 var includedModel = [
   {
     model: Season, as: 'season',
@@ -118,6 +120,9 @@ exports.index = function (req, res) {
     ]
   };
 
+  // pagination
+  utils.mergeReqRange(paramsObj, req);
+
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: {
@@ -126,9 +131,9 @@ exports.index = function (req, res) {
     })
   }
 
-  Episode.findAll(auth.mergeQuery(req, res, paramsObj))
+  Episode.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
     .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 

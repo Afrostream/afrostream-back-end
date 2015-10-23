@@ -13,6 +13,8 @@ var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var Client = sqldb.Client;
 
+var utils = require('../utils.js');
+
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
@@ -61,8 +63,12 @@ function removeEntity(res) {
 
 // Gets a list of clients
 exports.index = function(req, res) {
-  Client.findAll()
-    .then(responseWithResult(res))
+
+  // pagination
+  var paramsObj = utils.mergeReqRange({}, req);
+
+  Client.findAndCountAll(paramsObj)
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 
