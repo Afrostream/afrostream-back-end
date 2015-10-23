@@ -20,6 +20,8 @@ var Promise = sqldb.Sequelize.Promise;
 var slugify = require('slugify');
 var auth = require('../../auth/auth.service');
 
+var utils = require('../utils.js');
+
 var includedModel = [
   {
     model: Episode, as: 'episodes',
@@ -158,6 +160,9 @@ exports.index = function (req, res) {
     ]
   };
 
+  // pagination
+  utils.mergeReqRange(paramsObj, req);
+
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: {
@@ -165,9 +170,9 @@ exports.index = function (req, res) {
       }
     })
   }
-  Season.findAll(auth.mergeQuery(req, res, paramsObj))
+  Season.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
     .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 
@@ -207,6 +212,16 @@ exports.create = function (req, res) {
     .then(addImages(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
+};
+
+exports.search = function (req, res) {
+  var query = req.body.query || '';
+
+  algolia.searchIndex('seasons', query)
+    .then(function (movies) {
+      res.json(movies);
+    })
+    .catch(handleError(res))
 };
 
 // Updates an existing episode in the DB

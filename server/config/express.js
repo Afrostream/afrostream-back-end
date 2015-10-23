@@ -68,7 +68,6 @@ var dumpPostData = function (options) {
   };
 };
 
-
 module.exports = function (app) {
   var env = app.get('env');
 
@@ -99,11 +98,11 @@ module.exports = function (app) {
       break;
     default:
       app.set('appPath', path.join(config.root, 'client'));
-      app.set('docPath', path.join(config.root, 'apidoc'));
+      app.set('docPath', path.join(config.root, 'dist', 'apidoc'));
       app.use(require('connect-livereload')());
       app.use(express.static(path.join(config.root, '.tmp')));
       app.use(express.static(app.get('appPath')));
-      app.use(express.static(app.get('docPath')));
+      app.use('/doc', express.static(app.get('docPath')));
       app.use(morgan('afro'));
       app.use(errorHandler()); // Error handler - has to be last
       break;

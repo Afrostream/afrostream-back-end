@@ -8,6 +8,8 @@ var config = require('../../config/environment');
 var jwt = require('jsonwebtoken');
 var subscriptionController = require('../subscription/subscription.controller');
 
+var utils = require('../utils.js');
+
 function validationError(res, statusCode) {
   statusCode = statusCode || 422;
   return function (err) {
@@ -46,6 +48,9 @@ exports.index = function (req, res) {
     ]
   };
 
+  // pagination
+  utils.mergeReqRange(paramsObj, req);
+
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: {
@@ -54,10 +59,8 @@ exports.index = function (req, res) {
     })
   }
 
-  User.findAll(paramsObj)
-    .then(function (users) {
-      res.status(200).json(users);
-    })
+  User.findAndCountAll(paramsObj)
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 

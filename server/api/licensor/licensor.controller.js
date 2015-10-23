@@ -14,6 +14,8 @@ var sqldb = require('../../sqldb');
 var Movie = sqldb.Movie;
 var Licensor = sqldb.Licensor;
 
+var utils = require('../utils.js');
+
 var includedModel = [
   {model: Movie, as: 'movies'}, // load all movies
 ];
@@ -79,6 +81,9 @@ exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {};
 
+  // pagination
+  utils.mergeReqRange(paramsObj, req);
+
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: {
@@ -87,8 +92,8 @@ exports.index = function (req, res) {
     })
   }
 
-  Licensor.findAll(paramsObj)
-    .then(responseWithResult(res))
+  Licensor.findAndCountAll(paramsObj)
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 

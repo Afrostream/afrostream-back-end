@@ -41,7 +41,15 @@ angular.module('afrostreamAdminApp')
         }
       };
 
-    $http.get('/api/' + $scope.type + 's').success(function (items) {
+    $http.get(
+      '/api/' + $scope.type + 's',
+      {
+        headers: {
+          // @see https://www.npmjs.com/package/range-parser
+          Range: 'items=0-10000'
+        }
+      }
+    ).success(function (items) {
       $scope.items = items;
     });
 

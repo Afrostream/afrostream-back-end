@@ -20,6 +20,8 @@ var Caption = sqldb.Caption;
 var Image = sqldb.Image;
 var auth = require('../../auth/auth.service');
 
+var utils = require('../utils.js');
+
 var includedModel = [
   {
     model: Movie, as: 'movies',
@@ -165,6 +167,9 @@ exports.index = function (req, res) {
     order: [['sort', 'ASC']]
   };
 
+  // pagination
+  utils.mergeReqRange(paramsObj, req);
+
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: {
@@ -173,9 +178,9 @@ exports.index = function (req, res) {
     })
   }
 
-  Category.findAll(auth.mergeQuery(req, res, paramsObj))
+  Category.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
     .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 

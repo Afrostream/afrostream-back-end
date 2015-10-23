@@ -18,6 +18,8 @@ var Video = sqldb.Video;
 var Image = sqldb.Image;
 var auth = require('../../auth/auth.service');
 
+var utils = require('../utils.js');
+
 var includedModel = [
   {
     model: Season, as: 'season',
@@ -118,6 +120,9 @@ exports.index = function (req, res) {
     ]
   };
 
+  // pagination
+  utils.mergeReqRange(paramsObj, req);
+
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: {
@@ -126,9 +131,9 @@ exports.index = function (req, res) {
     })
   }
 
-  Episode.findAll(auth.mergeQuery(req, res, paramsObj))
+  Episode.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
     .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 
@@ -153,6 +158,16 @@ exports.create = function (req, res) {
     .then(addImages(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
+};
+
+exports.search = function (req, res) {
+  var query = req.body.query || '';
+
+  algolia.searchIndex('episodes', query)
+    .then(function (movies) {
+      res.json(movies);
+    })
+    .catch(handleError(res))
 };
 
 // Updates an existing episode in the DB

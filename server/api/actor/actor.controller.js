@@ -15,6 +15,8 @@ var Actor = sqldb.Actor;
 var Image = sqldb.Image;
 var auth = require('../../auth/auth.service');
 
+var utils = require('../utils.js');
+
 var includedModel = [
   {model: Image, as: 'picture'}
 ];
@@ -81,6 +83,9 @@ exports.index = function (req, res) {
     ]
   };
 
+  // pagination
+  utils.mergeReqRange(paramsObj, req);
+
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: sqldb.Sequelize.or({
@@ -91,9 +96,9 @@ exports.index = function (req, res) {
     })
   }
 
-  Actor.findAll(auth.mergeQuery(req, res, paramsObj))
+  Actor.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
     .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 

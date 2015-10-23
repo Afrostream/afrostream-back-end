@@ -27,6 +27,14 @@
  * @apiSampleRequest http://backend.afrostream.tv/api/seasons/29
  */
 
+/**
+ * @api {post} /seasons/search    Search season
+ * @apiName SeasonSearch
+ * @apiGroup Search
+ *
+ * @apiParam {String} query query string
+ */
+
 var express = require('express');
 var controller = require('./season.controller');
 var auth = require('../../auth/auth.service');
@@ -36,6 +44,7 @@ var router = express.Router();
 router.get('/', auth.hasRole('admin'), controller.index);
 router.get('/:id', auth.isAuthenticated(), controller.show);
 router.post('/', auth.hasRole('admin'), controller.create);
+router.post('/search', auth.isAuthenticated(), controller.search);
 router.post('/algolia', auth.hasRole('admin'), controller.algolia);
 router.put('/:id', auth.hasRole('admin'), controller.update);
 router.patch('/:id', auth.hasRole('admin'), controller.update);

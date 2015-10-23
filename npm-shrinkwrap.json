@@ -11199,11 +11199,6 @@
         }
       }
     },
-    "node-paginate-anything": {
-      "version": "0.0.5",
-      "from": "node-paginate-anything@0.0.5",
-      "resolved": "https://registry.npmjs.org/node-paginate-anything/-/node-paginate-anything-0.0.5.tgz"
-    },
     "node-uuid": {
       "version": "1.4.3",
       "from": "node-uuid@>=1.4.3 <2.0.0",
