@@ -15,7 +15,7 @@ router.get('/all', auth.isAuthenticated(), controller.all);
 router.get('/status', auth.isAuthenticated(), controller.status);
 router.get('/:id', auth.hasRole('admin'), controller.show);
 router.post('/', auth.isAuthenticated(), controller.create);
-router.post('/gift', function(){}, controller.gift);
+router.post('/gifts', auth.isAuthenticated(), controller.gift);
 router.put('/:id', auth.hasRole('admin'), controller.update);
 router.patch('/:id', auth.hasRole('admin'), controller.update);
 router.delete('/:id', auth.hasRole('admin'), controller.destroy);

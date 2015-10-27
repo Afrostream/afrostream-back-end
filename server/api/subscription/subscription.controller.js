@@ -508,107 +508,118 @@ exports.create = function (req, res) {
 
 // Creates a new subscription in the DB (gift)
 exports.gift = function (req, res) {
-  var giftGiverEmail = req.body['gift_giver_email'];
-  GiftGiver.find({
+  var userId = req.user._id;
+  User.find({
     where: {
-      email: {
-        $iLike: giftGiverEmail
-      }
+      _id: userId
     }
-  })
-    .then(function (giftGiver) {
-      if (!giftGiver) {
-
-        var giftGiverData = {
-          firstName: req.body['gift_giver_first_name'],
-          lastName: req.body['gift_giver_last_name'],
-          email: req.body['gift_giver_email'],
-          recipientEmail: req.body['email']
-        };
-
-
-        GiftGiver.create(giftGiverData)
-          .then( function () {
-            var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
-            var data = {
-              plan_code: req.body['plan-code'],
-              coupon_code: req.body['coupon_code'],
-              unit_amount_in_cents: req.body['unit-amount-in-cents'],
-              currency: 'EUR',
-              account: {
-                account_code: uuid.v1(),
-                email: req.body['email'],
-                first_name: req.body['first_name'],
-                last_name: req.body['last_name'],
-                billing_info: {
-                  token_id: req.body['recurly-token']
-                }
-              }
-            };
-
-            console.log('subscription create', data.account);
-
-            return createAsync(data).then(function (item) {
-              console.log('subscription', item);
-              var newUserData = {
-                email: req.body['email'],
-                firstName: req.body['first_name'],
-                lastName: req.body['last_name'],
-                provider: 'local',
-                accountCode: data.account.account_code,
-                active: false
-              }
-              User.create(newUserData)
-                .catch(handleError(res))
-                .then(function () {
-                  var planName = item.properties.plan.name;
-                  var planCode = item.properties.plan.plan_code;
-                  //profile.planCode = planCode;
-                  if (!item._resources) {
-                    //return res.json(profile);
-                  }
-                  var invoiceId = item._resources.invoice.split('/invoices')[1];
-                  if (!invoiceId) {
-                    //return res.json(profile);
-                  }
-                  var account = new recurly.Account();
-                  account.id = data.account.account_code;
-                  var fetchAsync = Promise.promisify(account.getInvoices, account);
-                  return fetchAsync().then(function (invoicesInfo) {
-                    if (!invoicesInfo) {
-                      //return res.json(profile);
-                    }
-
-                    console.log('invoiceId', invoiceId);
-                    console.log('invoices', invoicesInfo);
-                    var invoiceFounded = _.find(invoicesInfo, function (inv) {
-                      return inv['invoice_number'] == invoiceId;
-                    });
-                    console.log('invoiceFounded', invoicesInfo);
-                    if (!invoiceFounded) {
-                      //return res.json(profile);
-                    }
-
-                    return mailer.sendStandardEmail(res, data.account, planName, planCode, invoiceFounded)
-                      .then(function () {
-                        //return res.json(profile);
-                      })
-                      .catch(function () {
-                        //return res.json(profile);
-                      });
-                  }).catch(handleError(res));
-
-                }).catch(handleError(res));
-
-            }).catch(function (err) {
-              return res.status(500).send(err.errors || err);
-            });
-          })
-          .then(responseWithResult(res, 201))
-          .catch(handleError(res));
+  }).then(function(user) {
+    if (!user) {
+      return res.status(401).end();
+    }
+    var giftGiverEmail = user.profile.email;
+    GiftGiver.find({
+      where: {
+        email: {
+          $iLike: giftGiverEmail
+        }
       }
     })
-    .catch(handleError(res));
+      .then(function (giftGiver) {
+        if (!giftGiver) {
+
+          var giftGiverData = {
+            firstName: req.body['first_name'],
+            lastName: req.body['last_name'],
+            email: giftGiverEmail,
+            recipientEmail: req.body['gift_email']
+          };
+
+
+          GiftGiver.create(giftGiverData)
+            .then( function () {
+              var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
+              var data = {
+                plan_code: req.body['plan-code'],
+                coupon_code: req.body['coupon_code'],
+                unit_amount_in_cents: req.body['unit-amount-in-cents'],
+                currency: 'EUR',
+                account: {
+                  account_code: uuid.v1(),
+                  email: req.body['gift_email'],
+                  first_name: req.body['gift_first_name'],
+                  last_name: req.body['gift_last_name'],
+                  billing_info: {
+                    token_id: req.body['recurly-token']
+                  }
+                }
+              };
+
+              console.log('subscription create', data.account);
+
+              return createAsync(data).then(function (item) {
+                console.log('subscription', item);
+                var newUserData = {
+                  email: req.body['gift_email'],
+                  firstName: req.body['gift_first_name'],
+                  lastName: req.body['gift_last_name'],
+                  provider: 'local',
+                  accountCode: data.account.account_code,
+                  active: false
+                }
+                User.create(newUserData)
+                  .catch(handleError(res))
+                  .then(function () {
+                    var planName = item.properties.plan.name;
+                    var planCode = item.properties.plan.plan_code;
+                    profile.planCode = planCode;
+                    if (!item._resources) {
+                      return res.json(profile);
+                    }
+                    var invoiceId = item._resources.invoice.split('/invoices')[1];
+                    if (!invoiceId) {
+                      return res.json(profile);
+                    }
+                    var account = new recurly.Account();
+                    account.id = data.account.account_code;
+                    var fetchAsync = Promise.promisify(account.getInvoices, account);
+                    return fetchAsync().then(function (invoicesInfo) {
+                      if (!invoicesInfo) {
+                        return res.json(profile);
+                      }
+
+                      console.log('invoiceId', invoiceId);
+                      console.log('invoices', invoicesInfo);
+                      var invoiceFounded = _.find(invoicesInfo, function (inv) {
+                        return inv['invoice_number'] == invoiceId;
+                      });
+                      console.log('invoiceFounded', invoicesInfo);
+                      if (!invoiceFounded) {
+                        return res.json(profile);
+                      }
+
+                      return mailer.sendStandardEmail(res, data.account, planName, planCode, invoiceFounded)
+                        .then(function () {
+                          return res.json(profile);
+                        })
+                        .catch(function () {
+                          return res.json(profile);
+                        });
+                    }).catch(handleError(res));
+
+                  }).catch(handleError(res));
+
+              }).catch(function (err) {
+                return res.status(500).send(err.errors || err);
+              });
+            })
+            .then(responseWithResult(res, 201))
+            .catch(handleError(res));
+        }
+      })
+      .catch(handleError(res));
+  })
+  .catch(handleError(res));
 };
 
 
