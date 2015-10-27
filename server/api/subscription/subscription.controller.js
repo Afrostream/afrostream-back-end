@@ -458,44 +458,8 @@ exports.create = function (req, res) {
         user.account_code = data.account.account_code;
         return user.save()
           .then(function () {
-            var planName = item.properties.plan.name;
-            var planCode = item.properties.plan.plan_code;
-            profile.planCode = planCode;
-            if (!item._resources) {
-              return res.json(profile);
-            }
-            var invoiceId = item._resources.invoice.split('/invoices')[1];
-            if (!invoiceId) {
-              return res.json(profile);
-            }
-            var account = new recurly.Account();
-            account.id = data.account.account_code;
-            var fetchAsync = Promise.promisify(account.getInvoices, account);
-            return fetchAsync().then(function (invoicesInfo) {
-              if (!invoicesInfo) {
-                return res.json(profile);
-              }
-
-              console.log('invoiceId', invoiceId);
-              console.log('invoices', invoicesInfo);
-              var invoiceFounded = _.find(invoicesInfo, function (inv) {
-                return inv['invoice_number'] == invoiceId;
-              });
-              console.log('invoiceFounded', invoicesInfo);
-              if (!invoiceFounded) {
-                return res.json(profile);
-              }
-
-              return mailer.sendStandardEmail(res, data.account, planName, planCode, invoiceFounded)
-                .then(function () {
-                  return res.json(profile);
-                })
-                .catch(function () {
-                  return res.json(profile);
-                });
-
-            }).catch(handleError(res));
-
+            profile.planCode = item.properties.plan.plan_code;
+            res.json(profile);
           }).catch(handleError(res));
 
       }).catch(function (err) {
