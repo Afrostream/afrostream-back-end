@@ -178,30 +178,54 @@ exports.index = function (req, res) {
 
 // Gets a single season from the DB
 exports.show = function (req, res) {
-  Season.find(auth.mergeQuery(req, res, {
-    where: {
-      _id: req.params.id
-    },
-    include: [
-      auth.mergeIncludeValid(req, {
-        model: Episode, as: 'episodes',
-        required: false,
-        include: [
-          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
-        ]
-      }), // load all episodes
-      {model: Movie, as: 'movie'}, // load related movie
-      {model: Image, as: 'poster'}, // load poster image
-      {model: Image, as: 'thumb'} // load thumb image
-    ],
-    order: [
-      [ {model: Episode, as: 'episodes'}, 'sort']
-    ]
-  }))
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
+  if (req.query.backo) {
+    Season.find(auth.mergeQuery(req, res, {
+      where: {
+        _id: req.params.id
+      },
+      include: [
+        auth.mergeIncludeValid(req, {
+          model: Episode, as: 'episodes',
+          required: false,
+          attributes: ['_id', 'sort', 'title']
+        }), // load all episodes
+        {model: Movie, as: 'movie'}, // load related movie
+        {model: Image, as: 'poster'}, // load poster image
+        {model: Image, as: 'thumb'} // load thumb image
+      ],
+      order: [
+        [{model: Episode, as: 'episodes'}, 'sort']
+      ]
+    }))
+      .then(handleEntityNotFound(res))
+      .then(responseWithResult(res))
+      .catch(handleError(res));
+  } else {
+    Season.find(auth.mergeQuery(req, res, {
+      where: {
+        _id: req.params.id
+      },
+      include: [
+        auth.mergeIncludeValid(req, {
+          model: Episode, as: 'episodes',
+          required: false,
+          include: [
+            auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+            auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
+          ]
+        }), // load all episodes
+        {model: Movie, as: 'movie'}, // load related movie
+        {model: Image, as: 'poster'}, // load poster image
+        {model: Image, as: 'thumb'} // load thumb image
+      ],
+      order: [
+        [{model: Episode, as: 'episodes'}, 'sort']
+      ]
+    }))
+      .then(handleEntityNotFound(res))
+      .then(responseWithResult(res))
+      .catch(handleError(res));
+  }
 };
 
 // Creates a new season in the DB
