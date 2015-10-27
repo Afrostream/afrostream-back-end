@@ -194,7 +194,8 @@ exports.show = function (req, res) {
         {model: Image, as: 'thumb'} // load thumb image
       ],
       order: [
-        [{model: Episode, as: 'episodes'}, 'sort']
+        [{model: Episode, as: 'episodes'}, 'sort'],
+        [{model: Episode, as: 'episodes'}, '_id']
       ]
     }))
       .then(handleEntityNotFound(res))
