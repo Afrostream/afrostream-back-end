@@ -75,8 +75,10 @@ module.exports = function (app) {
   app.set('view engine', 'jade');
   app.set('etag', false);
   app.use(compression());
-  app.use(bodyParser.urlencoded({extended: false}));
-  app.use(bodyParser.json());
+  // we should never reach 500kb...
+  // FIXME: add an error log entry when this limit is hit
+  app.use(bodyParser.urlencoded({extended: false, limit:'500kb'}));
+  app.use(bodyParser.json({limit:'500kb'}));
   app.use(methodOverride());
   app.use(cookieParser());
   app.use(session({secret: config.secrets.session}));
