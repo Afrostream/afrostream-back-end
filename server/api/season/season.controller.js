@@ -184,11 +184,11 @@ exports.show = function (req, res) {
         _id: req.params.id
       },
       include: [
-        auth.mergeIncludeValid(req, {
+        {
           model: Episode, as: 'episodes',
           required: false,
           attributes: ['_id', 'sort', 'title']
-        }), // load all episodes
+        },
         {model: Movie, as: 'movie'}, // load related movie
         {model: Image, as: 'poster'}, // load poster image
         {model: Image, as: 'thumb'} // load thumb image
