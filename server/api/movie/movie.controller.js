@@ -197,44 +197,76 @@ exports.index = function (req, res) {
 
 // Gets a single movie from the DB
 exports.show = function (req, res) {
-  Movie.find(auth.mergeQuery(req, res, {
-    where: {
-      _id: req.params.id
-    },
-    include: [
-      auth.mergeIncludeValid(req, {
-        model: Video,
-        required: false,
-        as: 'video'
-      }, {attributes: ['_id']}),
-      {model: Category, as: 'categorys'}, // load all episodes
-      auth.mergeIncludeValid(req, {
-        model: Season,
-        required: false,
-        as: 'seasons',
-        include: [auth.mergeIncludeValid(req, {
-          model: Episode,
-          as: 'episodes',
+  if (req.query.backo) {
+    Movie.find(auth.mergeQuery(req, res, {
+      where: {
+        _id: req.params.id
+      },
+      include: [
+        auth.mergeIncludeValid(req, {
+          model: Video,
           required: false,
-          include: [
-            auth.mergeIncludeValid(req, {model: Video, as: 'video', required: false}, {attributes: ['_id']}) // load poster image
-          ]
-        }, {attributes: ['_id', 'slug']})]
-      }), // load all seasons
-      auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
-      auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-      auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
-      {model: Licensor, as: 'licensor'},// load thumb image
-      {model: Actor, as: 'actors', attributes: [ '_id', 'firstName', 'lastName' ]}
-    ],
-    order: [
-      [ { model: Season, as: 'seasons'}, 'sort' ],
-      [ { model: Season, as: 'seasons'}, { model: Episode, as: 'episodes'}, 'sort' ]
-    ]
-  }))
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
+          as: 'video'
+        }, {attributes: ['_id']}),
+        {model: Category, as: 'categorys'}, // load all episodes
+        auth.mergeIncludeValid(req, {
+          model: Season,
+          required: false,
+          as: 'seasons'
+        }), // load all seasons
+        auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
+        auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+        auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
+        {model: Licensor, as: 'licensor'},// load thumb image
+        {model: Actor, as: 'actors', attributes: ['_id', 'firstName', 'lastName']}
+      ],
+      order: [
+        [{model: Season, as: 'seasons'}, 'sort']
+      ]
+    }))
+      .then(handleEntityNotFound(res))
+      .then(responseWithResult(res))
+      .catch(handleError(res));
+  } else {
+    Movie.find(auth.mergeQuery(req, res, {
+      where: {
+        _id: req.params.id
+      },
+      include: [
+        auth.mergeIncludeValid(req, {
+          model: Video,
+          required: false,
+          as: 'video'
+        }, {attributes: ['_id']}),
+        {model: Category, as: 'categorys'}, // load all episodes
+        auth.mergeIncludeValid(req, {
+          model: Season,
+          required: false,
+          as: 'seasons',
+          include: [auth.mergeIncludeValid(req, {
+            model: Episode,
+            as: 'episodes',
+            required: false,
+            include: [
+              auth.mergeIncludeValid(req, {model: Video, as: 'video', required: false}, {attributes: ['_id']}) // load poster image
+            ]
+          }, {attributes: ['_id', 'slug']})]
+        }), // load all seasons
+        auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
+        auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
+        auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
+        {model: Licensor, as: 'licensor'},// load thumb image
+        {model: Actor, as: 'actors', attributes: ['_id', 'firstName', 'lastName']}
+      ],
+      order: [
+        [{model: Season, as: 'seasons'}, 'sort'],
+        [{model: Season, as: 'seasons'}, {model: Episode, as: 'episodes'}, 'sort']
+      ]
+    }))
+      .then(handleEntityNotFound(res))
+      .then(responseWithResult(res))
+      .catch(handleError(res));
+  }
 };
 
 // Gets all Seasons in selected category
