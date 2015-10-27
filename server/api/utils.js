@@ -2,7 +2,9 @@
 
 var _ = require('lodash');
 
-var defaultLimit = 100;
+// should be 10
+// but the auto-complete require to query in 200 episodes ...
+var defaultLimit = 500;
 
 var reqRangeToSequelizeLimit = function (req, size) {
   size = size || Infinity;
