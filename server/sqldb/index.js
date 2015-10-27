@@ -22,6 +22,14 @@ db.User = db.sequelize.import(path.join(
   'user.model'
 ));
 
+db.GiftGiver = db.sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'giftGiver',
+  'giftGiver.model'
+));
+
 // Insert models below
 db.RefreshToken = db.sequelize.import(path.join(
   config.root,
