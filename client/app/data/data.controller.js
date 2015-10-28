@@ -22,6 +22,7 @@ angular.module('afrostreamAdminApp')
     $scope.totalItems = 0;
     $scope.currentItem = {};
     $scope.searchField = '';
+    $scope.sortable = ($scope.type == 'category');
     $scope.apiRessourceUrl = '/api/' + $scope.type + 's';
     $scope.apiParamsUrl = {
       query: $scope.searchField
@@ -77,29 +78,36 @@ angular.module('afrostreamAdminApp')
         }
       }
     };
-    $scope.sortableOptions = {
-      axis: 'y',
-      stop: function () {
-        for (var index in $scope.items) {
-          var item = $scope.items[index];
-          if (item.sort !== index) {
-            item.sort = index;
-            $scope.updateIndex(item);
+
+    if ($scope.sortable) {
+      $scope.sortableOptions = {
+        axis: 'y',
+        stop: function () {
+          for (var index in $scope.items) {
+            var item = $scope.items[index];
+            if (item.sort !== index) {
+              item.sort = index;
+              $scope.updateIndex(item);
+            }
           }
         }
-      }
-    };
+      };
+      /*
+       * be carrefull... you might PUT incomplete objects here...
+       */
+      $scope.updateIndex = function (item) {
+        $http.put($scope.apiRessourceUrl + '/' + item._id, item).then(function (result) {
+        }, function (err) {
+        });
+      };
+    }
 
-    $scope.updateIndex = function (item) {
-      $http.put($scope.apiRessourceUrl + '/' + item._id, item).then(function (result) {
-      }, function (err) {
-      });
-    };
+    /*
+     * be carrefull... you might PUT incomplete objects here...
+     */
     $scope.activateIndex = function (item) {
       item.active = !item.active;
-      $http.put($scope.apiRessourceUrl + '/' + item._id, item).then(function (result) {
-      }, function (err) {
-      });
+      $http.put($scope.apiRessourceUrl + '/' + item._id, item));
     };
 
     $scope.deleteIndex = Modal.confirm.delete(function (item) {
