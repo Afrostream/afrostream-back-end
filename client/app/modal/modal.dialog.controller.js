@@ -2,7 +2,6 @@
 
 angular.module('afrostreamAdminApp')
   .controller('ModalDialogCtrl', function ($scope, $sce, $log, $http, $modalInstance, item, type, Slug, ngToast, Image) {
-
     // BEGIN temporary fix on dates...
     // should be generic & added to $httpProvider
     function parseItemDates(item) {
@@ -42,7 +41,7 @@ angular.module('afrostreamAdminApp')
     };
 
     $scope.cancel = function () {
-      $modalInstance.close();
+      close(true);
     };
 
     $scope.addItem = function () {
@@ -50,7 +49,7 @@ angular.module('afrostreamAdminApp')
         ngToast.create({
           content: 'La ' + $scope.item.type + ' ' + result.data.title + ' à été ajoutée au catalogue'
         });
-        $modalInstance.close();
+        close();
       }, function (err) {
         showError();
         $log.debug(err);
@@ -62,7 +61,7 @@ angular.module('afrostreamAdminApp')
         ngToast.create({
           content: 'La ' + $scope.item.type + ' ' + result.data.title + ' à été mise a jour'
         });
-        $modalInstance.close();
+        close();
       }, function (err) {
         showError();
         $log.debug(err);
@@ -74,7 +73,7 @@ angular.module('afrostreamAdminApp')
         ngToast.create({
           content: 'La ' + $scope.item.type + ' ' + result.data.title + ' à été supprimée du catalogue'
         });
-        $modalInstance.close();
+        close();
       }, function (err) {
         showError();
         $log.debug(err);
@@ -136,4 +135,10 @@ angular.module('afrostreamAdminApp')
       return p;
     };
 
+    var close = function (cancel) {
+      $modalInstance.close();
+      if (typeof $modalInstance.onClose === 'function') {
+        $modalInstance.onClose(cancel);
+      }
+    }
   });

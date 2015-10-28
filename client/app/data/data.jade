@@ -61,4 +61,4 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                           span.fa.fa-clone
                         button.btn.btn-xs.btn-danger(ng-click='deleteIndex(item.genericTitle, item)' tooltip='Delete' )
                           span.glyphicon.glyphicon-trash
-              dir-pagination-controls(pagination-id='itemsPagination'  on-page-change='pageChanged(newPageNumber)' boundary-links='true')
+              dir-pagination-controls(pagination-id='itemsPagination'  on-page-change='loadPage(newPageNumber)' boundary-links='true')

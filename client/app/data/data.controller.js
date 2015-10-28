@@ -7,7 +7,7 @@ angular.module('afrostreamAdminApp')
         item.genericTitle = item.title
          || item.label
          || item.name
-         || ((item.firstName || item.lastName) ? item.firstName + ' ' + item.lastName : '' )
+         || ((item.firstName || item.lastName) ? item.firstName + ' ' + item.lastName : '' );
         item.genericThumb = item.thumb || item.picture;
       });
       return items;
@@ -27,20 +27,23 @@ angular.module('afrostreamAdminApp')
     $scope.apiParamsUrl = {
       query: $scope.searchField
     };
-    $scope.pagination = {
-      current: 1
-    };
-    $scope.pageChanged = function (newPage) {
-      getResultsPage(newPage);
+    $scope.pagination = { current: 1 };
+
+    $scope.reload = function () {
+      $scope.loadPage($scope.pagination.current);
     };
 
-    function getResultsPage(pageNumber) {
+    $scope.loadPage = function (page) {
+      // new current page
+      $scope.pagination.current = page;
+      //
+      loadItems(page, $scope.searchField)
+    };
+
+    function loadItems(pageNumber, query) {
       // this is just an example, in reality this stuff should be in a service
-      // FIXME: we shouldn't download everything
-      var firstPage = 1;
-
       $http.get($scope.apiRessourceUrl, {
-        params: {query: $scope.searchField},
+        params: {query: query},
         headers: angular.extend(
           {},
           $scope.headers,
@@ -57,11 +60,11 @@ angular.module('afrostreamAdminApp')
         });
     }
 
-    getResultsPage(1);
+    $scope.loadPage($scope.pagination.current);
 
     $scope.$watch('searchField', function (val) {
       if (!val) return;
-      getResultsPage(1);
+      $scope.loadPage(1);
     });
 
     var modalOpts = {
@@ -118,7 +121,8 @@ angular.module('afrostreamAdminApp')
 
     $scope.editIndex = function (item) {
       $scope.currentItem = item;
-      $modal.open(modalOpts);
+      var $modalInstance = $modal.open(modalOpts);
+      $modalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
     };
 
     $scope.cloneIndex = function (item) {
@@ -142,7 +146,8 @@ angular.module('afrostreamAdminApp')
 
     $scope.newIndex = function () {
       $scope.currentItem = {};
-      $modal.open(modalOpts);
+      var $modalInstance = $modal.open(modalOpts);
+      $modalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
     };
 
     $scope.importAlgolia = function () {
@@ -176,7 +181,7 @@ angular.module('afrostreamAdminApp')
           break;
       }
       return hasTmb;
-    }
+    };
 
     $scope.hasMail = function () {
       var hasTmb = false;
