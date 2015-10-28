@@ -172,11 +172,7 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
-    include: [
-      {model: Image, as: 'logo', required: false}, // load logo image
-      {model: Image, as: 'poster', required: false}, // load poster image
-      {model: Image, as: 'thumb', required: false} // load thumb image
-    ]
+    include: includedModel
   };
 
   // pagination
