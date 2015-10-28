@@ -11,6 +11,10 @@ angular.module('afrostreamAdminApp')
       return item;
     }
 
+    var getTitle = function (item) {
+      return item.title || item.label || item.name || ((item.firstName || item.lastName) ? item.firstName + ' ' + item.lastName : '' );
+    };
+
     $scope.isFilm = function () {
       return type === 'movie' || type === 'serie';
     };
@@ -47,7 +51,7 @@ angular.module('afrostreamAdminApp')
     $scope.addItem = function () {
       $http.post('/api/' + $scope.directiveType, $scope.item).then(function (result) {
         ngToast.create({
-          content: 'La ' + $scope.item.type + ' ' + result.data.title + ' à été ajoutée au catalogue'
+          content: 'L\'objet ' + type + ' ' + getTitle(result.data) + ' à été ajoutée au catalogue'
         });
         close();
       }, function (err) {
@@ -58,8 +62,11 @@ angular.module('afrostreamAdminApp')
 
     $scope.updateItem = function () {
       $http.put('/api/' + $scope.directiveType + '/' + $scope.item._id, $scope.item).then(function (result) {
+        console.log($scope.item);
+        console.log(result.data);
         ngToast.create({
-          content: 'La ' + $scope.item.type + ' ' + result.data.title + ' à été mise a jour'
+
+          content: 'L\'objet  ' + type + ' ' + getTitle(result.data) + ' à été mise a jour'
         });
         close();
       }, function (err) {
@@ -71,7 +78,7 @@ angular.module('afrostreamAdminApp')
     $scope.deleteItem = function () {
       $http.delete('/api/' + $scope.directiveType + '/' + $scope.item._id).then(function (result) {
         ngToast.create({
-          content: 'La ' + $scope.item.type + ' ' + result.data.title + ' à été supprimée du catalogue'
+          content: 'L\'objet  ' + type + ' ' + getTitle(result.data) + ' à été supprimée du catalogue'
         });
         close();
       }, function (err) {
