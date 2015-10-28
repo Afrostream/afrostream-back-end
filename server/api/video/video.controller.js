@@ -166,6 +166,7 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
+    include: includedModel,
     order: [ ['name'] ]
   };
 
