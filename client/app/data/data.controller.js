@@ -96,9 +96,7 @@ angular.module('afrostreamAdminApp')
        * be carrefull... you might PUT incomplete objects here...
        */
       $scope.updateIndex = function (item) {
-        $http.put($scope.apiRessourceUrl + '/' + item._id, item).then(function (result) {
-        }, function (err) {
-        });
+        $http.put($scope.apiRessourceUrl + '/' + item._id, item);
       };
     }
 
@@ -107,7 +105,7 @@ angular.module('afrostreamAdminApp')
      */
     $scope.activateIndex = function (item) {
       item.active = !item.active;
-      $http.put($scope.apiRessourceUrl + '/' + item._id, item));
+      $http.put($scope.apiRessourceUrl + '/' + item._id, item);
     };
 
     $scope.deleteIndex = Modal.confirm.delete(function (item) {
