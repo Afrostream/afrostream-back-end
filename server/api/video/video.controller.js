@@ -165,7 +165,9 @@ function removeEntity(res) {
 // Gets a list of videos
 exports.index = function (req, res) {
   var queryName = req.param('query');
-  var paramsObj = {};
+  var paramsObj = {
+    order: [ ['name'] ]
+  };
 
   // pagination
   utils.mergeReqRange(paramsObj, req);
