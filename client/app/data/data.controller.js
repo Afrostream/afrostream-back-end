@@ -112,7 +112,8 @@ angular.module('afrostreamAdminApp')
     };
 
     $scope.deleteIndex = Modal.confirm.delete(function (item) {
-      $http.delete($scope.apiRessourceUrl + '/' + item._id);
+      $http.delete($scope.apiRessourceUrl + '/' + item._id)
+        .then(function () { $scope.reload(); });
     });
 
     $scope.$on('$destroy', function () {
@@ -139,6 +140,7 @@ angular.module('afrostreamAdminApp')
       }
 
       $http.post($scope.apiRessourceUrl + '/', copyItem).then(function (result) {
+        $scope.reload();
       }, function (err) {
         $log.debug(err.statusText);
       });

@@ -5,7 +5,7 @@ angular.module('afrostreamAdminApp')
     $scope.autoEpisodes = false;
     $scope.loadEpisodes = function (query) {
       return Episode.query({query: query}).$promise;
-    }
+    };
     $scope.loadMovies = function (query) {
       return Movie.query({query: query}).$promise;
     };
