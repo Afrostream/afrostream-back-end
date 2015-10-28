@@ -17,7 +17,7 @@ var Licensor = sqldb.Licensor;
 var utils = require('../utils.js');
 
 var includedModel = [
-  {model: Movie, as: 'movies'}, // load all movies
+  {model: Movie, as: 'movies'} // load all movies
 ];
 
 function handleError(res, statusCode) {
@@ -79,7 +79,9 @@ function removeEntity(res) {
 // Gets a list of licensors
 exports.index = function (req, res) {
   var queryName = req.param('query');
-  var paramsObj = {};
+  var paramsObj = {
+    include: includedModel
+  };
 
   // pagination
   utils.mergeReqRange(paramsObj, req);
