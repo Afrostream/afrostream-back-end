@@ -196,17 +196,19 @@ exports.show = function (req, res) {
         model: Movie, as: 'movies',
         order: [['sort', 'ASC']],
         include: [
+          auth.mergeIncludeValid(req, {model: Category, as: 'categorys', attributes: ['_id', 'label']}),
           auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
           auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
+          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}) // load thumb image
         ]
       }, {
         model: Movie, as: 'adSpots',
         order: [['sort', 'ASC']],
         include: [
+          auth.mergeIncludeValid(req, {model: Category, as: 'categorys', attributes: ['_id', 'label']}),
           auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
           auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
+          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}) // load thumb image
         ]
       } // load all adSpots
     ]
@@ -249,7 +251,9 @@ exports.mea = function (req, res) {
         as: 'movies',
         required: false,
         order: ['sort', 'ASC'],
-        include: [auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
+        include: [
+          auth.mergeIncludeValid(req, {model: Category, as: 'categorys', attributes: ['_id', 'label']}),
+          auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
           auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
           auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
         ]
