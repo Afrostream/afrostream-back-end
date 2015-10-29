@@ -506,120 +506,89 @@ exports.create = function (req, res) {
     .catch(handleError(res));
 };
 
-// Creates a new subscription in the DB (gift)
+// Creates the gift of a new subscription
 exports.gift = function (req, res) {
+
+  var newUserProfile;
   var userId = req.user._id;
+
   User.find({
     where: {
       _id: userId
     }
-  }).then(function(user) {
-    if (!user) {
-      return res.status(401).end();
-    }
-    var giftGiverEmail = user.profile.email;
-    GiftGiver.find({
-      where: {
-        email: {
-          $iLike: giftGiverEmail
-        }
-      }
-    })
-      .then(function (giftGiver) {
-        if (!giftGiver) {
-
-          var giftGiverData = {
-            firstName: req.body['first_name'],
-            lastName: req.body['last_name'],
-            email: giftGiverEmail,
-            recipientEmail: req.body['gift_email']
-          };
-
-
-          GiftGiver.create(giftGiverData)
-            .then( function () {
-              var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
-              var data = {
-                plan_code: req.body['plan-code'],
-                coupon_code: req.body['coupon_code'],
-                unit_amount_in_cents: req.body['unit-amount-in-cents'],
-                currency: 'EUR',
-                account: {
-                  account_code: uuid.v1(),
-                  email: req.body['gift_email'],
-                  first_name: req.body['gift_first_name'],
-                  last_name: req.body['gift_last_name'],
-                  billing_info: {
-                    token_id: req.body['recurly-token']
-                  }
-                }
-              };
-
-              console.log('subscription create', data.account);
-
-              return createAsync(data).then(function (item) {
-                console.log('subscription', item);
-                var newUserData = {
-                  email: req.body['gift_email'],
-                  firstName: req.body['gift_first_name'],
-                  lastName: req.body['gift_last_name'],
-                  provider: 'local',
-                  accountCode: data.account.account_code,
-                  active: false
-                }
-                User.create(newUserData)
-                  .catch(handleError(res))
-                  .then(function () {
-                    var planName = item.properties.plan.name;
-                    var planCode = item.properties.plan.plan_code;
-                    profile.planCode = planCode;
-                    if (!item._resources) {
-                      return res.json(profile);
-                    }
-                    var invoiceId = item._resources.invoice.split('/invoices')[1];
-                    if (!invoiceId) {
-                      return res.json(profile);
-                    }
-                    var account = new recurly.Account();
-                    account.id = data.account.account_code;
-                    var fetchAsync = Promise.promisify(account.getInvoices, account);
-                    return fetchAsync().then(function (invoicesInfo) {
-                      if (!invoicesInfo) {
-                        return res.json(profile);
-                      }
-
-                      console.log('invoiceId', invoiceId);
-                      console.log('invoices', invoicesInfo);
-                      var invoiceFounded = _.find(invoicesInfo, function (inv) {
-                        return inv['invoice_number'] == invoiceId;
-                      });
-                      console.log('invoiceFounded', invoicesInfo);
-                      if (!invoiceFounded) {
-                        return res.json(profile);
-                      }
-
-                      return mailer.sendStandardEmail(res, data.account, planName, planCode, invoiceFounded)
-                        .then(function () {
-                          return res.json(profile);
-                        })
-                        .catch(function () {
-                          return res.json(profile);
-                        });
-                    }).catch(handleError(res));
-
-                  }).catch(handleError(res));
-
-              }).catch(function (err) {
-                return res.status(500).send(err.errors || err);
-              });
-            })
-            .then(responseWithResult(res, 201))
-            .catch(handleError(res));
-        }
-      })
-      .catch(handleError(res));
   })
-  .catch(handleError(res));
+    .then(function (user) { // don't ever give out the password or salt
+      if (!user) {
+        return res.status(401).end();
+      }
+
+      var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
+      var data = {
+        plan_code: req.body['plan-code'],
+        coupon_code: req.body['coupon_code'],
+        unit_amount_in_cents: req.body['unit-amount-in-cents'],
+        currency: 'EUR',
+        account: {
+          account_code: uuid.v1(),
+          email: req.body['gift_email'],
+          first_name: req.body['gift_first_name'],
+          last_name: req.body['gift_last_name'],
+          billing_info: {
+            token_id: req.body['recurly-token']
+          }
+        }
+      };
+
+      console.log('subscription create', data.account);
+
+      return createAsync(data).then(function (item) {
+        var accountId = item._resources.account.split('/accounts/')[1];
+        var planCode = item.properties.plan.plan_code;
+        var newUserData = {
+          name: req.body['gift_email'],
+          email: req.body['gift_email'],
+          first_name: req.body['gift_first_name'],
+          last_name: req.body['gift_last_name'],
+          provider: 'local',
+          account_code: accountId,
+          active: true
+        };
+
+        User.create(newUserData)
+          .catch(function (err) {
+            handleError(res);
+          })
+          .then(function () {
+            var giftGiverEmail = user.profile.email;
+            var giftGiverData = {
+              first_name: req.body['first_name'],
+              last_name: req.body['last_name'],
+              email: giftGiverEmail,
+              recipient_email: req.body['gift_email']
+            };
+
+            GiftGiver.create(giftGiverData)
+              .catch(function (err) {
+                handleError(res, err);
+              });
+
+            User.find({
+              where: {
+                email: req.body['gift_email']
+              }
+            }).then (function (newUser) {
+              newUserProfile = newUser.profile;
+              newUserProfile.planCode = planCode;
+              return res.json(newUserProfile);
+            });
+
+          });
+
+      }).catch(function (err) {
+        return res.status(500).send(err.errors || err);
+      });
+    })
+    .catch(handleError(res));
 };
 
 
