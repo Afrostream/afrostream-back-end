@@ -41,7 +41,11 @@ var Promise = require('bluebird');
 var promises = [];
 
 var nbGeneratedMovies = 50;
+var nbGeneratedSeasons = 5;
+var nbGeneratedEpisodes = 10;
 var getMovieTitle = function (i) { return 'Title of random movie ' + i; };
+var getSeasonTitle = function (i) { return 'Title of random season ' + i; };
+var getEpisodeTitle = function (i) { return 'Title of random episode ' + i; };
 var getVideoName = function (i) { return 'video ' + i; };
 
 console.log('SEEDING DATA IN DATABASE');
@@ -136,7 +140,8 @@ promises.push(
       movies.push({
         title: getMovieTitle(i),
         synopsis: 'synopsis of random movie ' + i,
-        poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
+        poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
+        active: (i % 7 === 0)
       });
     }
     return Movie.bulkCreate(movies);
@@ -190,13 +195,22 @@ promises.push(
     return Season.destroy({where: {}});
   })
   .then(function () {
-    return Season.bulkCreate([{
+    var seasons = [{
       title: 'In the mood for love Season 1',
       synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
       'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
       'Stylus, Sass, CoffeeScript, and Less.',
       poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg'
-    }]);
+    }];
+
+    for (var i = 0; i < nbGeneratedSeasons; i++) {
+      seasons.push({
+        title: getSeasonTitle(i),
+        synopsis: 'synopsis of random season ' + i,
+        active: (i % 3 === 0)
+      });
+    }
+    return Season.bulkCreate(seasons);
   })
 );
 
@@ -217,7 +231,7 @@ promises.push(Episode.sync()
     return Episode.destroy({where: {}});
   })
   .then(function () {
-    return Episode.bulkCreate([{
+    var episodes = [{
       title: 'In the mood for love Episode 1',
       synopsis: 'Integration with popular tools such as Bower, Grunt, Karma, ' +
       'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
@@ -265,8 +279,17 @@ promises.push(Episode.sync()
       poster: 'http://www.dvdsreleasedates.com/posters/800/B/Beyond-the-Lights-2014-movie-poster.jpg',
       episodeNumber: 4,
       sort: 4
+    }];
+
+    for (var i = 0; i < nbGeneratedEpisodes; i++) {
+      episodes.push({
+        title: getEpisodeTitle(i),
+        synopsis: 'synopsis of random episode ' + i,
+        active: (i % 3 === 0)
+      });
     }
-    ]);
+
+    return  Episode.bulkCreate(episodes);
   })
 );
 

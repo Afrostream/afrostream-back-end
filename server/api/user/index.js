@@ -19,11 +19,18 @@ var auth = require('../../auth/auth.service');
 
 var router = express.Router();
 
+router.use('/:userId/favoritesEpisodes', require('./favoriteEpisode'));
+router.use('/:userId/favoritesMovies', require('./favoriteMovie'));
+router.use('/:userId/favoritesSeasons', require('./favoriteSeason'));
+
 router.get('/', auth.hasRole('admin'), controller.index);
 router.delete('/:id', auth.hasRole('client'), controller.destroy);
 router.get('/me', auth.isAuthenticated(), controller.me);
 router.put('/verify', auth.isAuthenticated(), controller.verify);
 router.put('/password', auth.isAuthenticated(), controller.auth0ChangePassword);
+//
+// FIXME: we should check that :id correspond to req.user._id
+//
 router.put('/:id/password', auth.hasRole('admin'), controller.changePassword);
 router.put('/:id/role', auth.hasRole('admin'), controller.changeRole);
 router.get('/:id', auth.hasRole('admin'), controller.show);
