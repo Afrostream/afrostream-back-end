@@ -67,7 +67,7 @@ describe('API: /user/:id/favoritesMovies', function() {
         .expect(200, done);
     });
 
-    it('then, GET /user/:id/favoritesMovies should respond 200 OK with 1 favorites on second hit', function(done) {
+    it('then, GET /user/:id/favoritesMovies should respond 200 OK with 1 favorites', function(done) {
       request(app)
         .get('/api/users/'+user._id+'/favoritesMovies/')
         .set('authorization', 'Bearer ' + token)
@@ -77,6 +77,25 @@ describe('API: /user/:id/favoritesMovies', function() {
           console.log(res.body);
           assert(res.body[0]._id === randomMovie._id);
           assert(res.body[0].title === randomMovie.title);
+        })
+        .expect(200, done);
+    });
+
+    it('then, DELETE /user/:id/favoritesMovies/:movieId should respond 200 OK', function(done) {
+      request(app)
+        .del('/api/users/'+user._id+'/favoritesMovies/'+randomMovie._id)
+        .set('authorization', 'Bearer ' + token)
+        .expect('Content-Type', /json/)
+        .expect(200, done);
+    });
+
+    it('then, it should respond 200 OK with no favorites', function(done) {
+      request(app)
+        .get('/api/users/'+user._id+'/favoritesMovies/')
+        .set('authorization', 'Bearer ' + token)
+        .expect('Content-Type', /json/)
+        .expect(function (res) {
+          assert(Array.isArray(res.body) && res.body.length === 0);
         })
         .expect(200, done);
     });

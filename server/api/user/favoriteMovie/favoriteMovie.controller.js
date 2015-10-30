@@ -30,7 +30,7 @@ var index = function (req, res) {
     .catch(handleError(res, 500));
 };
 
-var create = function (req, res) {
+var add = function (req, res) {
   if (!req.body._id) {
     return handleError(res, 500)('missing movie _id');
   }
@@ -53,6 +53,29 @@ var create = function (req, res) {
     .catch(handleError(res, 500));
 };
 
+var remove = function (req, res) {
+  User.find({
+    where: {
+      _id: req.user._id
+    },
+    include: [
+      {
+        model: Movie, as: 'favoritesMovies'
+      }
+    ]
+  })
+    .then(function (user) {
+      if (!user) {
+        return res.status(401).end();
+      }
+      var movie = Movie.build({_id: req.params.movieId});
+      return user.removeFavoritesMovies(movie).then(function () {
+        res.json({});
+      });
+    })
+    .catch(handleError(res, 500));
+};
+
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
@@ -62,4 +85,5 @@ function handleError(res, statusCode) {
 }
 
 module.exports.index = index;
-module.exports.create = create;
+module.exports.add = add;
+module.exports.remove = remove;

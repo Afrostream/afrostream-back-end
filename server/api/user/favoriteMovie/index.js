@@ -1,25 +1,37 @@
 'use strict';
 
 /**
- * @api {get} /users/:id/favoritesMovies/ Request favorites movies list
+ * @api {get} /users/:userId/favoritesMovies/ Request favorites movies list
  * @apiName GetFavoritesMovies
  * @apiDescription this api call return the favorites movies object list
  * @apiGroup User
  *
- * @apiParam (Params) {Number} id User ID
- * @apiParam (QueryString) {string} access_token only authentified user can access this
+ * @apiParam (Params) {Number} userId User ID
+ * @apiParam (Header) {BearerToken} authorization only authentified user can access this
  */
 
 /**
  *
- * @api {post} /users/:id/favoritesMovies/ Add movie to favorites
+ * @api {post} /users/:userId/favoritesMovies/ Add movie to favorites
  * @apiName AddFavoriteMovie
  * @apiDescription this api call return the movie object added
  * @apiGroup User
  *
- * @apiParam (Params) {Number} id User ID
+ * @apiParam (Params) {Number} userId User ID
  * @apiParam (PostData) {Number} _id Movie ID
- * @apiParam (PostData) {string} access_token only authentified user can access this
+ * @apiParam (Header) {BearerToken} authorization only authentified user can access this
+ */
+
+/**
+ *
+ * @api {delete} /users/:userId/favoritesMovies/:movieId Remove movie from favorites
+ * @apiName RemoveFavoriteMovie
+ * @apiDescription this api call return nothing :)
+ * @apiGroup User
+ *
+ * @apiParam (Params) {Number} userId User ID
+ * @apiParam (Params) {Number} movieId Movie ID
+ * @apiParam (Header) {BearerToken} authorization only authentified user can access this
  */
 
 var express = require('express');
@@ -37,6 +49,7 @@ var tokenUserMatchParamUser = function (req, res, next) {
 };
 
 router.get('/', auth.isAuthenticated(), tokenUserMatchParamUser, controller.index);
-router.post('/', auth.isAuthenticated(), tokenUserMatchParamUser, controller.create);
+router.post('/', auth.isAuthenticated(), tokenUserMatchParamUser, controller.add);
+router.delete('/:movieId', auth.isAuthenticated(), tokenUserMatchParamUser, controller.remove);
 
 module.exports = router;

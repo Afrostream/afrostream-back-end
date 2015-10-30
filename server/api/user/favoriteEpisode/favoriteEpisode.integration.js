@@ -81,6 +81,25 @@ describe('API: /user/:id/favoritesEpisodes', function() {
         })
         .expect(200, done);
     });
+
+    it('then, DELETE /user/:id/favoritesEpisodes/:episodeId should respond 200 OK', function(done) {
+      request(app)
+        .del('/api/users/'+user._id+'/favoritesEpisodes/'+randomEpisode._id)
+        .set('authorization', 'Bearer ' + token)
+        .expect('Content-Type', /json/)
+        .expect(200, done);
+    });
+
+    it('then, it should respond 200 OK with no favorites', function(done) {
+      request(app)
+        .get('/api/users/'+user._id+'/favoritesEpisodes/')
+        .set('authorization', 'Bearer ' + token)
+        .expect('Content-Type', /json/)
+        .expect(function (res) {
+          assert(Array.isArray(res.body) && res.body.length === 0);
+        })
+        .expect(200, done);
+    });
   });
 
   describe('POST /user/:id/favoritesEpisodes {episodeId: ...} without token', function() {
