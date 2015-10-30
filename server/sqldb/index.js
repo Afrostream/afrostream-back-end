@@ -196,4 +196,17 @@ db.Video.hasOne(db.Episode, {as: 'episode', foreignKey: 'videoId'});
 
 db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints: false});
 
+
+db.UsersFavoritesEpisodes = db.sequelize.define('UsersFavoritesEpisodes', {});
+db.Episode.belongsToMany(db.User, {through: db.UsersFavoritesEpisodes, as: 'users', foreignKey: 'episodeId'});
+db.User.belongsToMany(db.Episode, {through: db.UsersFavoritesEpisodes, as: 'favoritesEpisodes', foreignKey: 'userId'});
+
+db.UsersFavoritesMovies = db.sequelize.define('UsersFavoritesMovies', {});
+db.Movie.belongsToMany(db.User, {through: db.UsersFavoritesMovies, as: 'users', foreignKey: 'movieId'});
+db.User.belongsToMany(db.Movie, {through: db.UsersFavoritesMovies, as: 'favoritesMovies', foreignKey: 'userId'});
+
+db.UsersFavoritesSeasons = db.sequelize.define('UsersFavoritesSeasons', {});
+db.Season.belongsToMany(db.User, {through: db.UsersFavoritesSeasons, as: 'users', foreignKey: 'seasonId'});
+db.User.belongsToMany(db.Season, {through: db.UsersFavoritesSeasons, as: 'favoritesSeasons', foreignKey: 'userId'});
+
 module.exports = db;

@@ -127,7 +127,7 @@ exports.setup = function (Client, User, AccessToken, config) {
           if (new Date() > token.expirationDate) {
             return token.destroy()
               .then(function () {
-                done(err)
+                done(new Error('token expired'))
               });
           }
           if (token.userId !== null) {
