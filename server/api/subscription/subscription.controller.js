@@ -579,6 +579,12 @@ exports.gift = function (req, res) {
             }).then (function (newUser) {
               newUserProfile = newUser.profile;
               newUserProfile.planCode = planCode;
+
+              mailer.sendGiftEmail(res, data.account, planName, planCode, invoiceFounded)
+                .catch(function () {
+                  return res.status(500).send(err.errors || err);
+                });
+
               return res.json(newUserProfile);
             });
 
