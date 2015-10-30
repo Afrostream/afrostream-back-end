@@ -99,6 +99,7 @@ function responseWithAdSpot(req, res, statusCode) {
               ]
             }, {attributes: ['_id', 'slug']})]
           }), // load all seasons
+          auth.mergeIncludeValid(req, {model: Category, as: 'categorys', attributes: ['_id', 'label'], required: false}),
           auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
           auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
           auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
