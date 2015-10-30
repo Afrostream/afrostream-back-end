@@ -3,9 +3,23 @@
 /**
  * @api {get} /users/:id/favoritesMovies/ Request favorites movies list
  * @apiName GetFavoritesMovies
+ * @apiDescription this api call return the favorites movies object list
  * @apiGroup User
  *
- * @apiParam {Number} id User unique ID.
+ * @apiParam (Params) {Number} id User ID
+ * @apiParam (QueryString) {string} access_token only authentified user can access this
+ */
+
+/**
+ *
+ * @api {post} /users/:id/favoritesMovies/ Add movie to favorites
+ * @apiName AddFavoriteMovie
+ * @apiDescription this api call return the movie object added
+ * @apiGroup User
+ *
+ * @apiParam (Params) {Number} id User ID
+ * @apiParam (PostData) {Number} _id Movie ID
+ * @apiParam (PostData) {string} access_token only authentified user can access this
  */
 
 var express = require('express');

@@ -1,11 +1,25 @@
 'use strict';
 
 /**
- * @api {get} /users/:id/favoritesMovies/ Request favorites movies list
- * @apiName GetFavoritesMovies
+ * @api {get} /users/:id/favoritesEpisodes/ Request favorites episodes list
+ * @apiName GetFavoritesEpisodes
+ * @apiDescription this api call return the favorites episodes object list
  * @apiGroup User
  *
- * @apiParam {Number} id User unique ID.
+ * @apiParam (Params) {Number} id User ID
+ * @apiParam (QueryString) {string} access_token only authentified user can access this
+ */
+
+/**
+ *
+ * @api {post} /users/:id/favoritesEpisodes/ Add episode to favorites
+ * @apiName AddFavoriteEpisode
+ * @apiDescription this api call return the episode object added
+ * @apiGroup User
+ *
+ * @apiParam (Params) {Number} id User ID
+ * @apiParam (PostData) {Number} _id Episode ID
+ * @apiParam (PostData) {string} access_token only authentified user can access this
  */
 
 var express = require('express');
