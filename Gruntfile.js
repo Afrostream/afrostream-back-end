@@ -429,8 +429,7 @@ module.exports = function (grunt) {
 
     mochaTest: {
       options: {
-        reporter: 'spec',
-        require: 'mocha.conf.js'
+        reporter: 'spec'
       },
       unit: {
         src: ['server/**/*.spec.js']
@@ -445,7 +444,6 @@ module.exports = function (grunt) {
         options: {
           excludes: ['**/*.{spec,mock,integration}.js'],
           reporter: 'spec',
-          require: ['mocha.conf.js'],
           mask: '**/*.spec.js',
           coverageFolder: 'coverage/server/unit'
         },
@@ -455,7 +453,6 @@ module.exports = function (grunt) {
         options: {
           excludes: ['**/*.{spec,mock,integration}.js'],
           reporter: 'spec',
-          require: ['mocha.conf.js'],
           mask: '**/*.integration.js',
           coverageFolder: 'coverage/server/integration'
         },
@@ -546,7 +543,7 @@ module.exports = function (grunt) {
         files: {
           '.tmp/app/app.css': '<%= yeoman.client %>/app/app.less'
         }
-      },
+      }
     },
 
     injector: {
@@ -676,16 +673,16 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('test', function (target, option) {
-    if (target === 'server') {
-      return grunt.task.run([
-        'env:all',
-        'env:test',
-        'mochaTest:unit',
-        'mochaTest:integration'
-      ]);
-    }
+    // only testing server...
+    // if (target === 'server')
+    return grunt.task.run([
+      'env:all',
+      'env:test',
+      'mochaTest:unit',
+      'mochaTest:integration'
+    ]);
 
-    else if (target === 'client') {
+    if (target === 'client') {
       return grunt.task.run([
         'clean:server',
         'env:all',

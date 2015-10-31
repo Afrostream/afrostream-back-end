@@ -19,6 +19,7 @@ module.exports = {
         timestamps: false
       }
     }
-  }
+  },
 
+  dumpPostData: true
 };

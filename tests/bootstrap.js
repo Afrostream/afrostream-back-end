@@ -1,5 +1,19 @@
 'use strict';
 
+before(function () {
+  var User = require('../server/sqldb').User;
+  // ensure user test@test.com / test exist.
+  // create a new test user at each session.
+  return User.destroy({where: {email:'test@test.com'}}).then(function () {
+    var user = User.build({
+      name: 'Test User',
+      email: 'test@test.com',
+      password: 'test'
+    });
+    return user.save();
+  });
+});
+
 process.on('uncaughtException', function(err) {
   console.error('Caught exception: ' + err);
 });

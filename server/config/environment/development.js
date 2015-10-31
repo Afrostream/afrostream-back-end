@@ -18,6 +18,8 @@ module.exports = {
     }
   },
 
+  dumpPostData: true,
+
   // if you want to seed:
   // use: export SEED_DB=true before launching node/grunt
   seedDB: (process.env.SEED_DB === 'true')

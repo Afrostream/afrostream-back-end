@@ -4,25 +4,26 @@ var app = require('../../app');
 var User = require('../../sqldb').User;
 var request = require('supertest');
 
+var assert = require('better-assert');
+
 describe('User API:', function() {
   var user;
 
   // Clear users before testing
   before(function() {
-    return User.destroy({ where: {} }).then(function() {
+    return User.destroy({ where: { email: 'test.integration@afrostream.tv' } }).then(function() {
       user = User.build({
         name: 'Fake User',
-        email: 'test@test.com',
+        email: 'test.integration@afrostream.tv',
         password: 'password'
       });
-
       return user.save();
     });
   });
 
   // Clear users after testing
   after(function() {
-    return User.destroy({ where: {} });
+    return User.destroy({ where: { email: 'test.integration@afrostream.tv' } });
   });
 
   describe('GET /api/users/me', function() {
@@ -32,7 +33,7 @@ describe('User API:', function() {
       request(app)
         .post('/auth/local')
         .send({
-          email: 'test@test.com',
+          email: 'test.integration@afrostream.tv',
           password: 'password'
         })
         .expect(200)
@@ -50,7 +51,7 @@ describe('User API:', function() {
         .expect(200)
         .expect('Content-Type', /json/)
         .end(function(err, res) {
-          res.body._id.toString().should.equal(user._id.toString());
+          assert(String(res.body._id) === String(user._id));
           done();
         });
     });

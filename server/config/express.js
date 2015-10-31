@@ -85,8 +85,9 @@ module.exports = function (app) {
   app.use(busboy());
   app.use(passport.initialize());
   app.use(passport.session());
-
-  app.use(dumpPostData());
+  if (config.dumpPostData) {
+    app.use(dumpPostData());
+  }
 
   switch (env) {
     case 'production':

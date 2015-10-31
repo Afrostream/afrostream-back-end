@@ -74,7 +74,6 @@ describe('API: /user/:id/favoritesSeasons', function() {
         .expect('Content-Type', /json/)
         .expect(function (res) {
           assert(Array.isArray(res.body) && res.body.length === 1);
-          console.log(res.body);
           assert(res.body[0]._id === randomSeason._id);
           assert(res.body[0].title === randomSeason.title);
         })

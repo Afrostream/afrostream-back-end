@@ -8,10 +8,10 @@ module.exports = {
     uri: 'mongodb://localhost/afrostreamadmin-test'
   },
   sequelize: {
-    uri: 'sqlite://',
+    uri: 'postgres://postgres:root@localhost:5432/afrostream',
     options: {
       logging: false,
-      storage: 'test.sqlite',
+      storage: 'dev.postgres',
       define: {
         timestamps: false
       }
