@@ -1,7 +1,10 @@
 'use strict';
 
-var app = require('../../app');
-var User = require('../../sqldb').User;
+var bootstrap = require('../../../tests/bootstrap.js');
+
+var app = bootstrap.getApp();
+var sqldb = bootstrap.getSqldb();
+var User = sqldb.User;
 var request = require('supertest');
 
 var assert = require('better-assert');

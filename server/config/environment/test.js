@@ -16,5 +16,6 @@ module.exports = {
         timestamps: false
       }
     }
-  }
+  },
+  env: 'test'
 };

@@ -1,5 +1,14 @@
 'use strict';
 
+process.env.NODE_ENV = 'test';
+
+var config = require('../server/config/environment');
+
+if (config.env !== 'test') {
+  console.error('test should only be run on test env');
+  process.exit(0);
+}
+
 before(function () {
   var User = require('../server/sqldb').User;
   // ensure user test@test.com / test exist.
