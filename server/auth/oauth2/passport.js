@@ -116,7 +116,6 @@ exports.setup = function (Client, User, AccessToken, config) {
    */
   passport.use('bearer', new BearerStrategy(
     function (accessToken, done) {
-
       AccessToken.find({
         where: {
           token: accessToken

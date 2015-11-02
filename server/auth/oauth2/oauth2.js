@@ -78,9 +78,7 @@ var generateToken = function (client, user, code, done) {
     RefreshToken.create({
       token: tokenData.refresh,
       clientId: tokenData.clientId,
-      userId: tokenData.userId,
-      expirationDate: tokenData.expirationDate,
-      expirationTimespan: tokenData.expirationTimespan
+      userId: tokenData.userId
     })
       .then(function (refreshTokenEntity) {
         return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
@@ -95,28 +93,23 @@ var generateToken = function (client, user, code, done) {
   });
 };
 
-var refreshToken = function (client, done) {
+var refreshAccessToken = function (client, userId) {
+  var user = userId ? { _id : userId} : null; // yeark...
+  var tokenData = generateTokenData(client, user, null);
 
-  var tokenData = generateTokenData(client, null, null);
-  AccessToken.find({
-    where: {
-      clientId: client._id
-    }
-  })
-    .then(function (tokenEntity) {
-      return tokenEntity.updateAttributes({
+  return AccessToken.find({
+      where: {
+        clientId: client._id,
+        userId: userId
+      }
+    })
+    .then(function (accessToken) {
+      if (!accessToken) throw "missing access token";
+      return accessToken.updateAttributes({
         token: tokenData.token,
         expirationDate: tokenData.expirationDate,
         expirationTimespan: tokenData.expirationTimespan
-      })
-        .then(function (updated) {
-          return done(null, updated.token, updated.token, {expires_in: updated.expirationTimespan});
-        }).catch(function (err) {
-          return done(err)
-        });
-
-    }).catch(function (err) {
-      return done(err)
+      });
     });
 };
 
@@ -161,7 +154,6 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
       });
   });
 }));
-
 
 server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, done) {
   Client.find({
@@ -230,25 +222,23 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
     });
 }));
 
-server.exchange(oauth2orize.exchange.refreshToken(function (client, token, scope, done) {
+server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshTokenToken, scope, done) {
   RefreshToken.find({
     where: {
-      token: token
+      token: refreshTokenToken
     }
   })
-    .then(function (tokenRefresh) {
-      if (!tokenRefresh) {
-        done(err);
+    .then(function (refreshToken) {
+      if (!refreshToken) {
+        throw new Error("missing refresh token");
       }
-      if (!tokenRefresh.clientId !== client._id) {
-        done(null, false);
+      if (refreshToken.clientId !== client._id) {
+        throw new Error("clientId missmatch");
       }
-      return refreshToken(client, done);
-
-    }).catch(function (err) {
-      done(err);
-    });
-
+      return refreshAccessToken(client, refreshToken.userId);
+    }).then(function (accessToken) {
+      done(null, accessToken.token, refreshTokenToken, {expires_in: accessToken.expirationTimespan});
+    }).catch(done);
 }));
 
 exports.authorization = [
