@@ -310,13 +310,13 @@ function reqUser(req) {
   var userId = req && req.user && req.user._id;
 
   return User.find({where: { _id: userId } })
-  .then(function (user) {
-    if (!user) {
-      var error = new Error("user doesn't exist");
-      error.httpCode = 401;
-    }
-    return user;
-  });
+    .then(function (user) {
+      if (!user) {
+        var error = new Error("user doesn't exist");
+        error.httpCode = 401;
+      }
+      return user;
+    });
 }
 
 /**
@@ -410,16 +410,16 @@ function userInfos(user) {
  */
 exports.status = function (req, res) {
   reqUser(req)
-  .then(function (user) {
-    return userInfos(user);
-  })
-  .then(function (infos) {
-    return res.json({
-      planCode: infos.planCode,
-      subscriptions: infos.subscriptions
-    });
-  })
-  .catch(error(res));
+    .then(function (user) {
+      return userInfos(user);
+    })
+    .then(function (infos) {
+      return res.json({
+        planCode: infos.planCode,
+        subscriptions: infos.subscriptions
+      });
+    })
+    .catch(error(res));
 };
 
 // Creates a new subscription in the DB
@@ -506,135 +506,159 @@ exports.create = function (req, res) {
     .catch(handleError(res));
 };
 
-// Creates the gift of a new subscription
+// Creates a new subscription in the DB (gift)
 exports.gift = function (req, res) {
-
-  var newUserProfile;
-  var purchaseDetails = {};
+  console.log('*** at start of call to backend/api/gift ***');
+  var giftResponse = res;
   var userId = req.user._id;
-
   User.find({
     where: {
       _id: userId
     }
-  })
-    .then(function (user) { // don't ever give out the password or salt
-      if (!user) {
-        return res.status(401).end();
-      }
-
-      var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
-      var data = {
-        plan_code: req.body['plan-code'],
-        coupon_code: req.body['coupon_code'],
-        unit_amount_in_cents: req.body['unit-amount-in-cents'],
-        currency: 'EUR',
-        account: {
-          account_code: uuid.v1(),
-          email: req.body['gift_email'],
-          first_name: req.body['gift_first_name'],
-          last_name: req.body['gift_last_name'],
-          billing_info: {
-            token_id: req.body['recurly-token']
-          }
+  }).then(function(user) {
+    if (!user) {
+      console.log('*** user not found ***');
+      return res.status(401).end();
+    }
+    console.log('*** user was found ***');
+    var giftGiverEmail = user.profile.email;
+    GiftGiver.find({
+      where: {
+        email: {
+          $iLike: giftGiverEmail
         }
-      };
-
-      purchaseDetails['giverFirstName'] = req.body['first_name'];
-      purchaseDetails['giverLastName'] = req.body['last_name'];
-      purchaseDetails['giverEmail'] = req.body['email'];
-      purchaseDetails['recipientFirstName'] = req.body['gift_first_name'];
-      purchaseDetails['recipientLastName'] = req.body['gift_last_name'];
-
-      console.log('subscription create', data.account);
-
-      return createAsync(data).then(function (item) {
-        purchaseDetails['planName'] = item.properties.plan.name;
-        var accountId = item._resources.account.split('/accounts/')[1];
-        var invoiceId = purchaseDetails['invoiceNumber'] = item._resources.invoice.split('/invoices/')[1];
-        var planCode = item.properties.plan.plan_code;;
-
-        var newUserData = {
-          name: req.body['gift_email'],
-          email: req.body['gift_email'],
-          first_name: req.body['gift_first_name'],
-          last_name: req.body['gift_last_name'],
-          provider: 'local',
-          account_code: accountId,
-          active: true
-        };
-
-        User.create(newUserData)
-          .catch(function (err) {
-            handleError(res);
-          })
-          .then(function () {
-            var giftGiverEmail = user.profile.email;
-            var giftGiverData = {
-              first_name: req.body['first_name'],
-              last_name: req.body['last_name'],
-              email: giftGiverEmail,
-              recipient_email: req.body['gift_email']
-            };
-
-            GiftGiver.create(giftGiverData)
-              .catch(function (err) {
-                handleError(res, err);
-              }).then(function() {
-
-                User.find({
-                  where: {
-                    email: req.body['gift_email']
-                  }
-                }).then (function (newUser) {
-                  newUserProfile = newUser.profile;
-                  newUserProfile.planCode = planCode;
-                  var account = new recurly.Account();
-                  account.id = accountId;
-
-                  var fetchAsyncInvoices = Promise.promisify(account.getInvoices, account);
-                  return fetchAsyncInvoices().then(function (invoicesInfo) {
-                    if (!invoicesInfo) {
-                      console.log('no invoice info');
-                    }
-
-                    var correctInvoice = _.find(invoicesInfo, function (inv) {
-                      return inv['invoice_number'] == invoiceId;
-                    });
-
-                    if (typeof correctInvoice !== 'undefined'
-                      && typeof correctInvoice['total_in_cents'] !== 'undefined'
-                      && typeof correctInvoice['line_items'] !== 'undefined'
-                      && typeof correctInvoice['line_items'][0] !== 'undefined'
-                      && typeof correctInvoice['line_items'][0]['end_date'] !== 'undefined'
-                      && typeof correctInvoice['currency'] !== 'undefined' ) {
-
-                      purchaseDetails['totalInCents'] = correctInvoice['total_in_cents'];
-                      purchaseDetails['closedAt'] = correctInvoice['line_items'][0]['end_date'];
-                      purchaseDetails['invoiceCurrency'] = correctInvoice['currency'];
-
-                      console.log('*** invoice details ***');
-                      console.log(correctInvoice);
-                      console.log('*** end of invoice details ***');
-
-                      mailer.sendGiftEmail(purchaseDetails)
-                       .catch(function () {
-                       return res.status(500).send(err.errors || err);
-                       });
-
-                      return res.json(newUserProfile);
-                    }
-                  });
-                });
-              });
-
-          });
-
-      }).catch(function (err) {
-        return res.status(500).send(err.errors || err);
-      });
+      }
     })
-    .catch(handleError(res));
+      .then(function (giftGiver) {
+        if (!giftGiver) {
+          console.log('*** gift giver does not yet exist ***');
+
+          var giftGiverData = {
+            first_name: req.body['first_name'],
+            last_name: req.body['last_name'],
+            email: giftGiverEmail,
+            recipient_email: req.body['gift_email']
+          };
+
+
+          GiftGiver.create(giftGiverData)
+            .then( function () {
+              console.log('*** now trying to create subscription ***');
+              var createAsyncNewGift = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
+              var data = {
+                plan_code: req.body['plan-code'],
+                coupon_code: req.body['coupon_code'],
+                unit_amount_in_cents: req.body['unit-amount-in-cents'],
+                currency: 'EUR',
+                account: {
+                  account_code: uuid.v1(),
+                  email: req.body['gift_email'],
+                  first_name: req.body['gift_first_name'],
+                  last_name: req.body['gift_last_name'],
+                  billing_info: {
+                    token_id: req.body['recurly-token']
+                  }
+                }
+              };
+              console.log('subscription create', data.account);
+
+              return createAsyncNewGift(data).then(function (item) {
+                console.log('subscription', item);
+                var accountId = item._resources.account.split('/accounts/')[1];
+                var invoicesId = item._resources.account.split('/invoices/')[1];
+                var planCode = item.properties.plan.plan_code;
+                var newUserData = {
+                  email: req.body['gift_email'],
+                  first_name: req.body['gift_first_name'],
+                  last_name: req.body['gift_last_name'],
+                  provider: 'local',
+                  account_code: accountId,
+                  active: true
+                };
+
+                User.create(newUserData)
+                  .catch(function (err) {
+                    handleError(res);
+                  })
+                  .then(function (res) {
+                    User.find({
+                      where: {
+                        email: req.body['gift_email']
+                      }
+                    }).then (function (newUser) {
+                      var newUserProfile = newUser.profile;
+                      newUserProfile.planCode = planCode;
+                      return giftResponse.json(newUserProfile);
+                    });
+                    /**
+                     console.log('*** new user added, will try to send mail ***');
+                     var planName = item.properties.plan.name;
+                     var planCode = item.properties.plan.plan_code;
+                     profile.planCode = planCode;
+                     if (!item._resources) {
+                      return res.json(profile);
+                    }
+                     var invoiceId = item._resources.invoice.split('/invoices')[1];
+                     if (!invoiceId) {
+                      return res.json(profile);
+                    }
+                     var account = new recurly.Account();
+                     account.id = data.account.account_code;
+                     var fetchAsync = Promise.promisify(account.getInvoices, account);
+                     return fetchAsync().then(function (invoicesInfo) {
+                      if (!invoicesInfo) {
+                        return res.json(profile);
+                      }
+
+                      console.log('invoiceId', invoiceId);
+                      console.log('invoices', invoicesInfo);
+                      var invoiceFounded = _.find(invoicesInfo, function (inv) {
+                        return inv['invoice_number'] == invoiceId;
+                      });
+                      console.log('invoiceFounded', invoicesInfo);
+                      if (!invoiceFounded) {
+                        return res.json(profile);
+                      }
+
+                      return mailer.sendStandardEmail(res, data.account, planName, planCode, invoiceFounded)
+                        .then(function () {
+                          return res.json(profile);
+                        })
+                        .catch(function () {
+                          return res.json(profile);
+                        });
+                    }).catch(handleError(res));
+                     **/
+                  }).catch(function (err) {
+                    console.log('*** error 1 ***');
+                    handleError(res)
+                  });
+
+              }).catch(function (err) {
+                console.log('*** error 2 ***');
+                console.log(err);
+                console.log('*** end of error 2 ***');
+                return giftResponse.status(500).send(err.errors || err);
+              });
+            })
+            .then(responseWithResult(res, 201))
+            .catch(function (err) {
+              console.log('*** error 3 ***');
+              console.log(err);
+              console.log('*** end of error 3 ***');
+              handleError(res, err);
+            });
+        }
+      })
+      .catch(function (err) {
+        console.log('*** error 4 ***');
+        handleError(res);
+      });
+  })
+    .catch(function (err) {
+      console.log('*** error 5 ***');
+      handleError(res);
+    });
 };
 
 
