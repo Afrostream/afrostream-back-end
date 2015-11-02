@@ -36,6 +36,16 @@ module.exports.getTestUser = function () {
     });
 };
 
+module.exports.getTestClient = function () {
+  var Client = require('../server/sqldb').Client;
+
+  return Client.find({ where: { role: 'client' }})
+    .then(function (client) {
+      if (!client) throw "missing client with role 'client' in database.";
+      return client;
+    });
+};
+
 module.exports.getToken = function (app) {
   var request = require('supertest');
   var bluebird = require('bluebird');
