@@ -605,17 +605,16 @@ exports.gift = function (req, res) {
                     if (typeof correctInvoice !== 'undefined'
                       && typeof correctInvoice['total_in_cents'] !== 'undefined'
                       && typeof correctInvoice['line_items'] !== 'undefined'
+                      && typeof correctInvoice['line_items'][0]['discount_in_cents']
                       && typeof correctInvoice['line_items'][0] !== 'undefined'
                       && typeof correctInvoice['line_items'][0]['end_date'] !== 'undefined'
                       && typeof correctInvoice['currency'] !== 'undefined' ) {
 
+                      purchaseDetails['subtotalInCents'] = correctInvoice['subtotal_in_cents'];
                       purchaseDetails['totalInCents'] = correctInvoice['total_in_cents'];
+                      purchaseDetails['discountInCents'] = correctInvoice['line_items'][0]['discount_in_cents'];
                       purchaseDetails['closedAt'] = correctInvoice['line_items'][0]['end_date'];
                       purchaseDetails['invoiceCurrency'] = correctInvoice['currency'];
-
-                      console.log('*** invoice details ***');
-                      console.log(correctInvoice);
-                      console.log('*** end of invoice details ***');
 
                       mailer.sendGiftEmail(purchaseDetails)
                        .catch(function () {

@@ -64,11 +64,18 @@ exports = module.exports = {
     };
 
     var client = nodemailer.createTransport(sgTransport(options));
-    var fullName = (purchaseDetails['giverFirstName'] && purchaseDetails['giverLastName']
+    var giverFullName = (purchaseDetails['giverFirstName'] && purchaseDetails['giverLastName']
     !== 'undefined' ? (purchaseDetails['giverFirstName'] + ' ' + purchaseDetails['giverLastName']) : '');
 
     var recipientFullName = (purchaseDetails['recipientFirstName'] && purchaseDetails['recipientLastName']
     !== 'undefined' ? (purchaseDetails['recipientFirstName'] + ' ' + purchaseDetails['recipientLastName']) : '');
+
+    var formattedSubtotal = (purchaseDetails['subtotalInCents']/100).toLocaleString('fr-FR');
+    var formattedTotal = (purchaseDetails['totalInCents']/100).toLocaleString('fr-FR');
+    var discountLineItem = (purchaseDetails['discountInCents'] > 0)
+      ? 'Code Promo: -' + (purchaseDetails['discountInCents']/100).toLocaleString('fr-FR') +
+        ' ' + purchaseDetails['invoiceCurrency'] + '\n\n' : '';
+
 
     var email = {
       from: 'abonnement@afrostream.tv',
@@ -77,9 +84,9 @@ exports = module.exports = {
       subject: 'Confirmation de votre cadeau à '
       + recipientFullName,
 
-      text: 'Bonjour ' + fullName + ', \n\n' +
+      text: 'Bonjour ' + giverFullName + ', \n\n' +
       'Grâce à vous, ' + recipientFullName + ' est maintenant abonné(e) à Afrostream et va profiter de 12 mois de séries et films afro en illimité.\n\n'
-      + recipientFullName + ' vient de recevoir par email les informations nécessaires pour se connecter à Afrostream\n\n'
+      + recipientFullName + ' vient de recevoir par email les informations nécessaires pour se connecter à Afrostream.\n\n'
       + 'N\'hésitez pas à lui envoyer un message pour vérifier que notre email n\'est pas dans ses spams.\n\n'
       + 'À bientôt\n\n'
       + 'Tonjé BAKANG\n\n'
@@ -87,22 +94,23 @@ exports = module.exports = {
       + '-----------------------------------\n\n'
       + 'Votre sélection : Formule ' + purchaseDetails['planName'] + '\n\n'
       + 'Commande n° ' + purchaseDetails['invoiceNumber'] + '\n\n'
-      + 'Sous-total:  ' + purchaseDetails['totalInCents'] + ' ' + purchaseDetails['invoiceCurrency'] + '\n\n'
-      + 'Payé:      ' + purchaseDetails['totalInCents'] + ' ' + purchaseDetails['invoiceCurrency'] + '\n\n'
+      + 'Prix:' + formattedSubtotal + ' ' + purchaseDetails['invoiceCurrency'] + '\n\n'
+      + 'Sous-total:  ' + formattedTotal + ' ' + purchaseDetails['invoiceCurrency'] + '\n\n'
+      + discountLineItem
+      + 'Payé:      ' + formattedTotal + ' ' + purchaseDetails['invoiceCurrency'] + '\n\n'
       + 'Valable jusqu\'au ' + purchaseDetails['closedAt'] + '\n\n\n'
       + 'Facturé à :\n\n'
-      + fullName + '\n\n'
+      + giverFullName + '\n\n'
       + '-----------------------------------\n\n'
     };
+
     var sendMailAsync = Promise.promisify(client.sendMail, client);
 
     return sendMailAsync(email).then(function (json) {
       console.log(json);
       return true;
     }).catch(function (e) {
-      console.log('*** error in mailer ***');
       console.log(e);
-      console.log('*** end of error in mailer ***');
     });
 
   },
