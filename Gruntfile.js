@@ -394,12 +394,12 @@ module.exports = function (grunt) {
       server: [
         'newer:babel:client',
         'jade',
-        'less',
+        'less'
       ],
       test: [
         'newer:babel:client',
         'jade',
-        'less',
+        'less'
       ],
       debug: {
         tasks: [

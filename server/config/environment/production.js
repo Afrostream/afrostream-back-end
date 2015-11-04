@@ -33,5 +33,12 @@ module.exports = {
     }
   },
 
+  client: {
+    jobs: {
+      api: 'https://afrostream-jobs.herokuapp.com/api',
+      basicAuth: {user: 'afrostream', password: 'r4nd0mT0k3n'}
+    }
+  },
+
   dumpPostData: true
 };

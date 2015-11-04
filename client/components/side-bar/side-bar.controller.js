@@ -58,6 +58,10 @@ angular.module('afrostreamAdminApp')
       'title': 'Actors',
       'state': 'actors',
       'icon': 'fa-female'
+    }, {
+      'title': 'Jobs',
+      'state': 'jobs',
+      'icon': 'fa-clock-o'
     }];
 
     $scope.isCollapsed = true;
