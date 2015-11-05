@@ -165,7 +165,16 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
-    include: includedModel,
+    include: [
+      auth.mergeIncludeValid(req, {
+        model: Movie, as: 'movies', required: false,
+        order: [['sort', 'ASC']]
+      }),
+      auth.mergeIncludeValid(req, {
+        model: Movie, as: 'adSpots', required: false,
+        order: [['sort', 'ASC']]
+      })
+    ],
     order: [['sort', 'ASC']]
   };
 
