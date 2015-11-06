@@ -16,6 +16,7 @@ var config = require('../../config/environment');
 var sqldb = require('../../sqldb');
 var mailer = require('../../components/mailer');
 var User = sqldb.User;
+var GiftGiver = sqldb.GiftGiver;
 var Promise = sqldb.Sequelize.Promise;
 recurly.setAPIKey(config.recurly.apiKey);
 
@@ -468,6 +469,137 @@ exports.create = function (req, res) {
     })
     .catch(handleError(res));
 };
+
+// Creates the gift of a new subscription
+exports.gift = function (req, res) {
+
+  var newUserProfile;
+  var purchaseDetails = {};
+  var userId = req.user._id;
+
+  User.find({
+    where: {
+      _id: userId
+    }
+  })
+    .then(function (user) { // don't ever give out the password or salt
+      if (!user) {
+        return res.status(401).end();
+      }
+
+      var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
+      var data = {
+        plan_code: req.body['plan-code'],
+        coupon_code: req.body['coupon_code'],
+        unit_amount_in_cents: req.body['unit-amount-in-cents'],
+        currency: 'EUR',
+        account: {
+          account_code: uuid.v1(),
+          email: req.body['gift_email'],
+          first_name: req.body['gift_first_name'],
+          last_name: req.body['gift_last_name'],
+          billing_info: {
+            token_id: req.body['recurly-token']
+          }
+        }
+      };
+
+      purchaseDetails['giverFirstName'] = req.body['first_name'];
+      purchaseDetails['giverLastName'] = req.body['last_name'];
+      purchaseDetails['giverEmail'] = req.body['email'];
+      purchaseDetails['recipientFirstName'] = req.body['gift_first_name'];
+      purchaseDetails['recipientLastName'] = req.body['gift_last_name'];
+
+      console.log('subscription create', data.account);
+
+      return createAsync(data).then(function (item) {
+        purchaseDetails['planName'] = item.properties.plan.name;
+        var accountId = item._resources.account.split('/accounts/')[1];
+        var invoiceId = purchaseDetails['invoiceNumber'] = item._resources.invoice.split('/invoices/')[1];
+        var planCode = item.properties.plan.plan_code;;
+
+        var newUserData = {
+          name: req.body['gift_email'],
+          email: req.body['gift_email'],
+          first_name: req.body['gift_first_name'],
+          last_name: req.body['gift_last_name'],
+          provider: 'local',
+          account_code: accountId,
+          active: true
+        };
+
+        User.create(newUserData)
+          .catch(function (err) {
+            handleError(res);
+          })
+          .then(function () {
+            var giftGiverEmail = user.profile.email;
+            var giftGiverData = {
+              first_name: req.body['first_name'],
+              last_name: req.body['last_name'],
+              email: giftGiverEmail,
+              recipient_email: req.body['gift_email']
+            };
+
+            GiftGiver.create(giftGiverData)
+              .catch(function (err) {
+                handleError(res, err);
+              }).then(function() {
+
+                User.find({
+                  where: {
+                    email: req.body['gift_email']
+                  }
+                }).then (function (newUser) {
+                  newUserProfile = newUser.profile;
+                  newUserProfile.planCode = planCode;
+                  var account = new recurly.Account();
+                  account.id = accountId;
+
+                  var fetchAsyncInvoices = Promise.promisify(account.getInvoices, account);
+                  return fetchAsyncInvoices().then(function (invoicesInfo) {
+                    if (!invoicesInfo) {
+                      console.log('no invoice info');
+                    }
+
+                    var correctInvoice = _.find(invoicesInfo, function (inv) {
+                      return inv['invoice_number'] == invoiceId;
+                    });
+
+                    if (typeof correctInvoice !== 'undefined'
+                      && typeof correctInvoice['total_in_cents'] !== 'undefined'
+                      && typeof correctInvoice['line_items'] !== 'undefined'
+                      && typeof correctInvoice['line_items'][0]['discount_in_cents']
+                      && typeof correctInvoice['line_items'][0] !== 'undefined'
+                      && typeof correctInvoice['line_items'][0]['end_date'] !== 'undefined'
+                      && typeof correctInvoice['currency'] !== 'undefined' ) {
+
+                      purchaseDetails['subtotalInCents'] = correctInvoice['subtotal_in_cents'];
+                      purchaseDetails['totalInCents'] = correctInvoice['total_in_cents'];
+                      purchaseDetails['discountInCents'] = correctInvoice['line_items'][0]['discount_in_cents'];
+                      purchaseDetails['closedAt'] = correctInvoice['line_items'][0]['end_date'];
+                      purchaseDetails['invoiceCurrency'] = correctInvoice['currency'];
+
+                      mailer.sendGiftEmail(purchaseDetails)
+                       .catch(function () {
+                       return res.status(500).send(err.errors || err);
+                       });
+
+                      return res.json(newUserProfile);
+                    }
+                  });
+                });
+              });
+
+          });
+
+      }).catch(function (err) {
+        return res.status(500).send(err.errors || err);
+      });
+    })
+    .catch(handleError(res));
+};
+
 
 // Updates an existing subscription in the DB
 exports.update = function (req, res) {

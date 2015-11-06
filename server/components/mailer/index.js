@@ -45,7 +45,7 @@ exports = module.exports = {
       + '-----------------------------------\n\n'
     };
     var sendMailAsync = Promise.promisify(sendgrid.send, sendgrid);
-    //var sendMailAsync = Promise.promisify(client.sendMail, client);
+    var sendMailAsync = Promise.promisify(client.sendMail, client);
 
     return sendMailAsync(email).then(function (json) {
       console.log(json);
@@ -53,8 +53,70 @@ exports = module.exports = {
     }).catch(this.handleError(res));
 
   },
+
+  sendGiftEmail: function (purchaseDetails) {
+
+    var options = {
+      auth: {
+        api_user: config.sendGrid.api_user,
+        api_key: config.sendGrid.api_key
+      }
+    };
+
+    var client = nodemailer.createTransport(sgTransport(options));
+    var giverFullName = (purchaseDetails['giverFirstName'] && purchaseDetails['giverLastName']
+    !== 'undefined' ? (purchaseDetails['giverFirstName'] + ' ' + purchaseDetails['giverLastName']) : '');
+
+    var recipientFullName = (purchaseDetails['recipientFirstName'] && purchaseDetails['recipientLastName']
+    !== 'undefined' ? (purchaseDetails['recipientFirstName'] + ' ' + purchaseDetails['recipientLastName']) : '');
+
+    var formattedSubtotal = (purchaseDetails['subtotalInCents']/100).toLocaleString('fr-FR');
+    var formattedTotal = (purchaseDetails['totalInCents']/100).toLocaleString('fr-FR');
+    var discountLineItem = (purchaseDetails['discountInCents'] > 0)
+      ? 'Code Promo: -' + (purchaseDetails['discountInCents']/100).toLocaleString('fr-FR') +
+        ' ' + purchaseDetails['invoiceCurrency'] + '\n\n' : '';
+
+
+    var email = {
+      from: 'abonnement@afrostream.tv',
+      to: purchaseDetails['giverEmail'],
+      //bcc: ['abonnement@afrostream.tv'],
+      subject: 'Confirmation de votre cadeau à '
+      + recipientFullName,
+
+      text: 'Bonjour ' + giverFullName + ', \n\n' +
+      'Grâce à vous, ' + recipientFullName + ' est maintenant abonné(e) à Afrostream et va profiter de 12 mois de séries et films afro en illimité.\n\n'
+      + recipientFullName + ' vient de recevoir par email les informations nécessaires pour se connecter à Afrostream.\n\n'
+      + 'N\'hésitez pas à lui envoyer un message pour vérifier que notre email n\'est pas dans ses spams.\n\n'
+      + 'À bientôt\n\n'
+      + 'Tonjé BAKANG\n\n'
+      + 'Fondateur d\'AFROSTREAM'
+      + '-----------------------------------\n\n'
+      + 'Votre sélection : Formule ' + purchaseDetails['planName'] + '\n\n'
+      + 'Commande n° ' + purchaseDetails['invoiceNumber'] + '\n\n'
+      + 'Prix:' + formattedSubtotal + ' ' + purchaseDetails['invoiceCurrency'] + '\n\n'
+      + 'Sous-total:  ' + formattedTotal + ' ' + purchaseDetails['invoiceCurrency'] + '\n\n'
+      + discountLineItem
+      + 'Payé:      ' + formattedTotal + ' ' + purchaseDetails['invoiceCurrency'] + '\n\n'
+      + 'Valable jusqu\'au ' + purchaseDetails['closedAt'] + '\n\n\n'
+      + 'Facturé à :\n\n'
+      + giverFullName + '\n\n'
+      + '-----------------------------------\n\n'
+    };
+
+    var sendMailAsync = Promise.promisify(client.sendMail, client);
+
+    return sendMailAsync(email).then(function (json) {
+      console.log(json);
+      return true;
+    }).catch(function (e) {
+      console.log(e);
+    });
+
+  },
   handleError: function (res) {
     return function (err) {
+      console.log(err);
       res.status(500).send(err);
     };
   }
