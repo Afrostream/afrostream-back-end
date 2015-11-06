@@ -165,7 +165,16 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
-    include: includedModel,
+    include: [
+      auth.mergeIncludeValid(req, {
+        model: Movie, as: 'movies', required: false,
+        order: [['sort', 'ASC']]
+      }),
+      auth.mergeIncludeValid(req, {
+        model: Movie, as: 'adSpots', required: false,
+        order: [['sort', 'ASC']]
+      })
+    ],
     order: [['sort', 'ASC']]
   };
 
@@ -193,25 +202,28 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
-      {
+      auth.mergeIncludeValid(req, {
         model: Movie, as: 'movies',
+        required: false,
         order: [['sort', 'ASC']],
         include: [
-          auth.mergeIncludeValid(req, {model: Category, as: 'categorys', attributes: ['_id', 'label']}),
+          auth.mergeIncludeValid(req, {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']}),
           auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
           auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
           auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}) // load thumb image
         ]
-      }, {
+      }),
+      auth.mergeIncludeValid(req, {
         model: Movie, as: 'adSpots',
+        required: false,
         order: [['sort', 'ASC']],
         include: [
-          auth.mergeIncludeValid(req, {model: Category, as: 'categorys', attributes: ['_id', 'label']}),
+          auth.mergeIncludeValid(req, {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']}),
           auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
           auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
           auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}) // load thumb image
         ]
-      } // load all adSpots
+      }) // load all adSpots
     ]
   }))
     .then(handleEntityNotFound(res))

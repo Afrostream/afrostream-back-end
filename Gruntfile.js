@@ -429,7 +429,8 @@ module.exports = function (grunt) {
 
     mochaTest: {
       options: {
-        reporter: 'spec'
+        reporter: 'spec',
+        bail: true
       },
       unit: {
         src: ['server/**/*.spec.js']

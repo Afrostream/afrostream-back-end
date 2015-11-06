@@ -100,6 +100,83 @@ describe('API: /user/:id/favoritesSeasons', function() {
     });
   });
 
+  describe('POST /user/me/favoritesSeasons {seasonId: ...}', function() {
+    var randomSeason;
+
+    before(function () {
+      return bootstrap.getRandomSeason().then(function (m) { randomSeason = m; });
+    });
+
+    it('should respond 200 OK with a season as a result', function(done) {
+      request(app)
+        .post('/api/users/me/favoritesSeasons/')
+        .set('authorization', 'Bearer ' + token)
+        .send(randomSeason)
+        .expect('Content-Type', /json/)
+        .expect(function (res) {
+          assert(res.body._id === randomSeason._id);
+          assert(res.body.title === randomSeason.title);
+        })
+        .expect(200, done);
+    });
+
+    it('then, GET /user/me/favoritesSeasons should respond 200 OK with 1 favorites on second hit', function(done) {
+      request(app)
+        .get('/api/users/me/favoritesSeasons/')
+        .set('authorization', 'Bearer ' + token)
+        .expect('Content-Type', /json/)
+        .expect(function (res) {
+          assert(Array.isArray(res.body) && res.body.length === 1);
+          assert(res.body[0]._id === randomSeason._id);
+          assert(res.body[0].title === randomSeason.title);
+        })
+        .expect(200, done);
+    });
+
+    it('then, GET /user/:id/favoritesSeasons should respond 200 OK with 1 favorites on second hit', function(done) {
+      request(app)
+        .get('/api/users/'+user._id+'/favoritesSeasons/')
+        .set('authorization', 'Bearer ' + token)
+        .expect('Content-Type', /json/)
+        .expect(function (res) {
+          assert(Array.isArray(res.body) && res.body.length === 1);
+          assert(res.body[0]._id === randomSeason._id);
+          assert(res.body[0].title === randomSeason.title);
+        })
+        .expect(200, done);
+    });
+
+    it('then, DELETE /user/me/favoritesSeasons/:seasonId should respond 200 OK', function(done) {
+      request(app)
+        .del('/api/users/me/favoritesSeasons/'+randomSeason._id)
+        .set('authorization', 'Bearer ' + token)
+        .expect('Content-Type', /json/)
+        .expect(200, done);
+    });
+
+    it('then, it should respond 200 OK with no favorites', function(done) {
+      request(app)
+        .get('/api/users/me/favoritesSeasons/')
+        .set('authorization', 'Bearer ' + token)
+        .expect('Content-Type', /json/)
+        .expect(function (res) {
+          assert(Array.isArray(res.body) && res.body.length === 0);
+        })
+        .expect(200, done);
+    });
+
+    it('then, it should respond 200 OK with no favorites', function(done) {
+      request(app)
+        .get('/api/users/'+user._id+'/favoritesSeasons/')
+        .set('authorization', 'Bearer ' + token)
+        .expect('Content-Type', /json/)
+        .expect(function (res) {
+          assert(Array.isArray(res.body) && res.body.length === 0);
+        })
+        .expect(200, done);
+    });
+  });
+
   describe('POST /user/:id/favoritesSeasons {seasonId: ...} without token', function() {
     var randomSeason;
     before(function () {

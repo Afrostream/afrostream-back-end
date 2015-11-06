@@ -40,6 +40,13 @@ var auth = require('../../../auth/auth.service');
 
 var router = express.Router({mergeParams:true});
 
+var convertUserIdMeToUserId = function (req, res, next) {
+  if (req.params && req.params.userId === 'me' && req.user) {
+    req.params.userId = String(req.user._id);
+  }
+  next();
+};
+
 var tokenUserMatchParamUser = function (req, res, next) {
   if (String(req.params.userId) === String(req.user._id)) {
     next();
@@ -48,8 +55,8 @@ var tokenUserMatchParamUser = function (req, res, next) {
   }
 };
 
-router.get('/', auth.isAuthenticated(), tokenUserMatchParamUser, controller.index);
-router.post('/', auth.isAuthenticated(), tokenUserMatchParamUser, controller.add);
-router.delete('/:movieId', auth.isAuthenticated(), tokenUserMatchParamUser, controller.remove);
+router.get('/', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.index);
+router.post('/', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.add);
+router.delete('/:movieId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.remove);
 
 module.exports = router;
