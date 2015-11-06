@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('JobsCtrl', function ($scope, $http, $interval) {
+  .controller('JobsCtrl', function ($scope, $http, $interval, jobs) {
     $scope.ready=false;
     $http.get('/api/config/client').then(function (result) {
       $scope.ready=true;
@@ -18,19 +18,15 @@ angular.module('afrostreamAdminApp')
       };
 
       var refreshButtons = function () {
-        $http.get(result.data.jobs.api + '/stats', {
-          headers: { Authorization: 'Basic ' + btoa(user + ':' + password) }
-        }).then(function (result) {
-          $scope.stats = result.data;
+        jobs.getStats().then(function (stats) {
+          $scope.stats = stats;
         });
       };
 
       var refreshList = function () {
-        $http.get(result.data.jobs.api + '/jobs/'+$scope.stateFilter+'/0..10/asc', {
-          headers: { Authorization: 'Basic ' + btoa(user + ':' + password) }
-        }).then(function (result) {
-          $scope.jobs = result.data;
-        });
+        jobs.getJobs($scope.stateFilter, '0..10').then(function (jobs) {
+          $scope.jobs = jobs;
+        })
       };
 
       var refresh = function () {
