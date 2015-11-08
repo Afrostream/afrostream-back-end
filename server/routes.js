@@ -24,6 +24,7 @@ module.exports = function (app) {
   app.use('/api/captions', require('./api/caption'));
   app.use('/api/videos', require('./api/video'));
   app.use('/api/images', require('./api/image'));
+  app.use('/api/jobs', require('./api/job'));
   app.use('/api/assets', require('./api/asset'));
   app.use('/api/episodes', require('./api/episode'));
   app.use('/api/seasons', require('./api/season'));
