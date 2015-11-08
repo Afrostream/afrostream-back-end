@@ -10,7 +10,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         div Loading...
                     div(ng-if="ready")
                         div(class='btn-group')
-                            label(class='btn btn-primary {{stateFilter=="queued"?"active":""}}' ng-click='updatestateFilter("queued")' uib-btn-radio="'queued'")
+                            label(class='btn btn-primary {{stateFilter=="queued"?"active":""}}' ng-click='updatestateFilter("inactive")' uib-btn-radio="'queued'")
                                 |{{stats.inactiveCount}} Queued
                             label(class='btn btn-primary {{stateFilter=="active"?"active":""}}' ng-click='updatestateFilter("active")' uib-btn-radio="'active'")
                                 |{{stats.activeCount}} Active
@@ -34,8 +34,8 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                                     // td promote at
                                     // td updated_at
                                     td(style="width:80px") started at
-                                    td(title="Attemts made" style="width:30px") AM
-                                    td(title="Attemts remaining" style="width:30px") AR
+                                    td(title="Attempts made" style="width:30px") AM
+                                    td(title="Attempts remaining" style="width:30px") AR
                             tbody
                                 tr(ng-repeat='job in jobs')
                                     td {{job.id}}
@@ -49,5 +49,5 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                                     // td {{job.promote_at}}
                                     // td {{job.updated_at}}
                                     td {{job.started_at}}
-                                    td {{job.attemts.made}}
-                                    td {{job.attemts.remaining}}
+                                    td {{job.attempts.made}}
+                                    td {{job.attempts.remaining}}
