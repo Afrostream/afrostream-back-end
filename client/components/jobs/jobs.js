@@ -6,7 +6,7 @@ angular.module('afrostreamAdminApp')
 
     var init = function () {
       if (self.authorization) {
-        return $q(function () { return self.authorization; });
+        return $q(function (resolve) { resolve(); });
       } else {
         return $http.get('/api/config/client').then(function (result) {
           self.conf = result.data.jobs;
