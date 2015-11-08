@@ -25,7 +25,11 @@ angular.module('afrostreamAdminApp')
 
       var refreshList = function () {
         jobs.getJobs($scope.stateFilter, '0..10').then(function (jobs) {
-          $scope.jobs = jobs;
+          $scope.jobs = jobs.map(function (job) {
+            job.created_at = (new Date(parseInt(job.created_at))).toString();
+            job.started_at = (new Date(parseInt(job.started_at))).toString();
+            return job;
+          });
         })
       };
 

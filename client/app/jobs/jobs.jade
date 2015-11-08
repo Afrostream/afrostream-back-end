@@ -27,24 +27,27 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                                     td id
                                     td type
                                     td data
-                                    td priority
-                                    td progress
-                                    td created at
-                                    td promote at
-                                    td updated_at
-                                    td started_at
-                                    td attemts made
-                                    td attemts remaining
+                                    td error
+                                    // td priority
+                                    // td progress
+                                    td(style="width:80px") created at
+                                    // td promote at
+                                    // td updated_at
+                                    td(style="width:80px") started at
+                                    td(title="Attemts made" style="width:30px") AM
+                                    td(title="Attemts remaining" style="width:30px") AR
                             tbody
                                 tr(ng-repeat='job in jobs')
                                     td {{job.id}}
                                     td {{job.type}}
-                                    td {{job.data}}
-                                    td {{job.priority}}
-                                    td {{job.progress}}
+                                    td
+                                        pre(style="width:250px") {{job.data}}
+                                    td {{job.error}}
+                                    // td {{job.priority}}
+                                    // td {{job.progress}}
                                     td {{job.created_at}}
-                                    td {{job.promote_at}}
-                                    td {{job.updated_at}}
+                                    // td {{job.promote_at}}
+                                    // td {{job.updated_at}}
                                     td {{job.started_at}}
                                     td {{job.attemts.made}}
                                     td {{job.attemts.remaining}}
