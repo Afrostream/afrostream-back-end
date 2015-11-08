@@ -13,7 +13,6 @@ angular.module('afrostreamAdminApp')
           var user = self.conf.basicAuth.user;
           var password = self.conf.basicAuth.password;
           self.authorization = 'Basic ' + btoa(user + ':' + password);
-          return self.authorization;
         });
       }
     };
@@ -40,6 +39,11 @@ angular.module('afrostreamAdminApp')
         }).then(function (result) {
           return result.data;
         });
+    };
+
+    this.createJobpackCaption = function (videoId) {
+      console.log('jobs: createJobpackCaption on videoId '+videoId);
+      return $http.post('/api/jobs/', { type: 'pack captions', data: { videoId: videoId }});
     };
 
     return this;
