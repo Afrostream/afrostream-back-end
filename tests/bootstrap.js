@@ -28,7 +28,7 @@ process.on('uncaughtException', function(err) {
 });
 
 module.exports.getApp = function () {
-  return require('../server/app.js');
+  return require('../server/app');
 };
 
 module.exports.getSqldb = function () {
