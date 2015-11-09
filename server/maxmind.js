@@ -2,8 +2,8 @@
 
 var maxmind = require('maxmind');
 
-maxmind.init(__dirname + '/data/geoip/GeoIP.dat');
-maxmind.init(__dirname + '/data/geoip/GeoIPv6.dat');
+maxmind.init(__dirname + '/data/GeoIP.dat');
+maxmind.init(__dirname + '/data/GeoIPv6.dat');
 
 var getCountryCode = function (ip) {
   var country;
