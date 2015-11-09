@@ -39,6 +39,10 @@ angular.module('afrostreamAdminApp')
       'state': 'images',
       'icon': 'fa-picture-o'
     }, {
+      'title': 'Actors',
+      'state': 'actors',
+      'icon': 'fa-female'
+    }, {
       'title': 'Users',
       'state': 'users',
       'icon': 'fa-users'
@@ -54,10 +58,6 @@ angular.module('afrostreamAdminApp')
       'title': 'Clients',
       'state': 'clients',
       'icon': 'fa-user-secret'
-    }, {
-      'title': 'Actors',
-      'state': 'actors',
-      'icon': 'fa-female'
     }, {
       'title': 'Jobs',
       'state': 'jobs',
