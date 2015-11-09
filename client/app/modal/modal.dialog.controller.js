@@ -11,6 +11,8 @@ angular.module('afrostreamAdminApp')
       return item;
     }
 
+    $scope.modalHooks = {};
+
     var getTitle = function (item) {
       return item.title || item.label || item.name || ((item.firstName || item.lastName) ? item.firstName + ' ' + item.lastName : '' );
     };
@@ -49,10 +51,16 @@ angular.module('afrostreamAdminApp')
     };
 
     $scope.addItem = function () {
+      if (typeof $scope.modalHooks.beforeAdd === 'function') {
+        $scope.modalHooks.beforeAdd();
+      }
       $http.post('/api/' + $scope.directiveType, $scope.item).then(function (result) {
         ngToast.create({
           content: 'L\'objet ' + type + ' ' + getTitle(result.data) + ' à été ajoutée au catalogue'
         });
+        if (typeof $scope.modalHooks.afterAdd === 'function') {
+          $scope.modalHooks.afterAdd(result.data);
+        }
         close();
       }, function (err) {
         showError();
@@ -61,13 +69,16 @@ angular.module('afrostreamAdminApp')
     };
 
     $scope.updateItem = function () {
+      if (typeof $scope.modalHooks.beforeUpdate === 'function') {
+        $scope.modalHooks.beforeUpdate();
+      }
       $http.put('/api/' + $scope.directiveType + '/' + $scope.item._id, $scope.item).then(function (result) {
-        console.log($scope.item);
-        console.log(result.data);
         ngToast.create({
-
           content: 'L\'objet  ' + type + ' ' + getTitle(result.data) + ' à été mise a jour'
         });
+        if (typeof $scope.modalHooks.afterUpdate === 'function') {
+          $scope.modalHooks.afterUpdate(result.data);
+        }
         close();
       }, function (err) {
         showError();

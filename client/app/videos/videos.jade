@@ -41,3 +41,8 @@
           .button-group-vertical
             button.btn.btn-xs.btn-danger(ng-click='removeElem(caption,item.captions,"caption",$index)')
               span.glyphicon.glyphicon-trash.pull-right
+  .row
+    .col-lg-12
+      div(ng-if='item && item.captions.length && item._id')
+        label(class='btn btn-primary' ng-click='packCaptions()' )
+          | Pack captions

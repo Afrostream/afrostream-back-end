@@ -11,6 +11,7 @@ module.exports = function (app) {
 
   // Insert routes below
   app.use('/api/actors', require('./api/actor'));
+  app.use('/api/config', require('./api/config'));
   app.use('/api/plans', require('./api/plan'));
   app.use('/api/subscriptions', require('./api/subscription'));
   app.use('/api/refreshTokens', require('./api/refreshToken'));
@@ -23,6 +24,7 @@ module.exports = function (app) {
   app.use('/api/captions', require('./api/caption'));
   app.use('/api/videos', require('./api/video'));
   app.use('/api/images', require('./api/image'));
+  app.use('/api/jobs', require('./api/job'));
   app.use('/api/assets', require('./api/asset'));
   app.use('/api/episodes', require('./api/episode'));
   app.use('/api/seasons', require('./api/season'));
@@ -42,7 +44,7 @@ module.exports = function (app) {
     });
 
   // All other routes should redirect to the index.html
-  app.route(/\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|users|plans|subscriptions|clients|actors|settings|login|logout)/)
+  app.route(/\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|users|plans|subscriptions|clients|actors|settings|login|logout|jobs)/)
     .get(function (req, res) {
       res.set('Cache-Control', 'public, max-age=0');
       res.sendFile(path.resolve(app.get('appPath') + '/index.html'));

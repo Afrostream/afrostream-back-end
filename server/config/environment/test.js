@@ -17,5 +17,13 @@ module.exports = {
       }
     }
   },
+
+  client: {
+    jobs: {
+      api: 'http://localhost:12000/api',
+      basicAuth: {user: 'test', password: 'test'}
+    }
+  },
+
   env: 'test'
 };

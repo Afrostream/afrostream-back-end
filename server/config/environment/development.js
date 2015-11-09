@@ -22,6 +22,13 @@ module.exports = {
     api_key: 'Afr@stream77'
   },
 
+  client: {
+    jobs: {
+      api: 'http://localhost:12000/api',
+      basicAuth: {user: 'dev', password: 'dev'}
+    }
+  },
+
   dumpPostData: true,
 
   // if you want to seed:
