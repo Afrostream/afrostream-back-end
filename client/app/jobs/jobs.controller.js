@@ -37,6 +37,8 @@ angular.module('afrostreamAdminApp')
         refreshButtons();
       };
 
+      $scope.deleteJob = function (jobId) { jobs.remove(jobId).then(function () { refreshList(); }) };
+
       $scope.stats = {
         inactiveCount: '',
         activeCount: '',

@@ -10,7 +10,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         div Loading...
                     div(ng-if="ready")
                         div(class='btn-group')
-                            label(class='btn btn-primary {{stateFilter=="queued"?"active":""}}' ng-click='updatestateFilter("inactive")' uib-btn-radio="'queued'")
+                            label(class='btn btn-primary {{stateFilter=="inactive"?"active":""}}' ng-click='updatestateFilter("inactive")' uib-btn-radio="'inactive'")
                                 |{{stats.inactiveCount}} Queued
                             label(class='btn btn-primary {{stateFilter=="active"?"active":""}}' ng-click='updatestateFilter("active")' uib-btn-radio="'active'")
                                 |{{stats.activeCount}} Active
@@ -36,6 +36,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                                     td(style="width:80px") started at
                                     td(title="Attempts made" style="width:30px") AM
                                     td(title="Attempts remaining" style="width:30px") AR
+                                    td(ng-if="stateFilter=='inactive' || stateFilter=='failed' || stateFilter=='complete'")
                             tbody
                                 tr(ng-repeat='job in jobs')
                                     td {{job.id}}
@@ -51,3 +52,6 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                                     td {{job.started_at}}
                                     td {{job.attempts.made}}
                                     td {{job.attempts.remaining}}
+                                    td(ng-if="stateFilter=='inactive' || stateFilter=='failed' || stateFilter=='complete'")
+                                        button.btn.btn-xs.btn-danger(ng-click='deleteJob(job.id)' tooltip='Delete' )
+                                            span.glyphicon.glyphicon-trash

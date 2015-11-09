@@ -46,5 +46,16 @@ angular.module('afrostreamAdminApp')
       return $http.post('/api/jobs/', { type: 'pack captions', data: { videoId: videoId }});
     };
 
+    this.remove = function (jobId) {
+      return init()
+        .then(function () {
+          return $http.delete(self.conf.api + '/job/' + jobId, {
+            headers: {Authorization: self.authorization}
+          });
+        }).then(function (result) {
+          return result.data;
+        });
+    };
+
     return this;
   });
