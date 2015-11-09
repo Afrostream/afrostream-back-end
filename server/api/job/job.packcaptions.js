@@ -60,7 +60,7 @@ var create = function (videoId) {
           });
 
           var data = {
-            videoId: video.id,
+            videoId: videoId,
             encodingId: encodingId,
             captions: captions
           };
