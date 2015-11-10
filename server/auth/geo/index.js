@@ -8,6 +8,9 @@ var maxmind = require('../../maxmind');
 var countriesAuthorizations = require('./countries').authorizations;
 
 var getClientIp = function (req) {
+  console.log('auth/geo: getClientIp: req.query.ip='+req.query.ip);
+  console.log('auth/geo: getClientIp: x-forwarded-clientip='+req.get('x-forwarded-clientip'));
+  console.log('auth/geo: getClientIp: herokuclientip='+req.herokuclientip);
   return req.query.ip || req.get('x-forwarded-clientip') || req.herokuclientip;
 };
 
