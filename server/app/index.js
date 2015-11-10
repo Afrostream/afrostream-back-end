@@ -12,6 +12,7 @@ var config = require('../config/environment');
 
 var dumpPostData = require('./middlewares/middleware-dumppostdata.js');
 var morgan = require('./middlewares/middleware-morgan.js');
+var herokuclientip = require('./middlewares/middleware-herokuclientip.js');
 
 // Setup server
 var app =  require('express')();
@@ -31,6 +32,8 @@ app.use(require('express-session')({secret: config.secrets.session}));
 app.use(require('connect-busboy')());
 app.use(require('passport').initialize());
 app.use(require('passport').session());
+app.use(herokuclientip());
+
 if (config.dumpPostData) {
   app.use(dumpPostData());
 }

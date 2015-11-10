@@ -14,6 +14,8 @@ require('./google/passport').setup(User, config);
 
 var router = express.Router();
 
+router.use('/geo', require('./geo').router);
+
 if (config.oauth2 !== undefined) {
   router.use('/oauth2', require('./oauth2'));
   router.use('/local', require('./oauth2'));
