@@ -150,7 +150,13 @@ db.Movie = db.sequelize.import(path.join(
   'movie',
   'movie.model'
 ));
-
+db.WaitingUser = db.sequelize.import(path.join(
+  config.root,
+  'server',
+  'api',
+  'waitingUser',
+  'waitingUser.model'
+));
 
 var CategoryMovies = db.sequelize.define('CategoryMovies', {});
 var CategoryAdSpots = db.sequelize.define('CategoryAdSpots', {});

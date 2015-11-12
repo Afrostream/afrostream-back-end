@@ -18,8 +18,24 @@ var validateJwt = expressJwt({
  */
 function isAuthenticated() {
   if (config.oauth2 !== undefined) {
-    return compose()
-      .use(passport.authenticate('bearer', {session: false}));
+    return function (req, res, next) {
+      if (~'development,test'.indexOf(process.env.NODE_ENV) && req.get('bypass-auth')) {
+        User.find({
+          where: {
+            email: req.get('user-email')
+          }
+        }).then(function (user) {
+          if (!user) {
+            console.error('missing header user-email while using bypass-auth ?');
+            return res.status(401).end();
+          }
+          req.user = user;
+        }).then(function () { next(); })
+          .catch(next);
+      } else {
+        return passport.authenticate('bearer', {session: false})(req, res, next);
+      }
+    }
   }
   return compose()
     //Validate jwt

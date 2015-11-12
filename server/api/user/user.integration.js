@@ -43,7 +43,7 @@ describe('User API:', function() {
         .expect('Content-Type', /json/)
         .end(function(err, res) {
           token = res.body.token;
-          done();
+          done(err);
         });
     });
 
@@ -55,7 +55,7 @@ describe('User API:', function() {
         .expect('Content-Type', /json/)
         .end(function(err, res) {
           assert(String(res.body._id) === String(user._id));
-          done();
+          done(err);
         });
     });
 

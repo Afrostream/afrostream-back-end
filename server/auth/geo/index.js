@@ -32,17 +32,32 @@ router.get('/', function (req, res) {
   }
 });
 
-var restrictAccess = function (req, res, next) {
-  var clientIp = getClientIp(req);
-  var countryCode = maxmind.getCountryCode(clientIp);
-  var authorized = isCountryAuthorized(countryCode);
-  if (authorized){
-    next();
-  } else {
-    console.log('auth/geo: middleware: FORBIDDEN, ip=' + clientIp + ' countryCode=' + countryCode);
-    res.status(403).json({error:'geo forbidden'});
-  }
+var restrictAccess = function (options) {
+  return function (req, res, next) {
+    var clientIp = getClientIp(req);
+    var countryCode = maxmind.getCountryCode(clientIp);
+    var authorized = isCountryAuthorized(countryCode);
+    if (authorized){
+      next();
+    } else {
+      console.log('auth/geo: middleware: FORBIDDEN, ip=' + clientIp + ' countryCode=' + countryCode);
+      res.status(403).json({error:'geo forbidden'});
+    }
+  };
 };
 
-module.exports.middlewares = { restrictAccess : restrictAccess };
+var country = function (options) {
+  return function (req, res, next) {
+    var clientIp = getClientIp(req);
+    var countryCode = maxmind.getCountryCode(clientIp);
+    req.country = countryCode;
+    req.countryAuthorized = isCountryAuthorized(countryCode);
+    next();
+  };
+};
+
+module.exports.middlewares = {
+  restrictAccess : restrictAccess,
+  country: country
+};
 module.exports.router = router;
