@@ -54,6 +54,7 @@ angular.module('afrostreamAdminApp')
       'Horreur',// 'Horror',
       'Jeunesse', //'Children',
       'Judiciaire',
+      'LGBT',
       'Mini-Series', //'Mini-Series',
       'Musical',
       'Péplum',
