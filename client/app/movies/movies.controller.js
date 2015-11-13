@@ -2,6 +2,18 @@
 
 angular.module('afrostreamAdminApp')
   .controller('MoviesCtrl', function ($scope, Category, Season, Licensor, Video, Actor) {
+    var hydrateActor = function (actor) {
+      actor.fullName = actor.firstName + ' ' + actor.lastName;
+    };
+
+    if ($scope.modalHooks) {
+      $scope.modalHooks.hydrateItem = function (item) {
+        item.actors.forEach(hydrateActor);
+        return item;
+      };
+
+    }
+
     $scope.loadCategorys = function (query) {
       return Category.query({query: query}).$promise;
     };
@@ -27,7 +39,10 @@ angular.module('afrostreamAdminApp')
       return p;
     };
     $scope.loadActors = function (query) {
-      return Actor.query({query: query}).$promise;
+      return Actor.query({query: query}).$promise.then(function (actors) {
+        angular.forEach(actors, hydrateActor);
+        return actors;
+      });
     };
   })
 ;

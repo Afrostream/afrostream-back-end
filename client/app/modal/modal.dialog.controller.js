@@ -121,7 +121,11 @@ angular.module('afrostreamAdminApp')
       $http.get('/api/' + $scope.directiveType + '/' + item._id, { params : { backo: 1} }).then(function (result) {
         // FIXME: network code inside modal/* data/* should be in a single place
         //  & user $httpProvider to filter dates..
-        $scope.item = parseItemDates(result.data);
+        var item = result.data;
+        if (typeof $scope.modalHooks.hydrateItem === 'function') {
+          item = $scope.modalHooks.hydrateItem(item);
+        }
+        $scope.item = parseItemDates(item);
       }, function (err) {
         showError();
         $log.debug(err);

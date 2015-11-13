@@ -46,7 +46,7 @@
 
 .form-group
   label.control-label Actors
-  tags-input(ng-model='item.actors' placeholder='Search actor' add-from-autocomplete-only='true' display-property='lastName' key-property='_id')
+  tags-input(ng-model='item.actors' placeholder='Search actor' add-from-autocomplete-only='true' display-property='fullName' key-property='_id')
     auto-complete(source='loadActors($query)' template='actor-template' min-length='0'
     load-on-focus='true'
     load-on-empty='true'
