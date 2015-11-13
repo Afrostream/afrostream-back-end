@@ -80,7 +80,8 @@ exports.index = function (req, res) {
   var paramsObj = {
     include: [
       auth.mergeIncludeValid(req, {model: Image, as: 'picture', required: false}, {attributes: ['imgix']})
-    ]
+    ],
+    order: [ [ 'lastName' ] ]
   };
 
   // pagination
