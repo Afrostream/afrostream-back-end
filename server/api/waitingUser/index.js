@@ -7,6 +7,6 @@ var geo = require('../../auth/geo');
 
 var router = express.Router();
 
-router.post('/', auth.isAuthenticated(), geo.middlewares.country(), controller.create);
+router.post('/', geo.middlewares.country(), controller.create);
 
 module.exports = router;
