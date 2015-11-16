@@ -71,9 +71,9 @@ var getFirstSafe = function (ip) {
       return { authority: infos.Fqdn, scheme: infos.Protocol };
     })
     .then(
-      function success(fqdn) {
-        console.log('cdnselector#getFirstSafe() : success ['+ip+'] => ['+fqdn+']');
-        return fqdn;
+      function success(infos) {
+        console.log('cdnselector#getFirstSafe() : success ['+ip+'] => ['+JSON.stringify(infos)+']');
+        return infos;
       },
       function error(e) {
         console.error('cdnselector#getFirstSafe() : error ' + e, e);
