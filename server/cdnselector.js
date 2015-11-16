@@ -1,7 +1,5 @@
 'use strict';
 
-var assert = require('better-assert');
-
 var request = require('request');
 var Q = require('q');
 
@@ -12,8 +10,6 @@ var config = require('./config/environment');
  * @returns array [{"Protocol":"https","Fqdn":"hw.cdn.afrostream.net"}, ...]
  */
 var getList = function (ip) {
-  assert(typeof ip === 'string');
-
   // FIXME: to be removed
   // BEGIN
   console.log("cdnselector#getList() : ip = " + ip + ' on endpoint ' + config.cdnselector.endpoint + '/getFQDNList');
