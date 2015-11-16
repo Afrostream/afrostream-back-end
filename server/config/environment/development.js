@@ -31,6 +31,19 @@ module.exports = {
 
   dumpPostData: true,
 
+  cdnselector: {
+    /*
+    timeout: 400, // ms
+    endpoint: 'http://localhost:42424',
+    defaultAuthority: 'hw.cdn.afrostream.net',
+    defaultScheme: 'https'
+    */
+    timeout: 400, // ms
+    endpoint: 'http://stats.adm.afrostream.net',
+    defaultAuthority: 'hw.cdn.afrostream.net',
+    defaultScheme: 'https'
+  },
+
   // if you want to seed:
   // use: export SEED_DB=true before launching node/grunt
   seedDB: (process.env.SEED_DB === 'true')

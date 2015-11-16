@@ -33,5 +33,12 @@ module.exports = {
     }
   },
 
+  cdnselector: {
+    timeout: 250, // ms
+    endpoint: 'http://stats.adm.afrostream.net',
+    defaultAuthority: 'hw.cdn.afrostream.net',
+    defaultScheme: 'https'
+  },
+
   dumpPostData: true
 };

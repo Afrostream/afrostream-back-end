@@ -25,5 +25,12 @@ module.exports = {
     }
   },
 
+  cdnselector: {
+    timeout: 250, // ms
+    endpoint: 'http://localhost:42424',
+    defaultAuthority: 'hw.cdn.afrostream.net',
+    defaultScheme: 'https'
+  },
+
   env: 'test'
 };
