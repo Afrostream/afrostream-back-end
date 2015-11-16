@@ -27,6 +27,9 @@ var auth = require('../../auth/auth.service');
 
 var utils = require('../utils.js');
 
+var getClientIp = require('../../auth/geo').getClientIp;
+var cdnselector = require('../../cdnselector');
+
 var includedModel = [
   {model: Movie, as: 'movie'}, // load all sources assets
   {model: Episode, as: 'episode'}, // load all sources assets
@@ -36,6 +39,7 @@ var includedModel = [
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
+    console.error('error', err);
     res.status(statusCode).send(err);
   };
 }
@@ -188,6 +192,9 @@ exports.index = function (req, res) {
 
 // Gets a single video from the DB
 exports.show = function (req, res) {
+  // cannot cache /api/videos/:id because of the cdn selector.
+  res.set('Cache-Control', 'public, max-age=0');
+  //
   var p = Video.find({
     where: {
       _id: req.params.id
@@ -199,7 +206,7 @@ exports.show = function (req, res) {
         include: [
           auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
           auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
+          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}) // load thumb image
         ]
       },
       {
@@ -218,7 +225,32 @@ exports.show = function (req, res) {
   if (config.digibos.useToken == 'true' && !auth.validRole(req, 'admin')) {
     p = p.then(tokenizeResult(req, res));
   }
-  p.then(responseWithResult(res))
+
+
+  p.then(function (entity) {
+    if (req.query.backo) {
+      return entity;
+    }
+    // frontend (api-v1) or mobile: we try to use cdnselector.
+    return cdnselector.getFirstSafe(req.clientIp)
+      .then(
+        function (infos) {
+          entity.sources.forEach(function (source, i) {
+            var src = source.get('src');
+            if (src.match(/^[^\:]+\:\/\/[^/]+\//)) {
+              source.set('src', src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, infos.scheme + '://' + infos.authority + '/'));
+            }
+            // FIXME: remove this
+            // BEGIN
+            console.log('video: cdnselector: source ' + src + ' => ' + source.get('src'));
+            // END
+          });
+          return entity;
+        },
+        function (err) { return entity; }
+    );
+  })
+   .then(responseWithResult(res))
    .catch(handleError(res));
 };
 
