@@ -26,6 +26,7 @@ module.exports = {
   },
 
   cdnselector: {
+    enabled: true,
     timeout: 250, // ms
     endpoint: 'http://localhost:42424',
     defaultAuthority: 'hw.cdn.afrostream.net',

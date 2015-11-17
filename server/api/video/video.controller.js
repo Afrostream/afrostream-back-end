@@ -231,6 +231,10 @@ exports.show = function (req, res) {
     if (req.query.backo) {
       return entity;
     }
+    if (!config.cdnselector.enabled) {
+      console.log('video: cdnselector: is disabled'); // warning.
+      return entity;
+    }
     // frontend (api-v1) or mobile: we try to use cdnselector.
     return cdnselector.getFirstSafe(req.clientIp)
       .then(
