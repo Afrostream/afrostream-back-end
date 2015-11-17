@@ -12,17 +12,25 @@
 var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var Post = sqldb.Post;
+var Image = sqldb.Image;
+var auth = require('../../auth/auth.service');
+var utils = require('../utils.js');
+
+var includedModel = [
+  {model: Image, as: 'poster'} // load poster image
+];
+
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
-  return function(err) {
+  return function (err) {
     res.status(statusCode).send(err);
   };
 }
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -30,7 +38,7 @@ function responseWithResult(res, statusCode) {
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end();
       return null;
@@ -40,19 +48,31 @@ function handleEntityNotFound(res) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
+  return function (entity) {
     return entity.updateAttributes(updates)
-      .then(function(updated) {
+      .then(function (updated) {
         return updated;
       });
   };
 }
 
+function addImages(updates) {
+  return function (entity) {
+    var chainer = sqldb.Sequelize.Promise.join;
+    var poster = Image.build(updates.poster);
+    return chainer(
+      entity.setPoster(poster)
+    ).then(function () {
+      return entity;
+    });
+  };
+}
+
 function removeEntity(res) {
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       return entity.destroy()
-        .then(function() {
+        .then(function () {
           res.status(204).end();
         });
     }
@@ -60,54 +80,74 @@ function removeEntity(res) {
 }
 
 // Gets a list of posts
-exports.index = function(req, res) {
-  Post.findAll()
-    .then(responseWithResult(res))
+exports.index = function (req, res) {
+  var queryName = req.param('query');
+  var paramsObj = {
+    include: includedModel
+  };
+
+  // pagination
+  utils.mergeReqRange(paramsObj, req);
+
+  if (queryName) {
+    paramsObj = _.merge(paramsObj, {
+      where: {
+        title: {$iLike: '%' + queryName + '%'}
+      }
+    })
+  }
+
+  Post.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
+    .then(handleEntityNotFound(res))
+    .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
 
 // Gets a single post from the DB
-exports.show = function(req, res) {
-  Post.find({
-    where: {
-      _id: req.params.id
-    }
-  })
+exports.show = function (req, res) {
+  Post.find(auth.mergeQuery(req, res, {
+      where: {
+        _id: req.params.id
+      },
+      include: includedModel
+    }))
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
 
 // Creates a new post in the DB
-exports.create = function(req, res) {
+exports.create = function (req, res) {
   Post.create(req.body)
+    .then(addImages(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
 
 // Updates an existing post in the DB
-exports.update = function(req, res) {
+exports.update = function (req, res) {
   if (req.body._id) {
     delete req.body._id;
   }
   Post.find({
-    where: {
-      _id: req.params.id
-    }
-  })
+      where: {
+        _id: req.params.id
+      }
+    })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
+    .then(addImages(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
 
 // Deletes a post from the DB
-exports.destroy = function(req, res) {
+exports.destroy = function (req, res) {
   Post.find({
-    where: {
-      _id: req.params.id
-    }
-  })
+      where: {
+        _id: req.params.id
+      }
+    })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(handleError(res));
