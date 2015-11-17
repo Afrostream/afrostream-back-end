@@ -1,0 +1,1 @@
+alter table "Episodes" alter column "active" set default false;

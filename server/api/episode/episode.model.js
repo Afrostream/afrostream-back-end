@@ -29,7 +29,7 @@ module.exports = function (sequelize, DataTypes) {
     sort: DataTypes.INTEGER,
     active: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      defaultValue: false
     }
   });
 };
