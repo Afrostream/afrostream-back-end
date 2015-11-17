@@ -20,7 +20,6 @@ var includedModel = [
   {model: Image, as: 'poster'} // load poster image
 ];
 
-
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {

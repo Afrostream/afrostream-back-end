@@ -23,6 +23,9 @@ module.exports = function (sequelize, DataTypes) {
     slug: DataTypes.STRING,
     body: DataTypes.TEXT,
     sort: DataTypes.INTEGER,
-    active: DataTypes.BOOLEAN
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   });
 };
