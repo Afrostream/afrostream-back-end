@@ -34,10 +34,18 @@ var getFirst = function (ip) {
       if (!Array.isArray(list)) {
         throw "cdnselector#getFirst() : list should be an array (ip="+ip+")";
       }
-      if (list.length === 0) {
+      var body = list[1];
+      // FIXME: to be removed
+      // BEGIN
+      console.log("cdnselector#getList() : body = "+JSON.stringify(body));
+      // END
+      if (!Array.isArray(body)) {
+        throw "cdnselector#getFirst() : list[1] (body) should be an array (ip="+ip+")";
+      }
+      if (body.length === 0) {
         throw "cdnselector#getFirst() : list shouldn't be empty (ip="+ip+")";
       }
-      return list[0];
+      return body[0];
     });
 };
 
@@ -54,7 +62,7 @@ var getFirstSafe = function (ip) {
         throw "shouldn't grab empty infos (ip="+ip+")";
       }
       if (typeof infos.Fqdn !== 'string' || !infos.Fqdn) {
-        throw "missing .Fqdn field";
+        throw "missing .Fqdn field "+JSON.stringify(infos);
       }
       // just to be safe ...
       if (infos.Fqdn.length < 5 ||

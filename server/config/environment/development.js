@@ -38,8 +38,8 @@ module.exports = {
     defaultAuthority: 'hw.cdn.afrostream.net',
     defaultScheme: 'https'
     */
-    enabled: false,
-    timeout: 400, // ms
+    enabled: true,
+    timeout: 600, // ms
     endpoint: 'http://stats.adm.afrostream.net',
     defaultAuthority: 'hw.cdn.afrostream.net',
     defaultScheme: 'https'
