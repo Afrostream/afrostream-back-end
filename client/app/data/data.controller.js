@@ -177,6 +177,7 @@ angular.module('afrostreamAdminApp')
         case'plan':
         case'user':
         case'subscription':
+        case'post':
           hasTmb = false;
           break;
         default:
