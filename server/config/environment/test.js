@@ -7,6 +7,11 @@ module.exports = {
   mongo: {
     uri: 'mongodb://localhost/afrostreamadmin-test'
   },
+
+  player: {
+    foo: 'bar'
+  },
+
   sequelize: {
     uri: 'postgres://postgres:root@localhost:5432/afrostream',
     options: {

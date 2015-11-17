@@ -37,6 +37,8 @@ module.exports = function (app) {
   app.use('/api/dashboard', require('./api/dashboard'));
   app.use('/api/waitingUsers', require('./api/waitingUser'));
 
+  app.use('/api/player', require('./api/player'));
+
   app.use('/auth', require('./auth'));
 
   app.route('/doc')
