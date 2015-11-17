@@ -6,8 +6,8 @@ var morgan = require('morgan');
  * custom logger : fusion of 'dev' and 'combined' format.
  *    + fwd ip address ! (api-v1 info)
  */
-morgan.token('fwd-ip', function fwdIp(req) {
-  return req.headers['x-from-afrostream-api-v1'] ? req.headers['x-forwarded-for'] : 'N/A';
+morgan.token('client-ip', function fwdIp(req) {
+  return req.clientIp ? req.clientIp : 'N/A';
 });
 morgan.format('afro', function afroLog(tokens, req, res) {
   var status = res._header
@@ -28,7 +28,7 @@ morgan.format('afro', function afroLog(tokens, req, res) {
     // compile
     fn = afroLog[color] = morgan.compile('\x1b[0m:remote-addr - :remote-user "\x1b[0m:method :url'+
       ' HTTP/:http-version" \x1b['+color+'m:status \x1b[0m:response-time ms -' +
-      ' :res[content-length] ":referrer" ":user-agent" | fwd-ip=:fwd-ip \x1b[0m');
+      ' :res[content-length] ":referrer" ":user-agent" | client-ip=:client-ip \x1b[0m');
   }
 
   return fn(tokens, req, res)
