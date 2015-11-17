@@ -6,6 +6,27 @@ var Q = require('q');
 var config = require('./config/environment');
 
 /**
+ * a correct entry is an object { Fqdn: ..., Protocol: ... }
+ * @param entry
+ */
+var validateEntry = function (entry) {
+  if (!entry) {
+    throw "shouldn't grab empty infos";
+  }
+  if (typeof entry.Fqdn !== 'string' || !entry.Fqdn) {
+    throw "missing .Fqdn field "+JSON.stringify(entry);
+  }
+  // just to be safe ...
+  if (entry.Fqdn.length < 5 ||
+    entry.Fqdn.indexOf(".") === -1) {
+    throw "something might be wrong with cdnselector answer ["+ entry.Fqdn+"]";
+  }
+  if (entry.Protocol !== 'http' && entry.Protocol !== 'https') {
+    throw "unknown scheme ["+entry.Protocol+"]";
+  }
+};
+
+/**
  * @param ip string
  * @returns array [{"Protocol":"https","Fqdn":"hw.cdn.afrostream.net"}, ...]
  */
@@ -22,6 +43,40 @@ var getList = function (ip) {
     body: { IP: ip },
     json: true
   });
+};
+
+var getListSafe = function (ip) {
+  return getList(ip)
+    .then(function (list) {
+      if (!Array.isArray(list)) {
+        throw "cdnselector#getFirst() : list should be an array (ip="+ip+")";
+      }
+      var body = list[1];
+      // FIXME: to be removed
+      // BEGIN
+      console.log("cdnselector#getList() : body = "+JSON.stringify(body));
+      // END
+      if (!Array.isArray(body)) {
+        throw "cdnselector#getFirst() : list[1] (body) should be an array (ip="+ip+")";
+      }
+      if (body.length === 0) {
+        throw "cdnselector#getFirst() : list shouldn't be empty (ip="+ip+")";
+      }
+      return body.map(function (entry) {
+        validateEntry(entry);
+        return { authority: entry.Fqdn, scheme: entry.Protocol };
+      });
+    })
+    .then(
+      function success(data) {
+        console.log('cdnselector#getListSafe() : success ['+ip+'] => ['+JSON.stringify(data)+']');
+        return data;
+      },
+      function error(e) {
+        console.error('cdnselector#getListSafe() : error ' + e, e);
+        return [{ authority: config.cdnselector.defaultAuthority, scheme: config.cdnselector.defaultScheme }];
+      }
+    );
 };
 
 /**
@@ -58,20 +113,7 @@ var getFirst = function (ip) {
 var getFirstSafe = function (ip) {
   return getFirst(ip)
     .then(function parse(infos) {
-      if (!infos) {
-        throw "shouldn't grab empty infos (ip="+ip+")";
-      }
-      if (typeof infos.Fqdn !== 'string' || !infos.Fqdn) {
-        throw "missing .Fqdn field "+JSON.stringify(infos);
-      }
-      // just to be safe ...
-      if (infos.Fqdn.length < 5 ||
-          infos.Fqdn.indexOf(".") === -1) {
-        throw "something might be wrong with cdnselector answer ["+ infos.Fqdn+"]";
-      }
-      if (infos.Protocol !== 'http' && infos.Protocol !== 'https') {
-        throw "unknown scheme ["+infos.Protocol+"]";
-      }
+      validateEntry(infos);
       return { authority: infos.Fqdn, scheme: infos.Protocol };
     })
     .then(
@@ -87,5 +129,6 @@ var getFirstSafe = function (ip) {
 };
 
 module.exports.getList = getList;
+module.exports.getListSafe = getListSafe;
 module.exports.getFirst = getFirst;
 module.exports.getFirstSafe = getFirstSafe;
