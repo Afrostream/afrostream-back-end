@@ -32,15 +32,9 @@ module.exports = {
   dumpPostData: true,
 
   cdnselector: {
-    /*
-    timeout: 400, // ms
-    endpoint: 'http://localhost:42424',
-    defaultAuthority: 'hw.cdn.afrostream.net',
-    defaultScheme: 'https'
-    */
-    enabled: true,
+    enabled: false,
     timeout: 600, // ms
-    endpoint: 'http://stats.adm.afrostream.net',
+    endpoint: 'http://localhost:42424',
     defaultAuthority: 'hw.cdn.afrostream.net',
     defaultScheme: 'https'
   },
