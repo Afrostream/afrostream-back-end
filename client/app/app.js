@@ -1,21 +1,23 @@
 'use strict';
 
 angular.module('afrostreamAdminApp', [
-  'ngCookies',
-  'ngResource',
-  'ngSanitize',
-  'ui.router',
-  'ui.bootstrap',
-  //UPLOAD
-  'angularFileUpload',
-  //Slug helper
-  'slugifier',
-  'ngToast',
-  'ngTagsInput',
-  'ui.bootstrap-slider',
-  'ui.sortable',
-  'angularUtils.directives.dirPagination'
-])
+    'ngCookies',
+    'ngResource',
+    'ngSanitize',
+    'ui.router',
+    'ui.bootstrap',
+    //UPLOAD
+    'angularFileUpload',
+    //Slug helper
+    'slugifier',
+    'ngToast',
+    'ngTagsInput',
+    'ui.bootstrap-slider',
+    'ui.bootstrap.tabs',
+    'ui.sortable',
+    'mdMarkdownIt',
+    'angularUtils.directives.dirPagination'
+  ])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $urlRouterProvider
       .otherwise('/');
@@ -52,6 +54,17 @@ angular.module('afrostreamAdminApp', [
   .config(['ngToastProvider', function (ngToastProvider) {
     ngToastProvider.configure({
       animation: 'slide' // or 'fade'
+    });
+  }])
+  .config(['markdownItConverterProvider', function (markdownItConverter) {
+    markdownItConverter.config('commonmark', {
+      html: true,        // Enable HTML tags in source
+      xhtmlOut: true,        // Use '/' to close single tags (<br />).
+      // This is only for full CommonMark compatibility.
+      breaks: true,        // Convert '\n' in paragraphs into <br>
+      langPrefix: 'language-',  // CSS language prefix for fenced blocks. Can be
+                                // useful for external highlighters.
+      linkify: true        // Autoconvert URL-like text to links
     });
   }])
   .run(function ($rootScope, $state, Auth) {
