@@ -14,11 +14,18 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: 'post'
     },
     title: DataTypes.STRING,
-    date: DataTypes.DATE,
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
     description: DataTypes.STRING,
     slug: DataTypes.STRING,
     body: DataTypes.TEXT,
     sort: DataTypes.INTEGER,
-    active: DataTypes.BOOLEAN
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   });
 };

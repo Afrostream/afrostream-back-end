@@ -230,4 +230,6 @@ db.UsersFavoritesSeasons = db.sequelize.define('UsersFavoritesSeasons', {});
 db.Season.belongsToMany(db.User, {through: db.UsersFavoritesSeasons, as: 'users', foreignKey: 'seasonId'});
 db.User.belongsToMany(db.Season, {through: db.UsersFavoritesSeasons, as: 'favoritesSeasons', foreignKey: 'userId'});
 
+db.Post.belongsTo(db.Image, {as: 'poster', constraints: false});
+
 module.exports = db;

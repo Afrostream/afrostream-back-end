@@ -3,6 +3,11 @@
   input.form-control(id='title' type='text' ng-model='item.title' ng-change='slugify(item.title)' placeholder='Title')
   label(for='slug').control-label Slug
   input.form-control(id='slug' type='text' ng-model='item.slug' placeholder='Slug url')
+  label(for='synopsis').control-label Description
+  textarea.form-control(id='synopsis' rows='5' ng-model='item.description' placeholder='Description')
+  label(for='poster').control-label Poster
+  input.form-control(type='text' ng-model='item.poster' placeholder='Search poster' typeahead='image as image.name for image in loadImages($viewValue,"poster") | limitTo: 5' typeahead-template-url='imagesTemplate.html')
+
 .form-group
   uib-tabset
     uib-tab(heading='Source')
