@@ -36,7 +36,7 @@ module.exports = {
   cdnselector: {
     enabled: true,
     timeout: 250, // ms
-    endpoint: 'http://stats.adm.afrostream.net',
+    endpoint: 'http://stats.adm.afrostream.net:8080',
     defaultAuthority: 'hw.cdn.afrostream.net',
     defaultScheme: 'https'
   },
