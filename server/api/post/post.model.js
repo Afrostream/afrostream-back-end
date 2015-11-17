@@ -16,6 +16,7 @@ module.exports = function (sequelize, DataTypes) {
     title: DataTypes.STRING,
     date: DataTypes.DATE,
     description: DataTypes.STRING,
+    slug: DataTypes.STRING,
     body: DataTypes.TEXT,
     sort: DataTypes.INTEGER,
     active: DataTypes.BOOLEAN
