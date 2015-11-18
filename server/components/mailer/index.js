@@ -27,7 +27,7 @@ exports = module.exports = {
 
       text: 'Bonjour ' + firstName + ', \n\n' +
       'Je  suis heureux de te compter parmi nous !'
-      + (planCode === 'afrostreammonthly' ? 'Tu pourras profiter d’Afrostream à partir du 1er ocotbre.' : 'Tu peux dès maintenant profiter d’Afrostream en te connectant sur http://beta.afrostream.tv.')
+      + (planCode === 'afrostreammonthly' ? 'Tu pourras profiter d’Afrostream à partir du 1er ocotbre.' : 'Tu peux dès maintenant profiter d’Afrostream en te connectant sur http://afrostream.tv.')
       + 'Pour satisfaire au mieux tes attentes, peux tu répondre à 6 questions (30 sec.) '
       + 'en cliquant ici: https://docs.google.com/a/afrostream.tv/forms/d/1KyfN8Ng25UZ8KZtNCAr3DPC-ldNwpESDNEig4UQ9LpQ/viewform \n\n'
       + 'Mais si tu le préfères, je peux t’appeler cette semaine pour quelques questions.\n\n'
