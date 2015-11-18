@@ -82,8 +82,9 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
-    include: includedModel,
-    attributes: ['_id','title','date','description','slug']
+    include: auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}),
+    //include: includedModel,
+    attributes: ['_id', 'title', 'date', 'description', 'slug']
   };
 
   // pagination
