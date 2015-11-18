@@ -79,8 +79,11 @@ function removeEntity(res) {
 }
 
 // Gets a list of posts
+// ?query=... (search in the title)
+// ?slug=... (search by slug)
 exports.index = function (req, res) {
-  var queryName = req.param('query');
+  var queryName = req.param('query'); // deprecated.
+  var slug = req.query.slug;
   var paramsObj = {
     include: includedModel
   };
@@ -94,6 +97,15 @@ exports.index = function (req, res) {
         title: {$iLike: '%' + queryName + '%'}
       }
     })
+  }
+  console.log('slug:'+slug);
+
+  if (slug) {
+    paramsObj = _.merge(paramsObj, {
+      where: {
+        slug: slug
+      }
+    });
   }
 
   Post.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
