@@ -82,7 +82,8 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
-    include: includedModel
+    include: includedModel,
+    attributes: ['_id','title','date','description','slug']
   };
 
   // pagination
