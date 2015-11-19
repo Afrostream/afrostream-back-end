@@ -11,6 +11,10 @@ module.exports = function (sequelize, DataTypes) {
     },
     name: DataTypes.STRING,
     importId: DataTypes.INTEGER,
+    encodingId: {
+      type: DataTypes.STRING,
+      length: 16
+    },
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
