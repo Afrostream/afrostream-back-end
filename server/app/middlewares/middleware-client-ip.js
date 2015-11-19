@@ -12,13 +12,13 @@
  */
 module.exports = function (options) {
   return function (req, res, next) {
-    // assuming we are on heroku ... (might be false)
-    //  the client is the first one (left) in the list of x-forwarded-for
+    // if x-forwarded-for is set, we assume we are on heroku ...
+    //  the client is then the last one (right) in the list of x-forwarded-for
     //  heroku router ip is in req.ip
     // we trim the result.
     req.clientIp = req.get('x-forwarded-client-ip') ||
                    req.get('fastly-client-ip') ||
-                   req.get('x-forwarded-for') && req.get('x-forwarded-for').split(',').shift().replace(/^\s+|\s+$/g, '') ||
+                   req.get('x-forwarded-for') && req.get('x-forwarded-for').split(',').pop().replace(/^\s+|\s+$/g, '') ||
                    req.ip;
     //
     next();
