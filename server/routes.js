@@ -43,6 +43,8 @@ module.exports = function (app) {
 
   app.use('/auth', require('./auth'));
 
+  app.use('/right', require('./right'));
+
   app.route('/doc')
     .get(function (req, res) {
       res.sendFile(path.resolve(app.get('docPath') + '/index.html'));
