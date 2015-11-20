@@ -32,6 +32,9 @@ module.exports.drmtodayCallback = function (req, res, next) {
     if (!user) {
       return handleError(req, res)('user does not exist');
     }
+    if (String(userId) !== String(user._id)) {
+      return handleError(req, res)('userId mismatch userTokenId');
+    }
     res.json({
       "accountingId":"fake accountingId", // FIXME.
       "profile": {

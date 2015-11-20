@@ -44,6 +44,39 @@ describe('Right API:', function() {
       });
   });
 
+  var user2, token2;
+
+  // create a second user
+  before(function() {
+    return User.destroy({ where: { email: 'test.integration+right2@afrostream.tv' } }).then(function() {
+      user2 = User.build({
+        name: 'Fake User',
+        email: 'test.integration+right2@afrostream.tv',
+        password: 'password'
+      });
+      return user2.save();
+    });
+  });
+
+  // log the user
+  before(function(done) {
+    request(app)
+      .post('/auth/local')
+      .send({
+        email: 'test.integration+right2@afrostream.tv',
+        password: 'password'
+      })
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+        token2 = res.body.token;
+        if (!token2) {
+          throw "missing token";
+        }
+        done(err);
+      });
+  });
+
   // search a video with DRM
   before(function() {
     return Video.findOne({where: { drm: true }}).then(function (v) {
@@ -55,6 +88,9 @@ describe('Right API:', function() {
   // Clear users after testing
   after(function() {
     return User.destroy({ where: { email: 'test.integration+right@afrostream.tv' } });
+  });
+  after(function() {
+    return User.destroy({ where: { email: 'test.integration+right2@afrostream.tv' } });
   });
 
   // the user
@@ -78,6 +114,20 @@ describe('Right API:', function() {
         request(app)
           .get('/right/user/'+user._id+'/asset/'+video.encodingId)
           .query({variantId: 'variant', sessionId: '42424245'})
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function (err, res) {
+            assert(String(res.body.message) === 'not granted');
+            done(err);
+          });
+      });
+    });
+
+    describe('with userId != token userId', function() {
+      it('should respond with a 200 OK & not granted', function (done) {
+        request(app)
+          .get('/right/user/'+user2._id+'/asset/'+video.encodingId)
+          .query({variantId: 'variant', sessionId: token})
           .expect(200)
           .expect('Content-Type', /json/)
           .end(function (err, res) {
