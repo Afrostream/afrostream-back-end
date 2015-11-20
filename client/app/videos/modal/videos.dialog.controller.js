@@ -17,7 +17,7 @@ angular.module('afrostreamAdminApp')
           angular.extend(value, $scope.extractType(value));
         });
         data.sources = data.manifests;
-
+        data.drm = Boolean(data.drm);
         $scope.selectedItem = data;
       });
     };
