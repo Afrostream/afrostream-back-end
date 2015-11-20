@@ -18,6 +18,10 @@ module.exports = function (sequelize, DataTypes) {
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
+    },
+    drm: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   });
 };

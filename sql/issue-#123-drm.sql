@@ -16,3 +16,6 @@ FROM
     "Videos" as v ON a."videoId" = v."_id"
 ) AS subquery
 WHERE v._id = subquery."videoId";
+
+-- DRM fields
+ALTER TABLE "Videos" ADD COLUMN "drm" boolean DEFAULT false; -- informationnel
