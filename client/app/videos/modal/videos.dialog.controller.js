@@ -6,10 +6,12 @@ angular.module('afrostreamAdminApp')
     $scope.digibosSources = Digibos.query();
     $scope.selectedItem = null;
     $scope.importEnabled = true;
+
     $scope.selectVideo = function ($item) {
       return Digibos.get({id: $item.id}, function (data) {
         data.importId = data.id;
         data.name = data.title;
+        data.encodingId = data.uuid;
         angular.forEach(data.manifests, function (value) {
           delete value.id;
           angular.extend(value, $scope.extractType(value));
@@ -19,6 +21,7 @@ angular.module('afrostreamAdminApp')
         $scope.selectedItem = data;
       });
     };
+
     $scope.allFromLudobos = function () {
       $scope.importEnabled = false;
       $http.post('/api/digibos/all', $scope.selectedItem).then(function () {

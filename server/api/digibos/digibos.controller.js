@@ -88,7 +88,8 @@ function importAll() {
             var newVideo = {
               importId: video.id,
               name: video.title,
-              sources: video.manifests
+              sources: video.manifests,
+              encodingId: video.uuid
             };
 
             return videoController.import(newVideo);
