@@ -2,15 +2,19 @@
 
 var passport = require('passport');
 
-function handleError(req, res) {
-  return function (err) {
-    console.error('DRM: ' + req.originalUrl + ' not granted with the error ', err);
-    res.json({
-      message: 'not granted',
-      redirectUrl: 'https://afrostream.tv' // FIXME.
-    });
-  };
-}
+var Q = require('q');
+
+var authenticate = function (req, res, next) {
+  var deferred = Q.defer();
+  passport.authenticate('bearer', {session: false}, function (err, user, info) {
+    if (err) {
+      deferred.reject(err);
+    } else {
+      deferred.resolve([user, info]);
+    }
+  })(req, res, next);
+  return deferred.promise;
+};
 
 module.exports.drmtodayCallback = function (req, res, next) {
   var accessToken = req.query.sessionId;
@@ -25,22 +29,34 @@ module.exports.drmtodayCallback = function (req, res, next) {
   res.set('Content-Type', 'application/json');
 
   // we check if the user exist & if the accessToken is valid.
-  passport.authenticate('bearer', {session: false}, function (err, user, info) {
-    if (err) {
-      return handleError(req, res)(err);
-    }
-    if (!user) {
-      return handleError(req, res)('user does not exist');
-    }
-    if (String(userId) !== String(user._id)) {
-      return handleError(req, res)('userId mismatch userTokenId');
-    }
-    res.json({
-      "accountingId":"fake accountingId", // FIXME.
-      "profile": {
-        "purchase" : {}
+  authenticate(req, res, next)
+    .then(function (data) {
+      var user = data[0], info = data[1];
+      // unknown user => break
+      if (!user) {
+        throw 'user does not exist';
+      }
+      if (String(userId) !== String(user._id)) {
+        throw 'userId mismatch userTokenId';
+      }
+    })
+    .then(
+      function success() {
+        console.log('DRM: ' + req.originalUrl + ' granted !');
+        res.json({
+          "accountingId":"fake accountingId", // FIXME.
+          "profile": {
+            "purchase" : {}
+          },
+          "message":"granted"
+        });
       },
-      "message":"granted"
-    });
-  })(req, res, next);
+      function error(err) {
+        console.error('DRM: ' + req.originalUrl + ' not granted with the error ', err);
+        res.json({
+          message: 'not granted',
+          redirectUrl: 'https://afrostream.tv' // FIXME.
+        });
+      }
+    );
 };
