@@ -4,6 +4,8 @@ var passport = require('passport');
 
 var Q = require('q');
 
+var Video = require('../sqldb').Video;
+
 var authenticate = function (req, res, next) {
   var deferred = Q.defer();
   passport.authenticate('bearer', {session: false}, function (err, user, info) {
@@ -30,7 +32,7 @@ module.exports.drmtodayCallback = function (req, res, next) {
 
   // we check if the user exist & if the accessToken is valid.
   authenticate(req, res, next)
-    .then(function (data) {
+    .then(function checkUser(data) {
       var user = data[0], info = data[1];
       // unknown user => break
       if (!user) {
@@ -39,6 +41,11 @@ module.exports.drmtodayCallback = function (req, res, next) {
       if (String(userId) !== String(user._id)) {
         throw 'userId mismatch userTokenId';
       }
+    })
+    .then(function checkAsset() {
+      return Video.find({where: {encodingId: encodingId}}).then(function (video) {
+        if (!video) throw 'unknown asset '+encodingId;
+      })
     })
     .then(
       function success() {

@@ -136,5 +136,19 @@ describe('Right API:', function() {
           });
       });
     });
+
+    describe('with wrong asset', function() {
+      it('should respond with a 200 OK & not granted', function (done) {
+        request(app)
+          .get('/right/user/'+user._id+'/asset/0000')
+          .query({variantId: 'variant', sessionId: token})
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function (err, res) {
+            assert(String(res.body.message) === 'not granted');
+            done(err);
+          });
+      });
+    });
   });
 });
