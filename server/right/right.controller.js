@@ -1,15 +1,43 @@
 'use strict';
 
-module.exports.drmtodayCallback = function (req, res) {
-  console.log(req.url + ' query: ' + JSON.stringify(req.query) + ' headers: ' + JSON.stringify(req.headers));
-  res.set('Cache-Control', 'public, max-age=0');
+var passport = require('passport');
+
+function handleError(req, res) {
+  return function (err) {
+    console.error('DRM: ' + req.originalUrl + ' not granted with the error ', err);
+    res.json({
+      message: 'not granted',
+      redirectUrl: 'https://afrostream.tv' // FIXME.
+    });
+  };
+}
+
+module.exports.drmtodayCallback = function (req, res, next) {
+  var accessToken = req.query.sessionId;
+  var userId = req.params.userId;
+  var encodingId = req.params.assetId;
+
+  // simulating bearer auth
+  req.headers.authorization = 'Bearer ' + accessToken;
+
+  // route headers
+  res.set('Cache-Control', 'public, max-age=0'); // we cannot cache this route
   res.set('Content-Type', 'application/json');
 
-  res.json({
-    "accountingId":"fake accountingId",
-    "profile": {
-      "purchase" : {}
-    },
-    "message":"granted"
-  })
+  // we check if the user exist & if the accessToken is valid.
+  passport.authenticate('bearer', {session: false}, function (err, user, info) {
+    if (err) {
+      return handleError(req, res)(err);
+    }
+    if (!user) {
+      return handleError(req, res)('user does not exist');
+    }
+    res.json({
+      "accountingId":"fake accountingId", // FIXME.
+      "profile": {
+        "purchase" : {}
+      },
+      "message":"granted"
+    });
+  })(req, res, next);
 };

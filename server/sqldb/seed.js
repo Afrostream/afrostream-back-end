@@ -303,7 +303,9 @@ promises.push(Video.sync()
         videos.push({
           name: getVideoName(i),
           importId: Math.round(Math.random()*1000),
-          active: true
+          active: true,
+          encodingId: String(Math.round(Math.random()*100000)),
+          drm: ((i % 3) ? true: false)
         });
       }
       return Video.bulkCreate(videos);
