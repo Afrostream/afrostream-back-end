@@ -6,6 +6,12 @@
 
 .form-group.form-group-heading
   .row.row-header
+    label(for='encodingId').control-label EncodingId
+  .row
+    input.form-control(id='encodingId' type='text' ng-model='item.encodingId' placeholder='0b8fe46d...')
+
+.form-group.form-group-heading
+  .row.row-header
     label.control-label Assets
     button.btn.btn-xs.btn-primary.pull-right(ng-click='newElem(item.sources)')
       span.glyphicon.glyphicon-plus
