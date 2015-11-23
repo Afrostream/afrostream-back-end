@@ -15,6 +15,7 @@
         col.col-md-1
         col.col-md-1
         col.col-md-1
+        col.col-md-2
         col.col-md-6
         col.col-md-2
       thead
@@ -22,6 +23,7 @@
           th Id
           th State
           th Drm
+          th EncodingId
           th Title
           th Duration
       tbody
@@ -32,6 +34,8 @@
             i.glyphicon(ng-class='item.state ==="ready" ? "glyphicon-ok" : "glyphicon-ko"')
           td.text-center
             strong {{item.drm?'&#x2713;':'&#x274c;'}}
+          td
+            strong {{item.uuid}}
           td
             strong {{item.title}}
           td
