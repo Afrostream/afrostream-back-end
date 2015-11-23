@@ -35,6 +35,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                       th.text-center(ng-if='hasThumb()') Thumb
                       th.text-center Title
                       th.text-center(ng-if='hasMail()') Email
+                      th.text-center(ng-if="type == 'video'") DRM
                       th.text-center In prod
                       th.text-center Actions
                   tbody(ng-model='items' directive-if="{'ui-sortable': 'sortable === true'}" ui-sortable='sortableOptions' )
@@ -50,6 +51,8 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         span.text-muted {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
                       td.text-center(ng-if='hasMail()')
                         strong {{item.email}}
+                      td.text-center(ng-if="type == 'video'")
+                        div(style="margin:12px 5px 0 5px") {{item.drm?'&#x2713;':'&#x274c;'}}
                       td.text-center
                         button.btn.btn-xs.btn-default(ng-click='activateIndex(item)' tooltip='{{item.active ? "remove from prod" : "push in prod"}}' )
                           span(ng-class='item.active ? "text-success":"text-danger"')
