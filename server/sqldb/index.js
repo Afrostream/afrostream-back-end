@@ -180,7 +180,6 @@ db.Movie.belongsToMany(db.Category, {through: CategoryMovies, as: 'categorys'});
 db.Category.belongsToMany(db.Movie, {through: CategoryMovies, as: 'movies'});
 db.Category.belongsToMany(db.Movie, {through: CategoryAdSpots, as: 'adSpots'});
 
-db.Movie.hasMany(db.Image);
 db.Movie.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Movie.belongsTo(db.Image, {as: 'logo', constraints: false});
 db.Movie.belongsTo(db.Image, {as: 'thumb', constraints: false});
@@ -194,14 +193,12 @@ db.Comment.belongsTo(db.Video, {as: 'video', constraints: false});
 db.Movie.hasMany(db.Season, {as: 'seasons', foreignKey: 'movieId'});
 db.Season.belongsTo(db.Movie, {as: 'movie', foreignKey: 'movieId', constraints: false});
 
-db.Season.hasMany(db.Image);
 db.Season.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Season.belongsTo(db.Image, {as: 'thumb', constraints: false});
 
 db.Season.hasMany(db.Episode, {as: 'episodes', foreignKey: 'seasonId'});
 db.Episode.belongsTo(db.Season, {as: 'season', foreignKey: 'seasonId', constraints: false});
 
-db.Episode.hasMany(db.Image);
 db.Episode.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Episode.belongsTo(db.Image, {as: 'thumb', constraints: false});
 db.Episode.belongsTo(db.Video, {as: 'video', constraints: false});
