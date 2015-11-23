@@ -12,24 +12,28 @@
   .row
     table.table.table-striped.table-hover.table-condensed(data-click-to-select='true')
       colgroup
-        col.col-md-2
+        col.col-md-1
+        col.col-md-1
+        col.col-md-1
         col.col-md-6
-        col.col-md-2
         col.col-md-2
       thead
         tr
           th Id
-          th Title
           th State
+          th Drm
+          th Title
           th Duration
       tbody
         tr(ng-repeat='item in digibosSources | filter:searchField' ng-click='selectVideo(item)' ng-class='{"selected":item.id == selectedItem.id}')
           td
             span {{item.id}}
-          td
-            strong {{item.title}}
           td.text-center
             i.glyphicon(ng-class='item.state ==="ready" ? "glyphicon-ok" : "glyphicon-ko"')
+          td.text-center
+            strong {{item.drm?'&#x2713;':'&#x274c;'}}
+          td
+            strong {{item.title}}
           td
             strong {{item.duration}}
 .modal-footer
