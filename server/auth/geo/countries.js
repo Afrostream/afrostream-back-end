@@ -85,7 +85,7 @@ module.exports.authorizations = {
   "GB": false, // United Kingdom
   "GD": false, // Grenada
   "GE": false, // Georgia
-  "GF": false, // French Guiana
+  "GF": true, // French Guiana
   "GG": false, // Guernsey
   "GH": false, // Ghana
   "GI": false, // Gibraltar
