@@ -18,6 +18,10 @@
   label.control-label Creation
   input.form-control(type='text' ng-model='item.creation')
 
+.form-group(ng-if='isSerie()')
+  label.control-label Programmation
+  input.form-control(type='text' ng-model='item.schedule' placeholder='Du lundi au vendredi')
+
 .form-group
   label.control-label Category
   tags-input(ng-model='item.categorys' placeholder='Search category' add-from-autocomplete-only='true' display-property='label' key-property='_id')

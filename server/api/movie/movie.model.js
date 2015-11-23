@@ -21,6 +21,7 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: 'movie'//serie
     },
     duration: DataTypes.DECIMAL,
+    schedule: DataTypes.STRING,
     //TODO
     //cast
     //tags
