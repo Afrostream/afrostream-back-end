@@ -47,7 +47,7 @@ module.exports.authorizations = {
   "CD": false, // Congo, The Democratic Republic of the
   "CF": false, // Central African Republic
   "CG": false, // Congo
-  "CH": false, // Switzerland
+  "CH": true, // Switzerland
   "CI": true, // Cote d'Ivoire
   "CK": false, // Cook Islands
   "CL": false, // Chile
