@@ -53,7 +53,10 @@ module.exports.drmtodayCallback = function (req, res, next) {
         res.json({
           "accountingId":"fake accountingId", // FIXME.
           "profile": {
-            "purchase" : {}
+            "rental" : {
+              "absoluteExpiration" : new Date(new Date().getTime() + 1000 * 3600* 24).toISOString(), // 1 day
+              "playDuration" : 1000 * 3600 * 12 // 12 hours
+            }
           },
           "message":"granted"
         });
