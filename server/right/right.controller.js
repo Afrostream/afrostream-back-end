@@ -45,13 +45,14 @@ module.exports.drmtodayCallback = function (req, res, next) {
     .then(function checkAsset() {
       return Video.find({where: {encodingId: encodingId}}).then(function (video) {
         if (!video) throw 'unknown asset '+encodingId;
+        return video;
       })
     })
     .then(
-      function success() {
+      function success(video) {
         console.log('DRM: ' + req.originalUrl + ' granted !');
         res.json({
-          "accountingId":"fake accountingId", // FIXME.
+          "accountingId": userId + ":" + video._id + ":" + video.name,
           "profile": {
             "rental" : {
               "absoluteExpiration" : new Date(new Date().getTime() + 1000 * 3600* 24).toISOString(), // 1 day
