@@ -19,6 +19,24 @@ var auth = require('../../auth/auth.service');
 
 var router = express.Router();
 
+// cross domain access to our api, staging only for tests
+if (process.env.NODE_ENV === 'staging') {
+  router.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization');
+    next();
+  });
+
+  router.use(function (req, res, next) {
+    if (req.method === 'OPTIONS') {
+      res.send();
+    } else {
+      next();
+    }
+  });
+}
+
 router.use('/:userId/favoritesEpisodes', require('./favoriteEpisode'));
 router.use('/:userId/favoritesMovies', require('./favoriteMovie'));
 router.use('/:userId/favoritesSeasons', require('./favoriteSeason'));
