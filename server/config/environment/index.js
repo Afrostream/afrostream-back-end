@@ -34,8 +34,8 @@ var all = {
   // Secret for session, you will want to change this and make it an environment variable
   secrets: {
     session: 'afrostream-admin-secret',
-    expire: process.env.USER_TOKEN_EXPIRE || 1800,
-    videoExpire: process.env.VIDEO_TOKEN_EXPIRE || 300
+    expire: parseInt(process.env.USER_TOKEN_EXPIRE, 10) || 1800,
+    videoExpire: process.env.VIDEO_TOKEN_EXPIRE || 300 // FIXME: int or string ...
   },
   oauth2: true,
   // List of user roles
