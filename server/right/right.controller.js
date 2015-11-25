@@ -1,22 +1,8 @@
 'use strict';
 
-var passport = require('passport');
-
-var Q = require('q');
-
 var Video = require('../sqldb').Video;
 
-var authenticate = function (req, res, next) {
-  var deferred = Q.defer();
-  passport.authenticate('bearer', {session: false}, function (err, user, info) {
-    if (err) {
-      deferred.reject(err);
-    } else {
-      deferred.resolve([user, info]);
-    }
-  })(req, res, next);
-  return deferred.promise;
-};
+var authenticate = require('../auth/auth.service').authenticate;
 
 module.exports.drmtodayCallback = function (req, res, next) {
   var accessToken = req.query.sessionId;

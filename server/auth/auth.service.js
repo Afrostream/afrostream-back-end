@@ -12,6 +12,8 @@ var validateJwt = expressJwt({
   secret: config.secrets.session
 });
 
+var Q = require('q');
+
 /**
  * Attaches the user object to the request if authenticated
  * Otherwise returns 403
@@ -161,6 +163,19 @@ function setTokenCookie(req, res) {
   res.redirect('/');
 }
 
+var authenticate = function (req, res, next) {
+  var deferred = Q.defer();
+  passport.authenticate('bearer', {session: false}, function (err, user, info) {
+    if (err) {
+      deferred.reject(err);
+    } else {
+      deferred.resolve([user, info]);
+    }
+  })(req, res, next);
+  return deferred.promise;
+};
+
+exports.authenticate = authenticate;
 exports.isAuthenticated = isAuthenticated;
 exports.hasRole = hasRole;
 exports.validRole = validRole;
