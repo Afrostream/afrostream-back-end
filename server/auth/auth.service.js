@@ -11,6 +11,7 @@ var User = require('../sqldb').User;
 var validateJwt = expressJwt({
   secret: config.secrets.session
 });
+var sqldb = require('../sqldb');
 
 var Q = require('q');
 
@@ -114,9 +115,7 @@ function signToken(id) {
     expiresInMinutes: 60 * 5
   });
 }
-/**
- * Returns a jwt token signed by the app secret
- */
+
 function mergeQuery(req, res, params) {
   var isAdmin = reqUserIsAdmin(req);
 
@@ -175,6 +174,46 @@ var authenticate = function (req, res, next) {
   return deferred.promise;
 };
 
+/**
+ * resulting query parameters will be modified as :
+ *
+ * options.where.active doesn't exist => result.where.active = true
+ * options.where.active = true        => result.where.active = true
+ * options.where.active = false       => result.where.active = false
+ * options.where.active = undefined   => result.where.active doesn't exist.
+ *
+ * @param options object query parameters
+ * @return object new filtered options object
+ */
+var filterQueryOptions = function (req, options) {
+  var isAdmin = reqUserIsAdmin(req);
+
+  return sqldb.filterOptions(options, function filter(options) {
+    if (!options.model ||
+        (options.model &&
+         options.model.attributes &&
+         options.model.attributes.active)) {
+      // we can set modify the "active" parameter
+      if (options.where && options.where.hasOwnProperty('active')) {
+        // sub model
+        switch (options.where.active) {
+          case undefined:
+            delete options.where.active;
+            break;
+          case true:
+          case false:
+          default:
+            break;
+        }
+      } else {
+        // root
+        options = _.merge(options, {where: {active: true}});
+      }
+    }
+    return options;
+  });
+};
+
 exports.authenticate = authenticate;
 exports.isAuthenticated = isAuthenticated;
 exports.hasRole = hasRole;
@@ -183,3 +222,5 @@ exports.signToken = signToken;
 exports.setTokenCookie = setTokenCookie;
 exports.mergeQuery = mergeQuery;
 exports.mergeIncludeValid = mergeIncludeValid;
+//
+exports.filterQueryOptions = filterQueryOptions;

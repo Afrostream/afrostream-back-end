@@ -77,8 +77,10 @@ module.exports.getToken = function (app) {
 
 module.exports.getRandomMovie = function (app) {
   var Movie = require('../server/sqldb').Movie;
+  var Video = require('../server/sqldb').Video;
 
-  return Movie.find({ where: { title: { $iLike : '%random%' }, active: true }})
+  return Movie.find({ where: { title: { $iLike : '%random%' } , active: true }
+                    , include: [ { model: Video, as: 'video', active: true } ] })
     .then(function (movie) {
       if (!movie) throw "missing random active movie in the database.";
       return movie;

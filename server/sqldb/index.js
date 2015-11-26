@@ -229,4 +229,44 @@ db.User.belongsToMany(db.Season, {through: db.UsersFavoritesSeasons, as: 'favori
 
 db.Post.belongsTo(db.Image, {as: 'poster', constraints: false});
 
+///// HELPERS FUNCTIONS /////
+var _ = require('lodash');
+//
+// @param options object             input options (mutable)
+// @param o       object|function    input mutator
+// @return        object             new options
+//
+// example:
+// db.filterOptions({ where: { id: 42 }, include: [ { model: Foo } ] }, { required: false });
+//  => { where: { id: 42 }, include: [ { model: Foo, required: false } ], required: false }
+// db.filterOptions(options, function (options, root) { options.foo = 'bar'; return options; }
+//  =>
+db.filterOptions = function (options, o) {
+  return (function rec(options, root) {
+    if (Array.isArray(options.include)) {
+      options.include = options.include.map(rec);
+    }
+    if (typeof o === 'function') {
+      return o(options, root); // filter function
+    }
+    return _.merge(options, o);
+  })(options, true);
+};
+
+/**
+ * Add the field : { required: false } in all included submodels.
+ *
+ * @param options object              input query options (mutable)
+ * @return        object              new options
+ */
+db.noInnerJoin = function (options) {
+  return db.filterOptions(options, function (options, root) {
+    if (root) {
+      return options;
+    }
+    return _.merge(options, {required: false});
+  });
+};
+
+
 module.exports = db;

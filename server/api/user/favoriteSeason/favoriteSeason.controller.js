@@ -1,5 +1,6 @@
 'use strict';
 
+var auth = require('../../../auth/auth.service');
 var sqldb = require('../../../sqldb');
 var User = sqldb.User;
 var Season = sqldb.Season;
@@ -7,19 +8,28 @@ var UsersFavoritesSeasons = sqldb.UsersFavoritesSeasons;
 
 var bluebird = require('bluebird');
 
+var includedModel = require('../../season/season.includedModel');
+
 var index = function (req, res) {
-  User.find({
+  var queryOptions = {
     where: {
-      _id: req.user._id
+      _id: req.user._id,
+      active: undefined
     },
     include: [
       {
         model: Season, as: 'favoritesSeasons',
-        where: { active: true },
-        required: false
+        required: false,
+        include: includedModel
       }
     ]
-  })
+  };
+  // active: true for non admin.
+  queryOptions = auth.filterQueryOptions(req, queryOptions);
+  // required: false recursivly
+  queryOptions = sqldb.filterOptions(queryOptions, {required: false});
+  //
+  User.find(queryOptions)
     .then(function (user) {
       if (!user) {
         res.status(401).end();

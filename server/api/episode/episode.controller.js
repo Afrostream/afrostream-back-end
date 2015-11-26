@@ -20,15 +20,7 @@ var auth = require('../../auth/auth.service');
 
 var utils = require('../utils.js');
 
-var includedModel = [
-  {
-    model: Season, as: 'season',
-    order: [['sort', 'ASC']]
-  }, // load all episodes
-  {model: Video, as: 'video'}, // load video data
-  {model: Image, as: 'poster'}, // load poster image
-  {model: Image, as: 'thumb'} // load thumb image
-];
+var includedModel = require('./episode.includedModel');
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;

@@ -24,16 +24,7 @@ var auth = require('../../auth/auth.service');
 
 var utils = require('../utils.js');
 
-var includedModel = [
-  {model: Video, as: 'video'}, // load all episodes
-  {model: Category, as: 'categorys'}, // load all episodes
-  {model: Season, as: 'seasons'}, // load all seasons
-  {model: Image, as: 'logo'}, // load logo image
-  {model: Image, as: 'poster'}, // load poster image
-  {model: Image, as: 'thumb'}, // load thumb image
-  {model: Licensor, as: 'licensor'}, // load thumb image
-  {model: Actor, as: 'actors'} // load thumb image
-];
+var includedModel = require('./movie.includedModel');
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
