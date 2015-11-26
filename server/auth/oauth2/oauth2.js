@@ -265,7 +265,7 @@ exports.decision = [
 ];
 
 exports.token = [
-  passport.authenticate(['clientBasic', 'clientPassword'], {session: true}),
+  passport.authenticate(['clientBasic', 'clientPassword'], {session: false}),
   server.token(),
   server.errorHandler()
 ];
