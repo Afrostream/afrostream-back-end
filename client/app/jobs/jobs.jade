@@ -10,15 +10,15 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         div Loading...
                     div(ng-if="ready")
                         div(class='btn-group')
-                            label(class='btn btn-primary {{stateFilter=="inactive"?"active":""}}' ng-click='updatestateFilter("inactive")' uib-btn-radio="'inactive'")
+                            label(class='btn btn-primary {{stateFilter=="inactive"?"active":""}}' ng-model="stateFilter" ng-click='updatestateFilter("inactive")' uib-btn-radio="'inactive'")
                                 |{{stats.inactiveCount}} Queued
-                            label(class='btn btn-primary {{stateFilter=="active"?"active":""}}' ng-click='updatestateFilter("active")' uib-btn-radio="'active'")
+                            label(class='btn btn-primary {{stateFilter=="active"?"active":""}}' ng-model="stateFilter" ng-click='updatestateFilter("active")' uib-btn-radio="'active'")
                                 |{{stats.activeCount}} Active
-                            label(class='btn btn-primary {{stateFilter=="failed"?"active":""}}' ng-click='updatestateFilter("failed")' uib-btn-radio="'failed'")
+                            label(class='btn btn-primary {{stateFilter=="failed"?"active":""}}' ng-model="stateFilter" ng-click='updatestateFilter("failed")' uib-btn-radio="'failed'")
                                 |{{stats.failedCount}} Failed
-                            label(class='btn btn-primary {{stateFilter=="complete"?"active":""}}' ng-click='updatestateFilter("complete")' uib-btn-radio="'complete'")
+                            label(class='btn btn-primary {{stateFilter=="complete"?"active":""}}' ng-model="stateFilter" ng-click='updatestateFilter("complete")' uib-btn-radio="'complete'")
                                 |{{stats.completeCount}} Complete
-                            label(class='btn btn-primary {{stateFilter=="delayed"?"active":""}}' ng-click='updatestateFilter("delayed")' uib-btn-radio="'delayed'")
+                            label(class='btn btn-primary {{stateFilter=="delayed"?"active":""}}' ng-model="stateFilter" ng-click='updatestateFilter("delayed")' uib-btn-radio="'delayed'")
                                 | {{stats.delayedCount}} Delayed
 
                         table.table.table-hover
