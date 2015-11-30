@@ -57,7 +57,9 @@ var add = function (req, res) {
         return handleError(res)('unknown season ' + req.body._id);
       }
       return results.user.addFavoritesSeasons(results.season).then(function () {
-        res.json(results.season);
+        return Season.findOne({where: {_id: results.season._id}, include: includedModel});
+      }).then(function (result) {
+        res.json(result);
       });
     })
     .catch(handleError(res, 500));

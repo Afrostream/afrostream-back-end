@@ -57,7 +57,9 @@ var add = function (req, res) {
         return handleError(res)('unknown movie ' + req.body._id);
       }
       return results.user.addFavoritesMovies(results.movie).then(function () {
-        res.json(results.movie);
+        return Movie.findOne({where: {_id: results.movie._id}, include: includedModel});
+      }).then(function (result) {
+        res.json(result);
       });
     })
     .catch(handleError(res, 500));

@@ -57,7 +57,9 @@ var add = function (req, res) {
         return handleError(res)('unknown episode ' + req.body._id);
       }
       return results.user.addFavoritesEpisodes(results.episode).then(function () {
-        res.json(results.episode);
+        return Episode.findOne({where: {_id: results.episode._id}, include: includedModel});
+      }).then(function (result) {
+        res.json(result);
       });
     })
     .catch(handleError(res, 500));
