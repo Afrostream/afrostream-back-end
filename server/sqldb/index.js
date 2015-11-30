@@ -14,156 +14,27 @@ var db = {
   sequelize: new Sequelize(config.sequelize.uri, config.sequelize.options)
 };
 
-db.User = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'user',
-  'user.model'
-));
-
-db.GiftGiver = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'giftGiver',
-  'giftGiver.model'
-));
-
-// Insert models below
-db.Post = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'post',
-  'post.model'
-));
-db.RefreshToken = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'refreshToken',
-  'refreshToken.model'
-));
-db.AccessToken = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'accessToken',
-  'accessToken.model'
-));
-db.Actor = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'actor',
-  'actor.model'
-));
-db.AuthCode = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'authCode',
-  'authCode.model'
-));
-db.Client = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'client',
-  'client.model'
-));
-db.Licensor = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'licensor',
-  'licensor.model'
-));
-db.Language = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'language',
-  'language.model'
-));
-db.Comment = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'comment',
-  'comment.model'
-));
-db.Caption = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'caption',
-  'caption.model'
-));
-db.Video = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'video',
-  'video.model'
-));
-db.Image = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'image',
-  'image.model'
-));
-db.Asset = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'asset',
-  'asset.model'
-));
-db.Episode = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'episode',
-  'episode.model'
-));
-db.Season = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'season',
-  'season.model'
-));
-db.Tag = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'tag',
-  'tag.model'
-));
-db.Category = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'category',
-  'category.model'
-));
-db.Movie = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'movie',
-  'movie.model'
-));
-db.WaitingUser = db.sequelize.import(path.join(
-  config.root,
-  'server',
-  'api',
-  'waitingUser',
-  'waitingUser.model'
-));
+db.AccessToken = db.sequelize.import('models/accessToken');
+db.Actor = db.sequelize.import('models/actor');
+db.Asset = db.sequelize.import('models/asset');
+db.AuthCode = db.sequelize.import('models/authCode');
+db.Caption = db.sequelize.import('models/caption');
+db.Category = db.sequelize.import('models/category');
+db.Client = db.sequelize.import('models/client');
+db.Comment = db.sequelize.import('models/comment');
+db.Episode = db.sequelize.import('models/episode');
+db.GiftGiver = db.sequelize.import('models/giftGiver');
+db.Image = db.sequelize.import('models/image');
+db.Language = db.sequelize.import('models/language');
+db.Licensor = db.sequelize.import('models/licensor');
+db.Movie = db.sequelize.import('models/movie');
+db.Post = db.sequelize.import('models/post');
+db.RefreshToken = db.sequelize.import('models/refreshToken');
+db.Season = db.sequelize.import('models/season');
+db.Tag = db.sequelize.import('models/tag');
+db.User = db.sequelize.import('models/user');
+db.Video = db.sequelize.import('models/video');
+db.WaitingUser = db.sequelize.import('models/waitingUser');
 
 var CategoryMovies = db.sequelize.define('CategoryMovies', {});
 var CategoryAdSpots = db.sequelize.define('CategoryAdSpots', {});
