@@ -22,7 +22,7 @@ var router = express.Router();
 // cross domain access to our api, staging only for tests
 if (process.env.NODE_ENV === 'staging') {
   router.use(function (req, res, next) {
-    if (req.hostname.match(/afrostream\-player(.*)\.herokuapp\.com/)) {
+    if (req.headers['referer'] && req.headers['referer'].match(/afrostream\-player(.*)\.herokuapp\.com/)) {
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
       res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization');
