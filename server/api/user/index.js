@@ -19,6 +19,12 @@ var auth = require('../../auth/auth.service');
 
 var router = express.Router();
 
+// all user routes are dynamic.
+router.use(function (req, res, next) {
+  res.isDynamic();
+  next();
+});
+
 // cross domain access to our api, staging only for tests
 if (process.env.NODE_ENV === 'staging') {
   router.use(function (req, res, next) {
