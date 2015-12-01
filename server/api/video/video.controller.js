@@ -184,6 +184,15 @@ exports.index = function (req, res) {
       }
     });
   }
+
+  if (req.query.backo) {
+    paramsObj = _.merge(paramsObj, {
+      where: {
+        catchupProviderId: { $eq: null }
+      }
+    });
+  }
+
   Video.findAndCountAll(paramsObj)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))

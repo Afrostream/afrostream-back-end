@@ -176,6 +176,15 @@ exports.index = function (req, res) {
       }
     })
   }
+
+  if (req.query.backo) {
+    paramsObj = _.merge(paramsObj, {
+      where: {
+        catchupProviderId: { $eq: null }
+      }
+    });
+  }
+
   Movie.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))

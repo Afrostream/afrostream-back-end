@@ -43,7 +43,7 @@ angular.module('afrostreamAdminApp')
     function loadItems(pageNumber, query) {
       // this is just an example, in reality this stuff should be in a service
       $http.get($scope.apiRessourceUrl, {
-        params: {query: query},
+        params: {query: query, backo: 1},
         headers: angular.extend(
           {},
           $scope.headers,
