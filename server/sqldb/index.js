@@ -18,6 +18,7 @@ db.AccessToken = db.sequelize.import('models/accessToken');
 db.Actor = db.sequelize.import('models/actor');
 db.Asset = db.sequelize.import('models/asset');
 db.AuthCode = db.sequelize.import('models/authCode');
+db.CacheUsersSubscription = db.sequelize.import('models/cacheUsersSubscription');
 db.Caption = db.sequelize.import('models/caption');
 db.Category = db.sequelize.import('models/category');
 db.Client = db.sequelize.import('models/client');
@@ -43,6 +44,8 @@ var MoviesActors = db.sequelize.define('MoviesActors', {});
 db.Actor.belongsTo(db.Image, {as: 'picture', constraints: false});
 db.Actor.belongsToMany(db.Movie, {through: MoviesActors, as: 'movies'});
 db.Movie.belongsToMany(db.Actor, {through: MoviesActors, as: 'actors'});
+
+db.CacheUsersSubscription.belongsTo(db.User, {as: 'user', foreignKey: 'userId'});
 
 db.Licensor.hasMany(db.Movie, {as: 'movies', foreignKey: 'licensorId'});
 db.Movie.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
@@ -84,7 +87,6 @@ db.Video.hasOne(db.Movie, {as: 'movie', foreignKey: 'videoId'});
 db.Video.hasOne(db.Episode, {as: 'episode', foreignKey: 'videoId'});
 
 db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints: false});
-
 
 db.UsersFavoritesEpisodes = db.sequelize.define('UsersFavoritesEpisodes', {});
 db.Episode.belongsToMany(db.User, {through: db.UsersFavoritesEpisodes, as: 'users', foreignKey: 'episodeId'});
