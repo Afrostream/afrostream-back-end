@@ -1,0 +1,1 @@
+ALTER TABLE "Seasons" ADD COLUMN "seasonNumber" integer;
