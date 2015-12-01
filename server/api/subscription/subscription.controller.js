@@ -99,9 +99,9 @@ exports.show = function (req, res, next) {
       }).catch(handleError(res));
     })
     .catch(handleError(res));
-
 };
-// Gets a single subscription from the DB
+
+// Gets the authentified user's subscriptions
 exports.me = function (req, res, next) {
   var userId = req.user._id;
   User.find({
@@ -141,14 +141,13 @@ exports.me = function (req, res, next) {
       }).catch(function () {
         return res.json(profile);
       });
-
     })
     .catch(handleError(res));
 };
 
-// Gets a single subscription from the DB
 exports.all = function (req, res, next) {
   var userId = req.user._id;
+
   User.find({
     where: {
       _id: userId
@@ -342,7 +341,7 @@ function error(res) {
  *   provider: '...'
  *   planCode: '...'
  *   accountCode: '...'
- *   buillingProvider: '...'
+ *   billingProvider: '...'
  *   subscriptions: [
  *     { state: ..., activatedAt:..., canceledAt:..., expiresAt:..., plan: { planCode: ... } }
  *   ]
@@ -356,7 +355,7 @@ function userInfos(user) {
     email: user.email,
     planCode: '',
     accountCode: user.account_code,
-    buillingProvider: user.billing_provider,
+    billingProvider: user.billing_provider,
     subscriptions : []
   }).then(function (infos) {
     if (user.billing_provider === 'celery') {
