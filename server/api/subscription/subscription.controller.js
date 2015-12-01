@@ -608,3 +608,5 @@ exports.update = function (req, res) {
 exports.destroy = function (req, res) {
 
 };
+
+exports.userInfos = userInfos;
