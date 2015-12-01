@@ -9,6 +9,10 @@
 //    .tag-template
 //      span {{data.title}}
 .form-group
+  label.control-label Season Number
+  input.form-control(type='number' min='0' ng-model='item.seasonNumber')
+
+.form-group
   label.control-label Movie
   input.form-control(type='text' ng-model='item.movie' placeholder='Search movie' typeahead='movie as movie.title for movie in loadMovies($viewValue) | limitTo: 5')
 
