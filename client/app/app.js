@@ -24,6 +24,20 @@ angular.module('afrostreamAdminApp', [
 
     $locationProvider.html5Mode(true);
     $httpProvider.interceptors.push('authInterceptor');
+    
+    // inlining micro backo interceptor.
+    // this interceptor will add ?backo=1 to every /api/* requests.
+    $httpProvider.interceptors.push(function () {
+      return {
+        'request': function(config) {
+          if (config && config.url && config.url.match(/^\/api\/.*/)) {
+            config.params = config.params || {};
+            config.params.backo = 1;
+          }
+          return config;
+        }
+      };
+    });
   })
   .factory('authInterceptor', function ($rootScope, $q, $cookies, $injector) {
     var state;
