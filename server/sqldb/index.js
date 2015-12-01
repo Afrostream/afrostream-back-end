@@ -20,6 +20,7 @@ db.Asset = db.sequelize.import('models/asset');
 db.AuthCode = db.sequelize.import('models/authCode');
 db.CacheUsersSubscription = db.sequelize.import('models/cacheUsersSubscription');
 db.Caption = db.sequelize.import('models/caption');
+db.CatchupProvider = db.sequelize.import('models/catchupProvider');
 db.Category = db.sequelize.import('models/category');
 db.Client = db.sequelize.import('models/client');
 db.Comment = db.sequelize.import('models/comment');
@@ -101,6 +102,11 @@ db.Season.belongsToMany(db.User, {through: db.UsersFavoritesSeasons, as: 'users'
 db.User.belongsToMany(db.Season, {through: db.UsersFavoritesSeasons, as: 'favoritesSeasons', foreignKey: 'userId'});
 
 db.Post.belongsTo(db.Image, {as: 'poster', constraints: false});
+
+db.Video.belongsTo(db.CatchupProvider, {as: 'catchupProvider', foreignKey: 'catchupProviderId', constraints: false});
+db.Episode.belongsTo(db.CatchupProvider, {as: 'catchupProvider', foreignKey: 'catchupProviderId', constraints: false});
+db.Season.belongsTo(db.CatchupProvider, {as: 'catchupProvider', foreignKey: 'catchupProviderId', constraints: false});
+db.Movie.belongsTo(db.CatchupProvider, {as: 'catchupProvider', foreignKey: 'catchupProviderId', constraints: false});
 
 ///// HELPERS FUNCTIONS /////
 var _ = require('lodash');
