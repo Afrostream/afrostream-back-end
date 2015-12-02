@@ -46,6 +46,7 @@ var router = express.Router();
 
 router.get('/', auth.hasRole('admin'), controller.index);
 router.get('/:id', auth.isAuthenticated(), controller.show);
+router.get('/:movieId/seasons/first/episodes/first/video', controller.getFirstActiveVideo);
 router.get('/:id/seasons', auth.isAuthenticated(), controller.seasons);
 router.post('/', auth.hasRole('admin'), controller.create);
 router.post('/search', auth.isAuthenticated(), controller.search);

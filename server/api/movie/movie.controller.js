@@ -345,3 +345,63 @@ exports.destroy = function (req, res) {
     .then(removeEntity(res))
     .catch(handleError(res));
 };
+
+/**
+ * This function will return the video Object of the first episode of the first season
+ *    whatever the episodeNumber / seasonNumber it is but ordered by seasonNumber/episodeNumber
+ *
+ *  => 90% of time it will be S1E1
+ *   but it can be S2E1 or S2E40 if no previous episodes / seasons exist (catchup tv)
+ *
+ * This video must be active
+ *
+ * @param req object
+ * @param res object
+ */
+module.exports.getFirstActiveVideo = function (req, res) {
+  return Movie.find({
+    where: { _id: req.params.movieId, type: 'serie' },
+    include: [
+      {
+        model: Season,
+        as: 'seasons',
+        include: [
+          {
+            model: Episode,
+            as: 'episodes',
+            include:[
+              {
+                model: Video,
+                as: 'video',
+                where: {active: true}
+              }
+            ],
+            where: { active: true },
+            attributes: ['_id', 'episodeNumber', 'videoId']
+          }
+        ],
+        where: { active: true },
+        attributes: ['_id', 'seasonNumber']
+      }
+    ],
+    order: [
+      [{model: Season, as: 'seasons'}, 'seasonNumber'],
+      [{model: Season, as: 'seasons'}, {model: Episode, as: 'episodes'}, 'episodeNumber']
+    ]
+  }).then(function (movie) {
+    if (!movie) {
+      return res.status(404).send('');
+    }
+    // [ S1E1, S1E2,... S3E1, S3E2 ]...
+    var episodes = (movie.get('seasons') || []).reduce(function (p, c) {
+      return p.concat(c.get('episodes') || []);
+    }, []);
+    // 90% should be S1E1
+    var episode = episodes.shift();
+    if (episode && episode.get('video')) {
+      res.json(episode.get('video'));
+    } else {
+      res.status(404).send('');
+    }
+  })
+};
