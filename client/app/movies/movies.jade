@@ -44,7 +44,7 @@
     .tag-template
       span {{data.title}}
 
-.form-group(ng-if='isMovie()')
+.form-group
   label.control-label Video
   input.form-control(type='text' ng-model='item.video' placeholder='Search video' typeahead='video as video.name for video in loadVideo($viewValue) | limitTo: 5' typeahead-template-url='imagesTemplate.html')
 
