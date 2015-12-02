@@ -46,7 +46,11 @@
 
 .form-group
   label.control-label Video
-  input.form-control(type='text' ng-model='item.video' placeholder='Search video' typeahead='video as video.name for video in loadVideo($viewValue) | limitTo: 5' typeahead-template-url='imagesTemplate.html')
+  div
+    input.form-control(type='text' ng-model='item.video' placeholder='Search video' typeahead='video as video.name for video in loadVideo($viewValue) | limitTo: 5' typeahead-template-url='imagesTemplate.html' ng-style='isSerie()?{display:"inline",width:"70%"}:{}')
+    button.btn.btn-primary(ng-click='searchFirstVideo()' ng-if='isSerie()')
+      span.fa.fa-hand-o-left(style='margin-right:5px')
+      | S1E1
 
 .form-group
   label.control-label Actors

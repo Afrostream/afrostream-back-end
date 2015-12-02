@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('MoviesCtrl', function ($scope, Category, Season, Licensor, Video, Actor) {
+  .controller('MoviesCtrl', function ($scope, $http, Category, Season, Licensor, Video, Actor) {
     var hydrateActor = function (actor) {
       actor.fullName = actor.firstName + ' ' + actor.lastName;
     };
@@ -43,6 +43,14 @@ angular.module('afrostreamAdminApp')
         angular.forEach(actors, hydrateActor);
         return actors;
       });
+    };
+    $scope.searchFirstVideo = function () {
+      $http.get('/api/movies/'+$scope.item._id+'/seasons/first/episodes/first/video')
+        .then(function (res) {
+          if (res && res.data && res.data._id) {
+            $scope.item.video = res.data;
+          }
+        });
     };
   })
 ;
