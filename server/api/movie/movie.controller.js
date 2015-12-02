@@ -112,7 +112,7 @@ function addLicensor(updates) {
 
 
 function addVideo(updates) {
-  var video = Video.build(updates.video);
+  var video = (updates.video) ? Video.build(updates.video) : null;
   return function (entity) {
     return entity.setVideo(video)
       .then(function () {
