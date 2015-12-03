@@ -1,10 +1,11 @@
 'use strict';
 
 var request = require('request-promise');
-var config = require('../../config/environment');
-var videoController = require('../video/video.controller');
-var _ = require('lodash');
 var Promise = require('bluebird');
+
+var config = require('../../config/environment/index');
+
+var importVideo = require('./mam.import').importVideo;
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -13,12 +14,6 @@ function handleError(res, statusCode) {
   };
 }
 
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (data) {
-    res.status(statusCode).json(JSON.parse(data));
-  }
-}
 function responseWithData(res, statusCode) {
   statusCode = statusCode || 200;
   return function (data) {
@@ -26,103 +21,32 @@ function responseWithData(res, statusCode) {
   }
 }
 
-function extractMime(filename) {
-  var reg = /(\/[^?]+).*/;
-  var filePath = filename.match(reg);
-
-  var parts = filePath[1].split('.');
-  var type = (parts.length > 1) ? parts.pop() : 'mp4';
-  return type;
-};
-
-function extractType(value) {
-  var type = extractMime(value.url);
-  var rtType = {};
-  switch (type) {
-    case 'm3u8':
-      rtType.type = 'application/vnd.apple.mpegurl';
-      rtType.format = 'hls';
-      break;
-    case 'mpd':
-      rtType.type = 'application/dash+xml';
-      rtType.format = 'mpd';
-      break;
-    case 'f4m':
-      rtType.type = 'application/adobe-f4m';
-      rtType.format = 'hds';
-      break;
-    default:
-      rtType.type = 'video/' + type;
-      rtType.format = 'progressive';
-      break;
-  }
-
-  rtType.importId = value.content_id;
-  rtType.src = value.url;
-  return rtType;
-};
-
-function importAll() {
-  return function (data) {
-// assuming openFiles is an array of file names
-    return Promise.map(JSON.parse(data), function (mamItem) {
-      if (!mamItem.state || mamItem.state != 'ready') {
-        console.log('error not ready', mamItem.id);
-        return;
-      }
-      return request(config.mam.domain + '/' + mamItem.id)
-        .then(function (jsonVideo) {
-          var video = JSON.parse(jsonVideo);
-          if (video && video.manifests) {
-
-            _.forEach(video.manifests, function (manifest) {
-              delete manifest.id;
-              _.merge(manifest, extractType(manifest));
-            });
-
-            var newVideo = {
-              importId: video.id,
-              name: video.title,
-              sources: video.manifests,
-              encodingId: video.uuid,
-              drm: Boolean(video.drm)
-            };
-
-            return videoController.import(newVideo);
-          }
-          else {
-            return;
-          }
-        })
-        .catch(function (err) {
-          console.log('error', err)
-        });
-    }).then(function (importeds) {
-      return importeds;
-    }).catch(SyntaxError, function (e) {
-      console.log("Invalid JSON in file " + e.fileName + ": " + e.message);
-    });
-
-  }
-}
-
 // Gets a list of accessTokens
 exports.index = function (req, res) {
-  request(config.mam.domain)
-    .then(responseWithResult(res))
-    .catch(handleError(res));
-};
-// Gets a list of accessTokens
-exports.import = function (req, res) {
-  request(config.mam.domain)
-    .then(importAll())
+  request({uri: config.mam.domain, json: true})
     .then(responseWithData(res))
     .catch(handleError(res));
 };
 
 // Gets a single accessToken from the DB
 exports.show = function (req, res) {
-  request(config.mam.domain + '/' + req.params.id)
-    .then(responseWithResult(res))
+  request({uri: config.mam.domain + '/' + req.params.id, json: true})
+    .then(responseWithData(res))
+    .catch(handleError(res));
+};
+
+exports.import = function (req, res) {
+  request({uri: config.mam.domain + '/' + req.body.id, json: true})
+    .then(importVideo)
+    .then(responseWithData(res))
+    .catch(handleError(res));
+};
+
+exports.importAll = function (req, res) {
+  request({uri: config.mam.domain, json:true})
+    .then(function (data) {
+      return Promise.map(data, importVideo);
+    })
+    .then(responseWithData(res))
     .catch(handleError(res));
 };

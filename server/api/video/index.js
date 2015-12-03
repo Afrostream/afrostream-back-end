@@ -30,6 +30,7 @@ var auth = require('../../auth/auth.service');
 
 var router = express.Router();
 
+// video manipulation.
 router.get('/', auth.hasRole('admin'), controller.index);
 router.get('/:id', auth.isAuthenticated(), controller.show);
 router.post('/', auth.hasRole('admin'), controller.create);

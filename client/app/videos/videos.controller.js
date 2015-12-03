@@ -85,7 +85,7 @@ angular.module('afrostreamAdminApp')
       $scope.item.captions = $scope.item.captions || [];
     });
 
-    $scope.newElemFromLudobos = function (data) {
+    $scope.newElemFromMam = function (data) {
       $modal.open({
         templateUrl: 'app/videos/modal/videos.html', // Url du template HTML
         controller: 'VideosDialogCtrl',

@@ -36,6 +36,7 @@ var includedModel = [
   {model: Asset, as: 'sources'}, // load all sources assets
   {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]} // load all sources captions
 ];
+
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
@@ -50,17 +51,6 @@ function responseWithResult(res, statusCode) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
-  };
-}
-/**
- * Used for import from digibos
- * @param res
- * @param statusCode
- * @returns {Function}
- */
-function responseWithData() {
-  return function (entity) {
-    return entity;
   };
 }
 
@@ -275,16 +265,6 @@ exports.create = function (req, res) {
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
-// Creates a new video in the DB
-exports.import = function (data) {
-  Video.create(data)
-    .then(addAssets(data))
-    .then(addCaptions(data))
-    .then(responseWithData())
-    .catch(function (err) {
-      console.log('import error', err)
-    });
-};
 
 // Updates an existing video in the DB
 exports.update = function (req, res) {
@@ -314,4 +294,36 @@ exports.destroy = function (req, res) {
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(handleError(res));
+};
+
+var create = function (data) {
+  Video.create(data)
+    .then(addAssets(data))
+    .then(addCaptions(data));
+};
+
+var update = function (data, video) {
+  return saveUpdates(data)(video)
+    .then(addAssets(data))
+    .then(addCaptions(data));
+};
+
+//
+// Update or insert a new video in the DB
+//  using encodingId as unique identifier (UPSERT).
+//
+// @input data object
+// @return <promise>
+module.exports.upsertUsingEncodingId = function (data) {
+  // create / update base on encodingId
+  if (!data.encodingId) {
+    // should trigger a warning
+    console.error("video: warning: shouldn't upsertUsingEncodingId without encodingId, fallback using insert");
+    return create(data);
+  }
+  return Video.findOne({ where: { encodingId: data.encodingId }})
+    .then(function upsert(video) {
+      console.log('video: upsertUsingEncodingId: video already exist ? ' + (video?'true':'false'));
+      return video ? update(data, video) : create(data);
+    });
 };

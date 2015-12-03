@@ -4,27 +4,32 @@ angular.module('afrostreamAdminApp')
   .controller('VideosDialogCtrl', function ($scope, $sce, $log, $http, $cookies, $modalInstance, item, ngToast, Mam, FileUploader) {
 
     $scope.mamSources = Mam.query();
-    $scope.selectedItem = null;
+    $scope.selectedItemId = null;
     $scope.importEnabled = true;
 
     $scope.selectVideo = function ($item) {
-      return Mam.get({id: $item.id}, function (data) {
-        data.importId = data.id;
-        data.name = data.title;
-        data.encodingId = data.uuid;
-        angular.forEach(data.manifests, function (value) {
-          delete value.id;
-          angular.extend(value, $scope.extractType(value));
-        });
-        data.sources = data.manifests;
-        data.drm = Boolean(data.drm);
-        $scope.selectedItem = data;
-      });
+      $scope.selectedItemId = $item.id;
     };
 
-    $scope.allFromLudobos = function () {
+    $scope.import = function () {
       $scope.importEnabled = false;
-      $http.post('/api/mam/all', $scope.selectedItem).then(function () {
+      $http.post('/api/mam/import', { id: $scope.selectedItemId })
+        .then(function (result) {
+          $scope.selectedItemId = null;
+          ngToast.create({
+            content: 'La video' + result.data.name + ' à été ajoutée au catalogue'
+          });
+          $modalInstance.close();
+        }, function (err) {
+          $scope.selectedItemId = null;
+          $scope.importEnabled = true;
+          $log.debug(err);
+        });
+    };
+
+    $scope.importAll = function () {
+      $scope.importEnabled = false;
+      $http.post('/api/mam/importAll').then(function () {
         ngToast.create({
           content: 'Les videos ont été ajoutées au catalogue'
         });
@@ -35,66 +40,7 @@ angular.module('afrostreamAdminApp')
       });
     };
 
-    $scope.extractMime = function (filename) {
-      var reg = /(\/[^?]+).*/;
-      var filePath = filename.match(reg);
-
-      var parts = filePath[1].split('.');
-      var type = (parts.length > 1) ? parts.pop() : 'mp4';
-      return type;
-    };
-
-    $scope.replaceType = function (filename, replacement) {
-      var type = $scope.extractMime(filename);
-      var newFile = filename.replace(type, replacement);
-      return newFile;
-    };
-
-    $scope.extractType = function (value) {
-      var type = $scope.extractMime(value.url);
-      var rtType = {};
-      switch (type) {
-        case 'm3u8':
-          rtType.type = 'application/vnd.apple.mpegurl';
-          rtType.format = 'hls';
-          break;
-        case 'mpd':
-          rtType.type = 'application/dash+xml';
-          rtType.format = 'mpd';
-          break;
-        case 'f4m':
-          rtType.type = 'application/adobe-f4m';
-          rtType.format = 'hds';
-          break;
-        default:
-          rtType.type = 'video/' + type;
-          rtType.format = 'progressive';
-          break;
-      }
-
-      rtType.importId = value.content_id;
-      rtType.src = value.url;
-      return rtType;
-    };
-
-    $scope.importVideo = function () {
-      delete $scope.selectedItem.id;
-      $http.post('/api/videos/', $scope.selectedItem).then(function (result) {
-        ngToast.create({
-          content: 'La video' + result.data.name + ' à été ajoutée au catalogue'
-        });
-        $modalInstance.close();
-      }, function (err) {
-        $log.debug(err);
-      });
-      $modalInstance.close();
-    };
-
     $scope.cancel = function () {
       $modalInstance.close();
     };
-
-    $scope.addItem = function () {
-    };
-
   });

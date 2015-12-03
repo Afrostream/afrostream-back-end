@@ -7,7 +7,8 @@
     .col-md-6
     input.form-control.input-sm(type='text' placeholder='Find a {{type}} here.' ng-model='searchField')
     .col-md-6
-    button.btn.btn-xs.btn-primary.pull-right(ng-click='allFromLudobos()' ng-disabled='!importEnabled')
+    button.btn.btn-xs.btn-primary.pull-right(ng-click='importAll()' ng-disabled='true')
+      // ng-disabled='!importEnabled')
       span.glyphicon.glyphicon-plus Import all
   .row
     table.table.table-striped.table-hover.table-condensed(data-click-to-select='true')
@@ -27,7 +28,7 @@
           th Title
           th Duration
       tbody
-        tr(ng-repeat='item in mamSources | filter:searchField' ng-click='selectVideo(item)' ng-class='{"selected":item.id == selectedItem.id}')
+        tr(ng-repeat='item in mamSources | filter:searchField' ng-click='selectVideo(item)' ng-class='{"selected":item.id == selectedItemId}')
           td
             span {{item.id}}
           td.text-center
@@ -41,5 +42,5 @@
           td
             strong {{item.duration}}
 .modal-footer
-  button.btn.btn-primary(type='submit' ng-click='importVideo()' ng-disabled='!selectedItem.id && !importEnabled') Import
+  button.btn.btn-primary(type='submit' ng-click='import()' ng-disabled='!selectedItem.id && !importEnabled') Import
   button.btn.btn-primary(ng-click='cancel()') Cancel
