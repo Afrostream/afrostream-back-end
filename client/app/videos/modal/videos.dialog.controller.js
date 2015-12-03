@@ -77,7 +77,7 @@ angular.module('afrostreamAdminApp')
       return rtType;
     };
 
-    $scope.addVideo = function () {
+    $scope.importVideo = function () {
       delete $scope.selectedItem.id;
       $http.post('/api/videos/', $scope.selectedItem).then(function (result) {
         ngToast.create({

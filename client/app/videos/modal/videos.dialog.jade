@@ -41,5 +41,5 @@
           td
             strong {{item.duration}}
 .modal-footer
-  button.btn.btn-primary(type='submit' ng-click='addVideo()' ng-disabled='!selectedItem.id && !importEnabled') Import
+  button.btn.btn-primary(type='submit' ng-click='importVideo()' ng-disabled='!selectedItem.id && !importEnabled') Import
   button.btn.btn-primary(ng-click='cancel()') Cancel
