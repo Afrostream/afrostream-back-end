@@ -1,14 +1,14 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('VideosDialogCtrl', function ($scope, $sce, $log, $http, $cookies, $modalInstance, item, ngToast, Digibos, FileUploader) {
+  .controller('VideosDialogCtrl', function ($scope, $sce, $log, $http, $cookies, $modalInstance, item, ngToast, Mam, FileUploader) {
 
-    $scope.digibosSources = Digibos.query();
+    $scope.mamSources = Mam.query();
     $scope.selectedItem = null;
     $scope.importEnabled = true;
 
     $scope.selectVideo = function ($item) {
-      return Digibos.get({id: $item.id}, function (data) {
+      return Mam.get({id: $item.id}, function (data) {
         data.importId = data.id;
         data.name = data.title;
         data.encodingId = data.uuid;
@@ -24,7 +24,7 @@ angular.module('afrostreamAdminApp')
 
     $scope.allFromLudobos = function () {
       $scope.importEnabled = false;
-      $http.post('/api/digibos/all', $scope.selectedItem).then(function () {
+      $http.post('/api/mam/all', $scope.selectedItem).then(function () {
         ngToast.create({
           content: 'Les videos ont été ajoutées au catalogue'
         });

@@ -1,10 +1,5 @@
-/**
- * Using Rails-like standard naming convention for endpoints.
- * GET     /api/digibos              ->  index
- * GET     /api/digibos/:id          ->  show
- */
-
 'use strict';
+
 var request = require('request-promise');
 var config = require('../../config/environment');
 var videoController = require('../video/video.controller');
@@ -70,12 +65,12 @@ function extractType(value) {
 function importAll() {
   return function (data) {
 // assuming openFiles is an array of file names
-    return Promise.map(JSON.parse(data), function (digibosItem) {
-      if (!digibosItem.state || digibosItem.state != 'ready') {
-        console.log('error not ready', digibosItem.id);
+    return Promise.map(JSON.parse(data), function (mamItem) {
+      if (!mamItem.state || mamItem.state != 'ready') {
+        console.log('error not ready', mamItem.id);
         return;
       }
-      return request(config.digibos.domain + '/' + digibosItem.id)
+      return request(config.mam.domain + '/' + mamItem.id)
         .then(function (jsonVideo) {
           var video = JSON.parse(jsonVideo);
           if (video && video.manifests) {
@@ -113,13 +108,13 @@ function importAll() {
 
 // Gets a list of accessTokens
 exports.index = function (req, res) {
-  request(config.digibos.domain)
+  request(config.mam.domain)
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
 // Gets a list of accessTokens
 exports.import = function (req, res) {
-  request(config.digibos.domain)
+  request(config.mam.domain)
     .then(importAll())
     .then(responseWithData(res))
     .catch(handleError(res));
@@ -127,7 +122,7 @@ exports.import = function (req, res) {
 
 // Gets a single accessToken from the DB
 exports.show = function (req, res) {
-  request(config.digibos.domain + '/' + req.params.id)
+  request(config.mam.domain + '/' + req.params.id)
     .then(responseWithResult(res))
     .catch(handleError(res));
 };

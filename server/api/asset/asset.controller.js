@@ -111,9 +111,9 @@ exports.proxify = function (req, res) {
     var splitted = req.url.split('/');
     var sliced = splitted.slice(3, splitted.length);
     var final = '/' + sliced.join('/');
-    console.log('proxify', config.digibos.proxy, final);
+    console.log('proxify', config.mam.proxy, final);
     proxy.web(req, res, {
-      target: config.digibos.proxy
+      target: config.mam.proxy
     });
     proxy.on('proxyReq', function (proxyReq) {
       proxyReq.path = final;
@@ -124,6 +124,7 @@ exports.proxify = function (req, res) {
     });
   }).catch(handleError(res));
 };
+
 //get single Asset but validate jwt tokenized
 exports.showToken = function (req, res) {
   Asset.find({

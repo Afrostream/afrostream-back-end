@@ -34,7 +34,7 @@ module.exports = function (app) {
   app.use('/api/movies', require('./api/movie'));
   app.use('/api/series', require('./api/movie'));
   app.use('/api/users', require('./api/user'));
-  app.use('/api/digibos', require('./api/digibos'));
+  app.use('/api/mam', require('./api/mam'));
   app.use('/api/dashboard', require('./api/dashboard'));
   app.use('/api/waitingUsers', require('./api/waitingUser'));
 

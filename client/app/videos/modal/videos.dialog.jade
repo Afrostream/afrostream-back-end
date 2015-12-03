@@ -1,6 +1,6 @@
 .modal-header(style='background-image:url({{item.poster}});')
   button.close(data-dismiss='modal' aria-hidden='true')
-  h4.modal-title Digibos sources assets
+  h4.modal-title Mam sources assets
 
 .modal-body.videos
   .row
@@ -27,7 +27,7 @@
           th Title
           th Duration
       tbody
-        tr(ng-repeat='item in digibosSources | filter:searchField' ng-click='selectVideo(item)' ng-class='{"selected":item.id == selectedItem.id}')
+        tr(ng-repeat='item in mamSources | filter:searchField' ng-click='selectVideo(item)' ng-class='{"selected":item.id == selectedItem.id}')
           td
             span {{item.id}}
           td.text-center

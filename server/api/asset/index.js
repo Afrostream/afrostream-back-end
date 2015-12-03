@@ -8,7 +8,7 @@ var router = express.Router();
 
 router.get('/', auth.hasRole('admin'), controller.index);
 router.get('/:id', auth.hasRole('admin'), controller.show);
-if (config.digibos.useToken == 'true') {
+if (config.mam.useToken == 'true') {
   router.get('/:id/:token/*', auth.isAuthenticated(), controller.proxify);
 }
 router.post('/', auth.hasRole('admin'), controller.create);

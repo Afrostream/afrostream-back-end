@@ -231,7 +231,7 @@ exports.show = function (req, res) {
     ]
   }).then(handleEntityNotFound(res));
 
-  if (config.digibos.useToken == 'true' && !auth.validRole(req, 'admin')) {
+  if (config.mam.useToken == 'true' && !auth.validRole(req, 'admin')) {
     p = p.then(tokenizeResult(req, res));
   }
 

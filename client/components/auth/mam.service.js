@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .factory('Digibos', function ($resource) {
-    return $resource('/api/digibos/:id/:controller', {
+  .factory('Mam', function ($resource) {
+    return $resource('/api/mam/:id/:controller', {
         id: '@_id'
       },
       {
