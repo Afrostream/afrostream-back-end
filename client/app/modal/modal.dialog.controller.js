@@ -5,7 +5,7 @@ angular.module('afrostreamAdminApp')
     // BEGIN temporary fix on dates...
     // should be generic & added to $httpProvider
     function parseItemDates(item) {
-      if (typeof item.dateReleased !== 'undefined') {
+      if (item.dateReleased) {
         item.dateReleased = new Date(item.dateReleased);
       }
       return item;
