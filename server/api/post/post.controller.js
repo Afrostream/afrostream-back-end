@@ -85,7 +85,9 @@ exports.index = function (req, res) {
   var queryName = req.param('query'); // deprecated.
   var slug = req.query.slug;
   var paramsObj = {
-    include: includedModel
+    include: auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}),
+    //include: includedModel,
+    attributes: ['_id', 'title', 'date', 'description', 'slug']
   };
 
   // pagination
