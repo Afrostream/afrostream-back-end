@@ -92,7 +92,8 @@
     "sequelize": "^3.5.1",
     "serve-favicon": "~2.0.1",
     "slugify": "^0.1.1",
-    "time-grunt": "~0.3.1"
+    "time-grunt": "~0.3.1",
+    "xml2js": "^0.4.15"
   },
   "devDependencies": {
     "better-assert": "^1.0.2",
