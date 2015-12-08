@@ -38,5 +38,11 @@ module.exports = {
     defaultScheme: 'https'
   },
 
+  catchup: {
+    bet: {
+      id: 3000000
+    }
+  },
+
   env: 'test'
 };

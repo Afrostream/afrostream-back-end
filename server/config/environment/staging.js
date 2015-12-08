@@ -45,5 +45,11 @@ module.exports = {
     defaultScheme: 'https'
   },
 
+  catchup: {
+    bet: {
+      id: 8
+    }
+  },
+
   dumpPostData: true
 };

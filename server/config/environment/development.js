@@ -45,6 +45,12 @@ module.exports = {
     defaultScheme: 'https'
   },
 
+  catchup: {
+    bet: {
+      id: 3000000
+    }
+  },
+
   // if you want to seed:
   // use: export SEED_DB=true before launching node/grunt
   seedDB: (process.env.SEED_DB === 'true')
