@@ -302,6 +302,13 @@ exports.update = function (req, res) {
       include: includedModel
     })
       .then(handleEntityNotFound(res))
+      // le READ ONLY ne peut pas s'appliquer ni a active / inactive
+      // aussi, on doit ajouter une exception pour le champ sort...
+      //  alors que normalement le sort devrait être dans une liaison entre "Home" et "Categories".
+      .then(function (entity) {
+        return entity.updateAttributes(_.pick(req.body, ['active', 'sort']));
+      })
+      //
       .then(responseWithResult(res))
       .catch(handleError(res));
   } else {
