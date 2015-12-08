@@ -27,6 +27,7 @@ if (config.sequelize.uri.indexOf('amazon') !== -1) {
 
 var sqldb = require('./index.js');
 var Category = sqldb.Category;
+var CatchupProvider = sqldb.CatchupProvider;
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;
@@ -87,13 +88,28 @@ promises.push(
     }]);
   })
   .then(function () {
-    Category.create({
+      return Category.create({
       _id: 3000000,
       label: 'bet',
       slug: 'bet',
       active: true,
       ro: true
     })
+  })
+);
+
+promises.push(
+  CatchupProvider.sync()
+  .then(function () {
+    return CatchupProvider.destroy({where: {}});
+  })
+  .then(function () {
+    return CatchupProvider.create({
+      _id: 1,
+      name: 'bet',
+      expiration: 1209600,
+      categoryId: 3000000
+    });
   })
 );
 
