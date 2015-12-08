@@ -15,6 +15,11 @@ module.exports = function (sequelize, DataTypes) {
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
+    },
+    /* read only (backoffice) */
+    ro: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   });
 };

@@ -290,21 +290,38 @@ exports.create = function (req, res) {
 
 // Updates an existing category in the DB
 exports.update = function (req, res) {
-  if (req.body._id) {
-    delete req.body._id;
+  // backo only security, prevent backo updates
+  if (req.query.backo && req.body.ro === true) {
+    // warning message for log sake
+    console.warn('shouldnot try to update category '+req.params.id);
+    // returning without updating
+    Category.find({
+      where: {
+        _id: req.params.id
+      },
+      include: includedModel
+    })
+      .then(handleEntityNotFound(res))
+      .then(responseWithResult(res))
+      .catch(handleError(res));
+  } else {
+    // normal update.
+    if (req.body._id) {
+      delete req.body._id;
+    }
+    Category.find({
+      where: {
+        _id: req.params.id
+      },
+      include: includedModel
+    })
+      .then(handleEntityNotFound(res))
+      .then(saveUpdates(req.body))
+      .then(addMovies(req.body))
+      .then(addAdSpots(req.body))
+      .then(responseWithResult(res))
+      .catch(handleError(res));
   }
-  Category.find({
-    where: {
-      _id: req.params.id
-    },
-    include: includedModel
-  })
-    .then(handleEntityNotFound(res))
-    .then(saveUpdates(req.body))
-    .then(addMovies(req.body))
-    .then(addAdSpots(req.body))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
 };
 
 // Deletes a category from the DB
