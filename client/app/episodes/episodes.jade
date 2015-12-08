@@ -1,5 +1,6 @@
 .form-group
-  label.control-label Duration en secondes
+  label.control-label Durée (secondes)
+  input.form-control(type='number' ng-model='item.duration')
   slider(min='0' step='10' max='10000' ng-model="item.duration")
 
 .form-group
