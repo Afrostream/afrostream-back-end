@@ -68,6 +68,10 @@ var all = {
     useToken: process.env.DIGIBOS_TOKEN || process.env.MAM_TOKEN || true
   },
 
+  catchup: {
+    defaultProviderId: 1 // bet
+  },
+
   google: {
     clientID: process.env.GOOGLE_ID || 'id',
     clientSecret: process.env.GOOGLE_SECRET || 'secret',

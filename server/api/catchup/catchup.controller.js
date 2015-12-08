@@ -4,6 +4,7 @@ var sqldb = require('../../sqldb');
 var Episode = sqldb.Episode;
 var Movie = sqldb.Movie;
 var Season = sqldb.Season;
+var CatchupProvider = sqldb.CatchupProvider;
 
 var request = require('request');
 var rp = require('request-promise');
@@ -46,7 +47,7 @@ var flatten = function (xml) {
   return result;
 };
 
-var createMovieSeasonEpisode = function (infos, video) {
+var createMovieSeasonEpisode = function (catchupProviderId, infos, video) {
   console.log('catchup: creating movies , seasons, episodes using infos ' + JSON.stringify(infos));
   var episodeTitle = infos.EPISODE_TITLE_FRA || infos.EPISODE_TITLE || infos.ASSET_TITLE;
   var episodeResume = infos.EPISODE_RESUME || '';
@@ -58,13 +59,13 @@ var createMovieSeasonEpisode = function (infos, video) {
 
     return Q.all([
       Episode.findOrCreate({
-        where: { catchupProviderId: 1, episodeNumber: episodeNumber, title: episodeTitle }, defaults: { synopsis: episodeResume }
+        where: { catchupProviderId: catchupProviderId, episodeNumber: episodeNumber, title: episodeTitle }, defaults: { synopsis: episodeResume, active: true }
       }),
       Season.findOrCreate({
-        where: { catchupProviderId: 1, seasonNumber: seasonNumber, title: seriesTitle }, defaults: { synopsis: seriesResume }
+        where: { catchupProviderId: catchupProviderId, seasonNumber: seasonNumber, title: seriesTitle }, defaults: { synopsis: seriesResume, active: true }
       }),
       Movie.findOrCreate({
-        where: { catchupProviderId: 1, title: seriesTitle}, defaults: { synopsis: seriesResume }
+        where: { catchupProviderId: catchupProviderId, title: seriesTitle}, defaults: { synopsis: seriesResume, type: 'serie', active: true }
       })
     ]).spread(function (episodeInfos, seasonInfos, movieInfos) {
       var episode = episodeInfos[0]
@@ -75,13 +76,13 @@ var createMovieSeasonEpisode = function (infos, video) {
       // set Video in Episode
       return Q.all([
         episode.setVideo(video),
-        season.addEpisodes(episode),
-        movie.addSeasons(season)
+        episode.setSeason(season),
+        season.setMovie(movie)
       ]).then(function () { return movie; })
     });
   } else {
     return Movie.findOrCreate({
-      where: { catchupProviderId: 1, title: seriesTitle}, defaults: { synopsis: seriesResume }
+      where: { catchupProviderId: catchupProviderId, title: seriesTitle}, defaults: { synopsis: seriesResume, type: 'movie', active: true }
     }).then(function (movieInfos) {
       var movie = movieInfos[0];
       console.log('catchup: movie ' + movie._id);
@@ -90,7 +91,22 @@ var createMovieSeasonEpisode = function (infos, video) {
   }
 };
 
-var addMovieToCatchupCategory = function (movie) {
+var addMovieToCatchupCategory = function (catchupProviderId, movie) {
+  // searching providerId's category
+  movie.getCatchupProvider().then(function (catchupProvider) {
+    if (!catchupProvider) {
+      return; // nothing to do => no category.
+    }
+    return catchupProvider.getCategory();
+  }).then(function (category) {
+    if (!category) {
+      return; // nothing to do => no category.
+    }
+    console.log('catchupProvider found, category = ' + category._id);
+    // FIXME: order.
+    return category.addMovie(movie);
+  });
+
   // FIXME
   return movie;
 };
@@ -125,13 +141,20 @@ var bet = function (req, res) {
     return flatten(jsonxml);
   }).then(function (infos) {
     console.log('catchup: bet: infos=', infos);
-    // upserting
-    return rp({uri: config.mam.domain + '/' + req.body.mamId, json: true})
-      .then(importVideo)
-      .then(function (video) {
-        return createMovieSeasonEpisode(infos, video);
-      })
-      .then(addMovieToCatchupCategory);
+    // searching catchup provider
+    return CatchupProvider.find({where: {name: 'bet'} })
+      .then(function (catchupProvider) {
+        var catchupProviderId = catchupProvider ? catchupProvider._id : config.catchup.defaultProviderId; // assuming default is BET <=> id = 1.
+        // upserting
+        return rp({uri: config.mam.domain + '/' + req.body.mamId, json: true})
+          .then(importVideo)
+          .then(function (video) {
+            return createMovieSeasonEpisode(catchupProviderId, infos, video);
+          })
+          .then(function (movie) {
+            return addMovieToCatchupCategory(catchupProviderId, movie);
+          });
+      });
   }).then(
     function () { res.json({status:'success'}); },
     function (err) {
