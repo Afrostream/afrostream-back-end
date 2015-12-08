@@ -69,7 +69,8 @@ var all = {
   },
 
   catchup: {
-    defaultProviderId: 1 // bet
+    defaultProviderId: 1, // bet
+    defaultExpiration: 1209600
   },
 
   google: {

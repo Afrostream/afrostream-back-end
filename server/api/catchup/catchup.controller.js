@@ -47,8 +47,10 @@ var flatten = function (xml) {
   return result;
 };
 
-var createMovieSeasonEpisode = function (catchupProviderId, infos, video) {
+var createMovieSeasonEpisode = function (catchupProvider, infos, video) {
   console.log('catchup: creating movies , seasons, episodes using infos ' + JSON.stringify(infos));
+  var catchupProviderId = catchupProvider ? catchupProvider._id : config.catchup.defaultProviderId; // assuming default is BET <=> id = 1.
+  var catchupProviderExpiration = catchupProvider ? catchupProvider.expiration : config.catchup.defaultExpiration;
   var episodeTitle = infos.EPISODE_TITLE_FRA || infos.EPISODE_TITLE || infos.ASSET_TITLE;
   var episodeResume = infos.EPISODE_RESUME || '';
   var seriesTitle = infos.SERIES_TITLE_FRA || 'Unknown';
@@ -65,7 +67,14 @@ var createMovieSeasonEpisode = function (catchupProviderId, infos, video) {
         where: { catchupProviderId: catchupProviderId, seasonNumber: seasonNumber, title: seriesTitle }, defaults: { synopsis: seriesResume, active: true }
       }),
       Movie.findOrCreate({
-        where: { catchupProviderId: catchupProviderId, title: seriesTitle}, defaults: { synopsis: seriesResume, type: 'serie', active: true }
+        where: { catchupProviderId: catchupProviderId, title: seriesTitle},
+        defaults: {
+          synopsis: seriesResume,
+          type: 'serie',
+          dateFrom: new Date(),
+          dateTo: new Date(new Date().getTime() + 1000 * catchupProviderExpiration),
+          active: true
+        }
       })
     ]).spread(function (episodeInfos, seasonInfos, movieInfos) {
       var episode = episodeInfos[0]
@@ -91,7 +100,7 @@ var createMovieSeasonEpisode = function (catchupProviderId, infos, video) {
   }
 };
 
-var addMovieToCatchupCategory = function (catchupProviderId, movie) {
+var addMovieToCatchupCategory = function (movie) {
   // searching providerId's category
   movie.getCatchupProvider().then(function (catchupProvider) {
     if (!catchupProvider) {
@@ -144,16 +153,13 @@ var bet = function (req, res) {
     // searching catchup provider
     return CatchupProvider.find({where: {name: 'bet'} })
       .then(function (catchupProvider) {
-        var catchupProviderId = catchupProvider ? catchupProvider._id : config.catchup.defaultProviderId; // assuming default is BET <=> id = 1.
         // upserting
         return rp({uri: config.mam.domain + '/' + req.body.mamId, json: true})
           .then(importVideo)
           .then(function (video) {
-            return createMovieSeasonEpisode(catchupProviderId, infos, video);
+            return createMovieSeasonEpisode(catchupProvider, infos, video);
           })
-          .then(function (movie) {
-            return addMovieToCatchupCategory(catchupProviderId, movie);
-          });
+          .then(addMovieToCatchupCategory);
       });
   }).then(
     function () { res.json({status:'success'}); },
