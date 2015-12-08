@@ -59,7 +59,9 @@ module.exports = {
 
   catchup: {
     bet: {
-      id: 8
+      catchupProviderId: 1,
+      defaultCategoryId: 8,
+      defaultExpiration: 1209600
     }
   },
 
