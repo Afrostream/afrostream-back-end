@@ -20,7 +20,15 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.STRING,
       defaultValue: 'movie'//serie
     },
-    duration: DataTypes.DECIMAL,
+    // DECIMAL is returned as string by pg driver.
+    // @see https://github.com/sequelize/sequelize/issues/3437
+    // @see https://github.com/brianc/node-postgres/pull/271
+    duration: {
+      type: DataTypes.DECIMAL,
+      get      : function()  {
+        return parseFloat(this.getDataValue('duration')) || null;
+      }
+    },
     schedule: DataTypes.STRING,
     //TODO
     //cast

@@ -18,6 +18,11 @@
   label.control-label Creation
   input.form-control(type='text' ng-model='item.creation')
 
+.form-group(ng-if='isMovie()')
+  label.control-label Durée (secondes)
+  input.form-control(type='number' ng-model='item.duration')
+  slider(min='0' step='10' max='10000' ng-model="item.duration")
+
 .form-group(ng-if='isSerie()')
   label.control-label Programmation
   input.form-control(type='text' ng-model='item.schedule' placeholder='Du lundi au vendredi')
