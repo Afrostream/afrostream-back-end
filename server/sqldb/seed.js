@@ -86,6 +86,15 @@ promises.push(
       slug: 'nouveaute'
     }]);
   })
+  .then(function () {
+    Category.create({
+      _id: 3000000,
+      label: 'bet',
+      slug: 'bet',
+      active: true,
+      ro: true
+    })
+  })
 );
 
 promises.push(
