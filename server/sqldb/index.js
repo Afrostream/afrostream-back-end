@@ -128,7 +128,7 @@ db.filterOptions = function (options, o) {
       options.include = options.include.map(rec);
     }
     if (typeof o === 'function') {
-      return o(options, root); // filter function
+      return o(options, (root === true)); // filter function
     }
     return _.merge(options, o);
   })(options, true);
