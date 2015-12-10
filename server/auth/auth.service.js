@@ -244,6 +244,10 @@ var filterQueryOptions = function (req, options, rootModel) {
         var now = new Date();
         options = _.merge(options, {
           where: {
+            // (dateFrom is null and dateTo is null) OR
+            // (dateFrom is null and dateTo > Date.now()) OR
+            // (dateTo is null and dateFrom < Date.now()) OR
+            // (dateFrom < Date.now() AND dateTo > Date.now())
             $or: [
               {dateFrom: null, dateTo: null},
               {dateFrom: null, dateTo: {$gt: now}},
