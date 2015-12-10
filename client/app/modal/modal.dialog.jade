@@ -69,18 +69,21 @@ script(type='text/ng-template' id='imagesTemplate.html')
 
 
       .form-group
+        label.control-label Dates
         .row
           .col-md-6
+            label.control-label From (inclu)
             p.input-group
-              input.form-control(id='dateFrom' type='text' ng-model='item.dateFrom' is-open='opened' placeholder='FROM' datepicker-popup='{{format}}' min-date='minDate'  datepicker-options='dateOptions' date-disabled='disabled(date, mode)' close-text='Close')
+              input.form-control(id='dateFrom' type='text' ng-model='item.dateFrom' is-open='opened' placeholder='FROM' datepicker-popup='{{format}}' datepicker-options='dateOptions' date-disabled='disabled(date, mode)' close-text='Close')
               span.input-group-btn
-                button.btn.btn-default(ng-click='open()')
+                button.btn.btn-default(ng-click='opened=!opened')
                   i.glyphicon.glyphicon-calendar
           .col-md-6
+            label.control-label To (exclu)
             p.input-group
-              input.form-control(id='dateTo' type='text' ng-model='item.dateTo' is-open='opened' placeholder='TO' datepicker-popup='{{format}}' min-date='item.dateFrom'  datepicker-options='dateOptions' date-disabled='disabled(date, mode)' close-text='Close')
+              input.form-control(id='dateTo' type='text' ng-model='item.dateTo' is-open='opened2' placeholder='TO' datepicker-popup='{{format}}' min-date='item.dateFrom'  datepicker-options='dateOptions' date-disabled='disabled(date, mode)' close-text='Close')
               span.input-group-btn
-                button.btn.btn-default(ng-click='open()')
+                button.btn.btn-default(ng-click='opened2=!opened2')
                   i.glyphicon.glyphicon-calendar
 
       .form-group

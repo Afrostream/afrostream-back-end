@@ -166,18 +166,14 @@ angular.module('afrostreamAdminApp')
       return ( mode === 'day' && ( date.getDay() === 0 || date.getDay() === 6 ) );
     };
 
+    //
     $scope.minDate = $scope.minDate ? null : new Date();
-
-    $scope.open = function () {
-      $scope.opened = true;
-    };
-
     $scope.dateOptions = {
       formatYear: 'yy',
       startingDay: 1
     };
 
-    $scope.format = 'yyyy-MMMM-dd';
+    $scope.format = 'yyyy-MM-dd';
 
     $scope.loadImages = function (query, param) {
       var p = Image.query({query: query, type: param}).$promise;
