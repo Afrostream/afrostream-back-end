@@ -35,6 +35,7 @@ var includedModel = [
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
+    console.error(err);
     res.status(statusCode).send(err);
   };
 }
@@ -164,32 +165,29 @@ function removeEntity(res) {
 // Gets a list of categorys
 exports.index = function (req, res) {
   var queryName = req.param('query');
-  var paramsObj = {
+
+  var queryOptions = {
     include: [
-      auth.mergeIncludeValid(req, {
-        model: Movie, as: 'movies', required: false,
-        order: [['sort', 'ASC']]
-      }),
-      auth.mergeIncludeValid(req, {
-        model: Movie, as: 'adSpots', required: false,
-        order: [['sort', 'ASC']]
-      })
+      {model: Movie, as: 'movies', required: false, order: [['sort', 'ASC']]},
+      {model: Movie, as: 'adSpots', required: false, order: [['sort', 'ASC']]}
     ],
     order: [['sort', 'ASC']]
   };
 
   // pagination
-  utils.mergeReqRange(paramsObj, req);
+  utils.mergeReqRange(queryOptions, req);
 
   if (queryName) {
-    paramsObj = _.merge(paramsObj, {
+    queryOptions = _.merge(queryOptions, {
       where: {
         label: {$iLike: '%' + queryName + '%'}
       }
     })
   }
 
-  Category.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
+
+  Category.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
@@ -197,35 +195,39 @@ exports.index = function (req, res) {
 
 // Gets a single category from the DB
 exports.show = function (req, res) {
-  Category.find(auth.mergeQuery(req, res, {
+  var queryOptions = {
     where: {
       _id: req.params.id
     },
     include: [
-      auth.mergeIncludeValid(req, {
+      {
         model: Movie, as: 'movies',
         required: false,
         order: [['sort', 'ASC']],
         include: [
-          auth.mergeIncludeValid(req, {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']}),
-          auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
-          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}) // load thumb image
+          {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
+          {model: Image, as: 'logo', required: false, attributes: ['imgix']},
+          {model: Image, as: 'poster', required: false, attributes: ['imgix']},
+          {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
         ]
-      }),
-      auth.mergeIncludeValid(req, {
+      },
+      {
         model: Movie, as: 'adSpots',
         required: false,
         order: [['sort', 'ASC']],
         include: [
-          auth.mergeIncludeValid(req, {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']}),
-          auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
-          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}) // load thumb image
+          {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
+          {model: Image, as: 'logo', required: false, attributes: ['imgix']},
+          {model: Image, as: 'poster', required: false, attributes: ['imgix']},
+          {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
         ]
-      }) // load all adSpots
+      }
     ]
-  }))
+  };
+
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
+
+  Category.find(queryOptions)
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
@@ -256,23 +258,27 @@ exports.menu = function (req, res) {
 
 // Gets all submovies limited
 exports.mea = function (req, res) {
-  Category.findAll(auth.mergeQuery(req, res, {
+  var queryOptions = {
     order: [['sort', 'ASC']],
     include: [
-      auth.mergeIncludeValid(req, {
+      {
         model: Movie,
         as: 'movies',
         required: false,
         order: ['sort', 'ASC'],
         include: [
-          auth.mergeIncludeValid(req, {model: Category, as: 'categorys', attributes: ['_id', 'label']}),
-          auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
-          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
+          {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
+          {model: Image, as: 'logo', required: false, attributes: ['imgix']},
+          {model: Image, as: 'poster', required: false, attributes: ['imgix']},
+          {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
         ]
-      }) // load 30 top movies
+      }
     ]
-  }))
+  };
+
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
+
+  Category.findAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(limitResult(res, 'movies', 30))
     .catch(handleError(res));
