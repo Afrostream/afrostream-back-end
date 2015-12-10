@@ -262,8 +262,6 @@ exports.show = function (req, res) {
     //
     queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
     //
-    console.log(queryOptions);
-    //
     Movie.find(queryOptions)
       .then(handleEntityNotFound(res))
       .then(responseWithResult(res))
