@@ -69,7 +69,6 @@ module.exports.getToken = function (app) {
     .expect('Content-Type', /json/);
   var f = bluebird.promisify(r.end, r);
   return f().then(function (res) {
-    console.log('token='+res.body.token);
     var token = res.body.token;
     return token;
   })
