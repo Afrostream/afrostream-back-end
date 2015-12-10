@@ -49,6 +49,10 @@ module.exports = function (sequelize, DataTypes) {
     },
     dateReleased: DataTypes.DATE,
     genre: DataTypes.STRING,
-    creation: DataTypes.STRING
+    creation: DataTypes.STRING,
+    live: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   });
 };
