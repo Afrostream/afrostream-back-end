@@ -24,8 +24,8 @@ var index = function (req, res) {
       }
     ]
   };
-  // active: true for non admin.
-  queryOptions = auth.filterQueryOptions(req, queryOptions);
+  //
+  queryOptions = auth.filterQueryOptions(req, queryOptions, User);
   // required: false recursivly
   queryOptions = sqldb.filterOptions(queryOptions, {required: false});
   //
