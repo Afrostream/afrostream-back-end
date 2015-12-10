@@ -115,6 +115,7 @@ exports.setup = function (Client, User, AccessToken, config) {
    * the authorizing user.
    */
   passport.use('bearer', new BearerStrategy(
+
     function (accessToken, done) {
       AccessToken.find({
         where: {
@@ -122,46 +123,51 @@ exports.setup = function (Client, User, AccessToken, config) {
         }
       })
         .then(function (token) {
-          if (!token) return done(null, false);
+          if (!token) {
+            console.error('passport: bearer: cannot find token '+accessToken);
+            return done(null, false);
+          }
           if (new Date() > token.expirationDate) {
             return token.destroy()
               .then(function () {
+                console.error('passport: bearer: token expired '+accessToken);
                 done(new Error('token expired'))
               });
           }
           if (token.userId !== null) {
-            User.find({
+            return User.find({
               where: {
                 _id: token.userId
               }
             })
               .then(function (entity) {
-                if (!entity) return done(null, false);
+                if (!entity) {
+                  console.error('passport: bearer: cannot find user '+token.userId);
+                  return done(null, false);
+                }
                 // no use of scopes for no
                 var info = {scope: '*'};
                 done(null, entity, info);
-              })
-              .catch(function (err) {
-                return done(err);
               });
           } else {
-            Client.find({
+            return Client.find({
               where: {
                 _id: token.clientId
               }
             })
               .then(function (client) {
-                if (!client) return done(null, false);
+                if (!client) {
+                  console.error('passport: bearer: cannot find client '+token.clientId);
+                  return done(null, false);
+                }
                 // no use of scopes for no
                 var info = {scope: '*'};
                 done(null, client, info);
-              })
-              .catch(function (err) {
-                return done(err);
               });
           }
         })
         .catch(function (err) {
+          console.error('passport: bearer: unknownerror '+err, err);
           return done(err);
         });
     }
