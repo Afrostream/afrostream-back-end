@@ -224,48 +224,54 @@ exports.show = function (req, res) {
       .then(responseWithResult(res))
       .catch(handleError(res));
   } else {
-    Movie.find(auth.mergeQuery(req, res, {
+    // testing new API... dateFrom & dateTo
+    var queryOptions = {
       where: {
         _id: req.params.id
       },
       include: [
-        auth.mergeIncludeValid(req, {
-          model: Video,
-          required: false,
-          as: 'video'
-        }, {attributes: ['_id']}),
-        {model: Category, as: 'categorys'}, // load all episodes
-        auth.mergeIncludeValid(req, {
+        {model: Video, required: false, as: 'video', attributes: ['_id']},
+        {model: Category, required: false, as: 'categorys'},
+        {
           model: Season,
           required: false,
           as: 'seasons',
-          include: [auth.mergeIncludeValid(req, {
-            model: Episode,
-            as: 'episodes',
-            required: false,
-            include: [
-              auth.mergeIncludeValid(req, {model: Video, as: 'video', required: false}, {attributes: ['_id']}) // load poster image
-            ]
-          }, {attributes: ['_id', 'slug']})]
-        }), // load all seasons
-        auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
-        auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-        auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
-        {model: Licensor, as: 'licensor'},// load thumb image
-        {model: Actor, as: 'actors', attributes: ['_id', 'firstName', 'lastName']}
+          include: [
+            {
+              model: Episode,
+              as: 'episodes',
+              required: false,
+              include: [
+                {model: Video, as: 'video', required: false, attributes: ['_id']}
+              ],
+              attributes: ['_id', 'slug']
+            }
+          ]
+        }, // load all seasons
+        {model: Image, as: 'logo', required: false, attributes: ['imgix']},
+        {model: Image, as: 'poster', required: false,attributes: ['imgix']},
+        {model: Image, as: 'thumb', required: false, attributes: ['imgix']},
+        {model: Licensor, as: 'licensor', required: false },
+        {model: Actor, as: 'actors', required: false, attributes: ['_id', 'firstName', 'lastName']}
       ],
       order: [
         [{model: Season, as: 'seasons'}, 'sort'],
         [{model: Season, as: 'seasons'}, {model: Episode, as: 'episodes'}, 'sort']
       ]
-    }))
+    };
+    //
+    queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
+    //
+    console.log(queryOptions);
+    //
+    Movie.find(queryOptions)
       .then(handleEntityNotFound(res))
       .then(responseWithResult(res))
       .catch(handleError(res));
   }
 };
 
-// Gets all Seasons in selected category
+// Gets all Seasons in selected movie
 exports.seasons = function (req, res) {
   Movie.find(auth.mergeQuery(req, res, {
     where: {
