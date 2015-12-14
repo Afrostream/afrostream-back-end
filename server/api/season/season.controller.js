@@ -141,15 +141,15 @@ function removeEntity(res) {
 // Gets a list of seasons
 exports.index = function (req, res) {
   var queryName = req.param('query');
-  var paramsObj = {
+  var queryOptions = {
     include: includedModel
   };
 
   // pagination
-  utils.mergeReqRange(paramsObj, req);
+  utils.mergeReqRange(queryOptions, req);
 
   if (queryName) {
-    paramsObj = _.merge(paramsObj, {
+    queryOptions = _.merge(queryOptions, {
       where: {
         title: {$iLike: '%' + queryName + '%'}
       }
@@ -157,14 +157,16 @@ exports.index = function (req, res) {
   }
 
   if (req.query.backo) {
-    paramsObj = _.merge(paramsObj, {
+    queryOptions = _.merge(queryOptions, {
       where: {
         catchupProviderId: { $eq: null }
       }
     });
   }
 
-  Season.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Season);
+
+  Season.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
@@ -172,55 +174,44 @@ exports.index = function (req, res) {
 
 // Gets a single season from the DB
 exports.show = function (req, res) {
+  var queryOptions = {
+    where: {
+      _id: req.params.id
+    },
+    include: [
+      {model: Movie, as: 'movie'}, // load related movie
+      {model: Image, as: 'poster'}, // load poster image
+      {model: Image, as: 'thumb'} // load thumb image
+    ],
+    order: [
+      [{model: Episode, as: 'episodes'}, 'sort'],
+      [{model: Episode, as: 'episodes'}, '_id']
+    ]
+  };
+
   if (req.query.backo) {
-    Season.find(auth.mergeQuery(req, res, {
-      where: {
-        _id: req.params.id
-      },
-      include: [
-        {
-          model: Episode, as: 'episodes',
-          required: false,
-          attributes: ['_id', 'sort', 'title']
-        },
-        {model: Movie, as: 'movie'}, // load related movie
-        {model: Image, as: 'poster'}, // load poster image
-        {model: Image, as: 'thumb'} // load thumb image
-      ],
-      order: [
-        [{model: Episode, as: 'episodes'}, 'sort'],
-        [{model: Episode, as: 'episodes'}, '_id']
-      ]
-    }))
-      .then(handleEntityNotFound(res))
-      .then(responseWithResult(res))
-      .catch(handleError(res));
+    queryOptions.include.push({
+      model: Episode, as: 'episodes',
+      required: false,
+      attributes: ['_id', 'sort', 'title']
+    });
   } else {
-    Season.find(auth.mergeQuery(req, res, {
-      where: {
-        _id: req.params.id
-      },
+    queryOptions.include.push({
+      model: Episode, as: 'episodes',
+      required: false,
       include: [
-        auth.mergeIncludeValid(req, {
-          model: Episode, as: 'episodes',
-          required: false,
-          include: [
-            auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-            auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
-          ]
-        }), // load all episodes
-        {model: Movie, as: 'movie'}, // load related movie
-        {model: Image, as: 'poster'}, // load poster image
-        {model: Image, as: 'thumb'} // load thumb image
-      ],
-      order: [
-        [{model: Episode, as: 'episodes'}, 'sort']
+        {model: Image, as: 'poster', required: false, attributes: ['imgix']},
+        {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
       ]
-    }))
-      .then(handleEntityNotFound(res))
-      .then(responseWithResult(res))
-      .catch(handleError(res));
+    });
   }
+
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Season);
+
+  Season.find(queryOptions)
+    .then(handleEntityNotFound(res))
+    .then(responseWithResult(res))
+    .catch(handleError(res));
 };
 
 // Creates a new season in the DB

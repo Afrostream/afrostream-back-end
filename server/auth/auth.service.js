@@ -110,46 +110,21 @@ function reqUserIsAdmin(req) {
 }
 
 /**
+ * Tels if the request provider is the backoffice GUI.
+ * @param req
+ * @returns {*}
+ */
+function reqUserIsBacko(req) {
+  return req.query.backo;
+}
+
+/**
  * Returns a jwt token signed by the app secret
  */
 function signToken(id) {
   return jwt.sign({_id: id}, config.secrets.session, {
     expiresInMinutes: 60 * 5
   });
-}
-
-function mergeQuery(req, res, params) {
-  var isAdmin = reqUserIsAdmin(req);
-
-  if (!isAdmin) {
-    params = _.merge(params, {
-      where: {
-        active: true
-      }
-    })
-  }
-
-  if (!params.order) {
-    params.order = [['_id', 'ASC']];
-  }
-
-  return params;
-}
-
-/**
- * merge include params only for non admin users
- *  + restrict access to inactive models to non admin users
- *
- * FIXME: rename the function.
- *
- * @param req
- * @param params   include model descriptor
- * @param merge    include additionnal model descriptor to be merged
- * @returns Object include model descriptor
- * @see http://docs.sequelizejs.com/en/latest/api/model/
- */
-function mergeIncludeValid(req, params, merge) {
-  return reqUserIsAdmin(req) ? params : _.merge(params, merge || {}, {where: { active: true}});
 }
 
 /**
@@ -179,14 +154,14 @@ var authenticate = function (req, res, next) {
 /**
  * resulting query parameters will be modified as :
  *
- * if (!admin) {
+ * if (!backo) {
  *   options.where.active doesn't exist => result.where.active = true
  *   options.where.active = true        => result.where.active = true
  *   options.where.active = false       => result.where.active = false
  *   options.where.active = undefined   => result.where.active doesn't exist.
  * }
  *
- * if (!admin) {
+ * if (!backo) {
  *   result.where.$or = [
  *     {dateFrom: null, dateTo: null},
  *     {dateFrom: null, dateTo: {$gt: now}},
@@ -204,11 +179,12 @@ var filterQueryOptions = function (req, options, rootModel) {
   assert(rootModel);
 
   var isAdmin = reqUserIsAdmin(req);
+  var isBacko = reqUserIsBacko(req);
 
   return sqldb.filterOptions(options, function filter(options, root) {
     var model = root ? rootModel : options.model;
 
-    if (isAdmin) {
+    if (isBacko) {
       // nothing yet
     } else {
       if (model &&
@@ -272,7 +248,5 @@ exports.hasRole = hasRole;
 exports.validRole = validRole;
 exports.signToken = signToken;
 exports.setTokenCookie = setTokenCookie;
-exports.mergeQuery = mergeQuery;
-exports.mergeIncludeValid = mergeIncludeValid;
 //
 exports.filterQueryOptions = filterQueryOptions;

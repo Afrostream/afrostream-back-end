@@ -77,18 +77,18 @@ function removeEntity(res) {
 // Gets a list of actors
 exports.index = function (req, res) {
   var queryName = req.param('query');
-  var paramsObj = {
+  var queryOptions = {
     include: [
-      auth.mergeIncludeValid(req, {model: Image, as: 'picture', required: false}, {attributes: ['imgix']})
+      {model: Image, as: 'picture', required: false, attributes: ['_id', 'name', 'imgix']}
     ],
     order: [ [ 'lastName' ] ]
   };
 
   // pagination
-  utils.mergeReqRange(paramsObj, req);
+  utils.mergeReqRange(queryOptions, req);
 
   if (queryName) {
-    paramsObj = _.merge(paramsObj, {
+    queryOptions = _.merge(queryOptions, {
       where: sqldb.Sequelize.or({
         firstName: {$iLike: '%' + queryName + '%'}
       }, {
@@ -96,8 +96,10 @@ exports.index = function (req, res) {
       })
     })
   }
-
-  Actor.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
+  //
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Actor);
+  //
+  Actor.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
@@ -105,12 +107,16 @@ exports.index = function (req, res) {
 
 // Gets a single actor from the DB
 exports.show = function (req, res) {
-  Actor.find(auth.mergeQuery(req, res, {
+  var queryOptions = {
     where: {
       _id: req.params.id
     },
     include: includedModel
-  }))
+  };
+  //
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Actor);
+  //
+  Actor.find(queryOptions)
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));

@@ -62,50 +62,63 @@ function responseWithResult(res, statusCode) {
   };
 }
 
+// FIXME: should have been merged inside main query.
+// FIXME: this code should be inlined in the adspot func.
 function responseWithAdSpot(req, res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
     if (entity) {
-      return entity.getAdSpots(auth.mergeIncludeValid(req, {
+      var queryOptions = {
         order: [['sort', 'ASC']],
         include: [
-          auth.mergeIncludeValid(req, {
+          {
             model: Video,
             required: false,
-            as: 'video'
-          }, {
-            attributes: ['_id'], include: [
+            as: 'video',
+            attributes: ['_id'],
+            include: [
               {model: Caption, as: 'captions', attributes: ['_id'], required: false}
             ]
-          }), // load all episodes
-          auth.mergeIncludeValid(req, {
+          },
+          {
             model: Season,
             required: false,
             as: 'seasons',
             attributes: ['_id', 'slug'],
             order: [['sort', 'ASC']],
-            include: [auth.mergeIncludeValid(req, {
-              model: Episode,
-              order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
-              as: 'episodes',
-              required: false,
-              include: [
-                auth.mergeIncludeValid(req, {model: Video, as: 'video', required: false}, {
-                  attributes: ['_id'], include: [
-                    {model: Caption, as: 'captions', attributes: ['_id'], required: false}
-                  ]
-                }), // load poster image
-                auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-                auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
-              ]
-            }, {attributes: ['_id', 'slug']})]
-          }), // load all seasons
-          auth.mergeIncludeValid(req, {model: Category, as: 'categorys', attributes: ['_id', 'label'], required: false}),
-          auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
-          auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-          auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']})// load thumb image
+            include: [
+              {
+                model: Episode,
+                order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
+                as: 'episodes',
+                required: false,
+                include: [
+                  {
+                    model: Video,
+                    as: 'video',
+                    required: false,
+                    attributes: ['_id'],
+                    include: [
+                      {model: Caption, as: 'captions', attributes: ['_id'], required: false}
+                    ]
+                  },
+                  {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
+                  {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']}
+                ],
+                attributes: ['_id', 'slug']
+              }
+            ]
+          },
+          {model: Category, as: 'categorys', attributes: ['_id', 'label'], required: false},
+          {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']},   // load logo image
+          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']}, // load poster image
+          {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']}   // load thumb image
         ]
-      })).then(function (adSpots) {
+      };
+
+      queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
+
+      return entity.getAdSpots(queryOptions).then(function (adSpots) {
         res.status(statusCode).json(adSpots);
       })
     }
@@ -206,9 +219,9 @@ exports.show = function (req, res) {
         order: [['sort', 'ASC']],
         include: [
           {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
-          {model: Image, as: 'logo', required: false, attributes: ['imgix']},
-          {model: Image, as: 'poster', required: false, attributes: ['imgix']},
-          {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
+          {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']},
+          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
+          {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']}
         ]
       },
       {
@@ -217,9 +230,9 @@ exports.show = function (req, res) {
         order: [['sort', 'ASC']],
         include: [
           {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
-          {model: Image, as: 'logo', required: false, attributes: ['imgix']},
-          {model: Image, as: 'poster', required: false, attributes: ['imgix']},
-          {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
+          {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']},
+          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
+          {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']}
         ]
       }
     ]
@@ -235,11 +248,15 @@ exports.show = function (req, res) {
 
 // Gets all AdSpots in selected category
 exports.adSpot = function (req, res) {
-  Category.find(auth.mergeQuery(req, res, {
+  var queryOptions = {
     where: {
       _id: req.params.id
     }
-  }))
+  };
+
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
+
+  Category.find(queryOptions)
     .then(handleEntityNotFound(res))
     .then(responseWithAdSpot(req, res))
     .catch(handleError(res));
@@ -247,12 +264,16 @@ exports.adSpot = function (req, res) {
 
 // Gets all categorys for menu
 exports.menu = function (req, res) {
-  Category.findAll(auth.mergeQuery(req, res, {
+  var queryOptions = {
     order: [['sort', 'ASC']]
-  }))
-    .then(handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(handleError(res));
+  };
+
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
+
+  Category.findAll(queryOptions)
+  .then(handleEntityNotFound(res))
+  .then(responseWithResult(res))
+  .catch(handleError(res));
 };
 
 

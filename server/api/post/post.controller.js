@@ -84,15 +84,15 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query'); // deprecated.
   var slug = req.query.slug;
-  var paramsObj = {
+  var queryOptions = {
     include: includedModel
   };
 
   // pagination
-  utils.mergeReqRange(paramsObj, req);
+  utils.mergeReqRange(queryOptions, req);
 
   if (queryName) {
-    paramsObj = _.merge(paramsObj, {
+    queryOptions = _.merge(queryOptions, {
       where: {
         title: {$iLike: '%' + queryName + '%'}
       }
@@ -101,14 +101,16 @@ exports.index = function (req, res) {
   console.log('slug:'+slug);
 
   if (slug) {
-    paramsObj = _.merge(paramsObj, {
+    queryOptions = _.merge(queryOptions, {
       where: {
         slug: slug
       }
     });
   }
 
-  Post.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Post);
+
+  Post.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
@@ -116,12 +118,16 @@ exports.index = function (req, res) {
 
 // Gets a single post from the DB
 exports.show = function (req, res) {
-  Post.find(auth.mergeQuery(req, res, {
-      where: {
-        _id: req.params.id
-      },
-      include: includedModel
-    }))
+  var queryOptions = {
+    where: {
+      _id: req.params.id
+    },
+    include: includedModel
+  };
+
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Post);
+
+  Post.find(queryOptions)
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));

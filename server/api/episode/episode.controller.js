@@ -25,6 +25,7 @@ var includedModel = require('./episode.includedModel');
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
+    console.error(err);
     res.status(statusCode).send(err);
   };
 }
@@ -105,15 +106,15 @@ function removeEntity(res) {
 // Gets a list of episodes
 exports.index = function (req, res) {
   var queryName = req.param('query');
-  var paramsObj = {
+  var queryOptions = {
     include: includedModel
   };
 
   // pagination
-  utils.mergeReqRange(paramsObj, req);
+  utils.mergeReqRange(queryOptions, req);
 
   if (queryName) {
-    paramsObj = _.merge(paramsObj, {
+    queryOptions = _.merge(queryOptions, {
       where: {
         title: {$iLike: '%' + queryName + '%'}
       }
@@ -121,14 +122,18 @@ exports.index = function (req, res) {
   }
 
   if (req.query.backo) {
-    paramsObj = _.merge(paramsObj, {
+    queryOptions = _.merge(queryOptions, {
       where: {
         catchupProviderId: { $eq: null }
       }
     });
   }
 
-  Episode.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Episode);
+
+  console.log(queryOptions);
+
+  Episode.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
@@ -136,12 +141,16 @@ exports.index = function (req, res) {
 
 // Gets a single episode from the DB
 exports.show = function (req, res) {
-  Episode.find(auth.mergeQuery(req, res, {
+  var queryOptions = {
     where: {
       _id: req.params.id
     },
     include: includedModel
-  }))
+  };
+
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Episode);
+
+  Episode.find(queryOptions)
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));

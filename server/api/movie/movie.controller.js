@@ -47,7 +47,9 @@ function responseWithSeasons(req, res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
     if (entity) {
-      return entity.getSeasons(auth.mergeIncludeValid(req, {order: [['sort', 'ASC']]})).then(function (seasons) {
+      var queryOptions = {order: [['sort', 'ASC']]};
+      queryOptions = auth.filterQueryOptions(req, queryOptions, Season);
+      return entity.getSeasons(queryOptions).then(function (seasons) {
         res.status(statusCode).json(seasons);
       })
     }
@@ -162,15 +164,15 @@ function removeEntity(res) {
 // Gets a list of movies
 exports.index = function (req, res) {
   var queryName = req.param('query');
-  var paramsObj = {
+  var queryOptions = {
     include: includedModel
   };
 
   // pagination
-  utils.mergeReqRange(paramsObj, req);
+  utils.mergeReqRange(queryOptions, req);
 
   if (queryName) {
-    paramsObj = _.merge(paramsObj, {
+    queryOptions = _.merge(queryOptions, {
       where: {
         title: {$iLike: '%' + queryName + '%'}
       }
@@ -178,14 +180,16 @@ exports.index = function (req, res) {
   }
 
   if (req.query.backo) {
-    paramsObj = _.merge(paramsObj, {
+    queryOptions = _.merge(queryOptions, {
       where: {
         catchupProviderId: { $eq: null }
       }
     });
   }
 
-  Movie.findAndCountAll(auth.mergeQuery(req, res, paramsObj))
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
+
+  Movie.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
@@ -193,92 +197,64 @@ exports.index = function (req, res) {
 
 // Gets a single movie from the DB
 exports.show = function (req, res) {
-  if (req.query.backo) {
-    Movie.find(auth.mergeQuery(req, res, {
-      where: {
-        _id: req.params.id
-      },
-      include: [
-        auth.mergeIncludeValid(req, {
-          model: Video,
-          required: false,
-          as: 'video'
-        }, {attributes: ['_id']}),
-        {model: Category, as: 'categorys'}, // load all episodes
-        auth.mergeIncludeValid(req, {
-          model: Season,
-          required: false,
-          as: 'seasons'
-        }), // load all seasons
-        auth.mergeIncludeValid(req, {model: Image, as: 'logo', required: false}, {attributes: ['imgix']}), // load logo image
-        auth.mergeIncludeValid(req, {model: Image, as: 'poster', required: false}, {attributes: ['imgix']}), // load poster image
-        auth.mergeIncludeValid(req, {model: Image, as: 'thumb', required: false}, {attributes: ['imgix']}), // load thumb image
-        {model: Licensor, as: 'licensor'},// load thumb image
-        {model: Actor, as: 'actors', attributes: ['_id', 'firstName', 'lastName']}
-      ],
-      order: [
-        [{model: Season, as: 'seasons'}, 'sort']
-      ]
-    }))
-      .then(handleEntityNotFound(res))
-      .then(responseWithResult(res))
-      .catch(handleError(res));
-  } else {
-    // testing new API... dateFrom & dateTo
-    var queryOptions = {
-      where: {
-        _id: req.params.id
-      },
-      include: [
-        {model: Video, required: false, as: 'video', attributes: ['_id']},
-        {model: Category, required: false, as: 'categorys'},
-        {
-          model: Season,
-          required: false,
-          as: 'seasons',
-          include: [
-            {
-              model: Episode,
-              as: 'episodes',
-              required: false,
-              include: [
-                {model: Video, as: 'video', required: false, attributes: ['_id']}
-              ],
-              attributes: ['_id', 'slug']
-            }
-          ]
-        }, // load all seasons
-        {model: Image, as: 'logo', required: false, attributes: ['imgix']},
-        {model: Image, as: 'poster', required: false,attributes: ['imgix']},
-        {model: Image, as: 'thumb', required: false, attributes: ['imgix']},
-        {model: Licensor, as: 'licensor', required: false },
-        {model: Actor, as: 'actors', required: false, attributes: ['_id', 'firstName', 'lastName']}
-      ],
-      order: [
-        [{model: Season, as: 'seasons'}, 'sort'],
-        [{model: Season, as: 'seasons'}, {model: Episode, as: 'episodes'}, 'sort']
-      ]
-    };
-    //
-    queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
-    //
-    Movie.find(queryOptions)
-      .then(handleEntityNotFound(res))
-      .then(responseWithResult(res))
-      .catch(handleError(res));
-  }
+  // testing new API... dateFrom & dateTo
+  var queryOptions = {
+    where: {
+      _id: req.params.id
+    },
+    include: [
+      {model: Video, required: false, as: 'video', attributes: ['_id', 'name']},
+      {model: Category, required: false, as: 'categorys'},
+      {
+        model: Season,
+        required: false,
+        as: 'seasons',
+        include: [
+          {
+            model: Episode,
+            as: 'episodes',
+            required: false,
+            include: [
+              {model: Video, as: 'video', required: false, attributes: ['_id']}
+            ],
+            attributes: ['_id', 'slug']
+          }
+        ]
+      }, // load all seasons
+      {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']},
+      {model: Image, as: 'poster', required: false,attributes: ['_id', 'name', 'imgix']},
+      {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']},
+      {model: Licensor, as: 'licensor', required: false },
+      {model: Actor, as: 'actors', required: false, attributes: ['_id', 'firstName', 'lastName']}
+    ],
+    order: [
+      [{model: Season, as: 'seasons'}, 'sort'],
+      [{model: Season, as: 'seasons'}, {model: Episode, as: 'episodes'}, 'sort']
+    ]
+  };
+  //
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
+  //
+  Movie.find(queryOptions)
+    .then(handleEntityNotFound(res))
+    .then(responseWithResult(res))
+    .catch(handleError(res));
 };
 
 // Gets all Seasons in selected movie
 exports.seasons = function (req, res) {
-  Movie.find(auth.mergeQuery(req, res, {
+  var queryOptions = {
     where: {
       _id: req.params.id
     }
-  }))
-    .then(handleEntityNotFound(res))
-    .then(responseWithSeasons(req, res))
-    .catch(handleError(res));
+  };
+
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
+
+  Movie.find(queryOptions)
+  .then(handleEntityNotFound(res))
+  .then(responseWithSeasons(req, res))
+  .catch(handleError(res));
 };
 
 // Creates a new movie in the DB
