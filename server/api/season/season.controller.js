@@ -179,9 +179,9 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
-      {model: Movie, as: 'movie'}, // load related movie
-      {model: Image, as: 'poster'}, // load poster image
-      {model: Image, as: 'thumb'} // load thumb image
+      {model: Movie, as: 'movie', required: false}, // load related movie
+      {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']}, // load poster image
+      {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']} // load thumb image
     ],
     order: [
       [{model: Episode, as: 'episodes'}, 'sort'],
@@ -200,8 +200,8 @@ exports.show = function (req, res) {
       model: Episode, as: 'episodes',
       required: false,
       include: [
-        {model: Image, as: 'poster', required: false, attributes: ['imgix']},
-        {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
+        {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
+        {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']}
       ]
     });
   }
