@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('ModalDialogCtrl', function ($scope, $sce, $log, $http, $modalInstance, item, type, Slug, ngToast, Image) {
+  .controller('ModalDialogCtrl', function ($scope, $sce, $log, $http, $modalInstance, item, type, Slug, ngToast, Image, $timeout) {
     // BEGIN temporary fix on dates...
     // should be generic & added to $httpProvider
     function parseItemDates(item) {
@@ -150,9 +150,6 @@ angular.module('afrostreamAdminApp')
       });
     };
 
-    //Load Item
-    $scope.getItem();
-
     var showError = function () {
       ngToast.create({
         className: 'warning',
@@ -188,5 +185,11 @@ angular.module('afrostreamAdminApp')
       if (typeof $modalInstance.onClose === 'function') {
         $modalInstance.onClose(cancel);
       }
-    }
+    };
+
+    // getItem is often triggered before modal hooks are binded (directives aren't yet loaded)
+    //  so this timeout is a quick fix & not the proper way of mitigating the pb
+    $timeout(function () {
+      $scope.getItem();
+    }, 100);
   });
