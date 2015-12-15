@@ -131,8 +131,6 @@ exports.index = function (req, res) {
 
   queryOptions = auth.filterQueryOptions(req, queryOptions, Episode);
 
-  console.log(queryOptions);
-
   Episode.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
