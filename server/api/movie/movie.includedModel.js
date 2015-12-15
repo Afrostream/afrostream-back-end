@@ -9,14 +9,14 @@ var Licensor = sqldb.Licensor;
 var Actor = sqldb.Actor;
 
 var includedModel = [
-  {model: Video, as: 'video'},
-  {model: Category, as: 'categorys'},
-  {model: Season, as: 'seasons'},
-  {model: Image, as: 'logo'},
-  {model: Image, as: 'poster'},
-  {model: Image, as: 'thumb'},
-  {model: Licensor, as: 'licensor'},
-  {model: Actor, as: 'actors'}
+  {model: Video, as: 'video', required: false},
+  {model: Category, as: 'categorys', required: false},
+  {model: Season, as: 'seasons', required: false},
+  {model: Image, as: 'logo', required: false},
+  {model: Image, as: 'poster', required: false},
+  {model: Image, as: 'thumb', required: false},
+  {model: Licensor, as: 'licensor', required: false},
+  {model: Actor, as: 'actors', required: false}
 ];
 
 module.exports = includedModel;

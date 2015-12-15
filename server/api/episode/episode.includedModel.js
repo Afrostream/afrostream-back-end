@@ -8,11 +8,12 @@ var Image = sqldb.Image;
 var includedModel = [
   {
     model: Season, as: 'season',
+    required: false,
     order: [['sort', 'ASC']]
   },
-  {model: Video, as: 'video'},
-  {model: Image, as: 'poster'},
-  {model: Image, as: 'thumb'}
+  {model: Video, as: 'video', required: false},
+  {model: Image, as: 'poster', required: false},
+  {model: Image, as: 'thumb', required: false}
 ];
 
 module.exports = includedModel;
