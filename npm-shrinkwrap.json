@@ -816,6 +816,18 @@
         }
       }
     },
+    "better-assert": {
+      "version": "1.0.2",
+      "from": "better-assert@*",
+      "resolved": "https://registry.npmjs.org/better-assert/-/better-assert-1.0.2.tgz",
+      "dependencies": {
+        "callsite": {
+          "version": "1.0.0",
+          "from": "callsite@1.0.0",
+          "resolved": "https://registry.npmjs.org/callsite/-/callsite-1.0.0.tgz"
+        }
+      }
+    },
     "bluebird": {
       "version": "2.10.1",
       "from": "bluebird@>=2.9.34 <3.0.0",
