@@ -56,6 +56,9 @@
     button.btn.btn-primary(ng-click='searchFirstVideo()' ng-if='isSerie()')
       span.fa.fa-hand-o-left(style='margin-right:5px')
       | S1E1
+    div
+      a(ng-if="mpd" target="_backoplayer" href="https://afrostream-player.herokuapp.com/?url={{mpd}}")
+        | https://afrostream-player.herokuapp.com/?url={{mpd}}
 
 .form-group
   label.control-label Actors

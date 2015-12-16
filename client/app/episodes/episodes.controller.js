@@ -23,4 +23,19 @@ angular.module('afrostreamAdminApp')
       });
       return p;
     };
+
+    $scope.$watch('item.video', function() {
+      if ($scope.item && $scope.item.video && $scope.item.video._id) {
+        Video.get({id:$scope.item.video._id}, function (video) {
+          var source = ((video && video.sources || []).filter(function (source) {
+            return source && source.type === 'application/dash+xml';
+          })).pop();
+          if (source) {
+            $scope.mpd = source.src;
+          }
+        });
+      } else {
+        $scope.mpd = null;
+      }
+    }, true);
   });
