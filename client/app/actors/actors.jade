@@ -11,5 +11,5 @@
     label(for='picture').control-label Picture
     div
       input.form-control(type='text' ng-model='item.picture' placeholder='Search poster' typeahead='image as image.name for image in loadImages($viewValue,"actor") | limitTo: 5' typeahead-template-url='imagesTemplate.html' style="display:inline;width:80%")
-      button.btn.btn-s.btn-primary.pull-right(ng-click='uploadPicture()' style="display:inline")
+      button.btn.btn-s.btn-primary(ng-click='uploadPicture()' style="display:inline")
           | Upload
