@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('ModalDialogCtrl', function ($scope, $sce, $log, $http, $modalInstance, item, type, Slug, ngToast, Image, $timeout) {
+  .controller('ModalDialogCtrl', function ($scope, $sce, $log, $http, $modalInstance, item, type, Slug, ngToast, Image, $timeout, $modal) {
     // BEGIN temporary fix on dates...
     // should be generic & added to $httpProvider
     function parseItemDates(item) {
@@ -126,6 +126,44 @@ angular.module('afrostreamAdminApp')
         showError();
         $log.debug(err);
       });
+    };
+
+    $scope.uploadPoster = function () {
+      var m = $modal.open({
+        templateUrl: 'app/images/modal/upload.html',
+        controller: 'ImagesUploadDialogCtrl',
+        size: 'lg',
+        scope: $scope,
+        resolve: {
+          type: function () {
+            return 'poster';
+          }
+        }
+      });
+      m.onClose = function (image) {
+        if (image) {
+          $scope.item.poster = image;
+        }
+      };
+    };
+
+    $scope.uploadThumb = function () {
+      var m = $modal.open({
+        templateUrl: 'app/images/modal/upload.html',
+        controller: 'ImagesUploadDialogCtrl',
+        size: 'lg',
+        scope: $scope,
+        resolve: {
+          type: function () {
+            return 'thumb';
+          }
+        }
+      });
+      m.onClose = function (image) {
+        if (image) {
+          $scope.item.thumb = image;
+        }
+      };
     };
 
     $scope.getItem = function () {

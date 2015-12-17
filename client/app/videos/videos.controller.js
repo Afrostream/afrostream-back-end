@@ -109,8 +109,8 @@ angular.module('afrostreamAdminApp')
     $scope.uploadCaptions = function (data) {
 
       $modal.open({
-        templateUrl: 'app/images/modal/images.html', // Url du template HTML
-        controller: 'ImagesDialogCtrl',
+        templateUrl: 'app/images/modal/upload.html', // Url du template HTML
+        controller: 'ImagesUploadDialogCtrl',
         size: 'lg',
         scope: $scope,
         resolve: {

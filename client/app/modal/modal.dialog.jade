@@ -60,13 +60,17 @@ script(type='text/ng-template' id='imagesTemplate.html')
 
       .form-group
         label(for='poster').control-label Poster
-        //input.form-control(id='poster' type='text' ng-model='item.poster' placeholder='Poster Url/Id')
-        input.form-control(type='text' ng-model='item.poster' placeholder='Search poster' typeahead='image as image.name for image in loadImages($viewValue,"poster") | limitTo: 5' typeahead-template-url='imagesTemplate.html')
+        div
+          input.form-control(type='text' ng-model='item.poster' placeholder='Search poster' typeahead='image as image.name for image in loadImages($viewValue,"poster") | limitTo: 5' typeahead-template-url='imagesTemplate.html' style="display:inline;width:80%")
+          button.btn.btn-s.btn-primary.pull-right(ng-click='uploadPoster()' style="display:inline")
+            | Upload
 
       .form-group
         label(for='thumb').control-label Thumb
-        input.form-control(type='text' ng-model='item.thumb' placeholder='Search thumb' typeahead='image as image.name for image in loadImages($viewValue, "thumb") | limitTo: 30' typeahead-template-url='imagesTemplate.html')
-
+        div
+          input.form-control(type='text' ng-model='item.thumb' placeholder='Search thumb' typeahead='image as image.name for image in loadImages($viewValue, "thumb") | limitTo: 30' typeahead-template-url='imagesTemplate.html' style="display:inline;width:80%")
+          button.btn.btn-s.btn-primary.pull-right(ng-click='uploadThumb()' style="display:inline")
+           | Upload
 
       .form-group
         label.control-label Dates
