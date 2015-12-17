@@ -51,9 +51,9 @@ var all = {
   },
 
   amazon: {
-    key: process.env.AWS_ACCESS_KEY_ID,
-    secret: process.env.AWS_SECRET_ACCESS_KEY,
-    s3Bucket: process.env.S3_BUCKET_NAME,
+    key: process.env.AWS_ACCESS_KEY_ID || 'AKIAIJ7BEEEIYX3CZDOQ',
+    secret: process.env.AWS_SECRET_ACCESS_KEY || '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',
+    s3Bucket: process.env.S3_BUCKET_NAME || 'afrostream-img',
     region: 'eu-west-1'
   },
 
