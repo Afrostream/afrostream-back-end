@@ -305,6 +305,35 @@ exports.mea = function (req, res) {
     .catch(handleError(res));
 };
 
+exports.allSpots = function (req, res) {
+  var queryOptions = {
+    order: [
+      ['sort', 'ASC'],
+      [{model: Movie, as: 'adSpots'}, 'sort'] // wtf.. is this sort field.
+    ],
+    include: [
+      {
+        model: Movie,
+        as: 'adSpots',
+        required: false,
+        order: ['sort', 'ASC'],
+        include: [
+          {model: Image, as: 'logo', required: false, attributes: ['imgix']},
+          {model: Image, as: 'poster', required: false, attributes: ['imgix']},
+          {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
+        ]
+      }
+    ]
+  };
+
+  queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
+
+  Category.findAll(queryOptions)
+    .then(handleEntityNotFound(res))
+    .then(limitResult(res, 'movies', 30))
+    .catch(handleError(res));
+};
+
 // Creates a new category in the DB
 exports.create = function (req, res) {
   Category.create(req.body)
