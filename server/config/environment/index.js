@@ -58,7 +58,7 @@ var all = {
   },
 
   imgix: {
-    domain: process.env.IMGIX_DOMAIN || 'afrostream.imgix.net'
+    domain: process.env.IMGIX_DOMAIN || 'https://afrostream.imgix.net'  // GRRRRR... should NOT contain "https://"
   },
 
   // FIXME: config env vars DIGIBOS => MAM
