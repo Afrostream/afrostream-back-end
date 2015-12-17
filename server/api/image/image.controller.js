@@ -14,7 +14,7 @@ var path = require('path');
 var sqldb = require('../../sqldb');
 var Image = sqldb.Image;
 var config = require('../../config/environment');
-var AwsUploader = require('../../components/upload');
+var aws = require('../../aws.js');
 
 var utils = require('../utils.js');
 
@@ -116,19 +116,26 @@ exports.show = function (req, res) {
 
 // Creates a new image in the DB
 exports.create = function (req, res) {
-  AwsUploader.uploadFile(req, res, 'poster').then(function (data) {
-    Image.create({
-      type: data.dataType,
-      path: data.req.path,
-      url: data.req.url,
-      mimetype: data.mimeType,
-      imgix: config.imgix.domain + data.req.path,
-      active: true,
-      name: data.fileName
+  var type = req.query.type || 'poster';
+
+  req.readFile()
+    .then(function (file) {
+      var bucket = aws.getBucket('afrostream-img');
+      return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/'+type+'/{date}/{rand}-'+file.name)
+        .then(function (data) {
+          return Image.create({
+            type: type,
+            path: data.req.path,
+            url: data.req.url,
+            mimetype: file.mimeType,
+            imgix: config.imgix.domain + data.req.path,
+            active: true,
+            name: file.name
+          });
+        });
     })
-      .then(responseWithResult(res, 201))
-      .catch(handleError(res));
-  });
+    .then(responseWithResult(res, 201))
+    .catch(handleError(res));
 };
 
 // Updates an existing image in the DB
