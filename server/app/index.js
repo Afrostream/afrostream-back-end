@@ -33,11 +33,11 @@ app.use(require('body-parser').urlencoded({extended: false, limit:'500kb'}));
 app.use(require('body-parser').json({limit:'500kb'}));
 
 app.use(require('method-override')());
-app.use(require('cookie-parser')());
-app.use(require('express-session')({secret: config.secrets.session}));
+//app.use(require('cookie-parser')());
+//app.use(require('express-session')({secret: config.secrets.session}));
 app.use(require('connect-busboy')());
 app.use(require('passport').initialize());
-app.use(require('passport').session());
+//app.use(require('passport').session());
 app.use(clientIp());
 app.use(cacheHandler());
 
