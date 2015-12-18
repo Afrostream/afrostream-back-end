@@ -476,6 +476,11 @@ exports.gift = function (req, res) {
   var purchaseDetails = {};
   var userId = req.user._id;
 
+  if (req.body['email'] === req.body['gift_email']) {
+    var sameEmailError = new Error('Cannot buy a gift for yourself!');
+    return res.status(500).send(sameEmailError);
+  }
+
   User.find({
     where: {
       _id: userId
@@ -515,7 +520,7 @@ exports.gift = function (req, res) {
         purchaseDetails['planName'] = item.properties.plan.name;
         var accountId = item._resources.account.split('/accounts/')[1];
         var invoiceId = purchaseDetails['invoiceNumber'] = item._resources.invoice.split('/invoices/')[1];
-        var planCode = item.properties.plan.plan_code;;
+        var planCode = item.properties.plan.plan_code;
 
         var newUserData = {
           name: req.body['gift_email'],
@@ -527,11 +532,24 @@ exports.gift = function (req, res) {
           active: true
         };
 
-        User.create(newUserData)
-          .catch(function (err) {
-            handleError(res);
-          })
-          .then(function () {
+        User.find({
+          where: {
+            email: req.body['gift_last_name']
+          }
+        }).then(function (user) { // don't ever give out the password or salt
+            if (!user) {
+              User.create(newUserData)
+                .catch(function (err) {
+                  console.log(err);
+                  handleError(res);
+                });
+            } else {
+              user.account_code = data.account.account_code;
+              user.active = true;
+              user.save();
+            }
+          }).then(function () {
+
             var giftGiverEmail = user.profile.email;
             var giftGiverData = {
               first_name: req.body['first_name'],
@@ -610,3 +628,4 @@ exports.destroy = function (req, res) {
 };
 
 exports.userInfos = userInfos;
+
