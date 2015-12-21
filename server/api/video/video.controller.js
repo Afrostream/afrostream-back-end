@@ -297,7 +297,7 @@ exports.destroy = function (req, res) {
 };
 
 var create = function (data) {
-  Video.create(data)
+  return Video.create(data)
     .then(addAssets(data))
     .then(addCaptions(data));
 };
