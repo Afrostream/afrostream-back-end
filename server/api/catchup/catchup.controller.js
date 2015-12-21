@@ -136,7 +136,7 @@ var saveXmlToBucket = function (catchupProviderId, mamId, xmlUrl) {
   return rp(xmlUrl).then(function (xml) {
     var bucket = aws.getBucket('tracks.afrostream.tv');
     var name = url.parse(xmlUrl).pathname.split('/').pop();
-    return aws.putBufferIntoBucket(bucket, xml, 'text/xml', '{env}/catchup/xml/' + mamId + '-' + name)
+    return aws.putBufferIntoBucket(bucket, new Buffer(xml), 'text/xml', '{env}/catchup/xml/' + mamId + '-' + name)
       .then(function (awsInfos) {
         console.log('catchup: '+catchupProviderId+': '+mamId+': xml '+xmlUrl+' was imported to '+awsInfos.req.url);
         return xml;
@@ -148,7 +148,7 @@ var saveCaptionToBucket = function (catchupProviderId, mamId, captionUrl) {
   return rp(captionUrl).then(function (caption) {
     var bucket = aws.getBucket('tracks.afrostream.tv');
     var name = url.parse(captionUrl).pathname.split('/').pop();
-    return aws.putBufferIntoBucket(bucket, caption, 'application/octet-stream', '{env}/catchup/xml/' + mamId + '-' + name)
+    return aws.putBufferIntoBucket(bucket, new Buffer(caption), 'application/octet-stream', '{env}/catchup/captions/' + mamId + '-' + name)
       .then(function (awsInfos) {
         console.log('catchup: '+catchupProviderId+': '+mamId+': caption '+captionUrl+' was imported to '+awsInfos.req.url);
       });

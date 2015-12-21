@@ -26,7 +26,7 @@ var config = require('./config/environment');
  */
 module.exports.putBufferIntoBucket = function (bucket, buffer, mimeType, path) {
   assert(bucket);
-  assert(buffer instanceof Buffer || typeof buffer === 'string');
+  assert(buffer instanceof Buffer);
   assert(typeof mimeType === 'string');
   assert(typeof path === 'string' && path);
 
