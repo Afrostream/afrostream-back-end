@@ -1,5 +1,7 @@
 'use strict';
 
+var url = require('url');
+
 var sqldb = require('../../sqldb');
 var Episode = sqldb.Episode;
 var Movie = sqldb.Movie;
@@ -17,9 +19,11 @@ var config = require('../../config/environment/index');
 // convert mamItem to video
 var importVideo = require('../mam/mam.import.js').importVideo;
 
+var aws = require('../../aws.js');
+
 var flatten = function (xml) {
   var result = {};
-  (function rec(xmlNode) {
+  var rec = function (xmlNode) {
     Object.keys(xmlNode).forEach(function (key) {
       var val = xmlNode[key];
       switch (key) {
@@ -43,7 +47,8 @@ var flatten = function (xml) {
           break;
       }
     });
-  })(xml);
+  };
+  rec(xml);
   return result;
 };
 
@@ -119,62 +124,138 @@ var addMovieToCatchupCategory = function (movie) {
 };
 
 /**
+ * save the xml content into aws s3 bucket 'tracks.afrostream.tv'
+ *   in directory  {env}/catchup/xml/{mamId}-{name} where name is the end of xml filename.
+ *
+ * @param catchupProviderId  number
+ * @param mamId              number   mam id
+ * @param xmlUrl             string   url containing the xml file
+ * @returns {*}              string   xml content
+ */
+var saveXmlToBucket = function (catchupProviderId, mamId, xmlUrl) {
+  return rp(xmlUrl).then(function (xml) {
+    var bucket = aws.getBucket('tracks.afrostream.tv');
+    var name = url.parse(xmlUrl).pathname.split('/').pop();
+    return aws.putBufferIntoBucket(bucket, xml, 'text/xml', '{env}/catchup/xml/' + mamId + '-' + name)
+      .then(function (awsInfos) {
+        console.log('catchup: '+catchupProviderId+': '+mamId+': xml '+xmlUrl+' was imported to '+awsInfos.req.url);
+        return xml;
+      });
+  });
+};
+
+var saveCaptionToBucket = function (catchupProviderId, mamId, captionUrl) {
+  return rp(captionUrl).then(function (caption) {
+    var bucket = aws.getBucket('tracks.afrostream.tv');
+    var name = url.parse(captionUrl).pathname.split('/').pop();
+    return aws.putBufferIntoBucket(bucket, caption, 'application/octet-stream', '{env}/catchup/xml/' + mamId + '-' + name)
+      .then(function (awsInfos) {
+        console.log('catchup: '+catchupProviderId+': '+mamId+': caption '+captionUrl+' was imported to '+awsInfos.req.url);
+      });
+  });
+};
+
+var saveCaptionsToBucket = function (catchupProviderId, mamId, captionsUrls) {
+  return Q.all(captionsUrls.map(function (captionUrl) {
+    return saveCaptionToBucket(catchupProviderId, mamId, captionUrl);
+  }));
+};
+
+/**
+ * parse & flatten the xml.
+ *
+ * @param catchupProviderId  number
+ * @param mamId              number   mam id
+ * @param xml                string   containing the xml.
+ * @returns {*}              object   { flatten xml object }
+ */
+var parseXml = function (catchupProviderId, mamId, xml) {
+  console.log('catchup: '+catchupProviderId+': '+mamId+': parsing xml = ', xml);
+  return Q.nfcall(xml2js.parseString, xml)
+    .then(function (json) {
+      console.log('catchup: '+catchupProviderId+': '+mamId+': json =' + JSON.stringify(json));
+      var flattenXml = flatten(json);
+      console.log('catchup: '+catchupProviderId+': '+mamId+': flatten = ' + JSON.stringify(flattenXml));
+      return flattenXml;
+    });
+};
+
+var saveAndParseXml = function (catchupProviderId, mamId, xmlUrl) {
+  return saveXmlToBucket(catchupProviderId, mamId, xmlUrl)
+    .then(function (xml) {
+      return parseXml(catchupProviderId, mamId, xml);
+    });
+};
+
+var getCatchupProviderInfos = function (catchupProviderId) {
+  return CatchupProvider.find({where: { _id: catchupProviderId } })
+    .then(function (catchupProvider) {
+      if (catchupProvider) {
+        return catchupProvider.dataValues;
+      } else {
+        return {
+          _id: config.catchup.bet.catchupProviderId,
+          expiration: config.catchup.bet.defaultExpiration
+        }
+      }
+    });
+};
+
+/**
  * INPUT data =
  * {
  *   "sharedSecret": "62b8557f248035275f6f8219fed7e9703d59509c"
  *   "xml": "http://blabla.com/foo/bar/niania",
- *   "mamId": "1316"
+ *   "mamId": "1316",
+ *   "captions": [ "http://file1", "http://file2", ... ]
  * }
+ *
+ * Workflow :
+ *
+ *  xml download => xml upload => xml parsing =>
+ *  catchup provider read                     =>
+ *  captions download => captions upsert      =>
+ *                                               video creation => movie/episode/season creation
+ *
  */
 var bet = function (req, res) {
-  // hardcoded...
-  if (req.body.sharedSecret !== '62b8557f248035275f6f8219fed7e9703d59509c') {
-    return res.status(500).send('unauthentified');
-  }
-  if (!req.body.xml) {
-    return res.status(500).send('xml missing');
-  }
-  if (!req.body.mamId) {
-    return res.status(500).send('mamId missing');
-  }
-  Q.nfcall(request, {
-    method: 'GET',
-    uri: req.body.xml
-  }).spread(function (response, body) {
-    console.log('catchup: bet: xml=', body);
-    return Q.nfcall(xml2js.parseString, body);
-  }).then(function (jsonxml) {
-    console.log('catchup: bet: jsonxml=', JSON.stringify(jsonxml));
-    return flatten(jsonxml);
-  }).then(function (infos) {
-    console.log('catchup: bet: infos=', infos);
-    // searching catchup provider
-    return CatchupProvider.find({where: { _id: config.catchup.bet.id } })
-      .then(function (catchupProvider) {
-        // computing catchupProvider infos.
-        var catchupProviderInfos;
+  Q()
+    .then(function validateBody() {
+      if (req.body.sharedSecret !== '62b8557f248035275f6f8219fed7e9703d59509c')  throw 'unauthentified';
+      if (!req.body.xml) throw 'xml missing';
+      if (!req.body.mamId) throw 'mamId missing';
+      if (req.body.captions && !Array.isArray(req.body.captions)) throw 'malformed captions';
+    })
+    .then(function () {
+      var catchupProviderId = config.catchup.bet.catchupProviderId;
+      var mamId = req.body.mamId
+        , xmlUrl = req.body.xml
+        , captions = req.body.captions || [];
 
-        if (catchupProvider) {
-          catchupProviderInfos = catchupProvider.dataValues;
-        } else {
-          catchupProviderInfos = {
-            _id: config.catchup.bet.catchupProviderId,
-            expiration: config.catchup.bet.defaultExpiration
-          }
-        }
+      // parallel execution of
+      return Q.all([
+        saveAndParseXml(catchupProviderId, mamId, xmlUrl),
+        getCatchupProviderInfos(catchupProviderId),
+        saveCaptionsToBucket(catchupProviderId, mamId, captions)
+      ]).then(function (result) {
+        var xmlInfos = result[0]
+          , catchupProviderInfos = result[1]
+          , captionsInfos = result[2];
+
         // upserting
-        return rp({uri: config.mam.domain + '/' + req.body.mamId, json: true})
+        return rp({uri: config.mam.domain + '/' + mamId, json: true})
           .then(importVideo)
           .then(function (video) {
-            return createMovieSeasonEpisode(catchupProviderInfos, infos, video);
+            // FIXME: in the future, we should add theses captions to the video.
+            return createMovieSeasonEpisode(catchupProviderInfos, xmlInfos, video);
           })
           .then(addMovieToCatchupCategory);
       });
-  }).then(
-    function () { res.json({status:'success'}); },
-    function (err) {
+    }).then(
+    function success() {res.json({status:'success'}); },
+    function error(err) {
       console.error(err);
-      res.json({status:'error',message:String(err)});}
+      res.status(500).json({status:'error',message:String(err)});}
   );
 };
 

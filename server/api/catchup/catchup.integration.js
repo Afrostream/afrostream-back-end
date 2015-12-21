@@ -17,7 +17,9 @@ describe('API: /api/catchup/*', function() {
     var staticapp = require('express')();
     staticapp.get('/fake.xml', function (req, res) {
       var fs = require('fs');
-      var xml = fs.readFileSync(__basedir + '/tests/data/catchup-bet-example-001.xml');
+      //var file = 'catchup-bet-example-001.xml';
+      var file = 'NELLYVILLE SAISON 1-0018.xml';
+      var xml = fs.readFileSync(__basedir + '/tests/data/bet/'+file);
       res.send(xml);
     });
     staticserver = staticapp.listen(47611, function () { done(); });
