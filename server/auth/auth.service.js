@@ -186,6 +186,11 @@ var filterQueryOptions = function (req, options, rootModel) {
 
     if (isBacko) {
       // nothing yet
+      if (model &&
+        model.attributes &&
+        model.attributes.catchupProviderId) {
+        // options = _.merge(options, {where: {catchupProviderId: { $eq: null }}});
+      }
     } else {
       if (model &&
           model.attributes &&

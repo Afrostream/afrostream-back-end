@@ -156,14 +156,6 @@ exports.index = function (req, res) {
     })
   }
 
-  if (req.query.backo) {
-    queryOptions = _.merge(queryOptions, {
-      where: {
-        catchupProviderId: { $eq: null }
-      }
-    });
-  }
-
   queryOptions = auth.filterQueryOptions(req, queryOptions, Season);
 
   Season.findAndCountAll(queryOptions)
