@@ -69,5 +69,13 @@ module.exports.importVideo = function (mamItem) {
         return upsertUsingEncodingId(newVideo);
       }
       return null;
+    })
+    .then(function (video) {
+      if (video) {
+        console.log('mam: importVideo: ' + video._id + ' was upserted');
+      } else {
+        console.log('mam: importVideo: no video.');
+      }
+      return video;
     });
 };
