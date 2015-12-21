@@ -45,6 +45,8 @@ if (config.dumpPostData) {
   app.use(dumpPostData());
 }
 
+app.use('/heapdumps', require('./heapdump'));
+
 switch (process.env.NODE_ENV) {
   case 'production':
   case 'staging':

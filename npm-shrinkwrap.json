@@ -816,6 +816,11 @@
         }
       }
     },
+    "basic-auth-connect": {
+      "version": "1.0.0",
+      "from": "basic-auth-connect@*",
+      "resolved": "https://registry.npmjs.org/basic-auth-connect/-/basic-auth-connect-1.0.0.tgz"
+    },
     "better-assert": {
       "version": "1.0.2",
       "from": "better-assert@*",
@@ -10244,6 +10249,11 @@
           }
         }
       }
+    },
+    "heapdump": {
+      "version": "0.3.7",
+      "from": "heapdump@*",
+      "resolved": "https://registry.npmjs.org/heapdump/-/heapdump-0.3.7.tgz"
     },
     "http-proxy": {
       "version": "1.11.2",
