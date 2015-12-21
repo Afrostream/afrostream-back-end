@@ -246,6 +246,9 @@ var bet = function (req, res) {
         return rp({uri: config.mam.domain + '/' + mamId, json: true})
           .then(importVideo)
           .then(function (video) {
+            if (!video) {
+              throw 'catchup: '+catchupProviderId+': '+mamId+': video import from mam failed';
+            }
             console.log('catchup: '+catchupProviderId+': '+mamId+': video._id =' + video._id);
             // FIXME: in the future, we should add theses captions to the video.
             return createMovieSeasonEpisode(catchupProviderInfos, xmlInfos, video);
