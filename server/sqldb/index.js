@@ -112,6 +112,19 @@ db.CatchupProvider.belongsTo(db.Category, {as: 'category', foreignKey: 'category
 
 ///// HELPERS FUNCTIONS /////
 var _ = require('lodash');
+
+db._filterOptionsRec = function (options, obj, root) {
+  if (Array.isArray(options.include)) {
+    options.include = options.include.map(function (subOptions) {
+      return db._filterOptionsRec(subOptions, obj);
+    });
+  }
+  if (typeof obj === 'function') {
+    return obj(options, (root === true)); // filter function
+  }
+  return _.merge(options, obj);
+};
+
 //
 // @param options object             input options (mutable)
 // @param o       object|function    input mutator
@@ -122,16 +135,8 @@ var _ = require('lodash');
 //  => { where: { id: 42 }, include: [ { model: Foo, required: false } ], required: false }
 // db.filterOptions(options, function (options, root) { options.foo = 'bar'; return options; }
 //  =>
-db.filterOptions = function (options, o) {
-  return (function rec(options, root) {
-    if (Array.isArray(options.include)) {
-      options.include = options.include.map(rec);
-    }
-    if (typeof o === 'function') {
-      return o(options, (root === true)); // filter function
-    }
-    return _.merge(options, o);
-  })(options, true);
+db.filterOptions = function (options, obj) {
+  return db._filterOptionsRec(options, obj, true);
 };
 
 /**
