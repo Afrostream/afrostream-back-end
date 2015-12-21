@@ -10,15 +10,16 @@
 'use strict';
 
 var _ = require('lodash');
+var aws = require('../../aws.js');
 var path = require('path');
 var sqldb = require('../../sqldb');
 var Caption = sqldb.Caption;
 var Language = sqldb.Language;
-var AwsUploader = require('../../components/upload');
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
+    console.error(err);
     res.status(statusCode).send(err);
   };
 }
@@ -83,13 +84,15 @@ exports.show = function (req, res) {
 
 // Creates a new caption in the DB
 exports.create = function (req, res) {
-  AwsUploader.uploadFile(req, res, 'caption', 'tracks.afrostream.tv').then(function (data) {
-    Caption.create({
-      src: data.req.url
+  req.readFile()
+    .then(function (file) {
+      var bucket = aws.getBucket('tracks.afrostream.tv');
+      return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/caption/{date}/{rand}-'+file.name);
+    }).then(function (data) {
+      return Caption.create({ src: data.req.url })
     })
-      .then(responseWithResult(res, 201))
-      .catch(handleError(res));
-  });
+    .then(responseWithResult(res, 201))
+    .catch(handleError(res));
 };
 
 // Updates an existing caption in the DB
