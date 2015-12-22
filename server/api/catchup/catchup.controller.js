@@ -11,47 +11,17 @@ var CatchupProvider = sqldb.CatchupProvider;
 
 var request = require('request');
 var rp = require('request-promise');
-var Q = require('q');
 
-var xml2js = require('xml2js');
+var Q = require('q');
 
 var config = require('../../config/environment/index');
 
 // convert mamItem to video
 var importVideo = require('../mam/mam.import.js').importVideo;
 
-var aws = require('../../aws.js');
-
-var flatten = function (xml) {
-  var result = {};
-  var rec = function (xmlNode) {
-    Object.keys(xmlNode).forEach(function (key) {
-      var val = xmlNode[key];
-      switch (key) {
-        case 'ASSET_CODE':
-        case 'ASSET_TITLE':
-        case 'EPISODE_TITLE_FRA':
-        case 'SERIES_TITLE_FRA':
-        case 'SEASON_NUMBER':
-        case 'SERIES_RESUME':
-        case 'EPISODE_NUMBER':
-        case 'EPISODE_RESUME':
-          if (Array.isArray(val) && val.length > 0) {
-            result[key] = val[0];
-          } else {
-            result[key] = null;
-          }
-          break;
-        default:
-          if (val && typeof val === 'object')
-            rec(val);
-          break;
-      }
-    });
-  };
-  rec(xml);
-  return result;
-};
+var saveAndParseXml = require('./bet/xml').saveAndParseXml;
+var getCatchupProviderInfos = require('./bet/catchupprovider').getInfos;
+var saveCaptionsToBucket = require('./bet/aws').saveCaptionsToBucket;
 
 var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
   console.log('catchup: creating movies , seasons, episodes using infos ' + JSON.stringify(infos));
@@ -123,84 +93,6 @@ var addMovieToCatchupCategory = function (catchupProviderInfos, movie) {
         }
       });
   }
-};
-
-/**
- * save the xml content into aws s3 bucket 'tracks.afrostream.tv'
- *   in directory  {env}/catchup/xml/{mamId}-{name} where name is the end of xml filename.
- *
- * @param catchupProviderId  number
- * @param mamId              number   mam id
- * @param xmlUrl             string   url containing the xml file
- * @returns {*}              string   xml content
- */
-var saveXmlToBucket = function (catchupProviderId, mamId, xmlUrl) {
-  return rp(xmlUrl).then(function (xml) {
-    var bucket = aws.getBucket('tracks.afrostream.tv');
-    var name = url.parse(xmlUrl).pathname.split('/').pop();
-    return aws.putBufferIntoBucket(bucket, new Buffer(xml), 'text/xml', '{env}/catchup/xml/' + mamId + '-' + name)
-      .then(function (awsInfos) {
-        console.log('catchup: '+catchupProviderId+': '+mamId+': xml '+xmlUrl+' was imported to '+awsInfos.req.url);
-        return xml;
-      });
-  });
-};
-
-var saveCaptionToBucket = function (catchupProviderId, mamId, captionUrl) {
-  return rp(captionUrl).then(function (caption) {
-    var bucket = aws.getBucket('tracks.afrostream.tv');
-    var name = url.parse(captionUrl).pathname.split('/').pop();
-    return aws.putBufferIntoBucket(bucket, new Buffer(caption), 'application/octet-stream', '{env}/catchup/captions/' + mamId + '-' + name)
-      .then(function (awsInfos) {
-        console.log('catchup: '+catchupProviderId+': '+mamId+': caption '+captionUrl+' was imported to '+awsInfos.req.url);
-      });
-  });
-};
-
-var saveCaptionsToBucket = function (catchupProviderId, mamId, captionsUrls) {
-  return Q.all(captionsUrls.map(function (captionUrl) {
-    return saveCaptionToBucket(catchupProviderId, mamId, captionUrl);
-  }));
-};
-
-/**
- * parse & flatten the xml.
- *
- * @param catchupProviderId  number
- * @param mamId              number   mam id
- * @param xml                string   containing the xml.
- * @returns {*}              object   { flatten xml object }
- */
-var parseXml = function (catchupProviderId, mamId, xml) {
-  console.log('catchup: '+catchupProviderId+': '+mamId+': parsing xml = ', xml);
-  return Q.nfcall(xml2js.parseString, xml)
-    .then(function (json) {
-      console.log('catchup: '+catchupProviderId+': '+mamId+': json =' + JSON.stringify(json));
-      var flattenXml = flatten(json);
-      console.log('catchup: '+catchupProviderId+': '+mamId+': flatten = ' + JSON.stringify(flattenXml));
-      return flattenXml;
-    });
-};
-
-var saveAndParseXml = function (catchupProviderId, mamId, xmlUrl) {
-  return saveXmlToBucket(catchupProviderId, mamId, xmlUrl)
-    .then(function (xml) {
-      return parseXml(catchupProviderId, mamId, xml);
-    });
-};
-
-var getCatchupProviderInfos = function (catchupProviderId) {
-  return CatchupProvider.find({where: { _id: catchupProviderId } })
-    .then(function (catchupProvider) {
-      if (catchupProvider) {
-        return catchupProvider.dataValues;
-      } else {
-        return {
-          _id: config.catchup.bet.catchupProviderId,
-          expiration: config.catchup.bet.defaultExpiration
-        }
-      }
-    });
 };
 
 /**
