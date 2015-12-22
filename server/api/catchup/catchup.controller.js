@@ -3,6 +3,7 @@
 var url = require('url');
 
 var sqldb = require('../../sqldb');
+var Category = sqldb.Category;
 var Episode = sqldb.Episode;
 var Movie = sqldb.Movie;
 var Season = sqldb.Season;
@@ -109,23 +110,19 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
   }
 };
 
-var addMovieToCatchupCategory = function (movie) {
-  // searching providerId's category
-  movie.getCatchupProvider().then(function (catchupProvider) {
-    if (!catchupProvider) {
-      return; // nothing to do => no category.
-    }
-    return catchupProvider.getCategory();
-  }).then(function (category) {
-    if (!category) {
-      return; // nothing to do => no category.
-    }
-    // FIXME: order.
-    return category.addMovie(movie);
-  });
-
-  // FIXME
-  return movie;
+var addMovieToCatchupCategory = function (catchupProviderInfos, movie) {
+  if (catchupProviderInfos.categoryId) {
+    return Category.findById(catchupProviderInfos.categoryId)
+      .then(function (category) {
+        if (!category) {
+          console.error('catchup: missing category');
+        } else {
+          // FIXME: order.
+          console.log('catchup: attaching movie ' + movie._id + ' to catchup category ' + category._id);
+          return category.addMovie(movie);
+        }
+      });
+  }
 };
 
 /**
@@ -262,7 +259,9 @@ var bet = function (req, res) {
             // FIXME: in the future, we should add theses captions to the video.
             return createMovieSeasonEpisode(catchupProviderInfos, xmlInfos, video);
           })
-          .then(addMovieToCatchupCategory);
+          .then(function (movie) {
+            return addMovieToCatchupCategory(catchupProviderInfos, movie);
+          });
       });
     }).then(
     function success() {res.json({status:'success'}); },
