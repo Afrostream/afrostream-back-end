@@ -25,6 +25,8 @@ var saveAndParseXml = require('./bet/xml').saveAndParseXml;
 var getCatchupProviderInfos = require('./bet/catchupprovider').getInfos;
 var saveCaptionsToBucket = require('./bet/aws').saveCaptionsToBucket;
 
+var createJobPackCaptions = require('../job/job.packcaptions.js').create;
+
 var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
   console.log('catchup: creating movies , seasons, episodes using infos ' + JSON.stringify(infos));
   var episodeTitle = infos.EPISODE_TITLE_FRA || infos.EPISODE_TITLE || infos.ASSET_TITLE;
@@ -154,6 +156,7 @@ var bet = function (req, res) {
             // attach captions to video: 2 steps:
             //  - find or create caption objects
             //  - attach them to the video
+            //  - launch automaticaly afrostream-job
             return Q.all(captionsInfos.map(function (captionUrl) {
               // https://s3-eu-west-1.amazonaws.com/tracks.afrostream.tv/production/caption/2015/11/58da212180a508494f47-vimeocom140051722.en.vtt
               console.log('catchup: '+catchupProviderId+': '+mamId+': searching caption ' + captionUrl);
@@ -178,13 +181,16 @@ var bet = function (req, res) {
                       var langId = language ? language._id : 1;
                       return caption.update({langId: langId });  // langue par defaut: 1 <=> FR. (h4rdc0d3d).
                     });
-                })
+                });
             })).then(function (captions) {
               // attach captions to the video
               return Q.all(captions.map(function (caption) { return caption.update({videoId: video._id}); }))
             }).then(function () {
+              // create the job pack-captions.
+              return createJobPackCaptions(video._id);
+            }).then(function () {
               return video;
-            });
+            })
           })
           .then(function (video) {
             // FIXME: in the future, we should add theses captions to the video.

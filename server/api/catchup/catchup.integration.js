@@ -6,9 +6,13 @@ var request = require('supertest');
 
 var assert = require('better-assert');
 
+var config = require('../../config/environment');
+
 describe('API: /api/catchup/*', function() {
   var app = bootstrap.getApp();
   var staticserver;
+
+  var jobsConf =
 
   //
   // SETUP: spawning a fake static server.
@@ -23,11 +27,23 @@ describe('API: /api/catchup/*', function() {
     staticapp.get('/vtt/:filename', function (req, res) {
       res.send(fs.readFileSync(__basedir + '/tests/data/'+req.params.filename));
     });
+    staticapp.post('/jobs/*', function (req, res) {
+
+      res.json({});
+    });
     staticserver = staticapp.listen(47611, function () { done(); });
+
+    jobsConf = config.client.jobs;
+    config.client.jobs = {
+      api: 'http://localhost:47611/jobs',
+      basicAuth: {user: 'test', password: 'test'}
+    }
   });
 
   // Clear users favorite episodes after testing
   after(function () {
+    config.client.jobs = jobsConf;
+
     staticserver.close();
   });
 
