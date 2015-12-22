@@ -178,15 +178,6 @@ var authenticate = function (req, res, next) {
 var filterQueryOptions = function (req, options, rootModel) {
   assert(rootModel);
 
-  // deep clone of options, this should avoid memory leaks, do not remove
-  try {
-    options = JSON.parse(JSON.stringify(options));
-  } catch (e) {
-    // using options as default, bug logging this error
-    console.error("ERROR: filterQueryOptions: cannot clone options", e);
-    console.error(options);
-  }
-
   var isAdmin = reqUserIsAdmin(req);
   var isBacko = reqUserIsBacko(req);
 

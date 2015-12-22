@@ -8,7 +8,7 @@ var UsersFavoritesSeasons = sqldb.UsersFavoritesSeasons;
 
 var bluebird = require('bluebird');
 
-var includedModel = require('../../season/season.includedModel');
+var getIncludedModel = require('../../season/season.includedModel').get;
 
 var index = function (req, res) {
   var queryOptions = {
@@ -20,7 +20,7 @@ var index = function (req, res) {
       {
         model: Season, as: 'favoritesSeasons',
         required: false,
-        include: includedModel
+        include: getIncludedModel()
       }
     ]
   };
@@ -57,7 +57,7 @@ var add = function (req, res) {
         return handleError(res)('unknown season ' + req.body._id);
       }
       return results.user.addFavoritesSeasons(results.season).then(function () {
-        return Season.findOne({where: {_id: results.season._id}, include: includedModel});
+        return Season.findOne({where: {_id: results.season._id}, include: getIncludedModel()});
       }).then(function (result) {
         res.json(result);
       });

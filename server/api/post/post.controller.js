@@ -16,9 +16,11 @@ var Image = sqldb.Image;
 var auth = require('../../auth/auth.service');
 var utils = require('../utils.js');
 
-var includedModel = [
-  {model: Image, as: 'poster'} // load poster image
-];
+var getIncludedModel = function () {
+  return [
+    {model: Image, as: 'poster'} // load poster image
+  ];
+};
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -85,7 +87,7 @@ exports.index = function (req, res) {
   var queryName = req.param('query'); // deprecated.
   var slug = req.query.slug;
   var queryOptions = {
-    include: includedModel
+    include: getIncludedModel()
   };
 
   // pagination
@@ -122,7 +124,7 @@ exports.show = function (req, res) {
     where: {
       _id: req.params.id
     },
-    include: includedModel
+    include: getIncludedModel()
   };
 
   queryOptions = auth.filterQueryOptions(req, queryOptions, Post);

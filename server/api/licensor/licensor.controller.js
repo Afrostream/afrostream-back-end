@@ -16,9 +16,11 @@ var Licensor = sqldb.Licensor;
 
 var utils = require('../utils.js');
 
-var includedModel = [
-  {model: Movie, as: 'movies'} // load all movies
-];
+var getIncludedModel = function () {
+  return [
+    {model: Movie, as: 'movies'} // load all movies
+  ];
+};
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -80,7 +82,7 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
-    include: includedModel
+    include: getIncludedModel()
   };
 
   // pagination
@@ -105,7 +107,7 @@ exports.show = function (req, res) {
     where: {
       _id: req.params.id
     },
-    include: includedModel
+    include: getIncludedModel()
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))

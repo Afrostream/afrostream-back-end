@@ -8,7 +8,7 @@ var UsersFavoritesMovies = sqldb.UsersFavoritesMovies;
 
 var bluebird = require('bluebird');
 
-var includedModel = require('../../movie/movie.includedModel');
+var getIncludedModel = require('../../movie/movie.includedModel').get;
 
 var index = function (req, res) {
   var queryOptions = {
@@ -20,7 +20,7 @@ var index = function (req, res) {
       {
         model: Movie, as: 'favoritesMovies',
         required: false,
-        include: includedModel
+        include: getIncludedModel()
       }
     ]
   };
@@ -57,7 +57,7 @@ var add = function (req, res) {
         return handleError(res)('unknown movie ' + req.body._id);
       }
       return results.user.addFavoritesMovies(results.movie).then(function () {
-        return Movie.findOne({where: {_id: results.movie._id}, include: includedModel});
+        return Movie.findOne({where: {_id: results.movie._id}, include: getIncludedModel()});
       }).then(function (result) {
         res.json(result);
       });

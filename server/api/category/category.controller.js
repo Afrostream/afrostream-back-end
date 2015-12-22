@@ -22,15 +22,17 @@ var auth = require('../../auth/auth.service');
 
 var utils = require('../utils.js');
 
-var includedModel = [
-  {
-    model: Movie, as: 'movies',
-    order: [['sort', 'ASC']]
-  }, {
-    model: Movie, as: 'adSpots',
-    order: [['sort', 'ASC']]
-  } // load all adSpots
-];
+var getIncludedModel = function () {
+  return [
+    {
+      model: Movie, as: 'movies',
+      order: [['sort', 'ASC']]
+    }, {
+      model: Movie, as: 'adSpots',
+      order: [['sort', 'ASC']]
+    } // load all adSpots
+  ];
+};
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -355,7 +357,7 @@ exports.update = function (req, res) {
       where: {
         _id: req.params.id
       },
-      include: includedModel
+      include: getIncludedModel()
     })
       .then(handleEntityNotFound(res))
       // le READ ONLY ne peut pas s'appliquer ni a active / inactive
@@ -376,7 +378,7 @@ exports.update = function (req, res) {
       where: {
         _id: req.params.id
       },
-      include: includedModel
+      include: getIncludedModel()
     })
       .then(handleEntityNotFound(res))
       .then(saveUpdates(req.body))

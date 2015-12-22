@@ -17,9 +17,11 @@ var auth = require('../../auth/auth.service');
 
 var utils = require('../utils.js');
 
-var includedModel = [
-  {model: Image, as: 'picture'}
-];
+function getIncludedModel() {
+  return [
+    {model: Image, as: 'picture'}
+  ];
+}
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -111,7 +113,7 @@ exports.show = function (req, res) {
     where: {
       _id: req.params.id
     },
-    include: includedModel
+    include: getIncludedModel()
   };
   //
   queryOptions = auth.filterQueryOptions(req, queryOptions, Actor);
@@ -139,7 +141,7 @@ exports.update = function (req, res) {
     where: {
       _id: req.params.id
     },
-    include: includedModel
+    include: getIncludedModel()
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))

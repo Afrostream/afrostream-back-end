@@ -20,7 +20,7 @@ var auth = require('../../auth/auth.service');
 
 var utils = require('../utils.js');
 
-var includedModel = require('./episode.includedModel');
+var getIncludedModel = require('./episode.includedModel').get;
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -107,7 +107,7 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var queryOptions = {
-    include: includedModel
+    include: getIncludedModel()
   };
 
   // pagination
@@ -135,7 +135,7 @@ exports.show = function (req, res) {
     where: {
       _id: req.params.id
     },
-    include: includedModel
+    include: getIncludedModel()
   };
 
   queryOptions = auth.filterQueryOptions(req, queryOptions, Episode);
@@ -175,7 +175,7 @@ exports.update = function (req, res) {
     where: {
       _id: req.params.id
     },
-    include: includedModel
+    include: getIncludedModel()
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
@@ -188,7 +188,7 @@ exports.update = function (req, res) {
 // Updates an existing episode in the DB
 exports.algolia = function (req, res) {
   Episode.findAll({
-    include: includedModel,
+    include: getIncludedModel(),
     where: {
       active: true
     }

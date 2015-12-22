@@ -30,12 +30,14 @@ var utils = require('../utils.js');
 var getClientIp = require('../../auth/geo').getClientIp;
 var cdnselector = require('../../cdnselector');
 
-var includedModel = [
-  {model: Movie, as: 'movie'}, // load all sources assets
-  {model: Episode, as: 'episode'}, // load all sources assets
-  {model: Asset, as: 'sources'}, // load all sources assets
-  {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]} // load all sources captions
-];
+var getIncludedModel = function () {
+  return [
+    {model: Movie, as: 'movie'}, // load all sources assets
+    {model: Episode, as: 'episode'}, // load all sources assets
+    {model: Asset, as: 'sources'}, // load all sources assets
+    {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]} // load all sources captions
+  ];
+};
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -160,7 +162,7 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   var queryName = req.param('query');
   var paramsObj = {
-    include: includedModel,
+    include: getIncludedModel(),
     order: [ ['name'] ]
   };
 
