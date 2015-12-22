@@ -35,6 +35,7 @@ var saveCaptionToBucket = function (catchupProviderId, mamId, captionUrl) {
     return aws.putBufferIntoBucket(bucket, new Buffer(caption), 'application/octet-stream', '{env}/catchup/captions/' + mamId + '-' + name)
       .then(function (awsInfos) {
         console.log('catchup: '+catchupProviderId+': '+mamId+': caption '+captionUrl+' was imported to '+awsInfos.req.url);
+        return awsInfos.req.url;
       });
   });
 };

@@ -7,6 +7,8 @@ var Category = sqldb.Category;
 var Episode = sqldb.Episode;
 var Movie = sqldb.Movie;
 var Season = sqldb.Season;
+var Language = sqldb.Language;
+var Caption = sqldb.Caption;
 var CatchupProvider = sqldb.CatchupProvider;
 
 var request = require('request');
@@ -111,6 +113,7 @@ var addMovieToCatchupCategory = function (catchupProviderInfos, movie) {
  *  captions download => captions upsert      =>
  *                                               video creation => movie/episode/season creation
  *
+ *  FIXME: needs a big refactoring.
  */
 var bet = function (req, res) {
   Q()
@@ -146,6 +149,42 @@ var bet = function (req, res) {
             }
             console.log('catchup: '+catchupProviderId+': '+mamId+': video._id =' + video._id);
             return video.update({catchupProviderId: catchupProviderInfos._id});
+          })
+          .then(function (video) {
+            // attach captions to video: 2 steps:
+            //  - find or create caption objects
+            //  - attach them to the video
+            return Q.all(captionsInfos.map(function (captionUrl) {
+              // https://s3-eu-west-1.amazonaws.com/tracks.afrostream.tv/production/caption/2015/11/58da212180a508494f47-vimeocom140051722.en.vtt
+              console.log('catchup: '+catchupProviderId+': '+mamId+': searching caption ' + captionUrl);
+              return Caption.findOrCreate({where: {src: captionUrl, videoId: video._id}})
+                .then(function (captionInfos) {
+                  var caption = captionInfos[0]
+                  console.log('catchup: '+catchupProviderId+': '+mamId+': attaching caption ' + captionUrl + ' id='+ caption._id + ' to video ' + video._id);
+                  var matches = captionUrl.match(/\.([^.]+)\.vtt/);
+                  var lang = (matches && matches.length > 1) ? matches[1].toLowerCase() : '??';
+
+                  console.log('catchup: '+catchupProviderId+': '+mamId+': caption ' + captionUrl + ' lang='+lang);
+                  return Language.findOne({where: { lang: lang } })
+                    .then(function (language) {
+                      var langId;
+
+                      if (language) {
+                        console.log('catchup: '+catchupProviderId+': '+mamId+': caption ' + captionUrl + ' has langId ' + language._id);
+                        langId = language._id;
+                      } else {
+                        console.log('catchup: '+catchupProviderId+': '+mamId+': caption ' + captionUrl + ' no langId found');
+                        langId = 1;
+                      }
+                      return caption.update({langId: langId });  // langue par defaut: 1 <=> FR. (h4rdc0d3d).
+                    });
+                })
+            })).then(function (captions) {
+              // attach captions to the video
+              return Q.all(captions.map(function (caption) { return caption.update({videoId: video._id}); }))
+            }).then(function () {
+              return video;
+            });
           })
           .then(function (video) {
             // FIXME: in the future, we should add theses captions to the video.
