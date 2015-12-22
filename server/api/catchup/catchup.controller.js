@@ -63,7 +63,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
         movie.update({ dateFrom: dateFrom, dateTo: dateTo })
       ]);
     }).spread(function (episode, season, movie) {
-      console.log('catchup: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id);
+      console.log('catchup: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id + ' video ' + video._id);
       // set Video in Episode
       return Q.all([
         episode.setVideo(video),
@@ -76,7 +76,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
       where: { catchupProviderId: catchupProviderInfos._id, title: seriesTitle}, defaults: { synopsis: seriesResume, type: 'movie', active: true }
     }).then(function (movieInfos) {
       var movie = movieInfos[0];
-      console.log('catchup: movie ' + movie._id);
+      console.log('catchup: movie ' + movie._id + ' video ' + video._id);
       return movie.setVideo(video).then(function () { return movie; });
     })
   }
@@ -167,15 +167,15 @@ var bet = function (req, res) {
                   console.log('catchup: '+catchupProviderId+': '+mamId+': caption ' + captionUrl + ' lang='+lang);
                   return Language.findOne({where: { lang: lang } })
                     .then(function (language) {
-                      var langId;
-
                       if (language) {
-                        console.log('catchup: '+catchupProviderId+': '+mamId+': caption ' + captionUrl + ' has langId ' + language._id);
-                        langId = language._id;
+                        console.log('catchup: ' + catchupProviderId + ': ' + mamId + ': caption ' + captionUrl + ' has langId ' + language._id);
+                        return language;
                       } else {
-                        console.log('catchup: '+catchupProviderId+': '+mamId+': caption ' + captionUrl + ' no langId found');
-                        langId = 1;
+                        console.log('catchup: '+catchupProviderId+': '+mamId+': caption ' + captionUrl + ' no langId found, searching "fr"');
+                        return Language.findOne({where: { lang: "fr" } });
                       }
+                    }).then(function (language) {
+                      var langId = language ? language._id : 1;
                       return caption.update({langId: langId });  // langue par defaut: 1 <=> FR. (h4rdc0d3d).
                     });
                 })
