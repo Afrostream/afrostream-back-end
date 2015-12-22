@@ -41,7 +41,7 @@ describe('API: /api/catchup/*', function() {
         .send({
           sharedSecret: "62b8557f248035275f6f8219fed7e9703d59509c",
           xml: 'http://localhost:47611/fake.xml',
-          captions: [ 'http://localhost:47611/vtt/test-001.vtt', 'http://localhost:47611/vtt/test-002.vtt' ],
+          captions: [ 'http://localhost:47611/vtt/test-001.fr.vtt', 'http://localhost:47611/vtt/test-002.en.vtt' ],
           mamId: 1316 // big
         })
         .expect('Content-Type', /json/)
