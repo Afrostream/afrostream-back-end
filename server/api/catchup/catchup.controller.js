@@ -65,26 +65,31 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
 
     return Q.all([
       Episode.findOrCreate({
-        where: { catchupProviderId: catchupProviderInfos._id, episodeNumber: episodeNumber, title: episodeTitle }, defaults: { synopsis: episodeResume, active: true }
+        where: { catchupProviderId: catchupProviderInfos._id, episodeNumber: episodeNumber, title: episodeTitle },
+        defaults: { synopsis: episodeResume, active: true }
       }),
       Season.findOrCreate({
-        where: { catchupProviderId: catchupProviderInfos._id, seasonNumber: seasonNumber, title: seriesTitle }, defaults: { synopsis: seriesResume, active: true }
+        where: { catchupProviderId: catchupProviderInfos._id, seasonNumber: seasonNumber, title: seriesTitle },
+        defaults: { synopsis: seriesResume, active: true }
       }),
       Movie.findOrCreate({
         where: { catchupProviderId: catchupProviderInfos._id, title: seriesTitle},
-        defaults: {
-          synopsis: seriesResume,
-          type: 'serie',
-          dateFrom: new Date(),
-          dateTo: new Date(new Date().getTime() + 1000 * catchupProviderInfos.expiration),
-          active: true
-        }
+        defaults: { synopsis: seriesResume, type: 'serie', active: true }
       })
     ]).spread(function (episodeInfos, seasonInfos, movieInfos) {
       var episode = episodeInfos[0]
         , season = seasonInfos[0]
         , movie = movieInfos[0];
-      //
+
+      var dateFrom = new Date()
+        , dateTo = new Date(new Date().getTime() + 1000 * catchupProviderInfos.expiration);
+
+      return Q.all([
+        episode.update({ dateFrom: dateFrom, dateTo: dateTo }),
+        season.update({ dateFrom: dateFrom, dateTo: dateTo }),
+        movie.update({ dateFrom: dateFrom, dateTo: dateTo })
+      ]);
+    }).spread(function (episode, season, movie) {
       console.log('catchup: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id);
       // set Video in Episode
       return Q.all([
