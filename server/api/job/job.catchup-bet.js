@@ -5,7 +5,7 @@ var Q = require('q');
 var createJob = require('./job.generic.js').create;
 
 /**
- * default job configuration : 10 attempts, backoff of 5 min
+ * default job configuration : 18 attempts, backoff of 10 min (~= 3h of retry)
  * @param data object { xml: ..., mamId: ..., caption: [ string, string ] }
  * @return Promise
  */
@@ -14,9 +14,9 @@ var create = function (data) {
     'catchup-bet',
     data,
     {
-      attempts:10,
+      attempts: 18, // 3h
       backoff: {
-        delay: 5 * 60 * 1000, // 5 min
+        delay: 10 * 60 * 1000, // 10 min
         type: 'fixed'
       }
     }
