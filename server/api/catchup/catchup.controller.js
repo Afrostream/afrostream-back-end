@@ -31,8 +31,8 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
   console.log('catchup: creating movies , seasons, episodes using infos ' + JSON.stringify(infos));
   var episodeTitle = infos.EPISODE_TITLE_FRA || infos.EPISODE_TITLE || infos.ASSET_TITLE;
   var episodeResume = infos.EPISODE_RESUME || '';
-  var seriesTitle = infos.SERIES_TITLE_FRA || 'Unknown';
-  var seriesResume = infos.SERIES_RESUME || '';
+  var seriesTitle = infos.SERIES_TITLE_FRA || episodeTitle || 'Unknown';
+  var seriesResume = infos.SERIES_RESUME || episodeResume;
 
   var dateFrom = new Date()
     , dateTo = new Date(new Date().getTime() + 1000 * catchupProviderInfos.expiration);
