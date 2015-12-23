@@ -109,6 +109,7 @@ db.Season.belongsTo(db.CatchupProvider, {as: 'catchupProvider', foreignKey: 'cat
 db.Movie.belongsTo(db.CatchupProvider, {as: 'catchupProvider', foreignKey: 'catchupProviderId', constraints: false});
 
 db.CatchupProvider.belongsTo(db.Category, {as: 'category', foreignKey: 'categoryId', constraints: false});
+db.CatchupProvider.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId', constraints: false});
 
 ///// HELPERS FUNCTIONS /////
 var _ = require('lodash');
