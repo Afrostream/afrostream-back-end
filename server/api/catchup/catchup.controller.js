@@ -34,6 +34,9 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
   var seriesTitle = infos.SERIES_TITLE_FRA || 'Unknown';
   var seriesResume = infos.SERIES_RESUME || '';
 
+  var dateFrom = new Date()
+    , dateTo = new Date(new Date().getTime() + 1000 * catchupProviderInfos.expiration);
+
   if (parseInt(infos.EPISODE_NUMBER, 10) && parseInt(infos.SEASON_NUMBER, 10)) {
     var episodeNumber = parseInt(infos.EPISODE_NUMBER, 10) || 1;
     var seasonNumber = parseInt(infos.SEASON_NUMBER, 10) || 1;
@@ -55,9 +58,6 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
       var episode = episodeInfos[0]
         , season = seasonInfos[0]
         , movie = movieInfos[0];
-
-      var dateFrom = new Date()
-        , dateTo = new Date(new Date().getTime() + 1000 * catchupProviderInfos.expiration);
 
       return Q.all([
         episode.update({ dateFrom: dateFrom, dateTo: dateTo }),
@@ -81,8 +81,10 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
       var movie = movieInfos[0];
       console.log('catchup: database: movie ' + movie._id + ' video ' + video._id + ' ' +
                   'movie [' + seriesTitle + ']');
+      return movie.update({dateFrom: dateFrom, dateTo: dateTo });
+    }).then(function (movie) {
       return movie.setVideo(video).then(function () { return movie; });
-    })
+    });
   }
 };
 
