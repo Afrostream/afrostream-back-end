@@ -49,3 +49,39 @@ you will end in :
  !     Timed out compiling Node.js app (15 minutes)
  !     See https://devcenter.heroku.com/articles/slug-compiler#time-limit
 on the npm install.
+
+
+## Catchup
+
+PlateformVideo -> backend
+```
+POST /api/jobs/catchup-bet/
+{
+  sharedSecret: "...",
+  xml: "...",
+  mamId: 4242
+  caption: [ "http://.../...fr.vtt", "http://.../...en.vtt" ]
+}
+```
+backend -> afrostream-jobs
+```
+POST /api/job
+{
+  FIXME
+}
+```
+afrostream-jobs -> backend
+```
+POST /api/catchup/bet
+{
+  sharedSecret: "...",
+  xml: "...",
+  mamId: 4242
+  caption: [ "http://.../...fr.vtt", "http://.../...en.vtt" ]
+}
+```
+
+test the catchup api using curl :
+```
+curl -v -X POST --header "Content-Type: application/json" --header "Authorization: Basic ZGV2OmRldg==" --data '{"sharedSecret":"62b8557f248035275f6f8219fed7e9703d59509c","xml":"http://localhost:47611/fake.xml","mamId":1316}' http://localhost:9000/api/jobs/catchup-bet
+```

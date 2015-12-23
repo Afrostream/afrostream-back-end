@@ -65,7 +65,8 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
         movie.update({ dateFrom: dateFrom, dateTo: dateTo })
       ]);
     }).spread(function (episode, season, movie) {
-      console.log('catchup: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id + ' video ' + video._id);
+      console.log('catchup: database: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id + ' video ' + video._id + ' ' +
+                  'episode '+episodeNumber+' [' + episodeTitle + '] season '+seasonNumber+' [' + seriesTitle + ']');
       // set Video in Episode
       return Q.all([
         episode.setVideo(video),
@@ -78,7 +79,8 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
       where: { catchupProviderId: catchupProviderInfos._id, title: seriesTitle}, defaults: { synopsis: seriesResume, type: 'movie', active: true }
     }).then(function (movieInfos) {
       var movie = movieInfos[0];
-      console.log('catchup: movie ' + movie._id + ' video ' + video._id);
+      console.log('catchup: database: movie ' + movie._id + ' video ' + video._id + ' ' +
+                  'movie [' + seriesTitle + ']');
       return movie.setVideo(video).then(function () { return movie; });
     })
   }

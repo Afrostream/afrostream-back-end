@@ -50,7 +50,7 @@ function create(type, data, options, callback) {
       if (response.statusCode !== 200) {
         throw "status="+response.statusCode+", body="+body;
       }
-      return result;
+      return body;
     })
     .then(function success(result) { console.log('JOBS: create: OK', result[1]); return result; },
           function error(err) { console.error('JOBS: create: error=', err); throw err; });
