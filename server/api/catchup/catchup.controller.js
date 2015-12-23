@@ -9,6 +9,7 @@ var Movie = sqldb.Movie;
 var Season = sqldb.Season;
 var Language = sqldb.Language;
 var Caption = sqldb.Caption;
+var Licensor = sqldb.Licensor;
 var CatchupProvider = sqldb.CatchupProvider;
 
 var request = require('request');
@@ -100,7 +101,24 @@ var addMovieToCatchupCategory = function (catchupProviderInfos, movie) {
           console.log('catchup: attaching movie ' + movie._id + ' to catchup category ' + category._id);
           return category.addMovie(movie);
         }
-      });
+      })
+      .then(function () { return movie; });
+  }
+};
+
+var linkMovieToLicensor = function (catchupProviderInfos, movie) {
+  if (catchupProviderInfos.licensorId) {
+    return Licensor.findById(catchupProviderInfos.licensorId)
+      .then(function (licensor) {
+        if (!licensor) {
+          console.error('catchup: missing licensor');
+        } else {
+          // FIXME: order.
+          console.log('catchup: attaching movie ' + movie._id + ' to licensor ' + licensor._id);
+          return movie.update({licensorId: licensor._id});
+        }
+      })
+      .then(function () { return movie; });
   }
 };
 
@@ -203,6 +221,9 @@ var bet = function (req, res) {
           })
           .then(function (movie) {
             return addMovieToCatchupCategory(catchupProviderInfos, movie);
+          })
+          .then(function (movie) {
+            return linkMovieToLicensor(catchupProviderInfos, movie);
           });
       });
     }).then(
