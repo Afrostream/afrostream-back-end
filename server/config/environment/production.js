@@ -45,7 +45,7 @@ module.exports = {
   client: {
     jobs: {
       api: 'https://afrostream-jobs.herokuapp.com/api',
-      basicAuth: {user: 'afrostream', password: 'r4nd0mT0k3n'}
+      basicAuth: {user: 'afrostream', password: 'r4nd0mT0k3n', header: 'Authorization: Basic YWZyb3N0cmVhbTpyNG5kMG1UMGszbg=='}
     }
   },
 

@@ -31,7 +31,7 @@ module.exports = {
   client: {
     jobs: {
       api: 'http://localhost:12000/api',
-      basicAuth: {user: 'dev', password: 'dev'}
+      basicAuth: {user: 'dev', password: 'dev', header: 'Authorization: Basic ZGV2OmRldg=='}
     }
   },
 
