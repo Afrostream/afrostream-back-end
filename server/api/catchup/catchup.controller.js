@@ -34,7 +34,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
   var seriesTitle = infos.SERIES_TITLE_FRA || 'Unknown';
   var seriesResume = infos.SERIES_RESUME || '';
 
-  if (parseInt(infos.EPISODE_NUMBER, 10) || parseInt(infos.SEASON_NUMBER, 10)) {
+  if (parseInt(infos.EPISODE_NUMBER, 10) && parseInt(infos.SEASON_NUMBER, 10)) {
     var episodeNumber = parseInt(infos.EPISODE_NUMBER, 10) || 1;
     var seasonNumber = parseInt(infos.SEASON_NUMBER, 10) || 1;
 
