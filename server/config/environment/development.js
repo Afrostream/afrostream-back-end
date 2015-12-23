@@ -49,7 +49,8 @@ module.exports = {
     bet: {
       catchupProviderId: 1,
       defaultCategoryId: 3000000,
-      defaultExpiration: 1209600
+      defaultExpiration: 1209600,
+      defaultLicensorId: null
     }
   },
 
