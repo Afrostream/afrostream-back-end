@@ -28,12 +28,16 @@ var saveCaptionsToBucket = require('./bet/aws').saveCaptionsToBucket;
 
 var createJobPackCaptions = require('../job/job.packcaptions.js').create;
 
+var slugify = require('slugify');
+
 var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
   console.log('catchup: creating movies , seasons, episodes using infos ' + JSON.stringify(infos));
   var episodeTitle = infos.EPISODE_TITLE_FRA || infos.EPISODE_TITLE || infos.ASSET_TITLE;
+  var episodeSlug = slugify(episodeTitle);
   var episodeResume = infos.EPISODE_RESUME || '';
   var seriesTitle = infos.SERIES_TITLE_FRA || episodeTitle || 'Unknown';
   var seriesResume = infos.SERIES_RESUME || episodeResume;
+  var seriesSlug = slugify(seriesTitle);
 
   var dateFrom = new Date()
     , dateTo = new Date(new Date().getTime() + 1000 * catchupProviderInfos.expiration);
@@ -61,9 +65,9 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
         , movie = movieInfos[0];
 
       return Q.all([
-        episode.update({ synopsis: episodeResume, dateFrom: dateFrom, dateTo: dateTo  }),
-        season.update({ synopsis: seriesResume, dateFrom: dateFrom, dateTo: dateTo }),
-        movie.update({ synopsis: seriesResume, type: 'serie', dateFrom: dateFrom, dateTo: dateTo })
+        episode.update({ synopsis: episodeResume, slug: episodeSlug, dateFrom: dateFrom, dateTo: dateTo  }),
+        season.update({ synopsis: seriesResume, slug: seriesSlug, dateFrom: dateFrom, dateTo: dateTo }),
+        movie.update({ synopsis: seriesResume, slug: seriesSlug, type: 'serie', dateFrom: dateFrom, dateTo: dateTo })
       ]);
     }).spread(function (episode, season, movie) {
       console.log('catchup: database: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id + ' video ' + video._id + ' ' +
@@ -83,7 +87,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
       var movie = movieInfos[0];
       console.log('catchup: database: movie ' + movie._id + ' video ' + video._id + ' ' +
                   'movie [' + seriesTitle + ']');
-      return movie.update({ synopsis: seriesResume, type: 'movie', dateFrom: dateFrom, dateTo: dateTo });
+      return movie.update({ synopsis: seriesResume, slug: seriesSlug, type: 'movie', dateFrom: dateFrom, dateTo: dateTo });
     }).then(function (movie) {
       return movie.setVideo(video).then(function () { return movie; });
     });
