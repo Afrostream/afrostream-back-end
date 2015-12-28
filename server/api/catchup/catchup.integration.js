@@ -50,7 +50,7 @@ describe('API: /api/catchup/*', function() {
   describe('POST /api/catchup/bet', function() {
     it('should respond 200 OK with status=success', function(done) {
       // le temps d'uploader...
-      this.timeout(5000);
+      this.timeout(10000);
       //
       request(app)
         .post('/api/catchup/bet')
