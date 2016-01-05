@@ -50,11 +50,11 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
     return Q.all([
       Episode.findOrCreate({
         where: { catchupProviderId: catchupProviderInfos._id, episodeNumber: episodeNumber, title: episodeTitle },
-        defaults: { synopsis: episodeResume, active: true }
+        defaults: { synopsis: episodeResume, sort: episodeNumber, active: true }
       }),
       Season.findOrCreate({
         where: { catchupProviderId: catchupProviderInfos._id, seasonNumber: seasonNumber, title: seriesTitle },
-        defaults: { synopsis: seriesResume, active: true }
+        defaults: { synopsis: seriesResume, sort: seasonNumber, active: true }
       }),
       Movie.findOrCreate({
         where: { catchupProviderId: catchupProviderInfos._id, title: seriesTitle},
