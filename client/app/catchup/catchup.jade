@@ -32,7 +32,6 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                                 td.text-center(ng-style="item.expired && {'background-color':'green'} || {'background-color': 'orange'}")
                                     div Import : {{item.dateFrom| date : "yyyy/MM/dd"}}
                                     div Expire : {{item.dateTo| date : "yyyy/MM/dd"}}
-
                                 td
                                     .thumbnail
                                         img.poster.img-responsive(src='{{item.genericThumb.imgix}}?fit=crop&w=200&h=160')
@@ -142,4 +141,31 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                                             i.fa(ng-class='item.active ? "fa-toggle-on": "fa-toggle-off"')
                                 td.pull-right
                                     button.btn.btn-xs.btn-primary(ng-click='editIndex(item, "episode")' tooltip='Edit' )
+                                        span.glyphicon.glyphicon-pencil
+
+                    h3 Last Imported Videos (BET)
+                    table.table
+                        colgroup
+                            col.col-md-1
+                            col.col-md-7
+                            col.col-md-1
+                            col.col-md-1
+                        thead
+                            tr
+                                th.text-center ID
+                                th.text-center Title
+                                th.text-center In prod
+                                th.text-center Actions
+                        tbody
+                            tr(ng-repeat='item in videos | DataFormater')
+                                td.text-center
+                                    span {{item._id}}
+                                td.text-center
+                                    strong {{item.name}}
+                                td.text-center
+                                    button.btn.btn-xs.btn-default(ng-click='activateIndex(item, "video")' tooltip='{{item.active ? "remove from prod" : "push in prod"}}' )
+                                        span(ng-class='item.active ? "text-success":"text-danger"')
+                                            i.fa(ng-class='item.active ? "fa-toggle-on": "fa-toggle-off"')
+                                td.pull-right
+                                    button.btn.btn-xs.btn-primary(ng-click='editIndex(item, "video")' tooltip='Edit' )
                                         span.glyphicon.glyphicon-pencil

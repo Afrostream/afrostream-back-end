@@ -10,6 +10,7 @@ var Season = sqldb.Season;
 var Language = sqldb.Language;
 var Caption = sqldb.Caption;
 var Licensor = sqldb.Licensor;
+var Video = sqldb.Video;
 var CatchupProvider = sqldb.CatchupProvider;
 
 var request = require('request');
@@ -296,7 +297,24 @@ var betEpisodes = function (req, res, next) {
     });
 };
 
+var betVideos = function (req, res, next) {
+  var catchupProviderId = config.catchup.bet.catchupProviderId;
+
+  Video.findAll({
+    where: {catchupProviderId: catchupProviderId},
+    order: [ [ '_id', 'desc' ] ]
+  })
+    .then(function (videos) {
+      res.json(videos);
+    })
+    .catch(function (err) {
+      console.error('error: ', err);
+      res.status(500).send('');
+    });
+};
+
 module.exports.bet = bet;
 module.exports.betMovies = betMovies;
 module.exports.betSeasons = betSeasons;
 module.exports.betEpisodes = betEpisodes;
+module.exports.betVideos = betVideos;

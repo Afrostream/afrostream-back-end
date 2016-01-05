@@ -5,6 +5,7 @@ angular.module('afrostreamAdminApp')
     $scope.movies = [];
     $scope.seasons = [];
     $scope.episodes = [];
+    $scope.videos = [];
 
     $scope.activateIndex = function (item, type) {
       // hacky..
@@ -53,6 +54,9 @@ angular.module('afrostreamAdminApp')
           o.expired = new Date(o.dateFrom) < new Date() && new Date(o.dateTo) > new Date();
           return o;
         });
+      });
+      $http.get('/api/catchup/bet/videos').then(function (result) {
+        $scope.videos = result.data;
       });
     };
 
