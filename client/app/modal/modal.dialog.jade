@@ -9,40 +9,40 @@ script(type='text/ng-template' id='imagesTemplate.html')
 .modal-body
   form(role='form')
 
-    div(ng-if='type === "category"')
+    div(ng-if='modalType === "category"')
       categorys
 
-    div(ng-if='type === "video"')
+    div(ng-if='modalType === "video"')
       videos
 
-    div(ng-if='type === "language"')
+    div(ng-if='modalType === "language"')
       languages
 
-    div(ng-if='type === "image"')
+    div(ng-if='modalType === "image"')
       images
 
-    div(ng-if='type === "licensor"')
+    div(ng-if='modalType === "licensor"')
       licensors
 
-    div(ng-if='type === "client"')
+    div(ng-if='modalType === "client"')
       clients
 
-    div(ng-if='type === "subscription"')
+    div(ng-if='modalType === "subscription"')
       subscriptions
 
-    div(ng-if='type === "plan"')
+    div(ng-if='modalType === "plan"')
       plans
 
-    div(ng-if='type === "user"')
+    div(ng-if='modalType === "user"')
       users
 
-    div(ng-if='type === "actor"')
+    div(ng-if='modalType === "actor"')
       actors
 
-    div(ng-if='type === "post"')
+    div(ng-if='modalType === "post"')
       posts
 
-    div(ng-if='type !== "category" && type !== "video" && type !== "language" && type !== "image" && type !== "licensor" && type !== "client" && type !== "subscription" && type !== "plan" && type !== "user" && type !== "actor" && type !== "post"')
+    div(ng-if='modalType !== "category" && modalType !== "video" && modalType !== "language" && modalType !== "image" && modalType !== "licensor" && modalType !== "client" && modalType !== "subscription" && modalType !== "plan" && modalType !== "user" && modalType !== "actor" && modalType !== "post"')
       .form-group
         label(for='type').control-label Type
       .form-group

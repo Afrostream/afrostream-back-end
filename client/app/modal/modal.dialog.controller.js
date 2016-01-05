@@ -11,6 +11,8 @@ angular.module('afrostreamAdminApp')
       return item;
     }
 
+    $scope.modalType = type;
+
     $scope.modalHooks = {};
 
     var getTitle = function (item) {
