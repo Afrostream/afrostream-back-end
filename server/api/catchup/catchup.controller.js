@@ -302,7 +302,7 @@ var betVideos = function (req, res, next) {
 
   Video.findAll({
     where: {catchupProviderId: catchupProviderId},
-    order: [ [ '_id', 'desc' ] ]
+    order: [ [ 'name', 'asc' ] ]
   })
     .then(function (videos) {
       res.json(videos);
