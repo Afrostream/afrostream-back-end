@@ -15,12 +15,14 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                             col.col-md-7
                             col.col-md-1
                             col.col-md-1
+                            col.col-md-1
                         thead
                             tr
                                 th.text-center ID
                                 th.text-center Dates
                                 th.text-center Thumb
                                 th.text-center Title
+                                th.text-center Type
                                 th.text-center In prod
                                 th.text-center Actions
                         tbody
@@ -39,6 +41,8 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                                     br
                                     span.text-muted {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
                                 td.text-center
+                                    strong {{item.type}}
+                                td.text-center
                                     button.btn.btn-xs.btn-default(ng-click='activateIndex(item, "movie")' tooltip='{{item.active ? "remove from prod" : "push in prod"}}' )
                                         span(ng-class='item.active ? "text-success":"text-danger"')
                                             i.fa(ng-class='item.active ? "fa-toggle-on": "fa-toggle-off"')
@@ -55,12 +59,14 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                             col.col-md-7
                             col.col-md-1
                             col.col-md-1
+                            col.col-md-1
                         thead
                             tr
                                 th.text-center ID
                                 th.text-center Dates
                                 th.text-center Thumb
                                 th.text-center Title
+                                th.text-center Season Number
                                 th.text-center In prod
                                 th.text-center Actions
                         tbody
@@ -78,6 +84,8 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                                     br
                                     span.text-muted {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
                                 td.text-center
+                                    strong {{item.seasonNumber}}
+                                td.text-center
                                     button.btn.btn-xs.btn-default(ng-click='activateIndex(item, "season")' tooltip='{{item.active ? "remove from prod" : "push in prod"}}' )
                                         span(ng-class='item.active ? "text-success":"text-danger"')
                                             i.fa(ng-class='item.active ? "fa-toggle-on": "fa-toggle-off"')
@@ -93,6 +101,9 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                             col.col-md-2
                             col.col-md-7
                             col.col-md-1
+                            col.col-md-2
+                            col.col-md-1
+                            col.col-md-1
                             col.col-md-1
                         thead
                             tr
@@ -100,6 +111,9 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                                 th.text-center Dates
                                 th.text-center Thumb
                                 th.text-center Title
+                                th.text-center Episode Number
+                                th.text-center Season
+                                th.text-center Season Number
                                 th.text-center In prod
                                 th.text-center Actions
                         tbody
@@ -116,6 +130,12 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                                     strong {{item.genericTitle}}
                                     br
                                     span.text-muted {{item.synopsis | limitTo:100}}{{item.synopsis.length > 100 ? '...' : ''}}
+                                td.text-center
+                                    strong {{item.episodeNumber}}
+                                td.text-center
+                                    strong {{item.season.title}}
+                                td.text-center
+                                    strong {{item.season.seasonNumber}}
                                 td.text-center
                                     button.btn.btn-xs.btn-default(ng-click='activateIndex(item, "episode")' tooltip='{{item.active ? "remove from prod" : "push in prod"}}' )
                                         span(ng-class='item.active ? "text-success":"text-danger"')
