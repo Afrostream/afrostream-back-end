@@ -238,4 +238,65 @@ var bet = function (req, res) {
   );
 };
 
+
+var betMovies = function (req, res, next) {
+  var catchupProviderId = config.catchup.bet.catchupProviderId;
+
+  var getIncludedModel = require('../movie/movie.includedModel').get;
+
+  Movie.findAll({
+    where: {catchupProviderId: catchupProviderId},
+    include: getIncludedModel(),
+    order: [ [ 'dateFrom', 'desc' ] ]
+  })
+    .then(function (movies) {
+      res.json(movies);
+    })
+    .catch(function (err) {
+      console.error('error: ', err);
+      res.status(500).send('');
+    });
+};
+
+var betSeasons = function (req, res, next) {
+  var catchupProviderId = config.catchup.bet.catchupProviderId;
+
+  var getIncludedModel = require('../season/season.includedModel').get;
+
+  Season.findAll({
+    where: {catchupProviderId: catchupProviderId},
+    include: getIncludedModel(),
+    order: [ [ 'dateFrom', 'desc' ] ]
+  })
+    .then(function (seasons) {
+      res.json(seasons);
+    })
+    .catch(function (err) {
+      console.error('error: ', err);
+      res.status(500).send('');
+    });
+};
+
+var betEpisodes = function (req, res, next) {
+  var catchupProviderId = config.catchup.bet.catchupProviderId;
+
+  var getIncludedModel = require('../episode/episode.includedModel').get;
+
+  Episode.findAll({
+    where: {catchupProviderId: catchupProviderId},
+    include: getIncludedModel(),
+    order: [ [ 'dateFrom', 'desc' ] ]
+  })
+    .then(function (episodes) {
+      res.json(episodes);
+    })
+    .catch(function (err) {
+      console.error('error: ', err);
+      res.status(500).send('');
+    });
+};
+
 module.exports.bet = bet;
+module.exports.betMovies = betMovies;
+module.exports.betSeasons = betSeasons;
+module.exports.betEpisodes = betEpisodes;

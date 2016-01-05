@@ -11,6 +11,10 @@ angular.module('afrostreamAdminApp')
       'state': 'categorys',
       'icon': 'fa-bookmark'
     }, {
+      'title': 'Catchup',
+      'state': 'catchup',
+      'icon': 'fa-tv'
+    }, {
       'title': 'Licensors',
       'state': 'licensors',
       'icon': 'fa-trophy'
