@@ -50,15 +50,15 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
     return Q.all([
       Episode.findOrCreate({
         where: { catchupProviderId: catchupProviderInfos._id, episodeNumber: episodeNumber, title: episodeTitle },
-        defaults: { active: true }
+        defaults: { synopsis: episodeResume, active: true }
       }),
       Season.findOrCreate({
         where: { catchupProviderId: catchupProviderInfos._id, seasonNumber: seasonNumber, title: seriesTitle },
-        defaults: { active: true }
+        defaults: { synopsis: seriesResume, active: true }
       }),
       Movie.findOrCreate({
         where: { catchupProviderId: catchupProviderInfos._id, title: seriesTitle},
-        defaults: { active: true }
+        defaults: { synopsis: seriesResume, active: true }
       })
     ]).spread(function (episodeInfos, seasonInfos, movieInfos) {
       var episode = episodeInfos[0]
@@ -66,9 +66,9 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
         , movie = movieInfos[0];
 
       return Q.all([
-        episode.update({ synopsis: episodeResume, slug: episodeSlug, dateFrom: dateFrom, dateTo: dateTo  }),
-        season.update({ synopsis: seriesResume, slug: seriesSlug, dateFrom: dateFrom, dateTo: dateTo }),
-        movie.update({ synopsis: seriesResume, slug: seriesSlug, type: 'serie', dateFrom: dateFrom, dateTo: dateTo })
+        episode.update({  slug: episodeSlug, dateFrom: dateFrom, dateTo: dateTo }),
+        season.update({ slug: seriesSlug, dateFrom: dateFrom, dateTo: dateTo }),
+        movie.update({ slug: seriesSlug, type: 'serie', dateFrom: dateFrom, dateTo: dateTo })
       ]);
     }).spread(function (episode, season, movie) {
       console.log('catchup: database: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id + ' video ' + video._id + ' ' +
@@ -83,12 +83,12 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
   } else {
     return Movie.findOrCreate({
       where: { catchupProviderId: catchupProviderInfos._id, title: seriesTitle},
-      defaults: { active: true }
+      defaults: { synopsis: seriesResume, active: true }
     }).then(function (movieInfos) {
       var movie = movieInfos[0];
       console.log('catchup: database: movie ' + movie._id + ' video ' + video._id + ' ' +
                   'movie [' + seriesTitle + ']');
-      return movie.update({ synopsis: seriesResume, slug: seriesSlug, type: 'movie', dateFrom: dateFrom, dateTo: dateTo });
+      return movie.update({ slug: seriesSlug, type: 'movie', dateFrom: dateFrom, dateTo: dateTo });
     }).then(function (movie) {
       return movie.setVideo(video).then(function () { return movie; });
     });
