@@ -511,7 +511,7 @@ exports.create = function (req, res) {
                   var subscriptionBillingData = {
                     "userBillingUuid" : body.response.user.userBillingUuid,
                     "internalPlanUuid" : item.properties.plan.plan_code,
-                    "subscriptionProviderUuid" : 1,
+                    "subscriptionProviderUuid" : item.properties.uuid,
                     "billingInfoOpts" : {}
                   };
 
