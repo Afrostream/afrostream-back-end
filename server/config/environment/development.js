@@ -54,6 +54,12 @@ module.exports = {
     }
   },
 
+  billings: {
+    url: 'http://afrostream-billings-staging.herokuapp.com/',
+    apiUser: 'admin',
+    apiPass: 'billingsapirocks'
+  },
+
   // if you want to seed:
   // use: export SEED_DB=true before launching node/grunt
   seedDB: (process.env.SEED_DB === 'true')
