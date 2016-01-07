@@ -463,6 +463,8 @@ exports.create = function (req, res) {
         console.log(item);
         console.log('*** end of the item ***');
         user.account_code = data.account.account_code;
+        var userBillingUuid = '';
+
         return user.save()
           .then(function () {
 
@@ -506,13 +508,12 @@ exports.create = function (req, res) {
                 };
 
                 if (body.status !== 'error') {
+                  userBillingUuid = body.response.user.userBillingUuid;
                   var createSubscription = config.billings.url + 'billings/api/subscriptions/';
-
-                  var subscriptionBillingData = {
-                    "userBillingUuid" : body.response.user.userBillingUuid,
-                    "internalPlanUuid" : item.properties.plan.plan_code,
-                    "subscriptionProviderUuid" : item.properties.uuid,
-                    "billingInfoOpts" : {}
+                  var subscriptionBillingData = { "userBillingUuid": userBillingUuid,
+                    "internalPlanUuid": item.properties.plan.plan_code,
+                    "subscriptionProviderUuid": item.properties.uuid,
+                    "billingInfoOpts": {}
                   };
 
                   console.log('*** subscription billing data ***');
@@ -529,18 +530,48 @@ exports.create = function (req, res) {
                       console.log('*** response from subscription billings api ***');
                       console.log(body);
                       console.log('*** end of response from subscription billings api ***');
+
                     }
-                  });
+                  });//.auth(config.billings.apiUser, config.billings.apiPass, false);
+
+                  profile.planCode = item.properties.plan.plan_code;
+                  res.json(profile);
                 }
               }
 
             }).auth(config.billings.apiUser, config.billings.apiPass, false);
 
+          }).catch(handleError(res))
+          .then(function (userBillingsResponse) {
+
+            /*var createSubscription = config.billings.url + 'billings/api/subscriptions/';
+            var subscriptionBillingData = { "userBillingUuid": userBillingUuid,
+              "internalPlanUuid": item.properties.plan.plan_code,
+              "subscriptionProviderUuid": item.properties.uuid,
+              "billingInfoOpts": {}
+            };
+
+            console.log('*** subscription billing data ***');
+            console.log(subscriptionBillingData);
+            console.log('*** end of subscription billing data ***');
+
+            request.post({url: createSubscription, json: subscriptionBillingData}, function (error, response, body) {
+              if (error) {
+                console.log('*** error with subscription billings api ***');
+                console.log(error);
+                console.log('*** end of error with subscription billings api ***');
+              }
+              if (response) {
+                console.log('*** response from subscription billings api ***');
+                console.log(body);
+                console.log('*** end of response from subscription billings api ***');
+              }
+            }).auth(config.billings.apiUser, config.billings.apiPass, false);
 
             profile.planCode = item.properties.plan.plan_code;
-            res.json(profile);
-
-          }).catch(handleError(res));
+            res.json(profile);*/
+          })
+          .catch(handleError(res));
 
       }).catch(function (err) {
         return res.status(500).send(err.errors || err);
