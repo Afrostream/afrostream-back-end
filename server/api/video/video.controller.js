@@ -228,6 +228,22 @@ exports.show = function (req, res) {
       console.log('video: cdnselector: is disabled'); // warning.
       return entity;
     }
+
+    // FIXME: to be removed
+    // START REMOVE
+    // hack staging cdnselector orange (testing)
+    if (process.env.NODE_ENV === 'staging' && req.query.from === 'afrostream-orange-staging') {
+      entity.sources.forEach(function (source, i) {
+        var src = source.get('src');
+        if (src.match(/^[^\:]+\:\/\/[^/]+\//)) {
+          source.set('src', src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'https://orange-preprod.cdn.afrostream.net/'));
+        }
+        console.log('video: cdnselector: cdn-orange: source ' + src + ' => ' + source.get('src'));
+      });
+      return entity;
+    }
+    // END REMOVE
+
     // frontend (api-v1) or mobile: we try to use cdnselector.
     return cdnselector.getFirstSafe(req.clientIp)
       .then(
