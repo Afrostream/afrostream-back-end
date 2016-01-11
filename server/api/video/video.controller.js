@@ -236,7 +236,7 @@ exports.show = function (req, res) {
       entity.sources.forEach(function (source, i) {
         var src = source.get('src');
         if (src.match(/^[^\:]+\:\/\/[^/]+\//)) {
-          source.set('src', src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'https://orange-preprod.cdn.afrostream.net/'));
+          source.set('src', src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'http://orange-preprod.cdn.afrostream.net/'));
         }
         console.log('video: cdnselector: cdn-orange: source ' + src + ' => ' + source.get('src'));
       });
