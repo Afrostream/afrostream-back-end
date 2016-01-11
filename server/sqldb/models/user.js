@@ -45,6 +45,7 @@ module.exports = function (sequelize, DataTypes) {
     salt: DataTypes.STRING,
     google: DataTypes.TEXT,
     github: DataTypes.TEXT,
+    facebook: DataTypes.TEXT,
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false

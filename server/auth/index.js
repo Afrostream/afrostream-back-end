@@ -13,6 +13,7 @@ var auth = rootRequire('/server/auth/auth.service');
 require('./local/passport').setup(User, config);
 require('./oauth2/passport').setup(Client, User, AccessToken, config);
 require('./google/passport').setup(User, config);
+require('./facebook/passport').setup(User, config);
 
 var router = express.Router();
 

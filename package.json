@@ -76,6 +76,7 @@
     "oauthorize": "^0.1.0",
     "open": "~0.0.4",
     "passport": "~0.2.0",
+    "passport-facebook": "^2.0.0",
     "passport-google-oauth": "latest",
     "passport-http": "^0.2.2",
     "passport-http-bearer": "^1.0.1",
