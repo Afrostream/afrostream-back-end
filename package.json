@@ -130,11 +130,10 @@
     "node": "0.12.x"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "node server/server.js",
     "postinstall": "bower install && grunt build",
     "dev": "grunt serve",
-    "test": "grunt test",
-    "update-webdriver": "node node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update"
+    "test": "grunt test"
   },
   "private": true
 }

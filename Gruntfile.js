@@ -2,20 +2,12 @@
 'use strict';
 
 module.exports = function (grunt) {
-  var localConfig;
-  try {
-    localConfig = require('./server/config/local.env');
-  } catch (e) {
-    localConfig = {};
-  }
-
   // Load grunt tasks automatically, when needed
   require('jit-grunt')(grunt, {
     express: 'grunt-express-server',
     useminPrepare: 'grunt-usemin',
     ngtemplates: 'grunt-angular-templates',
     cdnify: 'grunt-google-cdn',
-    protractor: 'grunt-protractor-runner',
     buildcontrol: 'grunt-build-control',
     istanbul_check_coverage: 'grunt-mocha-istanbul'
   });
@@ -39,13 +31,13 @@ module.exports = function (grunt) {
       },
       dev: {
         options: {
-          script: 'server',
+          script: 'server/server.js',
           debug: true
         }
       },
       prod: {
         options: {
-          script: 'dist/server'
+          script: 'dist/server/server.js'
         }
       }
     },
@@ -72,7 +64,7 @@ module.exports = function (grunt) {
       },
       jsTest: {
         files: ['<%= yeoman.client %>/{app,components}/**/*.{spec,mock}.js'],
-        tasks: ['newer:jshint:all', 'karma']
+        tasks: ['newer:jshint:all']
       },
       injectLess: {
         files: ['<%= yeoman.client %>/{app,components}/**/*.less'],
@@ -419,14 +411,6 @@ module.exports = function (grunt) {
       ]
     },
 
-    // Test settings
-    karma: {
-      unit: {
-        configFile: 'karma.conf.js',
-        singleRun: true
-      }
-    },
-
     mochaTest: {
       options: {
         reporter: 'spec',
@@ -475,19 +459,6 @@ module.exports = function (grunt) {
       }
     },
 
-    protractor: {
-      options: {
-        configFile: 'protractor.conf.js'
-      },
-      chrome: {
-        options: {
-          args: {
-            browser: 'chrome'
-          }
-        }
-      }
-    },
-
     env: {
       test: {
         NODE_ENV: 'test'
@@ -495,7 +466,7 @@ module.exports = function (grunt) {
       prod: {
         NODE_ENV: 'production'
       },
-      all: localConfig
+      all: { }
     },
 
     // Compiles Jade to html
@@ -632,28 +603,7 @@ module.exports = function (grunt) {
     }, 1500);
   });
 
-  grunt.registerTask('express-keepalive', 'Keep grunt running', function () {
-    this.async();
-  });
-
   grunt.registerTask('serve', function (target) {
-    if (target === 'dist') {
-      return grunt.task.run(['build', 'env:all', 'env:prod', 'express:prod', 'wait', 'open', 'express-keepalive']);
-    }
-
-    if (target === 'debug') {
-      return grunt.task.run([
-        'clean:server',
-        'env:all',
-        'injector:less',
-        'concurrent:server',
-        'injector',
-        'wiredep',
-        'postcss',
-        'concurrent:debug'
-      ]);
-    }
-
     grunt.task.run([
       'clean:server',
       'env:all',
@@ -668,14 +618,7 @@ module.exports = function (grunt) {
     ]);
   });
 
-  grunt.registerTask('server', function () {
-    grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-    grunt.task.run(['serve']);
-  });
-
   grunt.registerTask('test', function (target, option) {
-    // only testing server...
-    // if (target === 'server')
     return grunt.task.run([
       'env:all',
       'env:test',
@@ -683,48 +626,7 @@ module.exports = function (grunt) {
       'mochaTest:integration'
     ]);
 
-    if (target === 'client') {
-      return grunt.task.run([
-        'clean:server',
-        'env:all',
-        'injector:less',
-        'concurrent:test',
-        'injector',
-        'postcss',
-        'karma'
-      ]);
-    }
-
-    else if (target === 'e2e') {
-
-      if (option === 'prod') {
-        return grunt.task.run([
-          'build',
-          'env:all',
-          'env:prod',
-          'express:prod',
-          'protractor'
-        ]);
-      }
-
-      else {
-        return grunt.task.run([
-          'clean:server',
-          'env:all',
-          'env:test',
-          'injector:less',
-          'concurrent:test',
-          'injector',
-          'wiredep',
-          'postcss',
-          'express:dev',
-          'protractor'
-        ]);
-      }
-    }
-
-    else if (target === 'coverage') {
-
+    if (target === 'coverage') {
       if (option === 'unit') {
         return grunt.task.run([
           'env:all',
@@ -755,7 +657,6 @@ module.exports = function (grunt) {
           'istanbul_check_coverage'
         ]);
       }
-
     }
 
     else grunt.task.run([

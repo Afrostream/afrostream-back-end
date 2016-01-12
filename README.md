@@ -36,10 +36,6 @@ On dev environment, you need to seed the database at least once
 export SEED_DB=true && grunt serve
 ```
 
-## Testing
-
-Running `npm test` will run the unit tests with karma.
-
 ## Siouxeries
 
 build tools are included as npm dependencies (not devDependecies) in order to be able to build on heroku using npm postinstall
