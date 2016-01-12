@@ -19,7 +19,7 @@ var User = sqldb.User;
 var GiftGiver = sqldb.GiftGiver;
 var Promise = sqldb.Sequelize.Promise;
 recurly.setAPIKey(config.recurly.apiKey);
-var request = require('request');
+var request = require('request-promise');
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -566,6 +566,7 @@ exports.gift = function (req, res) {
   var newUserProfile;
   var purchaseDetails = {};
   var userId = req.user._id;
+  var userBillingUuid = '';
 
   if (req.body['email'] === req.body['gift_email']) {
     var sameEmailError = new Error('Cannot buy a gift for yourself!');
@@ -691,9 +692,86 @@ exports.gift = function (req, res) {
                       mailer.sendGiftEmail(purchaseDetails)
                        .catch(function () {
                        return res.status(500).send(err.errors || err);
-                       });
+                       }).then(function() {
+                          console.log('*** email sent! ***');
 
-                      return res.json(newUserProfile);
+                          var userBillingsData = {
+                            "providerName" : "recurly",
+                            "userReferenceUuid" : userId,
+                            "userProviderUuid" : data.account.account_code,
+                            "userOpts" : {
+                              "email" : req.body['email'],
+                              "firstName" : req.body['first_name'],
+                              "lastName" : req.body['last_name']
+                            }
+                          };
+                          console.log('*** userBillingsData ***');
+                          console.log(userBillingsData);
+                          console.log('*** end of userBillingsData ***');
+
+                          var findUser = config.billings.url + 'billings/api/users/';
+                          console.log('*** about to call billings api ***');
+                          request.post({url: findUser, json: userBillingsData}, function (error, response, body) {
+
+                            if (error) {
+                              console.log('*** error with billings api ***');
+                              console.log(error);
+                              console.log('*** end of error with billings api ***');
+                            }
+                            if (response) {
+                              /*console.log('*** response from billings api ***');
+                              console.log(body);
+                              console.log('*** end of response from billings api ***');
+
+                              var userBillingsData = {
+                                "providerName" : "recurly",
+                                "userReferenceUuid" : userId,
+                                "userProviderUuid" : data.account.account_code,
+                                "userOpts" : {
+                                  "email" : req.body['email'],
+                                  "firstName" : req.body['first_name'],
+                                  "lastName" : req.body['last_name']
+                                }
+                              };*/
+                            }
+
+                          }).auth(config.billings.apiUser, config.billings.apiPass, false)
+                            .then(function(billingsResponse) {
+                              console.log('*** completed billings process!!! ***');
+                              console.log(billingsResponse);
+                              console.log('*** completed billings process - end of response ***');
+
+
+                              if (billingsResponse.status !== 'error') {
+                                userBillingUuid = billingsResponse.response.user.userBillingUuid;
+                                var createSubscription = config.billings.url + 'billings/api/subscriptions/';
+                                var subscriptionBillingData = { "userBillingUuid": userBillingUuid,
+                                  "internalPlanUuid": item.properties.plan.plan_code,
+                                  "subscriptionProviderUuid": item.properties.uuid,
+                                  "billingInfoOpts": {}
+                                };
+
+                                console.log('*** subscription billing data ***');
+                                console.log(subscriptionBillingData);
+                                console.log('*** end of subscription billing data ***');
+
+                                request.post({url: createSubscription, json: subscriptionBillingData}, function (error, response, body) {
+                                  if (error) {
+                                    console.log('*** error with subscription billings api ***');
+                                    console.log(error);
+                                    console.log('*** end of error with subscription billings api ***');
+                                  }
+                                  if (response) {
+                                    console.log('*** response from subscription billings api ***');
+                                    console.log(body);
+                                    console.log('*** end of response from subscription billings api ***');
+
+                                  }
+                                }).auth(config.billings.apiUser, config.billings.apiPass, false);
+                              }
+                              return res.json(newUserProfile);
+                            });
+                        });
                     }
                   });
                 });
