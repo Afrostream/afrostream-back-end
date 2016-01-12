@@ -498,23 +498,21 @@ exports.create = function (req, res) {
                 console.log('*** end of error with billings api ***');
               }
               if (response) {
+                ;
+              }
+
+            }).auth(config.billings.apiUser, config.billings.apiPass, false)
+              .catch(function (err) {
+                return res.status(500).send(err.errors || err);
+              })
+              .then(function (userBillingsResponse) {
+                console.log('*** PROMISES WORK HERE ***');
                 console.log('*** response from billings api ***');
-                console.log(body);
+                console.log(userBillingsResponse);
                 console.log('*** end of response from billings api ***');
 
-                var userBillingsData = {
-                  "providerName" : "recurly",
-                  "userReferenceUuid" : userId,
-                  "userProviderUuid" : data.account.account_code,
-                  "userOpts" : {
-                    "email" : req.body['email'],
-                    "firstName" : req.body['first_name'],
-                    "lastName" : req.body['last_name']
-                  }
-                };
-
-                if (body.status !== 'error') {
-                  userBillingUuid = body.response.user.userBillingUuid;
+                if (userBillingsResponse.status !== 'error') {
+                  userBillingUuid = userBillingsResponse.response.user.userBillingUuid;
                   var createSubscription = config.billings.url + 'billings/api/subscriptions/';
                   var subscriptionBillingData = { "userBillingUuid": userBillingUuid,
                     "internalPlanUuid": item.properties.plan.plan_code,
@@ -532,26 +530,17 @@ exports.create = function (req, res) {
                       console.log(error);
                       console.log('*** end of error with subscription billings api ***');
                     }
-                    if (response) {
-                      console.log('*** response from subscription billings api ***');
-                      console.log(body);
-                      console.log('*** end of response from subscription billings api ***');
-
+                    if (response.status !== 'error') {
+                      console.log(response.body);
                     }
-                  });//.auth(config.billings.apiUser, config.billings.apiPass, false);
+                  }).auth(config.billings.apiUser, config.billings.apiPass, false);
 
-                  profile.planCode = item.properties.plan.plan_code;
-                  res.json(profile);
                 }
-              }
+                profile.planCode = item.properties.plan.plan_code;
+                res.json(profile);
+              });
 
-            }).auth(config.billings.apiUser, config.billings.apiPass, false);
-
-          }).catch(handleError(res))
-          .then(function (userBillingsResponse) {
-            ;
-          })
-          .catch(handleError(res));
+          }).catch(handleError(res));
 
       }).catch(function (err) {
         return res.status(500).send(err.errors || err);
@@ -718,21 +707,8 @@ exports.gift = function (req, res) {
                               console.log(error);
                               console.log('*** end of error with billings api ***');
                             }
-                            if (response) {
-                              /*console.log('*** response from billings api ***');
-                              console.log(body);
-                              console.log('*** end of response from billings api ***');
-
-                              var userBillingsData = {
-                                "providerName" : "recurly",
-                                "userReferenceUuid" : userId,
-                                "userProviderUuid" : data.account.account_code,
-                                "userOpts" : {
-                                  "email" : req.body['email'],
-                                  "firstName" : req.body['first_name'],
-                                  "lastName" : req.body['last_name']
-                                }
-                              };*/
+                            if (response.status === 'error') {
+                              console.log(response);
                             }
 
                           }).auth(config.billings.apiUser, config.billings.apiPass, false)
