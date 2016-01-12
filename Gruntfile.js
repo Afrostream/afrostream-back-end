@@ -58,14 +58,6 @@ module.exports = function (grunt) {
         files: ['<%= yeoman.client %>/{app,components}/**/*.css'],
         tasks: ['injector:css']
       },
-      mochaTest: {
-        files: ['server/**/*.{spec,integration}.js'],
-        tasks: ['env:test', 'mochaTest']
-      },
-      jsTest: {
-        files: ['<%= yeoman.client %>/{app,components}/**/*.{spec,mock}.js'],
-        tasks: ['newer:jshint:all']
-      },
       injectLess: {
         files: ['<%= yeoman.client %>/{app,components}/**/*.less'],
         tasks: ['injector:less']
@@ -416,24 +408,12 @@ module.exports = function (grunt) {
         reporter: 'spec',
         bail: true
       },
-      unit: {
-        src: ['server/**/*.spec.js']
-      },
       integration: {
         src: ['server/**/*.integration.js']
       }
     },
 
     mocha_istanbul: {
-      unit: {
-        options: {
-          excludes: ['**/*.{spec,mock,integration}.js'],
-          reporter: 'spec',
-          mask: '**/*.spec.js',
-          coverageFolder: 'coverage/server/unit'
-        },
-        src: 'server'
-      },
       integration: {
         options: {
           excludes: ['**/*.{spec,mock,integration}.js'],
