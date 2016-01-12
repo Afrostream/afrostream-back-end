@@ -42,9 +42,11 @@ module.exports = function (app) {
   app.use('/api/player', require('./api/player/index'));
   app.use('/api/cdnselector', require('./api/cdnselector/index'));
 
-  app.use('/auth', require('./../auth/index'));
+  app.use('/auth', require('../auth/index'));
 
-  app.use('/right', require('./../right/index'));
+  app.use('/right', require('../right/index'));
+
+  app.use('/alive', require('./alive.controller.js').alive);
 
   app.route('/doc')
     .get(function (req, res) {
