@@ -25,7 +25,7 @@
       "oauth": true,
       "googleAuth": true,
       "grunt": true,
-      "jasmine": true,
+      "jasmine": false,
       "mocha": false,
       "should": false,
       "expect": false
@@ -40,7 +40,6 @@
     "moduleName": "",
     "filters": [
       "uirouter",
-      "jasmine",
       "uirouter"
     ],
     "extensions": [
