@@ -3,7 +3,7 @@
 var request = require('request');
 var Q = require('q');
 
-var config = require('./config/environment');
+var config = require('./config');
 
 /**
  * a correct entry is an object { Fqdn: ..., Protocol: ... }

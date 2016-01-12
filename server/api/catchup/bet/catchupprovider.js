@@ -3,7 +3,7 @@
 var sqldb = require('../../../sqldb');
 var CatchupProvider = sqldb.CatchupProvider;
 
-var config = require('../../../config/environment/index');
+var config = require('../../../config/index');
 
 var getCatchupProviderInfos = function (catchupProviderId) {
   return CatchupProvider.find({where: { _id: catchupProviderId } })

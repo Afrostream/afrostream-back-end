@@ -3,7 +3,7 @@
 // Export the application
 var app = require('./app');
 
-var config = require('./config/environment');
+var config = require('./config');
 
 // Populate databases with sample data
 if (config.seedDB) {

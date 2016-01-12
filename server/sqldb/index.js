@@ -5,7 +5,7 @@
 'use strict';
 
 var path = require('path');
-var config = require('../config/environment');
+var config = require('../config');
 
 var Sequelize = require('sequelize');
 

@@ -2,7 +2,7 @@
 
 var express = require('express');
 var passport = require('passport');
-var config = require('../config/environment');
+var config = require('../config');
 var User = require('../sqldb').User;
 var Client = require('../sqldb').Client;
 var AccessToken = require('../sqldb').AccessToken;

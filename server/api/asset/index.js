@@ -3,7 +3,7 @@
 var express = require('express');
 var controller = require('./asset.controller');
 var auth = require('../../auth/auth.service');
-var config = require('../../config/environment');
+var config = require('../../config');
 var router = express.Router();
 
 router.get('/', auth.hasRole('admin'), controller.index);

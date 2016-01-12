@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 
-var config = require('../../config/environment');
+var config = require('../../config');
 
 var request = require('request');
 var btoa = require('btoa');

@@ -11,7 +11,7 @@
 
 var _ = require('lodash');
 var sqldb = require('../../sqldb');
-var config = require('../../config/environment');
+var config = require('../../config');
 var Promise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
 var jwtVerifyAsync = Promise.promisify(jwt.verify, jwt);

@@ -12,7 +12,7 @@
 var _ = require('lodash');
 var path = require('path');
 var sqldb = require('../../sqldb');
-var config = require('../../config/environment');
+var config = require('../../config');
 var Promise = sqldb.Sequelize.Promise;
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;

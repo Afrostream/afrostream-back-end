@@ -13,7 +13,7 @@ var favicon = require('serve-favicon');
 var errorHandler = require('errorhandler');
 var path = require('path');
 
-var config = require('../config/environment');
+var config = require('../config');
 
 var dumpPostData = require('./middlewares/middleware-dumppostdata.js');
 var morgan = require('./middlewares/middleware-morgan.js');

@@ -1,6 +1,6 @@
 /**
  * Populate DB with sample data on server start
- * to disable, edit config/environment/index.js, and set `seedDB: false`
+ * to disable, edit config/index.js, and set `seedDB: false`
  */
 
 'use strict';
@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging' 
   console.error('exit 1');
   process.exit(1);
 }
-var config = require('./../config/environment/index');
+var config = require('./../config/index');
 if (config.sequelize.uri.indexOf('amazon') !== -1) {
   console.error('security: the database url seems to contain amazon string, production environment ?');
   console.error('security: cannot seed using production / staging environment');

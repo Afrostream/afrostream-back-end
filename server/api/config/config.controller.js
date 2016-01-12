@@ -1,6 +1,6 @@
 'use strict';
 
-var config = require('../../config/environment');
+var config = require('../../config');
 
 // Creates a new actor in the DB
 exports.client = function (req, res) {

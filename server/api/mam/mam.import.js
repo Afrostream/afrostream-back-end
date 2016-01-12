@@ -3,7 +3,7 @@
 var request = require('request-promise');
 var _ = require('lodash');
 
-var config = require('../../config/environment/index');
+var config = require('../../config/index');
 
 var upsertUsingEncodingId = require('../video/video.controller.js').upsertUsingEncodingId;
 

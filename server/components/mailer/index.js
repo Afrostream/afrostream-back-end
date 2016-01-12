@@ -1,6 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
-var config = require('../../config/environment');
+var config = require('../../config');
 var _ = require('lodash');
 var nodemailer = require('nodemailer');
 var sgTransport = require('nodemailer-sendgrid-transport');

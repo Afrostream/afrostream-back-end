@@ -4,7 +4,7 @@ var _ = require('lodash');
 var sqldb = require('../../sqldb');
 var User = sqldb.User;
 var passport = require('passport');
-var config = require('../../config/environment');
+var config = require('../../config');
 var jwt = require('jsonwebtoken');
 var subscriptionController = require('../subscription/subscription.controller');
 

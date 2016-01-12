@@ -18,7 +18,7 @@ var rp = require('request-promise');
 
 var Q = require('q');
 
-var config = require('../../config/environment/index');
+var config = require('../../config/index');
 
 // convert mamItem to video
 var importVideo = require('../mam/mam.import.js').importVideo;

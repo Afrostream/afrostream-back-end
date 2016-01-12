@@ -10,7 +10,7 @@ var Q = require('q');
 var Knox = require('knox')
   , moment = require('moment');
 
-var config = require('./config/environment');
+var config = require('./config');
 
 /**
  * upload a buffer in amazon AWS.

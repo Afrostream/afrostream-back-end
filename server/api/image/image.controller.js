@@ -13,7 +13,7 @@ var _ = require('lodash');
 var path = require('path');
 var sqldb = require('../../sqldb');
 var Image = sqldb.Image;
-var config = require('../../config/environment');
+var config = require('../../config');
 var aws = require('../../aws.js');
 
 var utils = require('../utils.js');

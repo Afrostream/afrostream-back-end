@@ -4,7 +4,7 @@ var assert = require('assert');
 
 var _ = require('lodash');
 var passport = require('passport');
-var config = require('../config/environment');
+var config = require('../config');
 var jwt = require('jsonwebtoken');
 var expressJwt = require('express-jwt');
 var compose = require('composable-middleware');

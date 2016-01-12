@@ -2,7 +2,7 @@
 
 process.env.NODE_ENV = 'test';
 
-var config = require('../server/config/environment');
+var config = require('../server/config');
 
 if (config.env !== 'test') {
   console.error('test should only be run on test env');
