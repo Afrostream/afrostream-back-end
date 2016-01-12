@@ -560,7 +560,7 @@ module.exports = function (grunt) {
     },
     apidoc: {
       myapp: {
-        src: 'server/api',
+        src: 'server/app/api',
         dest: 'dist/apidoc/',
         options: {
           debug: true,
