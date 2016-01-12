@@ -602,20 +602,11 @@ module.exports = function (grunt) {
     return grunt.task.run([
       'env:all',
       'env:test',
-      'mochaTest:unit',
       'mochaTest:integration'
     ]);
 
     if (target === 'coverage') {
-      if (option === 'unit') {
-        return grunt.task.run([
-          'env:all',
-          'env:test',
-          'mocha_istanbul:unit'
-        ]);
-      }
-
-      else if (option === 'integration') {
+      if (option === 'integration') {
         return grunt.task.run([
           'env:all',
           'env:test',
