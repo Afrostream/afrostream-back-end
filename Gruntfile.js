@@ -409,7 +409,7 @@ module.exports = function (grunt) {
         bail: true
       },
       integration: {
-        src: ['tests/integration/**/*.js']
+        src: ['server/test/integration/**/*.js']
       }
     },
 
@@ -418,7 +418,7 @@ module.exports = function (grunt) {
         options: {
           excludes: ['**/*.{spec,mock,integration}.js'],
           reporter: 'spec',
-          mask: 'tests/integration/**/*.js',
+          mask: 'server/test/integration/**/*.js',
           coverageFolder: 'coverage/server/integration'
         },
         src: 'server'
