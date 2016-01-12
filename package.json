@@ -17,7 +17,7 @@
     "compression": "~1.0.1",
     "connect-busboy": "0.0.2",
     "connect-ensure-login": "^0.1.1",
-    "connect-livereload": "^0.5.3",
+
     "cookie-parser": "~1.0.1",
     "crypto": "0.0.3",
     "errorhandler": "~1.0.0",
@@ -99,6 +99,7 @@
     "xml2js": "^0.4.15"
   },
   "devDependencies": {
+    "connect-livereload": "^0.5.3",
     "grunt-mocha-istanbul": "^2.4.0",
     "grunt-mocha-test": "~0.12.7",
     "grunt-node-inspector": "~0.1.5",
