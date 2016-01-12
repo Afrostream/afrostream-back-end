@@ -4,6 +4,7 @@ var assert = require('assert');
 
 var _ = require('lodash');
 var passport = require('passport');
+var oauth2 = require('./oauth2/oauth2');
 var config = require('../config');
 var jwt = require('jsonwebtoken');
 var expressJwt = require('express-jwt');
@@ -35,7 +36,9 @@ function isAuthenticated() {
             return res.status(401).end();
           }
           req.user = user;
-        }).then(function () { next(); })
+        }).then(function () {
+            next();
+          })
           .catch(next);
       } else {
         return passport.authenticate('bearer', {session: false})(req, res, next);
@@ -54,10 +57,10 @@ function isAuthenticated() {
     //// Attach user to request
     .use(function (req, res, next) {
       User.find({
-        where: {
-          _id: req.user._id
-        }
-      })
+          where: {
+            _id: req.user._id
+          }
+        })
         .then(function (user) {
           console.log(user);
           if (!user) {
@@ -121,10 +124,20 @@ function reqUserIsBacko(req) {
 /**
  * Returns a jwt token signed by the app secret
  */
-function signToken(id) {
-  return jwt.sign({_id: id}, config.secrets.session, {
-    expiresInMinutes: 60 * 5
-  });
+function signToken(user) {
+  var deferred = Q.defer();
+  if (config.oauth2 !== undefined) {
+    oauth2.generateToken(null, user, null, function (err, token, refreshToken, data) {
+      if (err)  return deferred.reject(err);
+      return deferred.resolve(token);
+    });
+  } else {
+    var token = jwt.sign({_id: user._id}, config.secrets.session, {
+      expiresInMinutes: 60 * 5
+    });
+    deferred.resolve(token);
+  }
+  return deferred.promise;
 }
 
 /**
@@ -134,9 +147,14 @@ function setTokenCookie(req, res) {
   if (!req.user) {
     return res.status(404).send('Something went wrong, please try again.');
   }
-  var token = signToken(req.user._id, req.user.role);
-  res.cookie('token', JSON.stringify(token));
-  res.redirect('/');
+  return signToken(req.user)
+    .then(function (token) {
+      res.cookie('token', token);
+      res.redirect('/');
+    })
+    .catch(function () {
+      return res.status(404).send('Something went wrong, please try again.');
+    });
 }
 
 var authenticate = function (req, res, next) {
@@ -193,8 +211,8 @@ var filterQueryOptions = function (req, options, rootModel) {
       }
     } else {
       if (model &&
-          model.attributes &&
-          model.attributes.active) {
+        model.attributes &&
+        model.attributes.active) {
         // we can set modify the "active" parameter
         if (options.where && options.where.hasOwnProperty('active')) {
           // sub model
@@ -212,13 +230,13 @@ var filterQueryOptions = function (req, options, rootModel) {
         }
       }
       if (model &&
-          model.attributes &&
-          model.attributes.dateFrom && model.attributes.dateTo) {
+        model.attributes &&
+        model.attributes.dateFrom && model.attributes.dateTo) {
         if (options && options.where && options.where.$or && options.where.$and) {
-          options.where.$and = { $and: options.where.$and, $or: options.where.$or };
+          options.where.$and = {$and: options.where.$and, $or: options.where.$or};
           delete options.where.$or;
         } else if (options && options.where && options.where.$or) {
-          options.where.$and = { $or: options.where.$or };
+          options.where.$and = {$or: options.where.$or};
           delete options.where.$or;
         }
         // dateFrom & dateTo generic
