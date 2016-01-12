@@ -69,6 +69,6 @@ switch (process.env.NODE_ENV) {
     break;
 }
 
-require('../routes')(app);
+require('./routes')(app);
 
 module.exports = app;
