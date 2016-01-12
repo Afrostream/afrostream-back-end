@@ -133,8 +133,14 @@ exports.me = function (req, res, next) {
         _.forEach(subscriptions, function (subscription) {
           // @see https://dev.recurly.com/docs/list-subscriptions
           // possible status: 'pending', 'active', 'canceled', 'expired', 'future'
+          console.log('*** looking at gift subscription ***');
+          console.log(subscription.properties);
+          console.log('*** end of subscription ***');
           if (~'pending,active,canceled'.indexOf(subscription.properties.state)) {
             profile.planCode = subscription.properties.plan.plan_code;
+            console.log('*** looking at profile ***');
+            console.log(subscription.properties);
+            console.log('*** end of profile ***');
             return profile;
           }
         });
@@ -543,33 +549,7 @@ exports.create = function (req, res) {
 
           }).catch(handleError(res))
           .then(function (userBillingsResponse) {
-
-            /*var createSubscription = config.billings.url + 'billings/api/subscriptions/';
-            var subscriptionBillingData = { "userBillingUuid": userBillingUuid,
-              "internalPlanUuid": item.properties.plan.plan_code,
-              "subscriptionProviderUuid": item.properties.uuid,
-              "billingInfoOpts": {}
-            };
-
-            console.log('*** subscription billing data ***');
-            console.log(subscriptionBillingData);
-            console.log('*** end of subscription billing data ***');
-
-            request.post({url: createSubscription, json: subscriptionBillingData}, function (error, response, body) {
-              if (error) {
-                console.log('*** error with subscription billings api ***');
-                console.log(error);
-                console.log('*** end of error with subscription billings api ***');
-              }
-              if (response) {
-                console.log('*** response from subscription billings api ***');
-                console.log(body);
-                console.log('*** end of response from subscription billings api ***');
-              }
-            }).auth(config.billings.apiUser, config.billings.apiPass, false);
-
-            profile.planCode = item.properties.plan.plan_code;
-            res.json(profile);*/
+            ;
           })
           .catch(handleError(res));
 
