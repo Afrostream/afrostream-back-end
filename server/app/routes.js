@@ -10,37 +10,37 @@ var path = require('path');
 module.exports = function (app) {
 
   // Insert routes below
-  app.use('/api/posts', require('./../api/post/index'));
-  app.use('/api/actors', require('./../api/actor/index'));
-  app.use('/api/catchup', require('./../api/catchup/index'));
-  app.use('/api/config', require('./../api/config/index'));
-  app.use('/api/plans', require('./../api/plan/index'));
-  app.use('/api/subscriptions', require('./../api/subscription/index'));
-  app.use('/api/refreshTokens', require('./../api/refreshToken/index'));
-  app.use('/api/accessTokens', require('./../api/accessToken/index'));
-  app.use('/api/authCodes', require('./../api/authCode/index'));
-  app.use('/api/clients', require('./../api/client/index'));
-  app.use('/api/licensors', require('./../api/licensor/index'));
-  app.use('/api/languages', require('./../api/language/index'));
-  app.use('/api/comments', require('./../api/comment/index'));
-  app.use('/api/captions', require('./../api/caption/index'));
-  app.use('/api/videos', require('./../api/video/index'));
-  app.use('/api/images', require('./../api/image/index'));
-  app.use('/api/jobs', require('./../api/job/index'));
-  app.use('/api/assets', require('./../api/asset/index'));
-  app.use('/api/episodes', require('./../api/episode/index'));
-  app.use('/api/seasons', require('./../api/season/index'));
-  app.use('/api/tags', require('./../api/tag/index'));
-  app.use('/api/categorys', require('./../api/category/index'));
-  app.use('/api/movies', require('./../api/movie/index'));
-  app.use('/api/series', require('./../api/movie/index'));
-  app.use('/api/users', require('./../api/user/index'));
-  app.use('/api/mam', require('./../api/mam/index'));
-  app.use('/api/dashboard', require('./../api/dashboard/index'));
-  app.use('/api/waitingUsers', require('./../api/waitingUser/index'));
+  app.use('/api/posts', require('./api/post/index'));
+  app.use('/api/actors', require('./api/actor/index'));
+  app.use('/api/catchup', require('./api/catchup/index'));
+  app.use('/api/config', require('./api/config/index'));
+  app.use('/api/plans', require('./api/plan/index'));
+  app.use('/api/subscriptions', require('./api/subscription/index'));
+  app.use('/api/refreshTokens', require('./api/refreshToken/index'));
+  app.use('/api/accessTokens', require('./api/accessToken/index'));
+  app.use('/api/authCodes', require('./api/authCode/index'));
+  app.use('/api/clients', require('./api/client/index'));
+  app.use('/api/licensors', require('./api/licensor/index'));
+  app.use('/api/languages', require('./api/language/index'));
+  app.use('/api/comments', require('./api/comment/index'));
+  app.use('/api/captions', require('./api/caption/index'));
+  app.use('/api/videos', require('./api/video/index'));
+  app.use('/api/images', require('./api/image/index'));
+  app.use('/api/jobs', require('./api/job/index'));
+  app.use('/api/assets', require('./api/asset/index'));
+  app.use('/api/episodes', require('./api/episode/index'));
+  app.use('/api/seasons', require('./api/season/index'));
+  app.use('/api/tags', require('./api/tag/index'));
+  app.use('/api/categorys', require('./api/category/index'));
+  app.use('/api/movies', require('./api/movie/index'));
+  app.use('/api/series', require('./api/movie/index'));
+  app.use('/api/users', require('./api/user/index'));
+  app.use('/api/mam', require('./api/mam/index'));
+  app.use('/api/dashboard', require('./api/dashboard/index'));
+  app.use('/api/waitingUsers', require('./api/waitingUser/index'));
 
-  app.use('/api/player', require('./../api/player/index'));
-  app.use('/api/cdnselector', require('./../api/cdnselector/index'));
+  app.use('/api/player', require('./api/player/index'));
+  app.use('/api/cdnselector', require('./api/cdnselector/index'));
 
   app.use('/auth', require('./../auth/index'));
 

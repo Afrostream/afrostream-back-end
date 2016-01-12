@@ -1,6 +1,6 @@
 'use strict';
 
-var bootstrap = require('../../tests/bootstrap.js');
+var bootstrap = rootRequire('/tests/bootstrap.js');
 
 var app = bootstrap.getApp();
 var sqldb = bootstrap.getSqldb();
