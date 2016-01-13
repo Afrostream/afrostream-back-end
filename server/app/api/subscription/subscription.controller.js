@@ -476,7 +476,7 @@ exports.create = function (req, res) {
               unit_amount_in_cents: req.body['unit-amount-in-cents'],
               currency: 'EUR',
               account: {
-                account_code: user.account_code || uuid.v1(),
+                account_code: billingsResponse.response.user.userProviderUuid,
                 email: user.email,
                 first_name: req.body['first_name'],
                 last_name: req.body['last_name'],
@@ -533,8 +533,14 @@ exports.create = function (req, res) {
                           "subscriptionProviderUuid": item.properties.uuid,
                           "billingInfoOpts": {}
                         };
+                        console.log('*** here data for subscription billings ***');
+                        console.log(subscriptionBillingData);
+                        console.log('*** end of data for subscription billings ***');
 
                         requestPromise.post({url: createSubscription, json: subscriptionBillingData}, function (error, response, body) {
+                          console.log('*** here response for subscription billings ***');
+                          console.log(response.body);
+                          console.log('*** end of response for subscription billings ***');
                           if (error) {
                             console.log(error);
                           }
