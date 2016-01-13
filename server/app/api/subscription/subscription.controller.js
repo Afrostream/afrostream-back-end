@@ -19,7 +19,7 @@ var User = sqldb.User;
 var GiftGiver = sqldb.GiftGiver;
 var Promise = sqldb.Sequelize.Promise;
 recurly.setAPIKey(config.recurly.apiKey);
-var request = require('request-promise');
+var requestPromise = require('request-promise');
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
@@ -133,14 +133,8 @@ exports.me = function (req, res, next) {
         _.forEach(subscriptions, function (subscription) {
           // @see https://dev.recurly.com/docs/list-subscriptions
           // possible status: 'pending', 'active', 'canceled', 'expired', 'future'
-          console.log('*** looking at gift subscription ***');
-          console.log(subscription.properties);
-          console.log('*** end of subscription ***');
           if (~'pending,active,canceled'.indexOf(subscription.properties.state)) {
             profile.planCode = subscription.properties.plan.plan_code;
-            console.log('*** looking at profile ***');
-            console.log(subscription.properties);
-            console.log('*** end of profile ***');
             return profile;
           }
         });
@@ -440,9 +434,6 @@ exports.create = function (req, res) {
       if (!user) {
         return res.status(401).end();
       }
-      console.log('*** here is the user ***');
-      console.log(user);
-      console.log('*** end of the user ***');
       var profile = user.profile;
       var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
       var data = {
@@ -464,10 +455,6 @@ exports.create = function (req, res) {
       console.log('subscription create', data.account);
 
       return createAsync(data).then(function (item) {
-        console.log('subscription', item);
-        console.log('**** here is the item ***');
-        console.log(item);
-        console.log('*** end of the item ***');
         user.account_code = data.account.account_code;
         var userBillingUuid = '';
 
@@ -484,21 +471,15 @@ exports.create = function (req, res) {
                "lastName" : req.body['last_name']
                }
             };
-            console.log('*** userBillingsData ***');
-            console.log(userBillingsData);
-            console.log('*** end of userBillingsData ***');
 
             var findUser = config.billings.url + 'billings/api/users/';
-            console.log('*** about to call billings api ***');
-            request.post({url: findUser, json: userBillingsData}, function (error, response, body) {
+            requestPromise.post({url: findUser, json: userBillingsData}, function (error, response, body) {
 
               if (error) {
-                console.log('*** error with billings api ***');
                 console.log(error);
-                console.log('*** end of error with billings api ***');
               }
-              if (response) {
-                ;
+              if (response.status === 'error') {
+                console.log(response);
               }
 
             }).auth(config.billings.apiUser, config.billings.apiPass, false)
@@ -506,10 +487,6 @@ exports.create = function (req, res) {
                 return res.status(500).send(err.errors || err);
               })
               .then(function (userBillingsResponse) {
-                console.log('*** PROMISES WORK HERE ***');
-                console.log('*** response from billings api ***');
-                console.log(userBillingsResponse);
-                console.log('*** end of response from billings api ***');
 
                 if (userBillingsResponse.status !== 'error') {
                   userBillingUuid = userBillingsResponse.response.user.userBillingUuid;
@@ -520,18 +497,12 @@ exports.create = function (req, res) {
                     "billingInfoOpts": {}
                   };
 
-                  console.log('*** subscription billing data ***');
-                  console.log(subscriptionBillingData);
-                  console.log('*** end of subscription billing data ***');
-
-                  request.post({url: createSubscription, json: subscriptionBillingData}, function (error, response, body) {
+                  requestPromise.post({url: createSubscription, json: subscriptionBillingData}, function (error, response, body) {
                     if (error) {
-                      console.log('*** error with subscription billings api ***');
                       console.log(error);
-                      console.log('*** end of error with subscription billings api ***');
                     }
-                    if (response.status !== 'error') {
-                      console.log(response.body);
+                    if (response.status === 'error') {
+                      console.log(response);
                     }
                   }).auth(config.billings.apiUser, config.billings.apiPass, false);
 
@@ -682,7 +653,6 @@ exports.gift = function (req, res) {
                        .catch(function () {
                        return res.status(500).send(err.errors || err);
                        }).then(function() {
-                          console.log('*** email sent! ***');
 
                           var userBillingsData = {
                             "providerName" : "recurly",
@@ -694,18 +664,12 @@ exports.gift = function (req, res) {
                               "lastName" : req.body['last_name']
                             }
                           };
-                          console.log('*** userBillingsData ***');
-                          console.log(userBillingsData);
-                          console.log('*** end of userBillingsData ***');
 
                           var findUser = config.billings.url + 'billings/api/users/';
-                          console.log('*** about to call billings api ***');
-                          request.post({url: findUser, json: userBillingsData}, function (error, response, body) {
+                          requestPromise.post({url: findUser, json: userBillingsData}, function (error, response, body) {
 
                             if (error) {
-                              console.log('*** error with billings api ***');
                               console.log(error);
-                              console.log('*** end of error with billings api ***');
                             }
                             if (response.status === 'error') {
                               console.log(response);
@@ -713,10 +677,6 @@ exports.gift = function (req, res) {
 
                           }).auth(config.billings.apiUser, config.billings.apiPass, false)
                             .then(function(billingsResponse) {
-                              console.log('*** completed billings process!!! ***');
-                              console.log(billingsResponse);
-                              console.log('*** completed billings process - end of response ***');
-
 
                               if (billingsResponse.status !== 'error') {
                                 userBillingUuid = billingsResponse.response.user.userBillingUuid;
@@ -727,20 +687,12 @@ exports.gift = function (req, res) {
                                   "billingInfoOpts": {}
                                 };
 
-                                console.log('*** subscription billing data ***');
-                                console.log(subscriptionBillingData);
-                                console.log('*** end of subscription billing data ***');
-
-                                request.post({url: createSubscription, json: subscriptionBillingData}, function (error, response, body) {
+                                requestPromise.post({url: createSubscription, json: subscriptionBillingData}, function (error, response, body) {
                                   if (error) {
-                                    console.log('*** error with subscription billings api ***');
                                     console.log(error);
-                                    console.log('*** end of error with subscription billings api ***');
                                   }
-                                  if (response) {
-                                    console.log('*** response from subscription billings api ***');
+                                  if (response.status === 'error') {
                                     console.log(body);
-                                    console.log('*** end of response from subscription billings api ***');
 
                                   }
                                 }).auth(config.billings.apiUser, config.billings.apiPass, false);
