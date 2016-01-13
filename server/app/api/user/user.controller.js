@@ -13,6 +13,7 @@ var utils = require('../utils.js');
 function validationError(res, statusCode) {
   statusCode = statusCode || 422;
   return function (err) {
+    console.error('/api/users/: error: validationError: ', err);
     res.status(statusCode).json(err);
   }
 }
@@ -20,6 +21,7 @@ function validationError(res, statusCode) {
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
+    console.error('/api/users/: error: handleError: ', err);
     res.status(statusCode).send(err);
   };
 }
