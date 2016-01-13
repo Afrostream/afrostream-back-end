@@ -113,7 +113,7 @@
   "scripts": {
     "start": "node server/server.js",
     "postinstall": "bower install && grunt build",
-    "dev": "grunt serve",
+    "dev": ". ~/.nvm/nvm.sh && nvm use 0.12 && grunt serve",
     "test": "grunt test"
   },
   "private": true
