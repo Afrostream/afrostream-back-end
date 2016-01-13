@@ -692,7 +692,7 @@ exports.gift = function (req, res) {
                                     console.log(error);
                                   }
                                   if (response.status === 'error') {
-                                    console.log(body);
+                                    console.log(response);
 
                                   }
                                 }).auth(config.billings.apiUser, config.billings.apiPass, false);
