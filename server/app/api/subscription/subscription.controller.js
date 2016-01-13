@@ -425,6 +425,7 @@ exports.status = function (req, res) {
 // Creates a new subscription in the DB
 exports.create = function (req, res) {
   var userId = req.user._id;
+  var userBillingUuid = '';
   User.find({
     where: {
       _id: userId
@@ -456,12 +457,18 @@ exports.create = function (req, res) {
 
         }
         if (response.status === 'error') {
+          console.log('*** create user in billings ***');
           console.log(response);
+          console.log('*** end of user creation in billings ***');
         }
 
       }).auth(config.billings.apiUser, config.billings.apiPass, false)
         .then(function(billingsResponse) {
-          if (billingsResponse.status === 'done') {
+          console.log('*** here is the billingsResponse ***');
+          console.log(billingsResponse);
+          console.log('*** end of user the billingsResponse ***');
+          if (billingsResponse.status == 'done') {
+            userBillingUuid = billingsResponse.response.user.userBillingUuid;
             var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
             var data = {
               plan_code: req.body['plan-code'],
@@ -478,29 +485,29 @@ exports.create = function (req, res) {
                 }
               }
             };
+            console.log('*** here is data for recurly ***');
+            console.log(data);
+            console.log('*** end of data for recurly ***');
 
             console.log('subscription create', data.account);
 
             return createAsync(data).then(function (item) {
               user.account_code = data.account.account_code;
-              var userBillingUuid = '';
+              //var userBillingUuid = '';
 
               return user.save()
                 .then(function () {
 
                   var userBillingsData = {
-                    "providerName" : "recurly",
-                    "userReferenceUuid" : userId,
                     "userProviderUuid" : data.account.account_code,
-                    "userOpts" : {
-                      "email" : req.body['email'],
-                      "firstName" : req.body['first_name'],
-                      "lastName" : req.body['last_name']
-                    }
                   };
 
-                  var findUser = config.billings.url + 'billings/api/users/';
-                  requestPromise.post({url: findUser, json: userBillingsData}, function (error, response, body) {
+                  console.log('*** here is data to update  billings ***');
+                  console.log(userBillingsData);
+                  console.log('*** end of data to update billings ***');
+
+                  var findUser = config.billings.url + 'billings/api/users/' + userBillingUuid;
+                  requestPromise.put({url: findUser, json: userBillingsData}, function (error, response, body) {
 
                     if (error) {
                       console.log(error);
@@ -514,9 +521,12 @@ exports.create = function (req, res) {
                       return res.status(500).send(err.errors || err);
                     })
                     .then(function (userBillingsResponse) {
+                      console.log('*** here is response from update of billings ***');
+                      console.log(userBillingsResponse);
+                      console.log('*** end of response from update of billings ***');
 
                       if (userBillingsResponse.status !== 'error') {
-                        userBillingUuid = userBillingsResponse.response.user.userBillingUuid;
+                        //userBillingUuid = userBillingsResponse.response.user.userBillingUuid;
                         var createSubscription = config.billings.url + 'billings/api/subscriptions/';
                         var subscriptionBillingData = { "userBillingUuid": userBillingUuid,
                           "internalPlanUuid": item.properties.plan.plan_code,
@@ -555,7 +565,6 @@ exports.gift = function (req, res) {
   var newUserProfile;
   var purchaseDetails = {};
   var userId = req.user._id;
-  var userBillingUuid = '';
 
   if (req.body['email'] === req.body['gift_email']) {
     var sameEmailError = new Error('Cannot buy a gift for yourself!');
