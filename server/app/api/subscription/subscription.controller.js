@@ -457,16 +457,11 @@ exports.create = function (req, res) {
 
         }
         if (response.status === 'error') {
-          console.log('*** create user in billings ***');
-          console.log(response);
-          console.log('*** end of user creation in billings ***');
+          console.log(body);
         }
 
       }).auth(config.billings.apiUser, config.billings.apiPass, false)
         .then(function(billingsResponse) {
-          console.log('*** here is the billingsResponse ***');
-          console.log(billingsResponse);
-          console.log('*** end of user the billingsResponse ***');
           if (billingsResponse.status == 'done') {
             userBillingUuid = billingsResponse.response.user.userBillingUuid;
             var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
@@ -485,9 +480,6 @@ exports.create = function (req, res) {
                 }
               }
             };
-            console.log('*** here is data for recurly ***');
-            console.log(data);
-            console.log('*** end of data for recurly ***');
 
             console.log('subscription create', data.account);
 
@@ -502,10 +494,6 @@ exports.create = function (req, res) {
                     "userProviderUuid" : data.account.account_code,
                   };
 
-                  console.log('*** here is data to update  billings ***');
-                  console.log(userBillingsData);
-                  console.log('*** end of data to update billings ***');
-
                   var findUser = config.billings.url + 'billings/api/users/' + userBillingUuid;
                   requestPromise.put({url: findUser, json: userBillingsData}, function (error, response, body) {
 
@@ -513,7 +501,7 @@ exports.create = function (req, res) {
                       console.log(error);
                     }
                     if (response.status === 'error') {
-                      console.log(response);
+                      console.log(body);
                     }
 
                   }).auth(config.billings.apiUser, config.billings.apiPass, false)
@@ -521,9 +509,6 @@ exports.create = function (req, res) {
                       return res.status(500).send(err.errors || err);
                     })
                     .then(function (userBillingsResponse) {
-                      console.log('*** here is response from update of billings ***');
-                      console.log(userBillingsResponse);
-                      console.log('*** end of response from update of billings ***');
 
                       if (userBillingsResponse.status !== 'error') {
                         //userBillingUuid = userBillingsResponse.response.user.userBillingUuid;
@@ -533,19 +518,14 @@ exports.create = function (req, res) {
                           "subscriptionProviderUuid": item.properties.uuid,
                           "billingInfoOpts": {}
                         };
-                        console.log('*** here data for subscription billings ***');
-                        console.log(subscriptionBillingData);
-                        console.log('*** end of data for subscription billings ***');
 
                         requestPromise.post({url: createSubscription, json: subscriptionBillingData}, function (error, response, body) {
-                          console.log('*** here response for subscription billings ***');
-                          console.log(response.body);
-                          console.log('*** end of response for subscription billings ***');
+
                           if (error) {
                             console.log(error);
                           }
                           if (response.status === 'error') {
-                            console.log(response);
+                            console.log(body);
                           }
                         }).auth(config.billings.apiUser, config.billings.apiPass, false);
 
@@ -608,9 +588,7 @@ exports.gift = function (req, res) {
 
         }
         if (response.status === 'error') {
-          console.log('*** create user in billings ***');
-          console.log(response);
-          console.log('*** end of user creation in billings ***');
+          console.log(body);
         }
 
       }).auth(config.billings.apiUser, config.billings.apiPass, false)
@@ -741,7 +719,7 @@ exports.gift = function (req, res) {
                                   console.log(error);
                                 }
                                 if (response.status === 'error') {
-                                  console.log(response);
+                                  console.log(body);
                                 }
 
                               }).auth(config.billings.apiUser, config.billings.apiPass, false)
@@ -755,21 +733,15 @@ exports.gift = function (req, res) {
                                       "subscriptionProviderUuid": item.properties.uuid,
                                       "billingInfoOpts": {}
                                     };
-                                    console.log('*** gift sub billing data ***');
-                                    console.log(subscriptionBillingData);
-                                    console.log('***  end gift sub billing data ***');
 
                                     requestPromise.post({url: createSubscription, json: subscriptionBillingData}, function (error, response, body) {
                                       if (error) {
                                         console.log(error);
                                       }
                                       if (response.status === 'error') {
-                                        console.log(response);
+                                        console.log(body);
 
                                       }
-                                      console.log('*** gift sub billing response ***');
-                                      console.log(response.body);
-                                      console.log('***  end gift sub billing response ***');
                                     }).auth(config.billings.apiUser, config.billings.apiPass, false);
                                   }
                                   return res.json(newUserProfile);
