@@ -2,6 +2,8 @@
 
 var Q = require('q');
 
+var URLSafeBase64 = require('urlsafe-base64');
+
 var mailer = rootRequire('/server/components/mailer');
 
 var sqldb = rootRequire('/server/sqldb');
