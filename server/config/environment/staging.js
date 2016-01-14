@@ -14,6 +14,11 @@ module.exports = {
     foo: 'bar'
   },
 
+  frontEnd: {
+    protocol: 'https',
+    authority: 'afrostream-staging.herokuapp.com'
+  },
+
   sendGrid: {
     api_user: 'azure_3e7c4f32e08f4c0ba3c3ec8eb6c2fe58@azure.com',
     api_key: 'Afr@stream77'

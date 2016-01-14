@@ -131,7 +131,7 @@ exports = module.exports = {
       subject: 'Mise à jour du mot de passe',
       text: 'Bonjour, \n\n' +
       'Veuillez cliquer sur le lien suivant pour confirmer la mise à jour de votre mot de passe : '
-      + 'https://afrostream.tv/reset-password?k='+token+' \n\n'
+      + config.frontEnd.protocol + '://' + config.frontEnd.authority + '/reset-password?k='+token+' \n\n'
       + 'Si le lien ne fonctionne pas, veuillez le copier-coller dans votre navigateur\n\n'
       + '\n\n'
       + '--\n\n'

@@ -12,6 +12,11 @@ module.exports = {
     foo: 'bar'
   },
 
+  frontEnd: {
+    protocol: 'http',
+    authority: 'localhost:3000'
+  },
+
   sequelize: {
     uri: 'postgres://postgres:root@localhost:5432/afrostream',
     options: {
