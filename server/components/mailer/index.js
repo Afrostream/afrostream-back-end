@@ -128,11 +128,11 @@ exports = module.exports = {
       from: 'no-reply@afrostream.tv',
       to: emailAddress,
       bcc: ['reset@afrostream.tv'],
-      subject: 'Mise à jour du mot de passe',
+      subject: 'Mise à jour de votre mot de passe Afrostream',
       text: 'Bonjour, \n\n' +
       'Veuillez cliquer sur le lien suivant pour confirmer la mise à jour de votre mot de passe : '
       + config.frontEnd.protocol + '://' + config.frontEnd.authority + '/reset-password?k='+token+' \n\n'
-      + 'Si le lien ne fonctionne pas, veuillez le copier-coller dans votre navigateur\n\n'
+      + 'Si le lien ne fonctionne pas, veuillez le copier-coller dans votre navigateur.\n\n'
       + '\n\n'
       + '--\n\n'
       + 'AFROSTREAM'
