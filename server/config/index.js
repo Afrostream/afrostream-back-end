@@ -62,9 +62,11 @@ var all = {
   },
 
   facebook: {
-    clientID: process.env.FACEBOOK_ID || 'id',
-    clientSecret: process.env.FACEBOOK_SECRET || 'secret',
-    callbackURL: (process.env.DOMAIN || 'http://localhost:9000') + '/auth/facebook/callback'
+    clientID: process.env.FACEBOOK_ID || '828887693868980',
+    clientSecret: process.env.FACEBOOK_SECRET || '25130290468ec21fbefd1604218cc57c',
+    callbackURL: (process.env.FACEBOOK_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/facebook/callback',
+    failureURL: (process.env.FACEBOOK_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/facebook/failure',
+    successURL: (process.env.FACEBOOK_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/facebook/success'
   },
 
   google: {

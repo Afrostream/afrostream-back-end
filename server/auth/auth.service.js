@@ -46,7 +46,7 @@ function isAuthenticated() {
     }
   }
   return compose()
-    //Validate jwt
+  //Validate jwt
     .use(function (req, res, next) {
       // allow access_token to be passed through query parameter as well
       if (req.query && req.query.hasOwnProperty('access_token')) {
@@ -149,8 +149,9 @@ function setTokenCookie(req, res) {
   }
   return signToken(req.user)
     .then(function (token) {
-      res.cookie('token', token);
-      res.redirect('/');
+      res.json({
+        token: token
+      });
     })
     .catch(function () {
       return res.status(404).send('Something went wrong, please try again.');

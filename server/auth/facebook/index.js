@@ -3,17 +3,20 @@
 var express = require('express');
 var passport = require('passport');
 var auth = require('../auth.service');
+var config = require('../../config');
 
 var router = express.Router();
 
 router
   .get('/', passport.authenticate('facebook', {
+    display: 'popup',
     scope: ['email', 'user_about_me'],
-    failureRedirect: '/signup',
     session: false
   }))
   .get('/callback', passport.authenticate('facebook', {
-    failureRedirect: '/signup',
+    display: 'popup',
+    //successRedirect: config.facebook.successURL,
+    failureRedirect: config.facebook.failureURL,
     session: false
   }), auth.setTokenCookie);
 
