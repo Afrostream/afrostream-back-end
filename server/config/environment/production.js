@@ -71,5 +71,11 @@ module.exports = {
     }
   },
 
+  billings: {
+    url: 'http://afrostream-billings.herokuapp.com/',
+    apiUser: 'admin',
+    apiPass: 'billingsapirocks'
+  },
+
   dumpPostData: true
 };
