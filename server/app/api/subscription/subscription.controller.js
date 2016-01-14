@@ -485,7 +485,6 @@ exports.create = function (req, res) {
 
             return createAsync(data).then(function (item) {
               user.account_code = data.account.account_code;
-              //var userBillingUuid = '';
 
               return user.save()
                 .then(function () {
@@ -511,7 +510,6 @@ exports.create = function (req, res) {
                     .then(function (userBillingsResponse) {
 
                       if (userBillingsResponse.status !== 'error') {
-                        //userBillingUuid = userBillingsResponse.response.user.userBillingUuid;
                         var createSubscription = config.billings.url + 'billings/api/subscriptions/';
                         var subscriptionBillingData = { "userBillingUuid": userBillingUuid,
                           "internalPlanUuid": item.properties.plan.plan_code,
