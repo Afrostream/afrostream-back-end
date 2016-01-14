@@ -114,6 +114,46 @@ exports = module.exports = {
     });
 
   },
+
+  sendResetPasswordEmail: function (emailAddress, token) {
+    var options = {
+      auth: {
+        api_user: config.sendGrid.api_user,
+        api_key: config.sendGrid.api_key
+      }
+    };
+
+    var client = nodemailer.createTransport(sgTransport(options));
+    var email = {
+      from: 'no-reply@afrostream.tv',
+      to: emailAddress,
+      bcc: ['reset@afrostream.tv'],
+      subject: 'Mise à jour du mot de passe',
+      text: 'Bonjour, \n\n' +
+      'Veuillez cliquer sur le lien suivant pour confirmer la mise à jour de votre mot de passe : '
+      + 'https://afrostream.tv/reset-password?k='+token+' \n\n'
+      + 'Si le lien ne fonctionne pas, veuillez le copier-coller dans votre navigateur\n\n'
+      + '\n\n'
+      + '--\n\n'
+      + 'AFROSTREAM'
+    };
+
+    console.log('mailer: sending: ', email);
+
+    // FIXME: testing email in dev / test env ?
+    if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
+      return Q(true);
+    }
+
+    // test/staging/prod
+    var sendMailAsync = Promise.promisify(client.sendMail, client);
+    return sendMailAsync(email)
+      .then(function (json) {
+        console.log('reset email sent ', json);
+        return true;
+      });
+  },
+
   handleError: function (res) {
     return function (err) {
       console.log(err);
