@@ -12488,6 +12488,11 @@
         }
       }
     },
+    "urlsafe-base64": {
+      "version": "1.0.0",
+      "from": "urlsafe-base64@*",
+      "resolved": "https://registry.npmjs.org/urlsafe-base64/-/urlsafe-base64-1.0.0.tgz"
+    },
     "xml2js": {
       "version": "0.4.15",
       "from": "xml2js@*",
