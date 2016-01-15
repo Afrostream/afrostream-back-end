@@ -549,7 +549,6 @@ exports.gift = function (req, res) {
   var newUserProfile;
   var purchaseDetails = {};
   var userId = req.user._id;
-  var giftRecipientId = '';
   var userBillingUuid = '';
 
   if (req.body['email'] === req.body['gift_email']) {
@@ -581,27 +580,26 @@ exports.gift = function (req, res) {
           email: req.body['gift_email']
         }
       }).then(function (giftRecipientUser) { // don't ever give out the password or salt
+
+        var giftRecipientId = '';
         if (!giftRecipientUser) {
-          User.create(giftRecipientData)
+
+          return User.create(giftRecipientData)
             .catch(function (err) {
               console.log(err);
               handleError(res);
-            })
-            .then(function(giftRecipientNewUser) {
-              console.log('*** new gift recipient user ***');
-              console.log(giftRecipientNewUser);
-              console.log('*** end of new gift recipient user ***');
-              giftRecipientId = giftRecipientNewUser._id;
             });
+
         } else {
-          giftRecipientId = giftRecipientUser._id;
+          return giftRecipientUser;
         }
-      }).then(function () {
+        return giftRecipientId;
+      }).then(function (gRecipient) {
 
         var profile = user.profile;
         var userBillingsData = {
           "providerName" : "recurly",
-          "userReferenceUuid" : giftRecipientId,
+          "userReferenceUuid" : gRecipient.dataValues._id,
           "userOpts" : {
             "email" : req.body['gift_email'],
             "firstName" : req.body['gift_first_name'],
@@ -654,6 +652,9 @@ exports.gift = function (req, res) {
               console.log('subscription create', data.account);
 
               return createAsync(data).then(function (item) {
+                console.log('*** recurly item ****');
+                console.log(item);
+                console.log('*** end of recurly item ****');
                 purchaseDetails['planName'] = item.properties.plan.name;
                 var accountId = item._resources.account.split('/accounts/')[1];
                 var invoiceId = purchaseDetails['invoiceNumber'] = item._resources.invoice.split('/invoices/')[1];
@@ -668,6 +669,9 @@ exports.gift = function (req, res) {
                   account_code: accountId,
                   active: true
                 };
+                console.log('*** new user data ***');
+                console.log(newUserData);
+                console.log('*** end of new user data ***');
 
                 User.find({
                   where: {
@@ -677,6 +681,7 @@ exports.gift = function (req, res) {
                   if (!user) {
                     console.log('user doesn\'t exist in billings');
                   } else {
+
                     user.account_code = data.account.account_code;
                     user.active = true;
                     user.save();
@@ -701,6 +706,7 @@ exports.gift = function (req, res) {
                           email: req.body['gift_email']
                         }
                       }).then (function (newUser) {
+
                         newUserProfile = newUser.profile;
                         newUserProfile.planCode = planCode;
                         var account = new recurly.Account();
@@ -769,6 +775,7 @@ exports.gift = function (req, res) {
                                           console.log(body);
 
                                         }
+
                                       }).auth(config.billings.apiUser, config.billings.apiPass, false);
                                     }
                                     return res.json(newUserProfile);
