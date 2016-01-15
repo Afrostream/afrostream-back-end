@@ -141,7 +141,7 @@ exports = module.exports = {
     console.log('mailer: sending: ', email);
 
     // FIXME: testing email in dev / test env ?
-    if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
       return Q(true);
     }
 
