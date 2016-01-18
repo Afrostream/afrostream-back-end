@@ -43,8 +43,9 @@ module.exports = function (sequelize, DataTypes) {
     provider: DataTypes.STRING,
     billing_provider: DataTypes.STRING,
     salt: DataTypes.STRING,
-    google: DataTypes.TEXT,
-    github: DataTypes.TEXT,
+    google: DataTypes.JSON,
+    github: DataTypes.JSON,
+    facebook: DataTypes.JSON,
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
@@ -62,7 +63,8 @@ module.exports = function (sequelize, DataTypes) {
           'role': this.role,
           '_id': this._id,
           'email': this.email,
-          'provider': this.provider
+          'provider': this.provider,
+          'facebook': this.facebook
         };
       },
 
