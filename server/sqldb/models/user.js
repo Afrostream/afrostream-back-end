@@ -63,7 +63,8 @@ module.exports = function (sequelize, DataTypes) {
           'role': this.role,
           '_id': this._id,
           'email': this.email,
-          'provider': this.provider
+          'provider': this.provider,
+          'facebook': this.facebook
         };
       },
 
