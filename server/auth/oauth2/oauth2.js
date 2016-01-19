@@ -60,7 +60,7 @@ var generateTokenData = function (client, user, code) {
   }
 };
 
-var generateToken = function (client, user, code, done) {
+var generateToken = function (client, user, code, clientIp, done) {
   var tokenData = generateTokenData(client, user, code);
 
   AccessToken.create({
@@ -157,7 +157,7 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
 }));
 */
 
-server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, done) {
+server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, reqBody, done) {
   Client.find({
       where: {
         _id: client._id
@@ -190,7 +190,7 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
                 message: 'This password is not correct.'
               });
             } else {
-              return generateToken(entity, user, null, done);
+              return generateToken(entity, user, null, reqBody.clientIp, done);
             }
           });
 
@@ -204,7 +204,7 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
     });
 }));
 
-server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, done) {
+server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, reqBody, done) {
   Client.find({
       where: {
         _id: client._id
@@ -217,7 +217,7 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
       if (entity.secret !== client.secret) {
         return done(null, false);
       }
-      return generateToken(entity, null, null, done);
+      return generateToken(entity, null, null, reqBody.clientIp, done);
     })
     .catch(function (err) {
       return done(err);
@@ -267,6 +267,7 @@ exports.decision = [
 ];
 
 exports.token = [
+  function (req, res, next) { req.body.clientIp = req.clientIp; next(); },
   passport.authenticate(['clientBasic', 'clientPassword'], {session: false}),
   server.token(),
   server.errorHandler()
