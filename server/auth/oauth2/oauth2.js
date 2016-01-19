@@ -272,26 +272,4 @@ exports.token = [
   server.errorHandler()
 ];
 
-exports.login = [
-  function (req, res, next) {
-    passport.authenticate(['local'], function (err, user, info) {
-      var error = err || info;
-      if (error) {
-        return res.status(401).json(error);
-      }
-      if (!user) {
-        return res.status(404).json({message: 'Something went wrong, please try again.'});
-      }
-
-      return generateToken(null, user, null, function (err, token, refreshToken, info) {
-        if (err) {
-          return res.status(401).json(err);
-        }
-        return res.json({token: token, info: info});
-      });
-
-    })(req, res, next)
-  }
-];
-
 exports.generateToken = generateToken;
