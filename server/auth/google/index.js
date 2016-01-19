@@ -19,6 +19,6 @@ router
   .get('/callback', passport.authenticate('google', {
     failureRedirect: '/signup',
     session: false
-  }), auth.setTokenCookie);
+  }), auth.respondOauth2UserToken);
 
 module.exports = router;

@@ -101,25 +101,24 @@ function reqUserIsBacko(req) {
  */
 function getOauth2UserToken(user) {
   var deferred = Q.defer();
-  oauth2.generateToken(null, user, null, function (err, token, refreshToken, data) {
-    if (err)  return deferred.reject(err);
-    return deferred.resolve(token);
-  });
+  if (!user) {
+    deferred.reject(new Error("no user"));
+  } else {
+    oauth2.generateToken(null, user, null, function (err, token, refreshToken, data) {
+      if (err)  return deferred.reject(err);
+      return deferred.resolve(token);
+    });
+  }
   return deferred.promise;
 }
 
 /**
- * Set token cookie directly for oAuth strategies
+ * respond oauth2 user token.
  */
-function setTokenCookie(req, res) {
-  if (!req.user) {
-    return res.status(404).send('Something went wrong, please try again.');
-  }
-  return getOauth2UserToken(req.user)
+function respondOauth2UserToken(req, res) {
+  getOauth2UserToken(req.user)
     .then(function (token) {
-      res.json({
-        token: token
-      });
+      res.json({token: token});
     })
     .catch(function () {
       return res.status(404).send('Something went wrong, please try again.');
@@ -239,6 +238,6 @@ exports.isAuthenticated = isAuthenticated;
 exports.hasRole = hasRole;
 exports.validRole = validRole;
 exports.getOauth2UserToken = getOauth2UserToken;
-exports.setTokenCookie = setTokenCookie;
+exports.respondOauth2UserToken = respondOauth2UserToken;
 //
 exports.filterQueryOptions = filterQueryOptions;
