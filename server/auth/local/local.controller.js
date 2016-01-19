@@ -5,25 +5,23 @@ var Q = require('q');
 var passport = require('passport');
 var auth = require('../auth.service');
 
-var login = function (req, res) {
-  Q.ninvoke(passport, 'authenticate', 'local')
+var login = function (req, res, next) {
+  passport.authenticate('local', function (err, user, info) {
+    Q()
     .then(function (data) {
-      var user = data[0], error = data[1];
-      if (error) {
-        throw error;
-      }
-      if (!user) {
-        throw 'Something went wrong, please try again.'
-      }
+      if (err) throw err;
+      if (info) throw info;
+      if (!user) throw new Error('Something went wrong, please try again.');
       return auth.getOauth2UserToken(user, req.clientIp);
     })
     .then(
-    function (token) {
+    function success(token) {
       res.json({token: token});
     },
-    function (err) {
+    function error(err) {
       return res.status(401).json({message: String(err)});
     });
+  })(req, res, next)
 };
 
 module.exports.login = login;
