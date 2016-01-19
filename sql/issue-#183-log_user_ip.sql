@@ -1,0 +1,1 @@
+ALTER TABLE "AccessTokens" ADD COLUMN "userIp" cidr;

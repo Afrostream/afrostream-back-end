@@ -60,15 +60,24 @@ var generateTokenData = function (client, user, code) {
   }
 };
 
-var generateToken = function (client, user, code, clientIp, done) {
+var generateToken = function (client, user, code, userIp, done) {
   var tokenData = generateTokenData(client, user, code);
 
+  // logs accessToken (duplicate with db)
+  console.log('[AUTH]: ' +
+    'client=' + tokenData.clientId + ' ' +
+    'user=' + tokenData.userId + ' ' +
+    'userIp=' + userIp + ' ' +
+    'accessToken=' + tokenData.token);
+
+  //
   AccessToken.create({
       token: tokenData.token,
       clientId: tokenData.clientId,
       userId: tokenData.userId,
       expirationDate: tokenData.expirationDate,
-      expirationTimespan: tokenData.expirationTimespan
+      expirationTimespan: tokenData.expirationTimespan,
+      userIp: userIp || null
     })
     .then(function (tokenEntity) {
       if (client === null) {
@@ -190,7 +199,7 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
                 message: 'This password is not correct.'
               });
             } else {
-              return generateToken(entity, user, null, reqBody.clientIp, done);
+              return generateToken(entity, user, null, reqBody.userIp, done);
             }
           });
 
@@ -217,7 +226,7 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
       if (entity.secret !== client.secret) {
         return done(null, false);
       }
-      return generateToken(entity, null, null, reqBody.clientIp, done);
+      return generateToken(entity, null, null, reqBody.userIp, done);
     })
     .catch(function (err) {
       return done(err);
@@ -267,7 +276,11 @@ exports.decision = [
 ];
 
 exports.token = [
-  function (req, res, next) { req.body.clientIp = req.clientIp; next(); },
+  function (req, res, next) {
+    // req.clientIp is the browser client ip
+    req.body.userIp = req.clientIp;
+    next();
+  },
   passport.authenticate(['clientBasic', 'clientPassword'], {session: false}),
   server.token(),
   server.errorHandler()
