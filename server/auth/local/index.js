@@ -16,7 +16,7 @@ router.post('/', function (req, res, next) {
       return res.status(404).json({message: 'Something went wrong, please try again.'});
     }
 
-    auth.signToken(user).then(function (err, token) {
+    auth.getOauth2UserToken(user).then(function (token) {
       return res.json({token: token});
     });
   })(req, res, next)
