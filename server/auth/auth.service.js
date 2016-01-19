@@ -99,12 +99,12 @@ function reqUserIsBacko(req) {
 /**
  * OAuth2 user token
  */
-function getOauth2UserToken(user) {
+function getOauth2UserToken(user, clientIp) {
   var deferred = Q.defer();
   if (!user) {
     deferred.reject(new Error("no user"));
   } else {
-    oauth2.generateToken(null, user, null, function (err, token, refreshToken, data) {
+    oauth2.generateToken(null, user, null, clientIp, function (err, token, refreshToken, data) {
       if (err)  return deferred.reject(err);
       return deferred.resolve(token);
     });
@@ -116,7 +116,7 @@ function getOauth2UserToken(user) {
  * respond oauth2 user token.
  */
 function respondOauth2UserToken(req, res) {
-  getOauth2UserToken(req.user)
+  getOauth2UserToken(req.user, req.clientIp)
     .then(function (token) {
       res.json({token: token});
     })

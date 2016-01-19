@@ -15,7 +15,7 @@ var login = function (req, res) {
       if (!user) {
         throw 'Something went wrong, please try again.'
       }
-      return auth.getOauth2UserToken(user);
+      return auth.getOauth2UserToken(user, req.clientIp);
     })
     .then(
     function (token) {
