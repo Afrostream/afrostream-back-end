@@ -50,7 +50,7 @@ describe('User API:', function () {
         .expect('Content-Type', /json/)
         .end(function (err, res) {
           assert(typeof res.body.token === 'string');
-          assert(res.body.info && typeof res.body.info.expires_in === 'number');
+          assert(res.body && typeof res.body.expires_in === 'number');
           token = res.body.token;
           done();
         });

@@ -18,6 +18,6 @@ router
     //successRedirect: config.facebook.successURL,
     failureRedirect: config.facebook.failureURL,
     session: false
-  }), auth.respondOauth2UserToken);
+  }), auth.respondOauth2UserTokens);
 
 module.exports = router;

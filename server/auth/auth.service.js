@@ -99,14 +99,19 @@ function reqUserIsBacko(req) {
 /**
  * OAuth2 user token
  */
-function getOauth2UserToken(user, clientIp) {
+function getOauth2UserTokens(user, clientIp) {
   var deferred = Q.defer();
   if (!user) {
     deferred.reject(new Error("no user"));
   } else {
-    oauth2.generateToken(null, user, null, clientIp, function (err, token, refreshToken, data) {
+    oauth2.generateToken(null, user, null, clientIp, function (err, accessToken, refreshToken, info) {
       if (err)  return deferred.reject(err);
-      return deferred.resolve(token);
+      return deferred.resolve({
+        token: accessToken, // backward compatibility
+        access_token:accessToken,
+        refresh_token:refreshToken,
+        expires_in:info.expires_in
+      });
     });
   }
   return deferred.promise;
@@ -115,10 +120,10 @@ function getOauth2UserToken(user, clientIp) {
 /**
  * respond oauth2 user token.
  */
-function respondOauth2UserToken(req, res) {
-  getOauth2UserToken(req.user, req.clientIp)
-    .then(function (token) {
-      res.json({token: token});
+function respondOauth2UserTokens(req, res) {
+  getOauth2UserTokens(req.user, req.clientIp)
+    .then(function (tokens) {
+      res.json(tokens);
     })
     .catch(function () {
       return res.status(404).send('Something went wrong, please try again.');
@@ -237,7 +242,7 @@ exports.authenticate = authenticate;
 exports.isAuthenticated = isAuthenticated;
 exports.hasRole = hasRole;
 exports.validRole = validRole;
-exports.getOauth2UserToken = getOauth2UserToken;
-exports.respondOauth2UserToken = respondOauth2UserToken;
+exports.getOauth2UserTokens = getOauth2UserTokens;
+exports.respondOauth2UserTokens = respondOauth2UserTokens;
 //
 exports.filterQueryOptions = filterQueryOptions;
