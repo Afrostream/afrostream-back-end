@@ -46,6 +46,8 @@ module.exports = function (app) {
 
   app.use('/right', require('../right/index'));
 
+  app.use('/bouygues', require('./bouygues'));
+
   app.use('/alive', require('./alive.controller.js').alive);
 
   app.route('/doc')
