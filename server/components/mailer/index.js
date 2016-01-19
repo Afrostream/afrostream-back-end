@@ -70,11 +70,11 @@ exports = module.exports = {
     var recipientFullName = (purchaseDetails['recipientFirstName'] && purchaseDetails['recipientLastName']
     !== 'undefined' ? (purchaseDetails['recipientFirstName'] + ' ' + purchaseDetails['recipientLastName']) : '');
 
-    var formattedSubtotal = (purchaseDetails['subtotalInCents']/100).toLocaleString('fr-FR');
-    var formattedTotal = (purchaseDetails['totalInCents']/100).toLocaleString('fr-FR');
+    var formattedSubtotal = (purchaseDetails['subtotalInCents'] / 100).toLocaleString('fr-FR');
+    var formattedTotal = (purchaseDetails['totalInCents'] / 100).toLocaleString('fr-FR');
     var discountLineItem = (purchaseDetails['discountInCents'] > 0)
-      ? 'Code Promo: -' + (purchaseDetails['discountInCents']/100).toLocaleString('fr-FR') +
-        ' ' + purchaseDetails['invoiceCurrency'] + '\n\n' : '';
+      ? 'Code Promo: -' + (purchaseDetails['discountInCents'] / 100).toLocaleString('fr-FR') +
+    ' ' + purchaseDetails['invoiceCurrency'] + '\n\n' : '';
 
 
     var email = {
@@ -131,7 +131,7 @@ exports = module.exports = {
       subject: 'Mise à jour de votre mot de passe Afrostream',
       text: 'Bonjour, \n\n' +
       'Veuillez cliquer sur le lien suivant pour confirmer la mise à jour de votre mot de passe : '
-      + config.frontEnd.protocol + '://' + config.frontEnd.authority + '/reset-password?k='+token+' \n\n'
+      + config.frontEnd.protocol + '://' + config.frontEnd.authority + '/reset?k=' + token + ' \n\n'
       + 'Si le lien ne fonctionne pas, veuillez le copier-coller dans votre navigateur.\n\n'
       + '\n\n'
       + '--\n\n'
