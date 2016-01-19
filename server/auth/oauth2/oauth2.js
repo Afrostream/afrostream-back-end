@@ -114,6 +114,7 @@ var refreshAccessToken = function (client, userId) {
     });
 };
 
+/*
 server.grant(oauth2orize.grant.code(function (client, redirectURI, user, ares, done) {
   AuthCode.create({clientId: client._id, redirectURI: redirectURI, userId: user._id})
     .then(function (entity) {
@@ -154,6 +155,7 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
       });
   });
 }));
+*/
 
 server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, done) {
   Client.find({
