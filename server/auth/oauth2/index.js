@@ -24,7 +24,6 @@ if (process.env.NODE_ENV === 'staging') {
   });
 }
 
-router.post('/', local.login);
 router.post('/token', oauth2.token);
 router.post('/autorization', oauth2.authorization);
 router.post('/decision', oauth2.decision);
