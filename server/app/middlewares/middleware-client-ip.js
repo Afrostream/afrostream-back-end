@@ -4,7 +4,7 @@
  * req.clientIp will contain the client ip
  *   searching in :
  *      the header x-forwarded-client-ip (call from api-v1)
- *   or the header fastly-client-ip (call throw CDN)
+ *   or the header fastly-client-ip (call through CDN)
  *   or in x-forwarded-for list (first on the left, direct heroku call)
  *   or in req.ip
  * @param options
