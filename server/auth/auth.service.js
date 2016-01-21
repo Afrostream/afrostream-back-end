@@ -99,12 +99,12 @@ function reqUserIsBacko(req) {
 /**
  * OAuth2 user token
  */
-function getOauth2UserTokens(user, clientIp) {
+function getOauth2UserTokens(user, userIp, userAgent) {
   var deferred = Q.defer();
   if (!user) {
     deferred.reject(new Error("no user"));
   } else {
-    oauth2.generateToken(null, user, null, clientIp, function (err, accessToken, refreshToken, info) {
+    oauth2.generateToken(null, user, null, userIp, userAgent, function (err, accessToken, refreshToken, info) {
       if (err)  return deferred.reject(err);
       return deferred.resolve({
         token: accessToken, // backward compatibility
@@ -121,7 +121,7 @@ function getOauth2UserTokens(user, clientIp) {
  * respond oauth2 user token.
  */
 function respondOauth2UserTokens(req, res) {
-  getOauth2UserTokens(req.user, req.clientIp)
+  getOauth2UserTokens(req.user, req.clientIp, req.userAgent)
     .then(function (tokens) {
       res.json(tokens);
     })

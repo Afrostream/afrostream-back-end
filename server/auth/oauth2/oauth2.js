@@ -60,7 +60,7 @@ var generateTokenData = function (client, user, code) {
   }
 };
 
-var generateToken = function (client, user, code, userIp, done) {
+var generateToken = function (client, user, code, userIp, userAgent, done) {
   var tokenData = generateTokenData(client, user, code);
 
   // logs accessToken (duplicate with db)
@@ -199,7 +199,7 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
                 message: 'This password is not correct.'
               });
             } else {
-              return generateToken(entity, user, null, reqBody.userIp, done);
+              return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
             }
           });
 
@@ -226,7 +226,7 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
       if (entity.secret !== client.secret) {
         return done(null, false);
       }
-      return generateToken(entity, null, null, reqBody.userIp, done);
+      return generateToken(entity, null, null, reqBody.userIp, reqBody.userAgent, done);
     })
     .catch(function (err) {
       return done(err);

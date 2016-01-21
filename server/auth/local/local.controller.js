@@ -12,7 +12,7 @@ var login = function (req, res, next) {
       if (err) throw err;
       if (info) throw info;
       if (!user) throw new Error('Something went wrong, please try again.');
-      return auth.getOauth2UserTokens(user, req.clientIp);
+      return auth.getOauth2UserTokens(user, req.clientIp, req.userAgent);
     })
     .then(
     function success(tokens) {
