@@ -42,6 +42,8 @@ module.exports = function (app) {
   app.use('/api/player', require('./api/player/index'));
   app.use('/api/cdnselector', require('./api/cdnselector/index'));
 
+  app.use('/api/exchanges', require('./api/exchange'));
+
   app.use('/auth', require('../auth/index'));
 
   app.use('/right', require('../right/index'));
