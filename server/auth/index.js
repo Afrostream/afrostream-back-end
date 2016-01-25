@@ -25,13 +25,9 @@ router.use(function (req, res, next) {
 
 router.use('/geo', require('./geo').router);
 
-if (config.oauth2 !== undefined) {
-  router.use('/oauth2', require('./oauth2'));
-  router.use('/local', require('./oauth2'));
-}
-else {
-  router.use('/local', require('./local'));
-}
+router.use('/oauth2', require('./oauth2'));
+router.use('/local', require('./local'));
+
 router.use('/google', require('./google'));
 router.use('/facebook', require('./facebook'));
 router.post('/reset', auth.isAuthenticated(), require('./auth.controller.js').reset);

@@ -11,6 +11,7 @@ var config = require('../config');
 var dumpPostData = require('./middlewares/middleware-dumppostdata.js');
 var morgan = require('./middlewares/middleware-morgan.js');
 var clientIp = require('./middlewares/middleware-client-ip.js');
+var userAgent = require('./middlewares/middleware-user-agent.js');
 var cacheHandler = require('./middlewares/middleware-cachehandler.js');
 
 // Setup server
@@ -32,6 +33,7 @@ app.use(require('connect-busboy')());
 app.use(require('passport').initialize());
 //app.use(require('passport').session());
 app.use(clientIp());
+app.use(userAgent());
 app.use(cacheHandler());
 
 if (config.dumpPostData) {

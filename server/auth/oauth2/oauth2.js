@@ -60,15 +60,25 @@ var generateTokenData = function (client, user, code) {
   }
 };
 
-var generateToken = function (client, user, code, done) {
+var generateToken = function (client, user, code, userIp, userAgent, done) {
   var tokenData = generateTokenData(client, user, code);
 
+  // logs accessToken (duplicate with db)
+  console.log('[AUTH]: ' +
+    'client=' + tokenData.clientId + ' ' +
+    'user=' + tokenData.userId + ' ' +
+    'userIp=' + userIp + ' ' +
+    'accessToken=' + tokenData.token);
+
+  //
   AccessToken.create({
       token: tokenData.token,
       clientId: tokenData.clientId,
       userId: tokenData.userId,
       expirationDate: tokenData.expirationDate,
-      expirationTimespan: tokenData.expirationTimespan
+      expirationTimespan: tokenData.expirationTimespan,
+      userIp: userIp || null,
+      userAgent: userAgent
     })
     .then(function (tokenEntity) {
       if (client === null) {
@@ -114,6 +124,7 @@ var refreshAccessToken = function (client, userId) {
     });
 };
 
+/*
 server.grant(oauth2orize.grant.code(function (client, redirectURI, user, ares, done) {
   AuthCode.create({clientId: client._id, redirectURI: redirectURI, userId: user._id})
     .then(function (entity) {
@@ -154,8 +165,9 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
       });
   });
 }));
+*/
 
-server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, done) {
+server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, reqBody, done) {
   Client.find({
       where: {
         _id: client._id
@@ -188,7 +200,7 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
                 message: 'This password is not correct.'
               });
             } else {
-              return generateToken(entity, user, null, done);
+              return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
             }
           });
 
@@ -202,7 +214,7 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
     });
 }));
 
-server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, done) {
+server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, reqBody, done) {
   Client.find({
       where: {
         _id: client._id
@@ -215,7 +227,7 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
       if (entity.secret !== client.secret) {
         return done(null, false);
       }
-      return generateToken(entity, null, null, done);
+      return generateToken(entity, null, null, reqBody.userIp, reqBody.userAgent, done);
     })
     .catch(function (err) {
       return done(err);
@@ -265,31 +277,14 @@ exports.decision = [
 ];
 
 exports.token = [
+  function (req, res, next) {
+    // req.clientIp is the browser client ip
+    req.body.userIp = req.clientIp;
+    next();
+  },
   passport.authenticate(['clientBasic', 'clientPassword'], {session: false}),
   server.token(),
   server.errorHandler()
-];
-
-exports.login = [
-  function (req, res, next) {
-    passport.authenticate(['local'], function (err, user, info) {
-      var error = err || info;
-      if (error) {
-        return res.status(401).json(error);
-      }
-      if (!user) {
-        return res.status(404).json({message: 'Something went wrong, please try again.'});
-      }
-
-      return generateToken(null, user, null, function (err, token, refreshToken, info) {
-        if (err) {
-          return res.status(401).json(err);
-        }
-        return res.json({token: token, info: info});
-      });
-
-    })(req, res, next)
-  }
 ];
 
 exports.generateToken = generateToken;
