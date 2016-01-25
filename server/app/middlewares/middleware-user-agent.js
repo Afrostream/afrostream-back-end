@@ -10,7 +10,8 @@
  */
 module.exports = function (options) {
   return function (req, res, next) {
-    req.userAgent = req.get('x-forwarded-user-agent') || req.get('User-Agent');
+    // avoiding > 255char user agents...
+    req.userAgent = (req.get('x-forwarded-user-agent') || req.get('User-Agent') || '').substr(0, 250);
     next();
   };
 };
