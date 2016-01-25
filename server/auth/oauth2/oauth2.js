@@ -68,6 +68,7 @@ var generateToken = function (client, user, code, userIp, userAgent, done) {
     'client=' + tokenData.clientId + ' ' +
     'user=' + tokenData.userId + ' ' +
     'userIp=' + userIp + ' ' +
+    'userAgent=' + userAgent + ' ' +
     'accessToken=' + tokenData.token);
 
   //
@@ -280,6 +281,7 @@ exports.token = [
   function (req, res, next) {
     // req.clientIp is the browser client ip
     req.body.userIp = req.clientIp;
+    req.body.userAgent = req.userAgent;
     next();
   },
   passport.authenticate(['clientBasic', 'clientPassword'], {session: false}),
