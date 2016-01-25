@@ -77,7 +77,8 @@ var generateToken = function (client, user, code, userIp, userAgent, done) {
       userId: tokenData.userId,
       expirationDate: tokenData.expirationDate,
       expirationTimespan: tokenData.expirationTimespan,
-      userIp: userIp || null
+      userIp: userIp || null,
+      userAgent: userAgent
     })
     .then(function (tokenEntity) {
       if (client === null) {
