@@ -13,7 +13,7 @@ module.exports.drmtodayCallback = function (req, res, next) {
   req.headers.authorization = 'Bearer ' + accessToken;
 
   // route headers
-  res.set('Cache-Control', 'public, max-age=0'); // we cannot cache this route
+  res.noCache(); // we cannot cache this route
   res.set('Content-Type', 'application/json');
 
   // we check if the user exist & if the accessToken is valid.

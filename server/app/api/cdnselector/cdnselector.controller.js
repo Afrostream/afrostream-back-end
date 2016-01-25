@@ -5,8 +5,6 @@ var config = rootRequire('/server/config');
 var cdnselector = rootRequire('/server/cdnselector');
 
 exports.getList = function (req, res) {
-  res.set('Cache-Control', 'public, max-age=0');
-
   // FIXME: to be removed
   // START REMOVE
   // hack staging cdnselector orange (testing)

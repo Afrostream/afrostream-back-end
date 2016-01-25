@@ -16,7 +16,6 @@ module.exports = function (options) {
     res.isStatic = function () {
       res.set('Cache-Control', 'public, max-age=31536000');
     };
-    res.isDynamic();
     next();
   };
 };

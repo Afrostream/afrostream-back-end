@@ -19,9 +19,9 @@ var auth = rootRequire('/server/auth/auth.service');
 
 var router = express.Router();
 
-// all user routes are dynamic.
+// all user routes cannot be cached.
 router.use(function (req, res, next) {
-  res.isDynamic();
+  res.noCache();
   next();
 });
 

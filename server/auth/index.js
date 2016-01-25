@@ -17,6 +17,12 @@ require('./facebook/passport').setup(User, config);
 
 var router = express.Router();
 
+// auth routes cannot be cached !!
+router.use(function (req, res, next) {
+  res.noCache();
+  next();
+});
+
 router.use('/geo', require('./geo').router);
 
 if (config.oauth2 !== undefined) {
