@@ -10,8 +10,6 @@ module.exports = function (sequelize, DataTypes) {
       primaryKey: true
     },
     token: DataTypes.STRING,
-    userId: DataTypes.INTEGER,
-    clientId: DataTypes.UUID,
     created: {
       type: DataTypes.DATE,
       allowNull: false,

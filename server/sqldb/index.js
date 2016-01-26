@@ -111,6 +111,9 @@ db.Movie.belongsTo(db.CatchupProvider, {as: 'catchupProvider', foreignKey: 'catc
 db.CatchupProvider.belongsTo(db.Category, {as: 'category', foreignKey: 'categoryId', constraints: false});
 db.CatchupProvider.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId', constraints: false});
 
+db.AccessToken.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false});
+db.AccessToken.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', constraints: false});
+
 ///// HELPERS FUNCTIONS /////
 var _ = require('lodash');
 

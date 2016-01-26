@@ -40,6 +40,8 @@ if (process.env.NODE_ENV === 'staging') {
   });
 }
 
+router.get('/logs', auth.hasRole('admin'), require('./logs/user.controller.js').index);
+
 router.use('/:userId/favoritesEpisodes', require('./favoriteEpisode/index'));
 router.use('/:userId/favoritesMovies', require('./favoriteMovie/index'));
 router.use('/:userId/favoritesSeasons', require('./favoriteSeason/index'));
