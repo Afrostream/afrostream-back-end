@@ -25,3 +25,15 @@ exports.index = function (req, res) {
     function (result) { res.json(result); },
     function (err) { res.status(500).json({message:String(err)})});
 };
+
+exports.show = function (req, res) {
+  AccessToken.findAll({
+    where: { userId: req.params.userId },
+    limit: 50,
+    order: [
+      ['created', 'DESC']
+    ]
+  }).then(
+    function (result) { res.json(result); },
+    function (err) { res.status(500).json({message:String(err)})});
+};

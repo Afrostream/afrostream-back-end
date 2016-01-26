@@ -13,3 +13,22 @@ label(for='id').control-label User Role
 .form-group(ng-if='!item._id')
   label(for='password').control-label Password
   input.form-control(id='password' type='text' ng-model='item.password')
+.form-group
+  table.table(style="font-size:10px;font-family: 'Courier New';")
+    colgroup
+      col.col-md-2
+      col.col-md-2
+      col.col-md-4
+    thead
+      tr
+        th.text-center Date
+        th.text-center Ip
+        th.text-center User Agent
+    tbody
+      tr(ng-repeat='accessToken in accessTokens')
+        td.text-center
+          div {{accessToken.created}}
+        td.text-center
+          div {{accessToken.userIp}}
+        td.text-center
+          div {{accessToken.userAgent}}

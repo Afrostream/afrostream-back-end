@@ -102,5 +102,5 @@ script(type='text/ng-template' id='imagesTemplate.html')
 
 .modal-footer
   button.btn.btn-primary(type='submit' ng-click='addItem()' ng-if='!item._id') Add
-  button.btn.btn-primary(type='submit' ng-click='updateItem()' ng-if='item._id') Update
+  button.btn.btn-primary(type='submit' ng-click='updateItem()' ng-if='item._id && modalType !== "user"') Update
   button.btn.btn-primary(ng-click='cancel()') Cancel
