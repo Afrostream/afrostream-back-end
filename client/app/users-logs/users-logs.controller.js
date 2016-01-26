@@ -29,12 +29,14 @@ angular.module('afrostreamAdminApp')
       var maxNbUsers = data.reduce(function (p, c) { return c.count > p ? c.count : p }, 0);
       var minNbUsers = data.reduce(function (p, c) { return c.count < p ? c.count : p }, Infinity);
       var delta = maxNbUsers - minNbUsers;
-      // creating color
+      // creating color & margin
       data.forEach(function (activeUsersByDay) {
         var green = Number(Math.round(255 - (activeUsersByDay.count - minNbUsers) / delta * 255)).toString(16);
         // pad with 0
         if (green.length <= 1) green = '0' + green;
         activeUsersByDay.color = '#00' + green + '00';
+        //
+        activeUsersByDay.marginRight = new Date(activeUsersByDay.date).getDay() ? 1 : 5;
       });
       $scope.countActiveUsersByDays30 = data.reverse();
     });
