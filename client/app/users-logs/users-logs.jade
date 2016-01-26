@@ -36,14 +36,14 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                             col.col-md-4
                             col.col-md-1
                             col.col-md-4
-                            col.col-md-1
+                            // col.col-md-1
                         thead
                             tr
                                 th.text-center Login Date
                                 th.text-center Email
                                 th.text-center User IP
                                 th.text-center User Agent
-                                th.text-center Actions
+                                // th.text-center Actions
                         tbody
                             tr(ng-repeat='accessToken in accessTokens | DataFormater')
                                 td.text-center
@@ -54,6 +54,6 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                                     span {{accessToken.userIp}}
                                 td.text-center
                                     span {{accessToken.userAgent}}
-                                td.pull-right
+                                //td.pull-right
                                     button.btn.btn-xs.btn-primary(ng-click='editIndex(accessToken.user._id)' tooltip='Edit' )
                                         span.glyphicon.glyphicon-pencil
