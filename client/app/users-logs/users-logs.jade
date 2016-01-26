@@ -12,7 +12,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         div(ng-repeat='activeUsersByDay in countActiveUsersByDays30 track by $index'
                             ng-style="{float:'left', textAlign: 'center', backgroundColor: activeUsersByDay.color," +
                                 "marginRight:'1px',width:'20px',height:'20px',display:'inline'}"
-                            title='{{activeUsersByDay.date}}:{{activeUsersByDay.count}}'
+                            title='{{activeUsersByDay.date}} → {{activeUsersByDay.count}} users'
                             )
                             | 
 
