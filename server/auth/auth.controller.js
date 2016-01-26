@@ -81,8 +81,7 @@ var loadUserOrFail = function (email) {
   return User.find({ where: { email: email } })
     .then(function (user) {
       if (!user) {
-        return
-        throw new Error("cannot find user attached to this email")
+        throw new Error("unknown email");
       }
       return user;
     });
