@@ -51,12 +51,10 @@ module.exports.countActiveUsersByDays = function (req, res) {
   var days = req.query.days || 30;
 
   sqldb.sequelize.query(
-    'select count("userId") as "count", "date" ' +
-    'FROM (' +
-    '    SELECT "userId", to_char(max("created"), \'YYYY-MM-DD\') as "date" ' +
-    '    FROM "AccessTokens" AS "AccessToken" ' +
-    '    WHERE "AccessToken"."userId" IS NOT NULL AND "AccessToken"."created" > \'' + new Date(Date.now() - (days * 24 * 3600 * 1000)).toISOString() + '\'' +
-    '    GROUP BY "userId" ' +
+    'select "date", count("userId") FROM ( ' +
+    '   SELECT distinct "userId", to_char("created", \'YYYY-MM-DD\') as "date"' +
+    '   FROM "AccessTokens" AS "AccessToken" ' +
+    '   WHERE "AccessToken"."userId" IS NOT NULL AND "AccessToken"."created" > \'' + new Date(Date.now() - (days * 24 * 3600 * 1000)).toISOString() + '\'' +
     ') AS foo ' +
     'GROUP BY "date" ORDER BY "date" desc').then(function (result) {
       res.json(result[0]);
