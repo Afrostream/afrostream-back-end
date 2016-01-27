@@ -28,6 +28,7 @@ module.exports = function (sequelize, DataTypes) {
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
-    }
+    },
+    numberOfEpisodes: DataTypes.INTEGER
   });
 };
