@@ -75,6 +75,9 @@ module.exports.getToken = function (app) {
   return f().then(function (res) {
     var token = res.body.token;
     return token;
+  }, function (err) {
+    console.error(err);
+    throw err;
   })
 };
 
