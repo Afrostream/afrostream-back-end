@@ -40,8 +40,9 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
   var seriesResume = infos.SERIES_RESUME || episodeResume;
   var seriesSlug = slugify(seriesTitle);
 
-  var dateFrom = new Date()
-    , dateTo = new Date(new Date().getTime() + 1000 * catchupProviderInfos.expiration);
+  var txShedDate = infos.TX_SCHED_DATE_PARSED || new Date();
+  var dateFrom = new Date(txShedDate.getTime() + 24 * 3600 * 1000) // day + 1.
+    , dateTo = new Date(txShedDate.getTime() + 24 * 3600 * 1000 + 1000 * catchupProviderInfos.expiration);
 
   if (parseInt(infos.EPISODE_NUMBER, 10) && parseInt(infos.SEASON_NUMBER, 10)) {
     var episodeNumber = parseInt(infos.EPISODE_NUMBER, 10) || 1;
@@ -50,15 +51,15 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
     return Q.all([
       Episode.findOrCreate({
         where: { catchupProviderId: catchupProviderInfos._id, episodeNumber: episodeNumber, title: episodeTitle },
-        defaults: { synopsis: episodeResume, sort: episodeNumber, active: true }
+        defaults: { synopsis: episodeResume, sort: episodeNumber, dateFrom: dateFrom, active: true }
       }),
       Season.findOrCreate({
         where: { catchupProviderId: catchupProviderInfos._id, seasonNumber: seasonNumber, title: seriesTitle },
-        defaults: { synopsis: seriesResume, sort: seasonNumber, active: true }
+        defaults: { synopsis: seriesResume, sort: seasonNumber, dateFrom: dateFrom, active: true }
       }),
       Movie.findOrCreate({
         where: { catchupProviderId: catchupProviderInfos._id, title: seriesTitle},
-        defaults: { synopsis: seriesResume, active: true }
+        defaults: { synopsis: seriesResume, dateFrom: dateFrom, active: true }
       })
     ]).spread(function (episodeInfos, seasonInfos, movieInfos) {
       var episode = episodeInfos[0]
@@ -66,9 +67,9 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
         , movie = movieInfos[0];
 
       return Q.all([
-        episode.update({  slug: episodeSlug, dateFrom: dateFrom, dateTo: dateTo }),
-        season.update({ slug: seriesSlug, dateFrom: dateFrom, dateTo: dateTo }),
-        movie.update({ slug: seriesSlug, type: 'serie', dateFrom: dateFrom, dateTo: dateTo })
+        episode.update({  slug: episodeSlug, dateTo: dateTo }),
+        season.update({ slug: seriesSlug, dateTo: dateTo }),
+        movie.update({ slug: seriesSlug, type: 'serie', dateTo: dateTo })
       ]);
     }).spread(function (episode, season, movie) {
       console.log('catchup: database: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id + ' video ' + video._id + ' ' +
@@ -190,7 +191,7 @@ var bet = function (req, res) {
               console.log('catchup: '+catchupProviderId+': '+mamId+': searching caption ' + captionUrl);
               return Caption.findOrCreate({where: {src: captionUrl, videoId: video._id}})
                 .then(function (captionInfos) {
-                  var caption = captionInfos[0]
+                  var caption = captionInfos[0];
                   console.log('catchup: '+catchupProviderId+': '+mamId+': attaching caption ' + captionUrl + ' id='+ caption._id + ' to video ' + video._id);
                   var matches = captionUrl.match(/\.([^.]+)\.vtt/);
                   var lang = (matches && matches.length > 1) ? matches[1].toLowerCase() : '??';
