@@ -8,10 +8,9 @@ var local = require('./local.controller.js');
 var middlewareAllowPreflight = rootRequire('/server/app/middlewares/middleware-allowpreflight.js');
 var middlewareAllowCrossDomain = rootRequire('/server/app/middlewares/middleware-allowcrossdomain.js');
 
-router.post('/',
-  middlewareAllowCrossDomain(),
-  middlewareAllowPreflight(),
-  local.login
-);
+router.use(middlewareAllowCrossDomain());
+router.use(middlewareAllowPreflight());
+
+router.post('/', local.login);
 
 module.exports = router;
