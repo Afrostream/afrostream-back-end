@@ -8,6 +8,8 @@ var User = require('../../sqldb').User;
 var AuthCode = require('../../sqldb').AuthCode;
 var AccessToken = require('../../sqldb').AccessToken;
 var RefreshToken = require('../../sqldb').RefreshToken;
+var Log = require('../../sqldb').Log;
+
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
 server.serializeClient(function (client, done) {
@@ -63,7 +65,7 @@ var generateTokenData = function (client, user, code) {
 var generateToken = function (client, user, code, userIp, userAgent, done) {
   var tokenData = generateTokenData(client, user, code);
 
-  // logs accessToken (duplicate with db)
+  // log accessToken (duplicate with db)
   console.log('[AUTH]: ' +
     'client=' + tokenData.clientId + ' ' +
     'user=' + tokenData.userId + ' ' +
@@ -71,15 +73,24 @@ var generateToken = function (client, user, code, userIp, userAgent, done) {
     'userAgent=' + userAgent + ' ' +
     'accessToken=' + tokenData.token);
 
+  // logs
+  Log.create({
+    type: 'access_token',
+    clientId: tokenData.clientId,
+    userId: tokenData.userId,
+    data: {
+      token: tokenData.token,
+      userIp: userIp || null,
+      userAgent: userAgent
+    }
+  }).then(function () { console.log('ok'); }, function (err) { console.log(err); }); // can finish
   //
   AccessToken.create({
       token: tokenData.token,
       clientId: tokenData.clientId,
       userId: tokenData.userId,
       expirationDate: tokenData.expirationDate,
-      expirationTimespan: tokenData.expirationTimespan,
-      userIp: userIp || null,
-      userAgent: userAgent
+      expirationTimespan: tokenData.expirationTimespan
     })
     .then(function (tokenEntity) {
       if (client === null) {

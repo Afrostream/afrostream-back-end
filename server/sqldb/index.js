@@ -29,6 +29,7 @@ db.GiftGiver = db.sequelize.import('models/giftGiver');
 db.Image = db.sequelize.import('models/image');
 db.Language = db.sequelize.import('models/language');
 db.Licensor = db.sequelize.import('models/licensor');
+db.Log = db.sequelize.import('models/logs');
 db.Movie = db.sequelize.import('models/movie');
 db.Post = db.sequelize.import('models/post');
 db.RefreshToken = db.sequelize.import('models/refreshToken');
@@ -113,6 +114,9 @@ db.CatchupProvider.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensor
 
 db.AccessToken.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false});
 db.AccessToken.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', constraints: false});
+
+db.Log.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false});
+db.Log.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', constraints: false});
 
 ///// HELPERS FUNCTIONS /////
 var _ = require('lodash');
