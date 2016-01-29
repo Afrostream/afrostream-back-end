@@ -347,19 +347,19 @@ promises.push(
       provider: 'local',
       name: 'Test User',
       email: 'test@test.com',
-      password: 'test'
+      password: '123456'
     }, {
       provider: 'local',
       name: 'Test User',
       email: 'benjamin@afrostream.tv',
-      password: 'test'
+      password: '123456'
     }, {
       provider: 'local',
       role: 'admin',
       name: 'Admin',
       email: 'admin@admin.com',
       account_code: '30920ee0-5012-11e5-890e-6119da7f1e67',
-      password: 'admin'
+      password: '123456'
     }]);
   })
 );

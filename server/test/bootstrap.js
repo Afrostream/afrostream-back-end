@@ -21,7 +21,7 @@ before(function () {
     var user = User.build({
       name: 'Test User',
       email: 'test@test.com',
-      password: 'test'
+      password: '123456'
     });
     return user.save();
   });
@@ -67,7 +67,7 @@ module.exports.getToken = function (app) {
     .post('/auth/local')
     .send({
       email: 'test@test.com',
-      password: 'test'
+      password: '123456'
     })
     .expect(200)
     .expect('Content-Type', /json/);
