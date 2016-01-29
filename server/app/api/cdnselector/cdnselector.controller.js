@@ -9,7 +9,7 @@ exports.getList = function (req, res) {
   // START REMOVE
   // hack staging cdnselector orange (testing)
   if (process.env.NODE_ENV === 'staging' && req.query.from === 'afrostream-orange-staging') {
-    res.json([{"authority":"orange-preprod.cdn.afrostream.net","scheme":"http"}]);
+    res.json([{"authority":"orange-labs.cdn.afrostream.net","scheme":"https"}]);
   }
   // END REMOVE
 
