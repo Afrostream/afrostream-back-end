@@ -56,13 +56,13 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         tbody
                             tr(ng-repeat='accessToken in accessTokens | DataFormater')
                                 td.text-center
-                                    div {{accessToken.created| date : "yyyy/MM/dd HH:mm:ss"}}
+                                    div {{accessToken.createdAt| date : "yyyy/MM/dd HH:mm:ss"}}
                                 td.text-center
                                     span {{accessToken.user.email}}
                                 td.text-center
-                                    span {{accessToken.userIp}}
+                                    span {{accessToken.data.userIp}}
                                 td.text-center
-                                    span {{accessToken.userAgent}}
+                                    span {{accessToken.data.userAgent}}
                                 //td.pull-right
                                     button.btn.btn-xs.btn-primary(ng-click='editIndex(accessToken.user._id)' tooltip='Edit' )
                                         span.glyphicon.glyphicon-pencil

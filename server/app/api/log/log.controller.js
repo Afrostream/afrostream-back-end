@@ -29,12 +29,14 @@ exports.index = function (req, res) {
       {
         model: User,
         as: 'user',
-        required: false
+        required: false,
+        attributes: ['_id', 'email', 'name']
       },
       {
         model: Client,
         as: 'client',
-        required: false
+        required: false,
+        attributes: ['_id', 'name']
       }
     ]
   }).then(

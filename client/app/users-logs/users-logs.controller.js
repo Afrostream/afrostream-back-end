@@ -45,7 +45,7 @@ angular.module('afrostreamAdminApp')
       $scope.countSignin7 = result.data.count;
     });
 
-    $http.get('/api/users/logs').then(function (result) {
+    $http.get('/api/logs', { type: 'access_token'}).then(function (result) {
       $scope.accessTokens = result.data;
     });
   });

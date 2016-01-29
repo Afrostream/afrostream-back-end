@@ -116,7 +116,7 @@ db.AccessToken.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints
 db.AccessToken.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', constraints: false});
 
 db.Log.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false});
-db.Log.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', constraints: false});
+db.Log.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', targetKey: '_id', constraints: false});
 
 ///// HELPERS FUNCTIONS /////
 var _ = require('lodash');
