@@ -520,8 +520,6 @@ exports.create = function (req, res) {
 
                         requestPromise.post({url: createSubscription, json: subscriptionBillingData}, function (error, response, body) {
 
-                          console.log(response);
-
                           if (error) {
                             console.log(error);
                           }
