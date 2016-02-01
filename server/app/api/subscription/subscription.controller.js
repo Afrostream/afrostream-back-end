@@ -104,6 +104,7 @@ exports.show = function (req, res, next) {
 
 // Gets the authentified user's subscriptions
 exports.me = function (req, res, next) {
+
   var userId = req.user._id;
   User.find({
     where: {
@@ -115,33 +116,33 @@ exports.me = function (req, res, next) {
         return res.status(401).end();
       }
       var profile = user.profile;
-      if (user.billing_provider && user.billing_provider === 'celery') {
-        var now = new Date().getTime();
-        var finalDate = new Date('2016/09/01').getTime();
-        if (now < finalDate) {
-          profile.planCode = 'afrostreamambassadeurs';
-          return res.json(profile);
-        }
-      }
       if (user.account_code === null) {
         return res.json(profile);
       }
-      var account = new recurly.Account();
-      account.id = user.account_code;
-      var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
-      return fetchAsync().then(function (subscriptions) {
-        _.forEach(subscriptions, function (subscription) {
-          // @see https://dev.recurly.com/docs/list-subscriptions
-          // possible status: 'pending', 'active', 'canceled', 'expired', 'future'
-          if (~'pending,active,canceled'.indexOf(subscription.properties.state)) {
-            profile.planCode = subscription.properties.plan.plan_code;
-            return profile;
+
+      var findSubscription = config.billings.url + 'billings/api/subscriptions/?userReferenceUuid=' + userId;
+      requestPromise.get({url: findSubscription, json: true}, function (error, response, body) {
+
+        var billingsError = new Error('Error creating user in the billings api');
+
+        if (error) {
+          console.log(error);
+          return res.status(500).send(billingsError);
+        }
+        if (response.status === 'error') {
+          console.log(body);
+          return res.status(500).send(billingsError);
+        }
+
+        _.forEach(body.response.subscriptions, function (subscription) {
+
+          if (subscription.isActive === 'yes') {
+            profile.planCode = subscription.internalPlan.internalPlanUuid;
+            return res.json(profile);
           }
         });
-        return res.json(profile);
-      }).catch(function () {
-        return res.json(profile);
-      });
+
+      }).auth(config.billings.apiUser, config.billings.apiPass, false);
     })
     .catch(handleError(res));
 };
@@ -535,6 +536,8 @@ exports.create = function (req, res) {
                 }).catch(handleError(res));
 
             }).catch(function (err) {
+              console.log(err);
+
               return res.status(500).send(err.errors || err);
             });
           }
@@ -652,9 +655,6 @@ exports.gift = function (req, res) {
               console.log('subscription create', data.account);
 
               return createAsync(data).then(function (item) {
-                console.log('*** recurly item ****');
-                console.log(item);
-                console.log('*** end of recurly item ****');
                 purchaseDetails['planName'] = item.properties.plan.name;
                 var accountId = item._resources.account.split('/accounts/')[1];
                 var invoiceId = purchaseDetails['invoiceNumber'] = item._resources.invoice.split('/invoices/')[1];
@@ -669,9 +669,6 @@ exports.gift = function (req, res) {
                   account_code: accountId,
                   active: true
                 };
-                console.log('*** new user data ***');
-                console.log(newUserData);
-                console.log('*** end of new user data ***');
 
                 User.find({
                   where: {
