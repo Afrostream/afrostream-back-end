@@ -19,6 +19,7 @@ var login = function (req, res, next) {
       res.json(tokens);
     },
     function error(err) {
+      console.error('/auth/local/: error: ' + err, err);
       return res.status(401).json({message: String(err)});
     });
   })(req, res, next)

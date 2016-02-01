@@ -36,7 +36,7 @@ describe('API: /api/catchup/*', function() {
     jobsConf = config.client.jobs;
     config.client.jobs = {
       api: 'http://localhost:47611/jobs',
-      basicAuth: {user: 'test', password: 'test'}
+      basicAuth: {user: 'test', password: '123456'}
     }
   });
 

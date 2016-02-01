@@ -22,6 +22,7 @@ module.exports = function (app) {
   app.use('/api/clients', require('./api/client/index'));
   app.use('/api/licensors', require('./api/licensor/index'));
   app.use('/api/languages', require('./api/language/index'));
+  app.use('/api/logs', require('./api/log/index'));
   app.use('/api/comments', require('./api/comment/index'));
   app.use('/api/captions', require('./api/caption/index'));
   app.use('/api/videos', require('./api/video/index'));

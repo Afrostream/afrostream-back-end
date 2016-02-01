@@ -27,8 +27,8 @@ label(for='id').control-label User Role
     tbody
       tr(ng-repeat='accessToken in accessTokens')
         td.text-center
-          div {{accessToken.created}}
+          div {{accessToken.createdAt}}
         td.text-center
-          div {{accessToken.userIp}}
+          div {{accessToken.data.userIp}}
         td.text-center
-          div {{accessToken.userAgent}}
+          div {{accessToken.data.userAgent}}

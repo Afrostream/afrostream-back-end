@@ -29,6 +29,7 @@ db.GiftGiver = db.sequelize.import('models/giftGiver');
 db.Image = db.sequelize.import('models/image');
 db.Language = db.sequelize.import('models/language');
 db.Licensor = db.sequelize.import('models/licensor');
+db.Log = db.sequelize.import('models/logs');
 db.Movie = db.sequelize.import('models/movie');
 db.Post = db.sequelize.import('models/post');
 db.RefreshToken = db.sequelize.import('models/refreshToken');
@@ -38,22 +39,22 @@ db.User = db.sequelize.import('models/user');
 db.Video = db.sequelize.import('models/video');
 db.WaitingUser = db.sequelize.import('models/waitingUser');
 
-var CategoryMovies = db.sequelize.import('models/categoryMovies');
-var CategoryAdSpots = db.sequelize.import('models/categoryAdSpots');
-var MoviesActors = db.sequelize.import('models/moviesActors.js');
+db.CategoryMovies = db.sequelize.import('models/categoryMovies');
+db.CategoryAdSpots = db.sequelize.import('models/categoryAdSpots');
+db.MoviesActors = db.sequelize.import('models/moviesActors.js');
 
 db.Actor.belongsTo(db.Image, {as: 'picture', constraints: false});
-db.Actor.belongsToMany(db.Movie, {through: MoviesActors, as: 'movies'});
-db.Movie.belongsToMany(db.Actor, {through: MoviesActors, as: 'actors'});
+db.Actor.belongsToMany(db.Movie, {through: db.MoviesActors, as: 'movies'});
+db.Movie.belongsToMany(db.Actor, {through: db.MoviesActors, as: 'actors'});
 
 db.CacheUsersSubscription.belongsTo(db.User, {as: 'user', foreignKey: 'userId'});
 
 db.Licensor.hasMany(db.Movie, {as: 'movies', foreignKey: 'licensorId'});
 db.Movie.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
 
-db.Movie.belongsToMany(db.Category, {through: CategoryMovies, as: 'categorys'});
-db.Category.belongsToMany(db.Movie, {through: CategoryMovies, as: 'movies'});
-db.Category.belongsToMany(db.Movie, {through: CategoryAdSpots, as: 'adSpots'});
+db.Movie.belongsToMany(db.Category, {through: db.CategoryMovies, as: 'categorys'});
+db.Category.belongsToMany(db.Movie, {through: db.CategoryMovies, as: 'movies'});
+db.Category.belongsToMany(db.Movie, {through: db.CategoryAdSpots, as: 'adSpots'});
 
 db.Movie.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Movie.belongsTo(db.Image, {as: 'logo', constraints: false});
@@ -113,6 +114,9 @@ db.CatchupProvider.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensor
 
 db.AccessToken.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false});
 db.AccessToken.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', constraints: false});
+
+db.Log.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false});
+db.Log.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', targetKey: '_id', constraints: false});
 
 ///// HELPERS FUNCTIONS /////
 var _ = require('lodash');

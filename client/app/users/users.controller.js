@@ -4,7 +4,7 @@ angular.module('afrostreamAdminApp')
   .controller('UsersCtrl', function ($scope, $http) {
     $scope.accessTokens = [];
     $scope.modalHooks.onItemLoaded = function () {
-      $http.get('/api/users/' + $scope.item._id + '/logs').then(function (result) {
+      $http({method:'GET', url: '/api/logs/', params: { userId: $scope.item._id,  type: 'access_token' } }).then(function (result) {
         $scope.accessTokens = result.data;
       });
     };
