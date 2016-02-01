@@ -123,9 +123,10 @@ exports.me = function (req, res, next) {
       var findSubscription = config.billings.url + 'billings/api/subscriptions/?userReferenceUuid=' + userId;
       requestPromise.get({url: findSubscription, json: true}, function (error, response, body) {
 
+        var billingsError = new Error('Error creating user in the billings api');
+
         if (error) {
           console.log(error);
-          var billingsError = new Error('Error creating user in the billings api');
           return res.status(500).send(billingsError);
         }
         if (response.status === 'error') {
