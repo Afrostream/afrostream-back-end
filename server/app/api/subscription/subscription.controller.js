@@ -142,6 +142,9 @@ exports.me = function (req, res, next) {
           }
         });
 
+        profile.planCode = '';
+        return res.json(profile);
+
       }).auth(config.billings.apiUser, config.billings.apiPass, false);
     })
     .catch(handleError(res));
