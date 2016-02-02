@@ -121,7 +121,7 @@ exports.me = function (req, res, next) {
       }
 
       var findSubscription = config.billings.url + 'billings/api/subscriptions/?userReferenceUuid=' + userId;
-      requestPromise.get({url: findSubscription, json: true}, function (error, response, body) {
+      requestPromise.get({url: findSubscription, json: true, timeout: 5000}, function (error, response, body) {
 
         var billingsError = new Error('Error creating user in the billings api');
         var noValidPlan = true;
@@ -149,7 +149,7 @@ exports.me = function (req, res, next) {
           return res.json(profile);
         }
 
-      }).auth(config.billings.apiUser, config.billings.apiPass, false);
+      }).auth(config.billings.apiUser, config.billings.apiPass, true);
     })
     .catch(handleError(res));
 };
@@ -468,7 +468,7 @@ exports.create = function (req, res) {
           console.log(body);
         }
 
-      }).auth(config.billings.apiUser, config.billings.apiPass, false)
+      }).auth(config.billings.apiUser, config.billings.apiPass, true)
         .then(function(billingsResponse) {
           if (billingsResponse.status == 'done') {
             userBillingUuid = billingsResponse.response.user.userBillingUuid;
@@ -511,7 +511,7 @@ exports.create = function (req, res) {
                       console.log(body);
                     }
 
-                  }).auth(config.billings.apiUser, config.billings.apiPass, false)
+                  }).auth(config.billings.apiUser, config.billings.apiPass, true)
                     .catch(function (err) {
                       return res.status(500).send(err.errors || err);
                     })
@@ -533,7 +533,7 @@ exports.create = function (req, res) {
                           if (response.status === 'error') {
                             console.log(body);
                           }
-                        }).auth(config.billings.apiUser, config.billings.apiPass, false);
+                        }).auth(config.billings.apiUser, config.billings.apiPass, true);
 
                       }
                       profile.planCode = item.properties.plan.plan_code;
