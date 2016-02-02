@@ -46,7 +46,15 @@ function isAuthenticated() {
       //
       // PRODUCTION CODE HERE.
       //
-      return passport.authenticate('bearer', {session: false})(req, res, next);
+      return passport.authenticate('bearer', {session: false})(req, res, function (err) {
+        if (err) {
+          // custom error handler
+          console.error(err);
+          res.status(err.statusCode || 500).json({error: String(err) });
+        } else {
+          next.apply(null, arguments);
+        }
+      });
     }
   }
 }

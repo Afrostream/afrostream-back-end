@@ -10,6 +10,7 @@
 'use strict';
 
 var _ = require('lodash');
+var Q = require('q');
 var sqldb = rootRequire('/server/sqldb');
 var algolia = rootRequire('/server/components/algolia');
 var Movie = sqldb.Movie;
@@ -20,6 +21,7 @@ var Image = sqldb.Image;
 var Licensor = sqldb.Licensor;
 var Video = sqldb.Video;
 var Actor = sqldb.Actor;
+var CategoryMovies = sqldb.CategoryMovies;
 var auth = rootRequire('/server/auth/auth.service');
 
 var utils = require('../utils.js');
@@ -76,13 +78,151 @@ function saveUpdates(updates) {
   };
 }
 
+// take an array of function, call the functions sequentially.
+function waterfall(functions) {
+  return functions.reduce(function (p, f) { return p.then(f); }, Q());
+}
+
+function removeLinkMovieCategorys(movieId, categoryIdList) {
+  return CategoryMovies.destroy({
+    where: {
+      MovieId: movieId,
+      $or: categoryIdList.map(function (id) {
+        return {CategoryId: id}
+      })
+    }
+  });
+}
+
+// adding a movie to a category => searching the max + 1 movieOrder, starting at 0
+function addLinkMovieCategory(movieId, categoryId, categoryOrder) {
+  return CategoryMovies
+    .max("movieOrder", {where: {CategoryId: categoryId}})
+    .then(function (maxMovieOrder) {
+      console.log(maxMovieOrder);
+      maxMovieOrder = !isNaN(Number(maxMovieOrder)) ? Number(maxMovieOrder) + 1 : 0;
+      return CategoryMovies.create({
+        MovieId: movieId,
+        CategoryId: categoryId,
+        categoryOrder: categoryOrder,
+        movieOrder: maxMovieOrder
+      });
+    });
+}
+
+function addLinkMovieCategorys(movieId, categoryIdList, categoryOrders) {
+  var tasks = categoryIdList.map(function createTask(categoryId) {
+    return function task() {
+      var categoryOrder = categoryOrders.indexOf(categoryId);
+      return addLinkMovieCategory(movieId, categoryId, categoryOrder);
+    };
+  });
+  return waterfall(tasks);
+}
+
+function movieLinkMovieCategory(movieId, categoryId, categoryOrder) {
+  return CategoryMovies.update(
+    {categoryOrder: categoryOrder },
+    {where: {MovieId: movieId, CategoryId: categoryId}}
+  );
+}
+
+/*
+ * update categoryOrder of tuple (movieId, categoryId) for every categoryId of categoryIdList
+ */
+function updateLinkMovieCategorysOrders(movieId, categoryIdList, categoryOrders) {
+  var tasks = categoryIdList.map(function createTask(categoryId) {
+    return function task() {
+      var categoryOrder = categoryOrders.indexOf(categoryId);
+      return movieLinkMovieCategory(movieId, categoryId, categoryOrder);
+    }
+  });
+  return waterfall(tasks);
+}
+
 function addCategorys(updates) {
-  var categorys = Category.build(_.map(updates.categorys || [], _.partialRight(_.pick, '_id')));
   return function (entity) {
-    if (!categorys || !categorys.length) {
+    console.log('movies: addCategorys', updates);
+
+    // first: avoid messing data: we must receive a welformed entity
+    if (!entity || !Array.isArray(updates.categorys) || !entity.get('_id')) {
+      console.error('malformed entity');
       return entity;
     }
-    return entity.setCategorys(categorys)
+    // tricky: updating manually the liaison,
+    // we cannot use setCategorys(categorys) without loosing the order.
+    //
+    // ex:
+    //     +-------------------------------------------+
+    //     |MovieId|CategoryId|categoryOrder|movieOrder|
+    //     +-------------------------------------------+
+    //     |  42   |   42     |   1         |  8       |
+    //     |  42   |   43     |   2         |  12      |
+    //     |  42   |   45     |   3         |  2       |
+    //     |       |          |             |          |
+    //     +-------+----------+-------------+----------+
+    //
+    // removing category 43, adding category 46 as last one
+    //
+    //     +-------------------------------------------+
+    //     |MovieId|CategoryId|categoryOrder|movieOrder|
+    //     +-------------------------------------------+
+    //     |  42   |   42     |   1         |  8       |
+    //     |  42   |   45     |   2         |  2       |
+    //     |  42   |   46     |   3         |  max     |
+    //     |       |          |             |          |
+    //     +-------+----------+-------------+----------+
+    //
+    //
+    //
+    var movieId = entity.get('_id');
+    var newCategorysIds = updates.categorys.map(function (c) {
+      return c['_id'];
+    }).filter(function (id) { return id; });
+
+    console.error('newCategorysIds ', newCategorysIds);
+
+    // searching old categorys ids
+    return CategoryMovies.findAll({where: {MovieId: movieId}})
+      .then(function (associations) {
+        var oldCategorysIds = associations.map(function (a) {
+          return a.get('CategoryId');
+        });
+        //
+        console.log('old = ', oldCategorysIds, ' new = ', newCategorysIds);
+
+        // optim
+        if (_.isEqual(oldCategorysIds, newCategorysIds)) {
+          console.log('nothing to do');
+          return;
+        }
+
+        var removedCategorysIdList = _.difference(oldCategorysIds, newCategorysIds);
+        var addedCategorysIdList = _.difference(newCategorysIds, oldCategorysIds);
+        var movedCategorysIdList = _.intersection(oldCategorysIds, newCategorysIds); // fixme: could be optimized
+
+        console.log('removedCategorysIdList', removedCategorysIdList, 'addedCategorysIdList', addedCategorysIdList, 'movedCategorysIdList', movedCategorysIdList);
+
+        var tasks = [];
+        if (removedCategorysIdList.length) {
+          // create task: remove all associations category<->movie with category in removedCategorysIds
+          tasks.push(function () {
+            return removeLinkMovieCategorys(movieId, removedCategorysIdList);
+          });
+        }
+        if (addedCategorysIdList.length) {
+          // create task: add all associations movie<->category with category in removedCategorysIds
+          tasks.push(function () {
+            return addLinkMovieCategorys(movieId, addedCategorysIdList, newCategorysIds);
+          });
+        }
+        if (movedCategorysIdList) {
+          tasks.push(function () {
+            return updateLinkMovieCategorysOrders(movieId, movedCategorysIdList, newCategorysIds);
+          });
+        }
+        return waterfall(tasks);
+      })
       .then(function () {
         return entity;
       });
@@ -221,6 +361,9 @@ exports.show = function (req, res) {
       {model: Actor, as: 'actors', required: false, attributes: ['_id', 'firstName', 'lastName']}
     ],
     order: [
+      // sioux... ordering using N-N cagegory<->movie liaison table
+      [{ raw: '"categorys.CategoryMovies.categoryOrder"' } ],
+      // classic sort
       [{model: Season, as: 'seasons'}, 'sort'],
       [{model: Season, as: 'seasons'}, {model: Episode, as: 'episodes'}, 'sort']
     ]

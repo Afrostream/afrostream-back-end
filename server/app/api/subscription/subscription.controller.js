@@ -135,6 +135,10 @@ exports.me = function (req, res, next) {
           return res.status(500).send(billingsError);
         }
 
+        if (!body.response) {
+          return res.status(500).send();
+        }
+
         _.forEach(body.response.subscriptions, function (subscription) {
 
           if (subscription.isActive === 'yes') {
