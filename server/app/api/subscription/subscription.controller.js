@@ -135,14 +135,19 @@ exports.me = function (req, res, next) {
           return res.status(500).send(billingsError);
         }
 
-        _.forEach(body.response.subscriptions, function (subscription) {
+        if (typeof body !== 'undefined' &&
+          typeof body.response !== 'undefined' &&
+          typeof body.response.subscriptions !== 'undefined') {
 
-          if (subscription.isActive === 'yes') {
-            noValidPlan = false;
-            profile.planCode = subscription.internalPlan.internalPlanUuid;
-            return res.json(profile);
-          }
-        });
+          _.forEach(body.response.subscriptions, function (subscription) {
+
+            if (subscription.isActive === 'yes') {
+              noValidPlan = false;
+              profile.planCode = subscription.internalPlan.internalPlanUuid;
+              return res.json(profile);
+            }
+          });
+        }
 
         if (noValidPlan) {
           profile.planCode = '';
