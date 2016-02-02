@@ -124,6 +124,7 @@ exports.me = function (req, res, next) {
       requestPromise.get({url: findSubscription, json: true}, function (error, response, body) {
 
         var billingsError = new Error('Error creating user in the billings api');
+        var noValidPlan = true;
 
         if (error) {
           console.log(error);
@@ -137,13 +138,16 @@ exports.me = function (req, res, next) {
         _.forEach(body.response.subscriptions, function (subscription) {
 
           if (subscription.isActive === 'yes') {
+            noValidPlan = false;
             profile.planCode = subscription.internalPlan.internalPlanUuid;
             return res.json(profile);
           }
         });
 
-        profile.planCode = '';
-        return res.json(profile);
+        if (noValidPlan) {
+          profile.planCode = '';
+          return res.json(profile);
+        }
 
       }).auth(config.billings.apiUser, config.billings.apiPass, false);
     })
