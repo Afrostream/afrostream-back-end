@@ -18,6 +18,7 @@ var Video = sqldb.Video;
 var Episode = sqldb.Episode;
 var Caption = sqldb.Caption;
 var Image = sqldb.Image;
+var CategoryMovies = sqldb.CategoryMovies;
 var auth = rootRequire('/server/auth/auth.service');
 
 var utils = require('../utils.js');
@@ -278,11 +279,14 @@ exports.menu = function (req, res) {
   .catch(handleError(res));
 };
 
-
 // Gets all submovies limited
 exports.mea = function (req, res) {
   var queryOptions = {
-    order: [['sort', 'ASC']],
+    order: [
+      ['sort', 'ASC'],
+      [{model: Movie, as: 'movies'}, {model: CategoryMovies }, 'movieOrder' ],
+      [{model: Movie, as: 'movies'}, {model: Category, as: 'categorys'}, {model: CategoryMovies}, 'categoryOrder' ]
+    ],
     include: [
       {
         model: Movie,

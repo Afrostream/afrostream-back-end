@@ -144,7 +144,7 @@ function addCategorys(updates) {
   return function (entity) {
     console.log('movies: addCategorys', updates);
 
-    // first: avoid messing data: we must receive a welformed entity
+    // first: avoid messing data: we must receive a wellformed entity
     if (!entity || !Array.isArray(updates.categorys) || !entity.get('_id')) {
       console.error('malformed entity');
       return entity;
@@ -361,11 +361,9 @@ exports.show = function (req, res) {
       {model: Actor, as: 'actors', required: false, attributes: ['_id', 'firstName', 'lastName']}
     ],
     order: [
-      // sioux... ordering using N-N cagegory<->movie liaison table
-      [{ raw: '"categorys.CategoryMovies.categoryOrder"' } ],
-      // classic sort
       [{model: Season, as: 'seasons'}, 'sort'],
-      [{model: Season, as: 'seasons'}, {model: Episode, as: 'episodes'}, 'sort']
+      [{model: Season, as: 'seasons'}, {model: Episode, as: 'episodes'}, 'sort'],
+      [{model: Category, as: 'categorys'}, {model: CategoryMovies }, 'categoryOrder' ],
     ]
   };
   //
