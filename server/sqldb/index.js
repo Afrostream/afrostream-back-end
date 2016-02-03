@@ -4,6 +4,10 @@
 
 'use strict';
 
+var assert = require('better-assert');
+
+var _ = require('lodash');
+
 var path = require('path');
 var config = require('../config');
 
@@ -162,5 +166,192 @@ db.noInnerJoin = function (options) {
   });
 };
 
+/**
+ * This methods allows to create an instanceMethod used for database N-N ordered links
+ *
+ * usage :
+ *
+ *  // model definition
+ *  var Category = sequelize.define('Category', { }, {
+ *    instanceMethods: {
+ *      setMoviesOrdered: sqldb.generateInstanceMethodSetXOrdered({
+ *        // mandatory
+ *        linkModel: 'CategoryMovies'
+ *        linkColumnSrc: 'CategoryId',
+ *        linkColumnDst: 'MovieId',
+ *        linkColumnSrcIndex: 'movieOrder',
+ *        linkColumnDstIndex: 'categoryOrder'
+ *        dstModel: 'Movie',
+ *        // optional
+ *        srcIdColumn: '_id',
+ *        dstIdColumn: '_id'
+ *      })
+ *    }
+ *  });
+ *
+ * Category.findById(42).then(function (category) {
+ *   category.setMoviesOrdered(movies);
+ * });
+ *
+ * tricky: updating manually the liaison,
+ * we cannot use setCategorys(categorys) without loosing the order.
+ *
+ * ex:
+ *     +-------------------------------------------+
+ *     |MovieId|CategoryId|categoryOrder|movieOrder|
+ *     +-------------------------------------------+
+ *     |  42   |   42     |   1         |  8       |
+ *     |  42   |   43     |   2         |  12      |
+ *     |  42   |   45     |   3         |  2       |
+ *     |       |          |             |          |
+ *     +-------+----------+-------------+----------+
+ *
+ * removing category 43, adding category 46 as last one
+ *
+ *     +-------------------------------------------+
+ *     |MovieId|CategoryId|categoryOrder|movieOrder|
+ *     +-------------------------------------------+
+ *     |  42   |   42     |   1         |  8       |
+ *     |  42   |   45     |   2         |  2       |
+ *     |  42   |   46     |   3         |  max     |
+ *     |       |          |             |          |
+ *     +-------+----------+-------------+----------+
+ *
+ */
+db.generateInstanceMethodSetXOrdered = function (options) {
+  assert(options);
+  assert(typeof options.linkModel === 'string');
+  assert(typeof options.linkColumnSrc === 'string');
+  assert(typeof options.linkColumnDst === 'string');
+  assert(typeof options.linkColumnSrcIndex === 'string');
+  assert(typeof options.linkColumnDstIndex === 'string');
+  assert(typeof options.dstModel === 'string');
+
+  var srcIdColumn = options.srcIdColumn || '_id'
+    , dstIdColumn = options.dstIdColumn || '_id'
+    , linkColumnSrc = options.linkColumnSrc
+    , linkColumnDst = options.linkColumnDst
+    , linkColumnSrcIndex = options.linkColumnSrcIndex
+    , linkColumnDstIndex = options.linkColumnDstIndex;
+
+  var dstModelToDstId = function (m) { return m.get(dstIdColumn); };
+  var linkModelToDstId = function (m) { return m.get(linkColumnDst); };
+
+  var getLinkModel = function () { return db[options.linkModel]; };
+  var getDstModel = function () { return  db[options.dstModel]; };
+
+  // take an array of function, call the functions sequentially.
+  function waterfall(functions) {
+    return functions.reduce(function (p, f) { return p.then(f); }, Q());
+  }
+
+  // remove N links rows
+  var removeLinks = function (srcId, dstIdList) {
+    var where = {};
+    where[linkColumnSrc] = srcId;
+    where['$or'] = dstIdList.map(function (dstId) {
+      var where = {};
+      where[linkColumnDst] = dstId;
+      return where;
+    });
+    return getLinkModel().destroy({where: where});
+  };
+
+  var addLink = function (srcId, addedId, dstIndex) {
+    var where = {};
+    where[linkColumnDst] = addedId;
+
+    return getLinkModel()
+      .max(linkColumnSrcIndex, {where: where})
+      .then(function (maxSrcIndex) {
+        maxSrcIndex = !isNaN(Number(maxSrcIndex)) ? Number(maxSrcIndex) + 1 : 0;
+        var data = {};
+        data[linkColumnSrc] = srcId;
+        data[linkColumnDst] = addedId;
+        data[linkColumnSrcIndex] = maxSrcIndex;
+        data[linkColumnDstIndex] = dstIndex;
+        return getLinkModel().create(data);
+      });
+  };
+
+  var addLinks = function (srcId, addedIdList, newDstModelIdList) {
+    var tasks = addedIdList.map(function createTask(addedId) {
+      return function task() {
+        var dstIndex = newDstModelIdList.indexOf(addedId);
+        return addLink(srcId, addedId, dstIndex);
+      };
+    });
+    return waterfall(tasks);
+  };
+
+  var moveLink = function (srcId, destId, dstIndex) {
+    var updateValues = {};
+    var where = {};
+    updateValues[linkColumnDstIndex] = dstIndex;
+    data[linkColumnSrc] = srcId;
+    data[linkColumnDst] = destId;
+    return getLinkModel().update(
+      updateValues,
+      {where: where}
+    );
+  };
+
+  var moveLinks = function (srcId, movedIdList, newDstModelIdList) {
+    var tasks = movedIdList.map(function createTask(movedId) {
+      return function task() {
+        var dstIndex = newDstModelIdList.indexOf(addedId);
+        return moveLink(srcId, addedId, dstIndex);
+      }
+    });
+    return waterfall(tasks);
+  };
+
+  return function (dstModelList) {
+    var srcModelInstance = this
+      , linkModel = getLinkModel()
+      , dstModel = getDstModel();
+
+    // src list id
+    var newDstModelIdList = dstModelList.map(dstModelToDstId);
+
+    // src id
+    var srcId = srcModelInstance.get(srcIdColumn);
+
+    // searching old target ids
+    var where = {};
+    where[linkColumnSrc] = srcId;
+    return linkModel.findAll({where: where}).then(function (linkModels) {
+      var oldDstModelIdList = linkModels.map(linkModelToDstId);
+
+      // debug
+      console.log('old = ', oldDstModelIdList, ' new = ', newDstModelIdList);
+
+      // optim
+      if (_.isEqual(oldDstModelIdList, newDstModelIdList)) {
+        console.log('nothing to do');
+        return;
+      }
+
+      //
+      var removedIdList = _.difference(oldDstModelIdList, newDstModelIdList);
+      var addedIdList = _.difference(newDstModelIdList, oldDstModelIdList);
+      var movedIdList = _.intersection(oldDstModelIdList, newDstModelIdList); // fixme: could be optimized
+
+      //
+      var tasks = [];
+      if (removedIdList.length) {
+        tasks.push(function () { return removeLinks(srcId, removedIdList); });
+      }
+      if (addedIdList.length) {
+        // create task: add all associations movie<->category with category in removedCategorysIds
+        tasks.push(function () { return addLinks(srcId, addedIdList, newDstModelIdList); });
+      }
+      if (movedCategorysIdList) {
+        tasks.push(function () { return moveLinks(srcId, movedIdList, newDstModelIdList); });
+      }
+      return waterfall(tasks);
+    });
+  };
+};
 
 module.exports = db;
