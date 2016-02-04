@@ -21,6 +21,8 @@ var Promise = sqldb.Sequelize.Promise;
 recurly.setAPIKey(config.recurly.apiKey);
 var requestPromise = require('request-promise');
 
+var billingApi = rootRequire('/server/billing-api');
+
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
@@ -65,6 +67,19 @@ function removeEntity(res) {
         });
     }
   };
+}
+
+function ensureUserExist(user) {
+  if (!user) {
+    var error = new Error('unknown user');
+    error.statusCode = 401;
+    throw error;
+  }
+  return user;
+}
+
+function readUser(userId) {
+  return User.find({ where: { _id: userId } }).then(ensureUserExist);
 }
 
 // Gets a list of subscriptions
@@ -437,125 +452,105 @@ exports.status = function (req, res) {
 
 // Creates a new subscription in the DB
 exports.create = function (req, res) {
-  var userId = req.user._id;
-  var userBillingUuid = '';
-  User.find({
-    where: {
-      _id: userId
-    }
-  })
-    .then(function (user) { // don't ever give out the password or salt
-      if (!user) {
-        return res.status(401).end();
-      }
+  // FIXME: we should use joy to filter req.body.
+  var c = { // closure
+    user: null,
+    userId: req.user._id,
+    userBillingUuid: null,
+    userProviderUuid: null,
+    subscriptionPlanCode: null,
+    subscriptionProviderUuid: null,
+    bodyFirstName: req.body.first_name,
+    bodyLastName: req.body.last_name,
+    bodyPlanCode: req.body['plan-code'],
+    bodyCouponCode: req.body['coupon_code'],
+    bodyUnitAmountInCents: req.body['unit-amount-in-cents'],
+    bodyRecurlyToken: req.body['recurly-token']
+  };
 
-      var profile = user.profile;
-      var userBillingsData = {
-        "providerName" : "recurly",
-        "userReferenceUuid" : userId,
-        "userOpts" : {
-          "email" : req.body['email'],
-          "firstName" : req.body['first_name'],
-          "lastName" : req.body['last_name']
+  //
+  // first, we load the user from the database
+  //
+  readUser(c.userId)
+    .then(function (user) {
+      c.user = user;
+    })
+    //
+    // we create the user in the billing-api if he doesn't exist yet.
+    //
+    .then(function () {
+      return billingApi.getOrCreateUser({
+        providerName : "recurly",
+        userReferenceUuid : c.userId,
+        userOpts : {
+          email : c.user.email,
+          firstName : c.bodyFirstName,
+          lastName : c.bodyLastName
+        }
+      });
+    })
+    .then(function (billingsResponse) {
+      c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
+      c.userProviderUuid = billingsResponse.response.user.userProviderUuid;
+    })
+    //
+    // now, we can call recurly
+    //
+    .then(function () {
+      var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
+      var data = {
+        plan_code: c.bodyPlanCode,
+        coupon_code: c.bodyCouponCode,
+        unit_amount_in_cents: c.bodyUnitAmountInCents,
+        currency: 'EUR',
+        account: {
+          account_code: c.userProviderUuid,
+          email: c.user.email,
+          first_name: c.firstName,
+          last_name: c.lastName,
+          billing_info: {
+            token_id: c.bodyRecurlyToken
+          }
         }
       };
-
-      var createUser = config.billings.url + 'billings/api/users/';
-      requestPromise.post({url: createUser, json: userBillingsData}, function (error, response, body) {
-
-        if (error) {
-          console.log(error);
-          var billingsError = new Error('Error creating user in the billings api');
-          return res.status(500).send(billingsError);
-
-        }
-        if (response.status === 'error') {
-          console.log(body);
-        }
-
-      }).auth(config.billings.apiUser, config.billings.apiPass, true)
-        .then(function(billingsResponse) {
-          if (billingsResponse.status == 'done') {
-            userBillingUuid = billingsResponse.response.user.userBillingUuid;
-            var createAsync = Promise.promisify(recurly.Subscription.create, recurly.Subscription);
-            var data = {
-              plan_code: req.body['plan-code'],
-              coupon_code: req.body['coupon_code'],
-              unit_amount_in_cents: req.body['unit-amount-in-cents'],
-              currency: 'EUR',
-              account: {
-                account_code: billingsResponse.response.user.userProviderUuid,
-                email: user.email,
-                first_name: req.body['first_name'],
-                last_name: req.body['last_name'],
-                billing_info: {
-                  token_id: req.body['recurly-token']
-                }
-              }
-            };
-
-            console.log('subscription create', data.account);
-
-            return createAsync(data).then(function (item) {
-              user.account_code = data.account.account_code;
-
-              return user.save()
-                .then(function () {
-
-                  var userBillingsData = {
-                    "userProviderUuid" : data.account.account_code,
-                  };
-
-                  var findUser = config.billings.url + 'billings/api/users/' + userBillingUuid;
-                  requestPromise.put({url: findUser, json: userBillingsData}, function (error, response, body) {
-
-                    if (error) {
-                      console.log(error);
-                    }
-                    if (response.status === 'error') {
-                      console.log(body);
-                    }
-
-                  }).auth(config.billings.apiUser, config.billings.apiPass, true)
-                    .catch(function (err) {
-                      return res.status(500).send(err.errors || err);
-                    })
-                    .then(function (userBillingsResponse) {
-
-                      if (userBillingsResponse.status !== 'error') {
-                        var createSubscription = config.billings.url + 'billings/api/subscriptions/';
-                        var subscriptionBillingData = { "userBillingUuid": userBillingUuid,
-                          "internalPlanUuid": item.properties.plan.plan_code,
-                          "subscriptionProviderUuid": item.properties.uuid,
-                          "billingInfoOpts": {}
-                        };
-
-                        requestPromise.post({url: createSubscription, json: subscriptionBillingData}, function (error, response, body) {
-
-                          if (error) {
-                            console.log(error);
-                          }
-                          if (response.status === 'error') {
-                            console.log(body);
-                          }
-                        }).auth(config.billings.apiUser, config.billings.apiPass, true);
-
-                      }
-                      profile.planCode = item.properties.plan.plan_code;
-                      res.json(profile);
-                    });
-
-                }).catch(handleError(res));
-
-            }).catch(function (err) {
-              console.log(err);
-
-              return res.status(500).send(err.errors || err);
-            });
-          }
-        }).catch(handleError(res));
-
-    }).catch(handleError(res));
+      return createAsync(data);
+    })
+    //
+    // recurly ok => we save the uuid in user.account_code
+    //
+    .then(function (recurlyItem) {
+      c.subscriptionPlanCode = recurlyItem.properties.plan.plan_code;
+      c.subscriptionProviderUuid = recurlyItem.properties.uuid;
+      //
+      c.user.account_code = c.userProviderUuid;
+      return c.user.save();
+    })
+    //
+    // we create the subscription in biling-api
+    //
+    .then(function () {
+      var subscriptionBillingData = {
+        userBillingUuid: c.userBillingUuid,
+        internalPlanUuid: c.subscriptionPlanCode,
+        subscriptionProviderUuid: c.subscriptionProviderUuid,
+        billingInfoOpts: {}
+      };
+      return billingApi.createSubscription(subscriptionBillingData);
+    })
+    //
+    // Answering the client, success or error.
+    //
+    .then(
+    function success() {
+      var profile = c.user.profile;
+      profile.planCode = c.subscriptionPlanCode;
+      res.json(profile);
+    },
+    function error(err) {
+      console.error('subscription.controller.js#create(): error: ' + err, err);
+      res.status(err.statusCode || 500).json({error:String(err)});
+    }
+  )
 };
 
 // Creates the gift of a new subscription
