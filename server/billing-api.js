@@ -20,10 +20,18 @@ var requestBilling = function (options) {
   return Q.nfcall(request, options)
     .then(function (data) {
       var response = data[0]
-        , body = data[1];
+        , body = data[1]
+        , error;
 
-      if (!response || !response.status || response.status === 'error') {
-        throw new Error("billings-api error on " + JSON.stringify(options) + " => " + body);
+      if (!response) {
+        console.error('FATAL: billing-api: cannot request api ' + JSON.stringify(options) + " => " + JSON.stringify(body));
+        throw new Error("cannot request billing-api");
+      }
+      if (response.statusCode !== 200 || response.status !== 'done') {
+        console.error('WARNING: billing-api: ' + JSON.stringify(options) + " => " + JSON.stringify(body));
+        error = new Error(body && body.statusMessage || body && body.message || 'unknown');
+        error.statusCode = response.statusCode;
+        throw error;
       }
       return body;
     });
@@ -52,25 +60,102 @@ var someSubscriptionActive = function (user) {
 };
 
 var someSubscriptionActiveSafe = function (user) {
+  assert(user instanceof sqldb.Users);
+
   return someSubscriptionActive(user).then(
     function success(bool) { return bool; }
   , function error(err) { console.error(err); return false; }
   );
 };
 
-var createUser = function (userBillingsData) {
-  assert(typeof userBillingsData === 'object' && userBillingsData);
-  assert(typeof userBillingsData.providerName === 'string');
-  assert(userBillingsData.userReferenceUuid);
-
+var createSubscription = function (subscriptionBillingData) {
   return requestBilling({
-    url: config.billings.url + 'billings/api/users/'
-  , method: 'POST'
-  , body: userBillingsData
+    method: 'POST'
+  , url: config.billings.url + 'billings/api/subscriptions/'
+  , body: subscriptionBillingData
   });
 };
 
+/**
+ * @param userReferenceUuid  number  backend user id
+ * @param providerName       string  'recurly'
+ * @return FIXME
+ */
+var getUser = function (userReferenceUuid, providerName) {
+  assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
+  assert(providerName === 'recurly'); // add other providers here later.
+
+  return requestBilling({
+    url: config.billings.url + 'billings/api/users/'
+  , qs: { providerName: providerName, userReferenceUuid: userReferenceUuid }
+  });
+};
+
+/**
+ *
+ * @param billingsData  object
+ *  {
+ *    providerName: ...,
+ *    userReferenceUuid: ...,
+ *    userOpts: {
+ *      email: ...,
+ *      firstName: ...,
+ *      lastName: ...
+ *    }
+ *  }
+ * @return FIXME
+ */
+var createUser = function (billingsData) {
+  assert(typeof billingsData === 'object' && billingsData);
+  assert(typeof billingsData.providerName === 'string');
+  assert(typeof billingsData.userReferenceUuid === 'number');
+  assert(billingsData.userReferenceUuid);
+
+  return requestBilling({
+    method: 'POST'
+  , url: config.billings.url + 'billings/api/users/'
+  , body: billingsData
+  });
+};
+
+var getOrCreateUser = function (billingsData) {
+  assert(typeof billingsData === 'object' && billingsData);
+  assert(typeof billingsData.providerName === 'string');
+  assert(typeof billingsData.userReferenceUuid === 'number');
+  assert(billingsData.userReferenceUuid);
+
+  return getUser(billingsData.userReferenceUuid, billingsData.providerName)
+    .then(function (billingsResponse) {
+      return billingsResponse;
+    }, function (err) {
+      if (err.statusCode !== 404) {
+        throw err; // unknown error
+      }
+      // the user doesn't exist => create
+      return createUser(billingsData);
+    });
+};
+
+/**
+ * FIXME: unused yet
+ */
+/*
+var updateUser = function (userBillingUuid, billingsData) {
+  return requestBilling({
+    url: config.billings.url + 'billings/api/users/' + userBillingUuid
+    , method: 'PUT'
+    , body: billingsData
+  });
+};
+*/
+
+// subscriptions manipulation
 module.exports.getSubscriptions = getSubscriptions;
 module.exports.someSubscriptionActive = someSubscriptionActive;
 module.exports.someSubscriptionActiveSafe = someSubscriptionActiveSafe;
+module.exports.createSubscription = createSubscription;
+// user manipulation
+module.exports.getUser = getUser;
 module.exports.createUser = createUser;
+//module.exports.updateUser = updateUser;
+module.exports.getOrCreateUser = getOrCreateUser;
