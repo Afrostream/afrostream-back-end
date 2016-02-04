@@ -78,7 +78,7 @@ var decrypt = function (k) {
 };
 
 var loadUserOrFail = function (email) {
-  return User.findOne({ where: { email: {$iLike: '%' + email + '%'} } })
+  return User.findOne({ where: { email: {$iLike: email} } })
     .then(function (user) {
       if (!user) {
         throw new Error("unknown email " + email);
