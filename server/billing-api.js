@@ -27,8 +27,8 @@ var requestBilling = function (options) {
         console.error('FATAL: billing-api: cannot request api ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         throw new Error("cannot request billing-api");
       }
-      if (response.statusCode !== 200 || response.status !== 'done') {
-        console.error('WARNING: billing-api: ' + JSON.stringify(options) + " => " + JSON.stringify(body));
+      if (response.statusCode !== 200 || body.status !== 'done') {
+        console.error('WARNING: billing-api: ' + response.statusCode + ' ' + body.status + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         error = new Error(body && body.statusMessage || body && body.message || 'unknown');
         error.statusCode = response.statusCode;
         throw error;
@@ -44,8 +44,8 @@ var requestBilling = function (options) {
  * @return FIXME
  */
 var getSubscriptions = function (userReferenceUuid) {
-  assert(typeof billingsData.userReferenceUuid === 'number');
-  assert(billingsData.userReferenceUuid);
+  assert(typeof userReferenceUuid === 'number');
+  assert(userReferenceUuid);
 
   return requestBilling({
     url: config.billings.url + 'billings/api/subscriptions/',
@@ -55,10 +55,11 @@ var getSubscriptions = function (userReferenceUuid) {
   });
 };
 
-var someSubscriptionActive = function (user) {
-  assert(user instanceof sqldb.Users);
+var someSubscriptionActive = function (userReferenceUuid) {
+  assert(typeof userReferenceUuid === 'number');
+  assert(userReferenceUuid);
 
-  return getSubscriptions(user)
+  return getSubscriptions(userReferenceUuid)
     .then(function (subscriptions) {
       return subscriptions.some(function (subscription) {
         return subscription.isActive === 'yes';
@@ -66,10 +67,11 @@ var someSubscriptionActive = function (user) {
     });
 };
 
-var someSubscriptionActiveSafe = function (user) {
-  assert(user instanceof sqldb.Users);
+var someSubscriptionActiveSafe = function (userReferenceUuid) {
+  assert(typeof userReferenceUuid === 'number');
+  assert(userReferenceUuid);
 
-  return someSubscriptionActive(user).then(
+  return someSubscriptionActive(userReferenceUuid).then(
     function success(bool) { return bool; }
   , function error(err) { console.error(err); return false; }
   );

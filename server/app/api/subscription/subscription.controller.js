@@ -140,11 +140,13 @@ exports.me = function (req, res, next) {
       return billingApi.getSubscriptions(c.userId)
         .then(function (subscriptions) {
           for (var i = 0; i < subscriptions.length; ++i) {
+            var subscription = subscriptions[i];
+
             if (subscription &&
                 subscription.isActive === 'yes' &&
                 subscription.internalPlan &&
-                subscription.internalPlan.internalPLanUuid) {
-              return subscription.internalPlan.internalPLanUuid;
+                subscription.internalPlan.internalPlanUuid) {
+              return subscription.internalPlan.internalPlanUuid;
             }
           }
         });
