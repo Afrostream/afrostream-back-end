@@ -60,9 +60,10 @@ module.exports = {
   },
 
   billings: {
-    url: 'https://afrostream-billings-staging.herokuapp.com/',
+    url: 'http://localhost:12121/',
     apiUser: 'admin',
-    apiPass: 'billingsapirocks'
+    apiPass: 'billingsapirocks',
+    mockPort: '12121'
   },
 
   // if you want to seed:
