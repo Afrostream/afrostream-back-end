@@ -37,12 +37,19 @@ var requestBilling = function (options) {
     });
 };
 
-var getSubscriptions = function (user) {
-  assert(user instanceof sqldb.Users);
+/**
+ * get all user's subscriptions from the billing-api
+ *
+ * @param user  object
+ * @return FIXME
+ */
+var getSubscriptions = function (userReferenceUuid) {
+  assert(typeof billingsData.userReferenceUuid === 'number');
+  assert(billingsData.userReferenceUuid);
 
   return requestBilling({
     url: config.billings.url + 'billings/api/subscriptions/',
-    qs: { userReferenceUuid: user.get('_id') }
+    qs: { userReferenceUuid: userReferenceUuid }
   }).then(function (body) {
     return body && body.response && body.response.subscriptions || [];
   });
@@ -68,6 +75,12 @@ var someSubscriptionActiveSafe = function (user) {
   );
 };
 
+/**
+ * create a subscription in the billing-api
+ *
+ * @param subscriptionBillingData  object
+ * @return FIXME
+ */
 var createSubscription = function (subscriptionBillingData) {
   return requestBilling({
     method: 'POST'
@@ -77,6 +90,9 @@ var createSubscription = function (subscriptionBillingData) {
 };
 
 /**
+ * get a user from billing api,
+ *   userReferenceUuid is the backend postgresql user id
+ *
  * @param userReferenceUuid  number  backend user id
  * @param providerName       string  'recurly'
  * @return FIXME
@@ -92,6 +108,7 @@ var getUser = function (userReferenceUuid, providerName) {
 };
 
 /**
+ * create a user in the billing api
  *
  * @param billingsData  object
  *  {
@@ -118,6 +135,22 @@ var createUser = function (billingsData) {
   });
 };
 
+/**
+ * try to get a user in the billing api,
+ *   if the result fail (404) => create a user in the billing api
+ *
+ * @param billingsData  object
+ *  {
+ *    providerName: ...,
+ *    userReferenceUuid: ...,
+ *    userOpts: {
+ *      email: ...,
+ *      firstName: ...,
+ *      lastName: ...
+ *    }
+ *  }
+ * @return FIXME
+ */
 var getOrCreateUser = function (billingsData) {
   assert(typeof billingsData === 'object' && billingsData);
   assert(typeof billingsData.providerName === 'string');
