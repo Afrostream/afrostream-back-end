@@ -119,59 +119,50 @@ exports.show = function (req, res, next) {
 
 // Gets the authentified user's subscriptions
 exports.me = function (req, res, next) {
+  var c = {
+    user: null,
+    userId: null
+  };
 
-  var userId = req.user._id;
-  User.find({
-    where: {
-      _id: userId
-    }
-  })
+  //
+  // read the user in the db
+  //
+  readUser(req.user._id)
     .then(function (user) {
-      if (!user) {
-        return res.status(401).end();
-      }
-      var profile = user.profile;
-      if (user.account_code === null) {
-        return res.json(profile);
-      }
-
-      var findSubscription = config.billings.url + 'billings/api/subscriptions/?userReferenceUuid=' + userId;
-      requestPromise.get({url: findSubscription, json: true, timeout: 5000}, function (error, response, body) {
-
-        var billingsError = new Error('Error creating user in the billings api');
-        var noValidPlan = true;
-
-        if (error) {
-          console.log(error);
-          return res.status(500).send(billingsError);
-        }
-        if (response.status === 'error') {
-          console.log(body);
-          return res.status(500).send(billingsError);
-        }
-
-        if (typeof body !== 'undefined' &&
-          typeof body.response !== 'undefined' &&
-          typeof body.response.subscriptions !== 'undefined') {
-
-          _.forEach(body.response.subscriptions, function (subscription) {
-
-            if (subscription.isActive === 'yes') {
-              noValidPlan = false;
-              profile.planCode = subscription.internalPlan.internalPlanUuid;
-              return res.json(profile);
-            }
-          });
-        }
-
-        if (noValidPlan) {
-          profile.planCode = '';
-          return res.json(profile);
-        }
-
-      }).auth(config.billings.apiUser, config.billings.apiPass, true);
+      c.user = user;
+      c.userId = user.get('_id');
     })
-    .catch(handleError(res));
+    //
+    // get subscriptions from the billing api
+    //   & extract the planCode
+    //
+    .then(function () {
+      return billingApi.getSubscriptions(c.userId)
+        .then(function (subscriptions) {
+          for (var i = 0; i < subscriptions.length; ++i) {
+            if (subscription &&
+                subscription.isActive === 'yes' &&
+                subscription.internalPlan &&
+                subscription.internalPlan.internalPLanUuid) {
+              return subscription.internalPlan.internalPLanUuid;
+            }
+          }
+        });
+    })
+    //
+    // Answering the client, success or error.
+    //
+    .then(
+    function success(planCode) {
+      var profile = c.user.profile;
+      profile.planCode = planCode;
+      res.json(profile);
+    },
+    function error(err) {
+      console.error('subscription.controller.js#me(): error: ' + err, err);
+      res.status(err.statusCode || 500).json({error:String(err)});
+    }
+  );
 };
 
 exports.all = function (req, res, next) {
@@ -752,12 +743,12 @@ exports.gift = function (req, res) {
     //
     .then(
       function success() {
-        var profile = c.user.profile;
+        var profile = c.giftedUser.profile;
         profile.planCode = c.subscriptionPlanCode;
         res.json(profile);
       },
       function error(err) {
-        console.error('subscription.controller.js#create(): error: ' + err, err);
+        console.error('subscription.controller.js#gift(): error: ' + err, err);
         res.status(err.statusCode || 500).json({error:String(err)});
       }
     );
