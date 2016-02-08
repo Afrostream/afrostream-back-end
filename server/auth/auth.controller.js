@@ -108,7 +108,7 @@ var reset = function (req, res) {
             typeof infos.password !== "string") {
           throw new Error("malformed token");
         }
-        if (infos.createdAt < Date.now() - 3600 * 1000) {
+        if (infos.createdAt < Date.now() - 2 * 3600 * 1000) { // 2h to reset email
           throw new Error("token expired");
         }
         return loadUserOrFail(infos.email)
