@@ -83,7 +83,7 @@ var generateToken = function (client, user, code, userIp, userAgent, done) {
       userIp: userIp || null,
       userAgent: userAgent
     }
-  }).then(function () { console.log('ok'); }, function (err) { console.log(err); }); // can finish
+  }).then(function () { }, function (err) { console.error(err); }); // can finish
   //
   AccessToken.create({
       token: tokenData.token,
@@ -103,7 +103,6 @@ var generateToken = function (client, user, code, userIp, userAgent, done) {
           userId: tokenData.userId
         })
         .then(function (refreshTokenEntity) {
-          console.log('refreshTokenEntity', refreshTokenEntity.token);
           return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
         }).catch(function (err) {
         console.log('RefreshToken', err);
