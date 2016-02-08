@@ -10,6 +10,8 @@ var subscriptionController = require('../subscription/subscription.controller.js
 
 var utils = require('../utils.js');
 
+var auth = rootRequire('/server/auth/auth.service');
+
 function validationError(res, statusCode) {
   statusCode = statusCode || 422;
   return function (err) {
@@ -75,11 +77,10 @@ exports.create = function (req, res, next) {
   newUser.setDataValue('role', 'user');
   newUser.save()
     .then(function (user) {
-      //TODO verifier la creation du token en oauth2
-      var token = jwt.sign({_id: user._id}, config.secrets.session, {
-        expiresInMinutes: 60 * 5
-      });
-      res.json({token: token});
+      return auth.getOauth2UserTokens(user, req.clientIp, req.userAgent);
+    })
+    .then(function (oauthInfos) {
+      res.json(oauthInfos);
     })
     .catch(validationError(res));
 };
