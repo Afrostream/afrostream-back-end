@@ -16,7 +16,7 @@ function validationError(res, statusCode) {
   statusCode = statusCode || 422;
   return function (err) {
     console.error('/api/users/: error: validationError: ', err);
-    res.status(statusCode).json(err);
+    res.status(statusCode).json({error: String(err)});
   }
 }
 
@@ -24,7 +24,7 @@ function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
     console.error('/api/users/: error: handleError: ', err);
-    res.status(statusCode).send(err);
+    res.status(statusCode).send({error: String(err)});
   };
 }
 
