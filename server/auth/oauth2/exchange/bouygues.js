@@ -4,7 +4,7 @@
 var _ = require('lodash')
  , TokenError = require('oauth2orize').TokenError;
 
-/**
+/*
  * Exchanges bouygues id credentials for access tokens.
  *
  * This exchange middleware is used to by clients to obtain an access token by
@@ -50,11 +50,6 @@ var _ = require('lodash')
  * References:
  *  - [Resource Owner Password Credentials](http://tools.ietf.org/html/draft-ietf-oauth-v2-28#section-1.3.3)
  *  - [Resource Owner Password Credentials Grant](http://tools.ietf.org/html/draft-ietf-oauth-v2-28#section-4.3)
- *
- * @param {Object} options
- * @param {Function} issue
- * @return {Function}
- * @api public
  */
 module.exports = function (options, issue) {
   if (typeof options == 'function') {

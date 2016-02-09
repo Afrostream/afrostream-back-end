@@ -1,4 +1,4 @@
-/**
+/*
  * Return a unique identifier with the given `len`.
  *
  * utils.uid(10);
@@ -20,7 +20,7 @@ exports.uid = function(len) {
   return buf.join('');
 };
 
-/**
+/*
  * Return a random int, used by `utils.uid()`
  *
  * @param {Number} min
@@ -28,7 +28,6 @@ exports.uid = function(len) {
  * @return {Number}
  * @api private
  */
-
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
