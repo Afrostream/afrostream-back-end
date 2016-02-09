@@ -70,7 +70,10 @@ describe('User API:', function() {
 
   describe('POST /api/users/me', function () {
     before(function() {
-      return User.destroy({ where: { email: 'test.integration+bouygues_miami@afrostream.tv' } });
+      return User.destroy({ where: { $or: [
+        { email: 'test.integration+bouygues_miami@afrostream.tv' },
+        { email: 'test.integration+bouygues_miami2@afrostream.tv'}
+      ]}});
     });
 
     var bouyguesMiamiClient = null;
@@ -125,6 +128,21 @@ describe('User API:', function() {
         }).expect(422)
         .end(function (err, res) {
           assert(res.body.error.indexOf('missing bouyguesId') !== -1);
+          done(err);
+        })
+    });
+
+    it('shouldnt be able to create a different user with an existing bouygues id', function (done) {
+      request(app)
+        .post('/api/users')
+        .send({
+          access_token: bouyguesMiamiClientToken,
+          email: 'test.integration+bouygues_miami2@afrostream.tv',
+          password: 'password',
+          bouyguesId: "abcdef"
+        }).expect(422)
+        .end(function (err, res) {
+          assert(res.body.error.indexOf('SequelizeUniqueConstraintError') !== -1);
           done(err);
         })
     });
