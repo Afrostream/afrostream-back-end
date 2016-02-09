@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @api {get} /categorys/:id Request Category information
+ * @api {get} /api/categorys/:id Request Category information
  * @apiName GetCategory
  * @apiGroup Category
  *
@@ -21,12 +21,12 @@
  * @apiSuccess {String} movies Associated Movies Object.
  * @apiSuccess {String} adSpots Associated AdSpots Object.
  * @apiExample {curl} Example usage:
- *    curl -i http://backend.afrostream.tv/api/categorys/3
- * @apiSampleRequest http://backend.afrostream.tv/api/categorys/3
+ *    curl -i https://legacy-api.afrostream.tv/api/categorys/3
+ * @apiSampleRequest https://legacy-api.afrostream.tv/api/categorys/3
  */
 
 /**
- * @api {get} /categorys/menu Request Menu Home information
+ * @api {get} /api/categorys/menu Request Menu Home information
  * @apiName GetCategoryMenu
  * @apiGroup Menu
  *
@@ -44,12 +44,12 @@
  * @apiSuccess {String} movies Associated Movies Object.
  * @apiSuccess {String} adSpots Associated AdSpots Object.
  * @apiExample {curl} Example usage:
- *    curl -i http://backend.afrostream.tv/api/categorys/3
- * @apiSampleRequest http://backend.afrostream.tv/api/categorys/3
+ *    curl -i https://legacy-api.afrostream.tv/api/categorys/3
+ * @apiSampleRequest https://legacy-api.afrostream.tv/api/categorys/3
  */
 
 /**
- * @api {get} /categorys/menu Request Menu Home information
+ * @api {get} /api/categorys/menu Request Menu Home information
  * @apiName GetCategoryMenu
  * @apiGroup Menu
  *
@@ -62,12 +62,12 @@
  *
  * @apiSuccess {Array} Category list.
  * @apiExample {curl} Example usage:
- *    curl -i http://backend.afrostream.tv/api/categorys/menu
- * @apiSampleRequest http://backend.afrostream.tv/api/categorys/menu
+ *    curl -i https://legacy-api.afrostream.tv/api/categorys/menu
+ * @apiSampleRequest https://legacy-api.afrostream.tv/api/categorys/menu
  */
 
 /**
- * @api {get} /categorys/mea Request All mea for HomePage
+ * @api {get} /api/categorys/mea Request All mea for HomePage
  * @apiName GetMea
  * @apiGroup Mea
  *
@@ -80,12 +80,12 @@
  *
  * @apiSuccess {Array} Category list.
  * @apiExample {curl} Example usage:
- *    curl -i http://backend.afrostream.tv/api/categorys/meas
- * @apiSampleRequest http://backend.afrostream.tv/api/categorys/meas
+ *    curl -i https://legacy-api.afrostream.tv/api/categorys/meas
+ * @apiSampleRequest https://legacy-api.afrostream.tv/api/categorys/meas
  */
 
 /**
- * @api {get} /categorys/:id/spots Request All AdSpot for HomePage Carousel
+ * @api {get} /api/categorys/:id/spots Request All AdSpot for HomePage Carousel
  * @apiName GetAdSpots
  * @apiGroup AdSpots
  *
@@ -99,8 +99,8 @@
  *
  * @apiSuccess {Array} Movie AdSpot list.
  * @apiExample {curl} Example usage:
- *    curl -i http://backend.afrostream.tv/api/categorys/1/spots
- * @apiSampleRequest http://backend.afrostream.tv/api/categorys/1/spots
+ *    curl -i https://legacy-api.afrostream.tv/api/categorys/1/spots
+ * @apiSampleRequest https://legacy-api.afrostream.tv/api/categorys/1/spots
  */
 
 var express = require('express');

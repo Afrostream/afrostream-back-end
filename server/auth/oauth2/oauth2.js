@@ -10,6 +10,9 @@ var AccessToken = require('../../sqldb').AccessToken;
 var RefreshToken = require('../../sqldb').RefreshToken;
 var Log = require('../../sqldb').Log;
 
+// custom oauth2 exchange
+var exchangeBouygues = require('./exchange/bouygues.js');
+
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
 server.serializeClient(function (client, done) {
@@ -83,7 +86,7 @@ var generateToken = function (client, user, code, userIp, userAgent, done) {
       userIp: userIp || null,
       userAgent: userAgent
     }
-  }).then(function () { console.log('ok'); }, function (err) { console.log(err); }); // can finish
+  }).then(function () { }, function (err) { console.error(err); }); // can finish
   //
   AccessToken.create({
       token: tokenData.token,
@@ -103,7 +106,6 @@ var generateToken = function (client, user, code, userIp, userAgent, done) {
           userId: tokenData.userId
         })
         .then(function (refreshTokenEntity) {
-          console.log('refreshTokenEntity', refreshTokenEntity.token);
           return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
         }).catch(function (err) {
         console.log('RefreshToken', err);
@@ -216,6 +218,37 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
             }
           });
 
+        })
+        .catch(function (err) {
+          return done(err);
+        });
+    })
+    .catch(function (err) {
+      return done(err);
+    });
+}));
+
+server.exchange(exchangeBouygues(function (client, id, scope, reqBody, done) {
+  Client.find({
+    where: {
+      _id: client._id
+    }
+  })
+    .then(function (entity) {
+      if (entity === null) {
+        return done(null, false);
+      }
+      if (entity.secret !== client.secret) {
+        return done(null, false);
+      }
+      User.find({
+        where: {bouyguesId: id}
+      })
+        .then(function (user) {
+          if (user === null) {
+            return done(null, false, { message: 'unknown id'});
+          }
+          return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
         })
         .catch(function (err) {
           return done(err);

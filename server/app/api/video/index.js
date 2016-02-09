@@ -1,8 +1,8 @@
 'use strict';
 
 /**
- * @api {get} /videos/ Request Video list
- * @api {get} /videos/:id Request Video information
+ * @api {get} /api/videos/ Request Video list
+ * @api {get} /api/videos/:id Request Video information
  * @apiName GetVideo
  * @apiGroup Video
  *
@@ -20,8 +20,8 @@
  * @apiSuccess {String} captionId  CaptionId Related.
  * @apiSuccess {String} active  Active in production.
  * @apiExample {curl} Example usage:
- *    curl -i http://backend.afrostream.tv/api/users/4711
- * @apiSampleRequest http://backend.afrostream.tv/api/users/4711
+ *    curl -i https://legacy-api.afrostream.tv/api/users/4711
+ * @apiSampleRequest https://legacy-api.afrostream.tv/api/users/4711
  */
 
 var express = require('express');

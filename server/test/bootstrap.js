@@ -81,6 +81,28 @@ module.exports.getToken = function (app) {
   })
 };
 
+module.exports.getClientToken = function (app, client) {
+  var request = require('supertest');
+  var bluebird = require('bluebird');
+
+  var r = request(app)
+    .post('/auth/oauth2/token')
+    .send({
+      grant_type: 'client_credentials',
+      client_id: client.get('_id'),
+      client_secret: client.get('secret')
+    })
+    .expect(200)
+    .expect('Content-Type', /json/);
+  var f = bluebird.promisify(r.end, r);
+  return f().then(function (res) {
+    return res.body.access_token;
+  }, function (err) {
+    console.error(err);
+    throw err;
+  });
+};
+
 module.exports.getRandomMovie = function (app) {
   var Movie = rootRequire('/server/sqldb').Movie;
   var Video = rootRequire('/server/sqldb').Video;

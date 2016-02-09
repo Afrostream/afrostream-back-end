@@ -1,8 +1,10 @@
 'use strict';
 
 var _ = require('lodash');
+var Q = require('q');
 var sqldb = rootRequire('/server/sqldb');
 var User = sqldb.User;
+var Client = sqldb.Client;
 var passport = require('passport');
 var config = rootRequire('/server/config');
 var jwt = require('jsonwebtoken');
@@ -10,11 +12,13 @@ var subscriptionController = require('../subscription/subscription.controller.js
 
 var utils = require('../utils.js');
 
+var auth = rootRequire('/server/auth/auth.service');
+
 function validationError(res, statusCode) {
   statusCode = statusCode || 422;
   return function (err) {
     console.error('/api/users/: error: validationError: ', err);
-    res.status(statusCode).json(err);
+    res.status(statusCode).json({error: String(err)});
   }
 }
 
@@ -22,7 +26,7 @@ function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
     console.error('/api/users/: error: handleError: ', err);
-    res.status(statusCode).send(err);
+    res.status(statusCode).send({error: String(err)});
   };
 }
 
@@ -70,17 +74,29 @@ exports.index = function (req, res) {
  * Creates a new user
  */
 exports.create = function (req, res, next) {
-  var newUser = User.build(req.body);
-  newUser.setDataValue('provider', 'local');
-  newUser.setDataValue('role', 'user');
-  newUser.save()
-    .then(function (user) {
-      //TODO verifier la creation du token en oauth2
-      var token = jwt.sign({_id: user._id}, config.secrets.session, {
-        expiresInMinutes: 60 * 5
-      });
-      res.json({token: token});
+  Q()
+    .then(function () {
+      // specific filter for bouygues
+      if (req.user instanceof Client.Instance &&
+        req.user.get('type') === 'legacy-api.bouygues-miami') {
+        // ensure bouygues field exist
+        if (!req.body.bouyguesId) {
+          throw new Error("missing bouyguesId");
+        }
+      }
     })
+    .then(function () {
+      // inserting the user
+      var newUser = User.build(req.body);
+      newUser.setDataValue('provider', 'local');
+      newUser.setDataValue('role', 'user');
+      return newUser.save();
+    })
+    .then(function (user) {
+      // everything went ok, we send an oauth2 access token
+      return auth.getOauth2UserTokens(user, req.clientIp, req.userAgent);
+    })
+    .then(res.json.bind(res))
     .catch(validationError(res));
 };
 
