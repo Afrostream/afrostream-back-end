@@ -1,8 +1,10 @@
 'use strict';
 
 var _ = require('lodash');
+var Q = require('q');
 var sqldb = rootRequire('/server/sqldb');
 var User = sqldb.User;
+var Client = sqldb.Client;
 var passport = require('passport');
 var config = rootRequire('/server/config');
 var jwt = require('jsonwebtoken');
@@ -72,16 +74,29 @@ exports.index = function (req, res) {
  * Creates a new user
  */
 exports.create = function (req, res, next) {
-  var newUser = User.build(req.body);
-  newUser.setDataValue('provider', 'local');
-  newUser.setDataValue('role', 'user');
-  newUser.save()
+  Q()
+    .then(function () {
+      // specific filter for bouygues
+      if (req.user instanceof Client.Instance &&
+        req.user.get('type') === 'legacy-api.bouygues-miami') {
+        // ensure bouygues field exist
+        if (!req.body.bouygues || !req.body.bouygues.id) {
+          throw new Error("missing bouygues.id");
+        }
+      }
+    })
+    .then(function () {
+      // inserting the user
+      var newUser = User.build(req.body);
+      newUser.setDataValue('provider', 'local');
+      newUser.setDataValue('role', 'user');
+      return newUser.save();
+    })
     .then(function (user) {
+      // everything went ok, we send an oauth2 access token
       return auth.getOauth2UserTokens(user, req.clientIp, req.userAgent);
     })
-    .then(function (oauthInfos) {
-      res.json(oauthInfos);
-    })
+    .then(res.json.bind(res))
     .catch(validationError(res));
 };
 

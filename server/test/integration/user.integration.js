@@ -5,6 +5,7 @@ var bootstrap = require('../bootstrap.js');
 var app = bootstrap.getApp();
 var sqldb = bootstrap.getSqldb();
 var User = sqldb.User;
+var Client = sqldb.Client;
 var request = require('supertest');
 
 var assert = require('better-assert');
@@ -64,6 +65,72 @@ describe('User API:', function() {
         .get('/api/users/me')
         .expect(401)
         .end(done);
+    });
+  });
+
+  describe('POST /api/users/me', function () {
+    before(function() {
+      return User.destroy({ where: { email: 'test.integration+bouygues_miami@afrostream.tv' } });
+    });
+
+    var bouyguesMiamiClient = null;
+    before(function() {
+      return Client.find({ where: {type: 'legacy-api.bouygues-miami'}}).then(function (c) {
+        assert(c, 'client bouygues doesnt exist in db, please seed.');
+        bouyguesMiamiClient = c;
+      });
+    });
+
+    var bouyguesMiamiClientToken = null;
+    before(function () {
+      // login client
+      return bootstrap.getClientToken(app, bouyguesMiamiClient).then(function (t) {
+        assert(t, 'missing client token');
+        bouyguesMiamiClientToken = t;
+      });
+    });
+
+    it('should create a random user using client bouygues', function (done) {
+      request(app)
+        .post('/api/users')
+        .send({
+          access_token: bouyguesMiamiClientToken,
+          email: 'test.integration+bouygues_miami@afrostream.tv',
+          password: 'password',
+          bouygues: { id: "abcdef" }
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          if (err) return done(err);
+          request(app)
+            .get('/api/users/me')
+            .set('Content-type', 'application/json')
+            .set('Authorization', 'Bearer ' + res.body.token)
+            .expect(200)
+            .end(function (err, res) {
+              assert(res.body.email === 'test.integration+bouygues_miami@afrostream.tv');
+              done(err);
+            });
+        });
+    });
+
+    it('shouldnt be able to create a user without bouygues info', function (done) {
+      request(app)
+        .post('/api/users')
+        .send({
+          access_token: bouyguesMiamiClientToken,
+          email: 'test.integration+bouygues_miami@afrostream.tv',
+          password: 'password'
+        }).expect(422)
+        .end(function (err, res) {
+          assert(res.body.error.indexOf('missing bouygues.id') !== -1);
+          done(err);
+        })
+    });
+
+    it('should be able to login with the bouygues id after creation', function (done) {
+      done('fixme');
     });
   });
 });
