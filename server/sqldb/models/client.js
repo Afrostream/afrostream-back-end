@@ -19,6 +19,7 @@ module.exports = function (sequelize, DataTypes) {
     },
     name: DataTypes.STRING,
     redirectUrl: DataTypes.STRING,
-    active: DataTypes.BOOLEAN
+    active: DataTypes.BOOLEAN,
+    type: DataTypes.STRING(32)
   });
 };
