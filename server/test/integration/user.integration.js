@@ -130,7 +130,24 @@ describe('User API:', function() {
     });
 
     it('should be able to login with the bouygues id after creation', function (done) {
-      done('fixme');
+      request(app)
+        .post('/auth/oauth2/token')
+        .send({
+          grant_type: 'bouygues',
+          client_id: bouyguesMiamiClient.get('_id'),
+          client_secret: bouyguesMiamiClient.get('secret'),
+          id: "abcdef"
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          console.log(res.body);
+          assert(typeof res.body.access_token === 'string');
+          assert(typeof res.body.refresh_token === 'string');
+          assert(typeof res.body.expires_in === 'number');
+          assert(res.body.token_type === 'Bearer');
+          done(err);
+        });
     });
   });
 });
