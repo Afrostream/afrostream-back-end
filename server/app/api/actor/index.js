@@ -1,8 +1,8 @@
 'use strict';
 
 /**
- * @api {get} /actors/    Request Actor list
- * @api {get} /actors/:id Request Actor information
+ * @api {get} /api/actors/    Request Actor list
+ * @api {get} /api/actors/:id Request Actor information
  * @apiName GetActor
  * @apiGroup Actor
  *
@@ -19,9 +19,6 @@
  * @apiSuccess {String} assetId  AssetId Related.
  * @apiSuccess {String} captionId  CaptionId Related.
  * @apiSuccess {String} active  Active in production.
- * @apiExample {curl} Example usage:
- *    curl -i http://backend.afrostream.tv/api/users/4711
- * @apiSampleRequest http://backend.afrostream.tv/api/users/4711
  */
 
 

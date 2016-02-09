@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @api {get} /users/:id Request User information
+ * @api {get} /api/users/:id Request User information
  * @apiName GetUser
  * @apiGroup User
  *

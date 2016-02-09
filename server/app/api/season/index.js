@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @api {get} /seasons/:id Request Season information
+ * @api {get} /api/seasons/:id Request Season information
  * @apiName GetSeason
  * @apiGroup Season
  *
@@ -23,12 +23,12 @@
  * @apiSuccess {String} poster Poster Image Object.
  * @apiSuccess {String} thumb Thumb Image Object.
  * @apiExample {curl} Example usage:
- *    curl -i http://backend.afrostream.tv/api/seasons/29
- * @apiSampleRequest http://backend.afrostream.tv/api/seasons/29
+ *    curl -i https://legacy-api.afrostream.tv/api/seasons/29
+ * @apiSampleRequest https://legacy-api.afrostream.tv/api/seasons/29
  */
 
 /**
- * @api {post} /seasons/search    Search season
+ * @api {post} /api/seasons/search    Search season
  * @apiName SeasonSearch
  * @apiGroup Search
  *

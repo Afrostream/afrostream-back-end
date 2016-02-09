@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "afrostream api",
   "title": "Afrostream API",
-  "url": "https://afrostream-backend.herokuapp.com/api",
+  "url": "https://legacy-api.afrostream.tv",
   "header": {
     "title": "Afrostream api"
   },
