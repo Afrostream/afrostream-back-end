@@ -118,6 +118,36 @@ describe('User API:', function() {
         });
     });
 
+    it('shouldnt be able to create a user with a malformed email', function (done) {
+      request(app)
+        .post('/api/users')
+        .send({
+          access_token: bouyguesMiamiClientToken,
+          email: 'niaaaaaa',
+          password: 'password',
+          bouyguesId: "abcdef"
+        }).expect(422)
+        .end(function (err, res) {
+          assert(res.body.error.indexOf('valid email') !== -1);
+          done(err);
+        });
+    });
+
+    it('shouldnt be able to create a user with a password too short', function (done) {
+      request(app)
+        .post('/api/users')
+        .send({
+          access_token: bouyguesMiamiClientToken,
+          email: 'toto@toto.com',
+          password: 'pass',
+          bouyguesId: "abcdef"
+        }).expect(422)
+        .end(function (err, res) {
+          assert(res.body.error.indexOf('password') !== -1);
+          done(err);
+        });
+    });
+
     it('shouldnt be able to create a user without bouygues info', function (done) {
       request(app)
         .post('/api/users')

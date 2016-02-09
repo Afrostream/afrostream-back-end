@@ -49,6 +49,8 @@ var auth = rootRequire('/server/auth/auth.service');
 
 var router = express.Router();
 
+var validator = require('./user.validator.js');
+
 // all user routes cannot be cached.
 router.use(function (req, res, next) {
   res.noCache();
@@ -87,6 +89,6 @@ router.put('/password', auth.isAuthenticated(), controller.auth0ChangePassword);
 router.put('/:id/password', auth.hasRole('admin'), controller.changePassword);
 router.put('/:id/role', auth.hasRole('admin'), controller.changeRole);
 router.get('/:id', auth.hasRole('admin'), controller.show);
-router.post('/', auth.isAuthenticated(), controller.create);
+router.post('/', auth.isAuthenticated(), validator.validateCreateBody, controller.create);
 
 module.exports = router;
