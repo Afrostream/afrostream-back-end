@@ -129,7 +129,7 @@ describe('User API:', function() {
         .end(function (err, res) {
           assert(res.body.error.indexOf('missing bouyguesId') !== -1);
           done(err);
-        })
+        });
     });
 
     it('shouldnt be able to create a different user with an existing bouygues id', function (done) {
@@ -144,7 +144,7 @@ describe('User API:', function() {
         .end(function (err, res) {
           assert(res.body.error.indexOf('SequelizeUniqueConstraintError') !== -1);
           done(err);
-        })
+        });
     });
 
     it('should be able to login with the bouygues id after creation', function (done) {
