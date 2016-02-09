@@ -80,8 +80,8 @@ exports.create = function (req, res, next) {
       if (req.user instanceof Client.Instance &&
         req.user.get('type') === 'legacy-api.bouygues-miami') {
         // ensure bouygues field exist
-        if (!req.body.bouygues || !req.body.bouygues.id) {
-          throw new Error("missing bouygues.id");
+        if (!req.body.bouyguesId) {
+          throw new Error("missing bouyguesId");
         }
       }
     })

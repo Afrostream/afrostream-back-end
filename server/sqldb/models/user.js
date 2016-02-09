@@ -46,7 +46,7 @@ module.exports = function (sequelize, DataTypes) {
     google: DataTypes.JSON,
     github: DataTypes.JSON,
     facebook: DataTypes.JSON,
-    bouygues: DataTypes.JSON,
+    bouyguesId: DataTypes.STRING(128),
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false

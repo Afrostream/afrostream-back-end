@@ -97,7 +97,7 @@ describe('User API:', function() {
           access_token: bouyguesMiamiClientToken,
           email: 'test.integration+bouygues_miami@afrostream.tv',
           password: 'password',
-          bouygues: { id: "abcdef" }
+          bouyguesId: "abcdef"
         })
         .expect(200)
         .expect('Content-Type', /json/)
@@ -124,7 +124,7 @@ describe('User API:', function() {
           password: 'password'
         }).expect(422)
         .end(function (err, res) {
-          assert(res.body.error.indexOf('missing bouygues.id') !== -1);
+          assert(res.body.error.indexOf('missing bouyguesId') !== -1);
           done(err);
         })
     });
