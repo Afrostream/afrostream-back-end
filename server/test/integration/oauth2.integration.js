@@ -86,6 +86,11 @@ describe('User API:', function () {
       });
     });
 
+    // Clear users after testing
+    after(function() {
+      return User.destroy({ where: { email: 'test.integration+oauth2_bouygues@afrostream.tv' } });
+    });
+
     describe('using grant_type password', function () {
       var access_token, refresh_token;
 

@@ -93,6 +93,13 @@ describe('User API:', function() {
       });
     });
 
+    after(function() {
+      return User.destroy({ where: { $or: [
+        { email: 'test.integration+bouygues_miami@afrostream.tv' },
+        { email: 'test.integration+bouygues_miami2@afrostream.tv'}
+      ]}});
+    });
+
     it('should create a random user using client bouygues', function (done) {
       request(app)
         .post('/api/users')
@@ -194,6 +201,115 @@ describe('User API:', function() {
           assert(typeof res.body.refresh_token === 'string');
           assert(typeof res.body.expires_in === 'number');
           assert(res.body.token_type === 'Bearer');
+          done(err);
+        });
+    });
+  });
+
+  describe('PUT /api/users/me', function () {
+    before(function () {
+      return User.destroy({
+        where: {
+          $or: [
+            {email: 'test.integration+bouygues_miami@afrostream.tv'},
+            {email: 'test.integration+bouygues_miami2@afrostream.tv'}
+          ]
+        }
+      }).then(function () {
+        var user = User.build({
+          name: 'toto',
+          email: 'test.integration+bouygues_miami@afrostream.tv',
+          password: 'password',
+          bouyguesId: "toto42"
+        });
+        return user.save();
+      });
+    });
+
+    var bouyguesMiamiClient = null;
+    before(function () {
+      return Client.find({where: {type: 'legacy-api.bouygues-miami'}}).then(function (c) {
+        assert(c, 'client bouygues doesnt exist in db, please seed.');
+        bouyguesMiamiClient = c;
+      });
+    });
+
+    var bouyguesMiamiClientToken = null;
+    before(function () {
+      // login client
+      return bootstrap.getClientToken(app, bouyguesMiamiClient).then(function (t) {
+        assert(t, 'missing client token');
+        bouyguesMiamiClientToken = t;
+      });
+    });
+
+    var access_token;
+    before(function (done) {
+      request(app)
+        .post('/auth/oauth2/token')
+        .send({
+          grant_type: 'password',
+          client_id: bouyguesMiamiClient.get('_id'),
+          client_secret: bouyguesMiamiClient.get('secret'),
+          username: 'test.integration+bouygues_miami@afrostream.tv',
+          password: 'password'
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          assert(typeof res.body.access_token === 'string');
+          assert(typeof res.body.refresh_token === 'string');
+          assert(typeof res.body.expires_in === 'number');
+          assert(res.body.token_type === 'Bearer');
+          access_token = res.body.access_token;
+          done();
+        });
+    });
+
+    after(function() {
+      return User.destroy({ where: { $or: [
+        { email: 'test.integration+bouygues_miami@afrostream.tv' },
+        { email: 'test.integration+bouygues_miami2@afrostream.tv'}
+      ]}});
+    });
+
+    it('should update name, first_name, last_name, email, bouyguesId', function (done) {
+      request(app)
+        .put('/api/users/me')
+        .set('Authorization', 'Bearer ' + access_token)
+        .send({
+          name: "titi",
+          first_name: "aaa",
+          last_name: "bbb",
+          email: "test.integration+bouygues_miami2@afrostream.tv",
+          bouyguesId: '42424343'
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          if (err) return done(err);
+          User.findById(res.body._id).then(function (user) {
+            assert(user.name === 'titi');
+            assert(user.first_name === 'aaa');
+            assert(user.last_name === 'bbb');
+            assert(user.email === 'test.integration+bouygues_miami2@afrostream.tv');
+            assert(user.bouyguesId === '42424343');
+            done();
+          });
+        });
+    });
+
+    it('shouldnt update with a wrong email', function (done) {
+      request(app)
+        .put('/api/users/me')
+        .set('Authorization', 'Bearer ' + access_token)
+        .send({
+          email: "test.integration"
+        })
+        .expect(422)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          assert(res.body.error.indexOf('valid email') !== -1);
           done(err);
         });
     });

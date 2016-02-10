@@ -43,6 +43,35 @@
  *   }
  */
 
+/**
+ * @api {put} /api/users/me Update
+ * @apiName UpdateUser
+ * @apiGroup User
+ *
+ * @apiParam (postData) {String} name (optionnal)
+ * @apiParam (postData) {String} email (optionnal)
+ * @apiParam (postData) {String} first_name (optionnal)
+ * @apiParam (postData) {String} last_name (optionnal)
+ * @apiParam (postData) {String} bouyguesId (optionnal, allowed only if token is issued to bouygues apiClient)
+ *
+ * @apiSuccessExample {json} Success-Response (profile data) :
+ *   HTTP/1.1 200 OK
+ *   {
+ *     "name": ...,
+ *     "email": ...,
+ *     "_id": ...
+ *     ...
+ *   }
+ * @apiError (403) {String} error message
+ * @apiError (422) {String} error message
+ * @apiError (500) {String} error message
+ * @apiErrorExample {json} Error-Response:
+ *   HTTP/1.1 422 Unprocessable Entity
+ *   {
+ *     "error": "whatever"
+ *   }
+ */
+
 var express = require('express');
 var controller = require('./user.controller.js');
 var auth = rootRequire('/server/auth/auth.service');
@@ -72,6 +101,21 @@ if (process.env.NODE_ENV === 'staging') {
   });
 }
 
+var convertUserIdMeToUserId = function (req, res, next) {
+  if (req.params && req.params.userId === 'me' && req.user) {
+    req.params.userId = String(req.user._id);
+  }
+  next();
+};
+
+var tokenUserMatchParamUser = function (req, res, next) {
+  if (String(req.params.userId) === String(req.user._id)) {
+    next();
+  } else {
+    res.status(401).json({error: 'userId param/token mismatch.'});
+  }
+};
+
 router.use('/:userId/favoritesEpisodes', require('./favoriteEpisode/index'));
 router.use('/:userId/favoritesMovies', require('./favoriteMovie/index'));
 router.use('/:userId/favoritesSeasons', require('./favoriteSeason/index'));
@@ -90,5 +134,6 @@ router.put('/:id/password', auth.hasRole('admin'), controller.changePassword);
 router.put('/:id/role', auth.hasRole('admin'), controller.changeRole);
 router.get('/:id', auth.hasRole('admin'), controller.show);
 router.post('/', auth.isAuthenticated(), validator.validateCreateBody, controller.create);
+router.put('/:userId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, validator.validateUpdateBody, controller.update);
 
 module.exports = router;
