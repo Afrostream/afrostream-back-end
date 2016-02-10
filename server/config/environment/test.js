@@ -53,10 +53,10 @@ module.exports = {
   },
 
   billings: {
-    url: 'http://localhost:12121/',
+    mocked: true,
+    url: 'http://billings.afrostream.dev',
     apiUser: 'admin',
-    apiPass: 'billingsapirocks',
-    mockPort: '12121'
+    apiPass: 'billingsapirocks'
   },
 
   env: 'test'

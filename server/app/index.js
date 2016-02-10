@@ -30,10 +30,4 @@ sqldb.sequelize.sync()
     console.log('Server failed to start due to error: %s', err);
   });
 
-
-if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
-  // spawning a fake billing-api-server
-  rootRequire('/server/test/mock-billing-api');
-}
-
 exports = module.exports = app;

@@ -60,10 +60,9 @@ module.exports = {
   },
 
   billings: {
-    url: 'http://localhost:12121/',
+    url: 'http://billings.afrostream.dev',
     apiUser: 'admin',
-    apiPass: 'billingsapirocks',
-    mockPort: '12121'
+    apiPass: 'billingsapirocks'
   },
 
   // if you want to seed:

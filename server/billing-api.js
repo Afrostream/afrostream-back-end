@@ -10,6 +10,12 @@ var Q = require('q')
 var sqldb = rootRequire('/server/sqldb')
   , config = rootRequire('/server/config');
 
+if (process.env.NODE_ENV === 'development' ||
+    process.env.NODE_ENV === 'test') {
+  // MOCKING API
+  rootRequire('/server/test/mock-billing-api.js');
+}
+
 var requestBilling = function (options) {
   var defaultOptions = {
     json: true,
@@ -48,7 +54,7 @@ var getSubscriptions = function (userReferenceUuid) {
   assert(userReferenceUuid);
 
   return requestBilling({
-    url: config.billings.url + 'billings/api/subscriptions/',
+    url: config.billings.url + '/billings/api/subscriptions/',
     qs: { userReferenceUuid: userReferenceUuid }
   }).then(function (body) {
     return body && body.response && body.response.subscriptions || [];
@@ -86,7 +92,7 @@ var someSubscriptionActiveSafe = function (userReferenceUuid) {
 var createSubscription = function (subscriptionBillingData) {
   return requestBilling({
     method: 'POST'
-  , url: config.billings.url + 'billings/api/subscriptions/'
+  , url: config.billings.url + '/billings/api/subscriptions/'
   , body: subscriptionBillingData
   });
 };
@@ -104,7 +110,7 @@ var getUser = function (userReferenceUuid, providerName) {
   assert(providerName === 'recurly'); // add other providers here later.
 
   return requestBilling({
-    url: config.billings.url + 'billings/api/users/'
+    url: config.billings.url + '/billings/api/users/'
   , qs: { providerName: providerName, userReferenceUuid: userReferenceUuid }
   });
 };
@@ -132,7 +138,7 @@ var createUser = function (billingsData) {
 
   return requestBilling({
     method: 'POST'
-  , url: config.billings.url + 'billings/api/users/'
+  , url: config.billings.url + '/billings/api/users/'
   , body: billingsData
   });
 };

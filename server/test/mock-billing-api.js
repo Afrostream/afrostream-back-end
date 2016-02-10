@@ -1,10 +1,21 @@
 'use strict';
 
+// security
+if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging' || process.env.DATABASE_URL) {
+  console.error('security: cannot mock on production / staging environment');
+  console.error('exit 1');
+  process.exit(1);
+}
+
 var config = rootRequire('/server/config');
 
-var billingApiApp = require('express')();
-billingApiApp.get('/billings/api/subscriptions', function (req, res) {
-  res.json({
+var nock = require('nock');
+
+console.log('mocking ' + config.billings.url);
+
+nock(config.billings.url)
+  .get('/billings/api/subscriptions/')
+  .reply(200, {
     status: "done",
     statusMessage: "success",
     statusCode: 0,
@@ -55,7 +66,320 @@ billingApiApp.get('/billings/api/subscriptions', function (req, res) {
       ]
     }
   });
-});
-billingApiApp.listen(config.billings.mockPort, function () {
-  console.log('mock billing-api server listening on port ' + config.billings.mockPort);
-});
+
+nock(config.billings.url)
+  .get('/billings/api/internalplans/')
+  .query({providerName: 'bachat',userReferenceUuid:/.*/})
+  .reply(200, {
+    status: "done",
+    statusMessage: "success",
+    statusCode: 0,
+    response: {
+      internalPlans: [
+        {
+          calledWithProviderNameBachat: true, // mock only
+          internalPlanUuid: "bachat-afrostreammonthly",
+          name: "Mensuel",
+          description: "Mensuel",
+          amountInCents: "699",
+          amountInCentsExclTax: "559",
+          vatRate: "20",
+          currency: "EUR",
+          cycle: "auto",
+          periodUnit: "day",
+          periodLength: "30",
+          internalPlanOpts: {
+            promoEnabled: "true",
+            promoItemBasePrice: "0",
+            promoItemTaxAmount: "20",
+            promoItemTotal: "0",
+            promoCurrency: "EUR",
+            promoPeriod: "30",
+            promoDuration: "0"
+          },
+          providerPlans: {
+            bachat: {
+              providerPlanUuid: "bachat-afrostreammonthly",
+              name: "bachat-afrostreammonthly",
+              description: "bachat-afrostreammonthly",
+              provider: {
+                providerName: "bachat"
+              }
+            }
+          }
+        },
+        {
+          calledWithProviderNameBachat: true, // mock only
+          internalPlanUuid: "bachat-afrostreamdaily",
+          name: "Jour",
+          description: "Jour",
+          amountInCents: "199",
+          amountInCentsExclTax: "159",
+          vatRate: "20",
+          currency: "EUR",
+          cycle: "auto",
+          periodUnit: "day",
+          periodLength: "1",
+          internalPlanOpts: {
+            promoEnabled: "false",
+            promoItemBasePrice: "0",
+            promoItemTaxAmount: "20",
+            promoItemTotal: "0",
+            promoCurrency: "EUR",
+            promoPeriod: "1",
+            promoDuration: "0"
+          },
+          providerPlans: {
+            bachat: {
+              providerPlanUuid: "bachat-afrostreamdaily",
+              name: "bachat-afrostreamdaily",
+              description: "bachat-afrostreamdaily",
+              provider: {
+                providerName: "bachat"
+              }
+            }
+          }
+        }
+      ]
+    }
+  });
+
+nock(config.billings.url)
+  .get('/billings/api/internalplans/')
+  .query({providerName: /.+/,userReferenceUuid:/.*/})
+  .reply(200, {
+    status: "error",
+    statusMessage: "unknown provider named : unknown",
+    statusCode: 0,
+    statusType: "internal",
+    errors: [
+      {
+        error: {
+          errorMessage: "unknown provider named :  unknown",
+          errorType: "internal",
+          errorCode: 0
+        }
+      }
+    ]
+  });
+
+nock(config.billings.url)
+  .get('/billings/api/internalplans/')
+  .query({userReferenceUuid:/.*/})
+  .reply(200, {
+    status: "done",
+    statusMessage: "success",
+    statusCode: 0,
+    response: {
+      internalPlans: [
+        {
+          internalPlanUuid: "afrostreamgift",
+          name: "Cadeau",
+          description: "Cadeau",
+          amountInCents: "5999",
+          amountInCentsExclTax: "4799",
+          vatRate: "20",
+          currency: "EUR",
+          cycle: "auto",
+          periodUnit: "month",
+          periodLength: "1",
+          internalPlanOpts: [],
+          providerPlans: {
+            recurly: {
+              providerPlanUuid: "afrostreamgift",
+              name: "recurly_afrostreamgift_name",
+              description: "recurly_afrostreamgift_description",
+              provider: {
+                providerName: "recurly"
+              }
+            }
+          }
+        },
+        {
+          internalPlanUuid: "afrostreampremium",
+          name: "Do the right think",
+          description: "Do the right think",
+          amountInCents: "9999",
+          amountInCentsExclTax: "7999",
+          vatRate: "20",
+          currency: "EUR",
+          cycle: "auto",
+          periodUnit: "year",
+          periodLength: "1",
+          internalPlanOpts: {
+            internalMaxScreens: "2"
+          },
+          providerPlans: {
+            recurly: {
+              providerPlanUuid: "afrostreampremium",
+              name: "recurly_afrostreampremium_name",
+              description: "recurly_afrostreampremium_desc",
+              provider: {
+                providerName: "recurly"
+              }
+            }
+          }
+        },
+        {
+          internalPlanUuid: "afrostreamambassadeurs",
+          name: "Ambassadeurs",
+          description: "Ambassadeurs",
+          amountInCents: "4999",
+          amountInCentsExclTax: "3999",
+          vatRate: "20",
+          currency: "EUR",
+          cycle: "auto",
+          periodUnit: "year",
+          periodLength: "1",
+          internalPlanOpts: {
+            internalMaxScreens: "2"
+          },
+          providerPlans: {
+            recurly: {
+              providerPlanUuid: "afrostreamambassadeurs",
+              name: "afrostreamambassadeurs",
+              description: "afrostreamambassadeurs",
+              provider: {
+                providerName: "recurly"
+              }
+            }
+          }
+        },
+        {
+          internalPlanUuid: "afrostreamambassadeurs2",
+          name: "Ambassadeurs",
+          description: "Ambassadeurs",
+          amountInCents: "5999",
+          amountInCentsExclTax: "4799",
+          vatRate: "20",
+          currency: "EUR",
+          cycle: "once",
+          periodUnit: "year",
+          periodLength: "1",
+          internalPlanOpts: [],
+          providerPlans: {
+            celery: {
+              providerPlanUuid: "afrostreamambassadeurs",
+              name: "afrostreamambassadeurs",
+              description: "afrostreamambassadeurs",
+              provider: {
+                providerName: "celery"
+              }
+            }
+          }
+        },
+        {
+          internalPlanUuid: "afrostreammonthly",
+          name: "Mensuel",
+          description: "Mensuel",
+          amountInCents: "699",
+          amountInCentsExclTax: "559",
+          vatRate: "20",
+          currency: "EUR",
+          cycle: "auto",
+          periodUnit: "month",
+          periodLength: "1",
+          internalPlanOpts: {
+            internalMaxScreens: "1"
+          },
+          providerPlans: {
+            recurly: {
+              providerPlanUuid: "afrostreammonthly",
+              name: "recurly_afrostreammonthly_name",
+              description: "recurly_afrostreammonthly_desc",
+              provider: {
+                providerName: "recurly"
+              }
+            }
+          }
+        },
+        {
+          internalPlanUuid: "afrostream_monthly",
+          name: "Mensuel",
+          description: "Mensuel",
+          amountInCents: "699",
+          amountInCentsExclTax: "559",
+          vatRate: "20",
+          currency: "EUR",
+          cycle: "auto",
+          periodUnit: "month",
+          periodLength: "1",
+          internalPlanOpts: {
+            internalMaxScreens: "1"
+          },
+          providerPlans: {
+            recurly: {
+              providerPlanUuid: "afrostream_monthly",
+              name: "recurly_afrostream_monthly_name",
+              description: "recurly_afrostream_monthly_desc",
+              provider: {
+                providerName: "recurly"
+              }
+            }
+          }
+        },
+        {
+          internalPlanUuid: "bachat-afrostreammonthly",
+          name: "Mensuel",
+          description: "Mensuel",
+          amountInCents: "699",
+          amountInCentsExclTax: "559",
+          vatRate: "20",
+          currency: "EUR",
+          cycle: "auto",
+          periodUnit: "day",
+          periodLength: "30",
+          internalPlanOpts: {
+            promoEnabled: "true",
+            promoItemBasePrice: "0",
+            promoItemTaxAmount: "20",
+            promoItemTotal: "0",
+            promoCurrency: "EUR",
+            promoPeriod: "30",
+            promoDuration: "0"
+          },
+          providerPlans: {
+            bachat: {
+              providerPlanUuid: "bachat-afrostreammonthly",
+              name: "bachat-afrostreammonthly",
+              description: "bachat-afrostreammonthly",
+              provider: {
+                providerName: "bachat"
+              }
+            }
+          }
+        },
+        {
+          internalPlanUuid: "bachat-afrostreamdaily",
+          name: "Jour",
+          description: "Jour",
+          amountInCents: "199",
+          amountInCentsExclTax: "159",
+          vatRate: "20",
+          currency: "EUR",
+          cycle: "auto",
+          periodUnit: "day",
+          periodLength: "1",
+          internalPlanOpts: {
+            promoEnabled: "false",
+            promoItemBasePrice: "0",
+            promoItemTaxAmount: "20",
+            promoItemTotal: "0",
+            promoCurrency: "EUR",
+            promoPeriod: "1",
+            promoDuration: "0"
+          },
+          providerPlans: {
+            bachat: {
+              providerPlanUuid: "bachat-afrostreamdaily",
+              name: "bachat-afrostreamdaily",
+              description: "bachat-afrostreamdaily",
+              provider: {
+                providerName: "bachat"
+              }
+            }
+          }
+        }
+      ]
+    }
+  });
