@@ -103,9 +103,25 @@ exports.create = function (req, res, next) {
 /**
  * Update a user
  *   currently, only used for bouygues
+ *
+ **********************************************
+ * FIXME_023
+ * /!\ l'objet User côté backoffice ne reflète que les infos utilisateurs, pas les infos de billing
+ *     ex: quand on paye et que l'on change d'addresse, les infos de l'ancien paiement s'affiche avec l'ancienne adresse
+ *         le first_name, name, last_name, email doivent se comporter de la même façon.
+ *
+ *     les infos Users.{name,first_name,last_name,email} doivent etre décorellées des infos de billing
+ *     permettre la mise a jour de ces infos ici, par une GUI front,
+ *     doit être implémentée en parallèle avec la création d'une api de mise a jour
+ *     de ces informations côté billing.
+ ***********************************************
  */
 exports.update = function (req, res) {
-  var updateableFields = ['name', 'first_name', 'last_name', 'email', 'bouyguesId'];
+  //
+  var updateableFields = [
+    /* 'name', 'first_name', 'last_name', 'email', */ // FIXME_023 Please read the comment above before changing this.
+    'bouyguesId'
+  ];
   updateableFields.forEach(function (field) {
     if (typeof req.body[field] !== 'undefined') {
       req.user[field] = req.body[field];

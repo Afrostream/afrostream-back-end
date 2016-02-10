@@ -43,15 +43,19 @@
  *   }
  */
 
+/*
+ * FIXME_023: add this to the doc
+ * @apiParam (postData) {String} name (optionnal)
+ * @apiParam (postData) {String} email (optionnal)
+ * @apiParam (postData) {String} first_name (optionnal)
+ * @apiParam (postData) {String} last_name (optionnal)
+ */
+
 /**
  * @api {put} /api/users/me Update
  * @apiName UpdateUser
  * @apiGroup User
  *
- * @apiParam (postData) {String} name (optionnal)
- * @apiParam (postData) {String} email (optionnal)
- * @apiParam (postData) {String} first_name (optionnal)
- * @apiParam (postData) {String} last_name (optionnal)
  * @apiParam (postData) {String} bouyguesId (optionnal, allowed only if token is issued to bouygues apiClient)
  *
  * @apiSuccessExample {json} Success-Response (profile data) :
