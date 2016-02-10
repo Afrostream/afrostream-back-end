@@ -52,5 +52,12 @@ module.exports = {
     }
   },
 
+  billings: {
+    url: 'http://localhost:12121/',
+    apiUser: 'admin',
+    apiPass: 'billingsapirocks',
+    mockPort: '12121'
+  },
+
   env: 'test'
 };

@@ -25,7 +25,11 @@ var Promise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
 var auth = rootRequire('/server/auth/auth.service');
 
+var Q = require('q');
+
 var utils = require('../utils.js');
+
+var billingApi = rootRequire('/server/billing-api.js');
 
 var getClientIp = rootRequire('/server/auth/geo').getClientIp;
 var cdnselector = rootRequire('/server/cdnselector');
@@ -187,84 +191,117 @@ exports.index = function (req, res) {
 exports.show = function (req, res) {
   // cannot cache /api/videos/:id because of the cdn selector.
   res.set('Cache-Control', 'public, max-age=0');
-  //
-  var p = Video.find({
-    where: {
-      _id: req.params.id
-    }
-    ,include: [
-      {
-        model: Movie,
-        as: 'movie',
-        include: [
-          {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']},
-          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
-          {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
-        ]
-      },
-      {
-        model: Episode,
-        as: 'episode',
-        include: [
-          {model: Image, as: 'poster', required: false, attributes: ['imgix']},
-          {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
-        ]
-      },
-      {model: Asset, as: 'sources'},
-      {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]}
-    ]
-  }).then(handleEntityNotFound(res));
 
-  if (config.mam.useToken == 'true' && !auth.validRole(req, 'admin')) {
-    p = p.then(tokenizeResult(req, res));
-  }
-
-
-  p.then(function (entity) {
-    if (req.query.backo) {
-      return entity;
-    }
-    if (!config.cdnselector.enabled) {
-      console.log('video: cdnselector: is disabled'); // warning.
-      return entity;
-    }
-
-    // FIXME: to be removed
-    // START REMOVE
-    // hack staging cdnselector orange (testing)
-    if (process.env.NODE_ENV === 'staging' && req.query.from === 'afrostream-orange-staging') {
-      entity.sources.forEach(function (source, i) {
-        var src = source.get('src');
-        if (src.match(/^[^\:]+\:\/\/[^/]+\//)) {
-          source.set('src', src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'https://orange-labs.cdn.afrostream.net/'));
+  Q()
+    //
+    // first, on mobile (android & iOS)
+    //  we check if the user has an active subscription
+    //
+    .then(function () {
+      //
+      if (req.userAgent.indexOf('okhttp') !== -1 ||
+          req.userAgent.indexOf('iPhone') !== -1) {
+        if (!req.user) {
+          throw new Error('missing user');
         }
-        console.log('video: cdnselector: cdn-orange: source ' + src + ' => ' + source.get('src'));
-      });
+        // mobile, we check req.user
+        return billingApi.someSubscriptionActiveSafe(req.user._id)
+          .then(function (active) {
+          if (!active) {
+            console.error('error: user ' + req.user._id + ' UA=' + req.userAgent + ' no active subscription');
+            throw new Error('no active subscriptions');
+          }
+        });
+      }
+    })
+    //
+    // reading video object
+    //
+    .then(function () {
+      return Video.find({
+        where: {
+          _id: req.params.id
+        }
+        , include: [
+          {
+            model: Movie,
+            as: 'movie',
+            include: [
+              {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']},
+              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
+              {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
+            ]
+          },
+          {
+            model: Episode,
+            as: 'episode',
+            include: [
+              {model: Image, as: 'poster', required: false, attributes: ['imgix']},
+              {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
+            ]
+          },
+          {model: Asset, as: 'sources'},
+          {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]}
+        ]
+      }).then(handleEntityNotFound(res));
+    })
+    //
+    // fixme
+    //
+    .then(function (entity) {
+      if (config.mam.useToken == 'true' && !auth.validRole(req, 'admin')) {
+        return tokenizeResult(req, res)(entity);
+      }
       return entity;
-    }
-    // END REMOVE
+    })
+    //
+    // cdn selector
+    //
+    .then(function (entity) {
+      if (req.query.backo) {
+        return entity;
+      }
+      if (!config.cdnselector.enabled) {
+        console.log('video: cdnselector: is disabled'); // warning.
+        return entity;
+      }
 
-    // frontend (api-v1) or mobile: we try to use cdnselector.
-    return cdnselector.getFirstSafe(req.clientIp)
-      .then(
-        function (infos) {
-          entity.sources.forEach(function (source, i) {
-            var src = source.get('src');
-            if (src.match(/^[^\:]+\:\/\/[^/]+\//)) {
-              source.set('src', src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, infos.scheme + '://' + infos.authority + '/'));
-            }
-            // FIXME: remove this
-            // BEGIN
-            console.log('video: cdnselector: source ' + src + ' => ' + source.get('src'));
-            // END
-          });
-          return entity;
-        },
-        function (err) { return entity; }
-    );
-  })
-   .then(responseWithResult(res))
-   .catch(handleError(res));
+      // FIXME: to be removed
+      // START REMOVE
+      // hack staging cdnselector orange (testing)
+      if (process.env.NODE_ENV === 'staging' && req.query.from === 'afrostream-orange-staging') {
+        entity.sources.forEach(function (source, i) {
+          var src = source.get('src');
+          if (src.match(/^[^\:]+\:\/\/[^/]+\//)) {
+            source.set('src', src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'https://orange-labs.cdn.afrostream.net/'));
+          }
+          console.log('video: cdnselector: cdn-orange: source ' + src + ' => ' + source.get('src'));
+        });
+        return entity;
+      }
+      // END REMOVE
+
+      // frontend (api-v1) or mobile: we try to use cdnselector.
+      return cdnselector.getFirstSafe(req.clientIp)
+        .then(
+          function (infos) {
+            entity.sources.forEach(function (source, i) {
+              var src = source.get('src');
+              if (src.match(/^[^\:]+\:\/\/[^/]+\//)) {
+                source.set('src', src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, infos.scheme + '://' + infos.authority + '/'));
+              }
+              // FIXME: remove this
+              // BEGIN
+              console.log('video: cdnselector: source ' + src + ' => ' + source.get('src'));
+              // END
+            });
+            return entity;
+          },
+          function (err) { return entity; }
+      );
+    })
+     .then(responseWithResult(res))
+     .catch(handleError(res));
 };
 
 // Creates a new video in the DB
