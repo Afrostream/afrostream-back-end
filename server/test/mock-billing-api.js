@@ -383,3 +383,110 @@ nock(config.billings.url)
       ]
     }
   });
+
+
+nock(config.billings.url)
+  .get('/billings/api/users/')
+  .query({providerName:"celery", userReferenceUuid: /.*/})
+  .reply(200, {
+    status: "done",
+    statusMessage: "success",
+    statusCode: 0,
+    response: {
+      user: {
+        userBillingUuid: "f6bd7d05-7a66-84c4-419f-b1b44ab1814a",
+        userReferenceUuid: "1",
+        userProviderUuid: "F_46B9F2D0-1612-179B-814D-8D9FF21954CF",
+        provider: {
+          providerName: "celery"
+        },
+        userOpts: {
+          email: "tech@afrostream.tv",
+          firstName: "firstNameValue",
+          lastName: "lastNameValue"
+        }
+      }
+    }
+  });
+
+nock(config.billings.url)
+  .get('/billings/api/users/')
+  .query({providerName:"recurly", userReferenceUuid: /.*/})
+  .reply(200, {
+    status: "done",
+    statusMessage: "success",
+    statusCode: 0,
+    response: {
+      user: {
+        userBillingUuid: "f946e738-2c32-8144-d6bd-d7532256ae7b",
+        userReferenceUuid: "1392",
+        userProviderUuid: "oliviadigbiali@gmail.com",
+        provider: {
+          providerName: "recurly"
+        },
+        userOpts: {
+          email: "oliviadigbiali@gmail.com",
+          firstName: "firstNameValue",
+          lastName: "lastNameValue"
+        }
+      }
+    }
+  });
+
+nock(config.billings.url)
+  .get('/billings/api/users/')
+  .query({providerName:"bachat", userReferenceUuid: /.*/})
+  .reply(200, {
+    status: "done",
+    statusMessage: "success",
+    statusCode: 0,
+    response: {
+      user: {
+        userBillingUuid: "f946e738-2c32-8144-d6bd-d7532256ae7b",
+        userReferenceUuid: "1392",
+        userProviderUuid: "oliviadigbiali@gmail.com",
+        provider: {
+          providerName: "bachat"
+        },
+        userOpts: {
+          email: "oliviadigbiali@gmail.com",
+          firstName: "firstNameValue",
+          lastName: "lastNameValue"
+        }
+      }
+    }
+  });
+
+nock(config.billings.url)
+  .get('/billings/api/users/')
+  .query()
+  .reply(200, {
+    status: "error",
+    statusMessage: "NOT FOUND",
+    statusCode: 0,
+    statusType: "internal",
+    errors: [
+      {
+        error: {
+          errorMessage: "NOT FOUND",
+          errorType: "internal",
+          errorCode: 0
+        }
+      }
+    ]
+  });
+
+nock(config.billings.url)
+  .post('/billings/api/subscriptions/')
+  .reply(200, function(uri, requestBody) {
+    console.log('NOCK: ', requestBody);
+    return {
+      status: "done",
+      statusMessage: "success",
+      statusCode: 0,
+      response: {
+        bodySubscriptionPlanCode: 'mockedPlanCode',
+        mocked: true
+      }
+    };
+  });

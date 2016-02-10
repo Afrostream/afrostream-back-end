@@ -58,6 +58,73 @@ module.exports.showInternalplans = function (req, res) {
     );
 };
 
+/**
+ * POST {
+ *   firstName: "...",
+ *   lastName: "...",
+ *   internalPlanUuid: "..."
+ *   subscriptionProviderUuid: "..."
+ * }
+ * @param req
+ * @param res
+ */
 module.exports.createSubscriptions = function (req, res) {
+  var c = {
+    userId: req.user._id,
+    userEmail: req.user.email,
+    bodyFirstName: req.body.firstName,
+    bodyLastName: req.body.lastName,
+    bodyInternalPlanUuid: req.body.internalPlanUuid,
+    bodySubscriptionProviderUuid: req.body.subscriptionProviderUuid
+  }; // closure
 
+  getClient(req)
+    //
+    // grab client billingProviderName ex: recurly, bachat
+    //
+    .then(function (client) {
+      if (!client) throw new Error('unknown client');
+      if (!client.billingProviderName) throw new Error('unknown billingProviderName');
+      c.billingProviderName = client.billingProviderName;
+    })
+    //
+    // we create the user in the billing-api if he doesn't exist yet
+    //
+    .then(function () {
+      return billingApi.getOrCreateUser({
+        providerName : c.billingProviderName,
+        userReferenceUuid : c.userId,
+        userOpts : {
+          email : c.userEmail,
+          firstName : c.bodyFirstName,
+          lastName : c.bodyLastName
+        }
+      }).then(function (billingsResponse) {
+        c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
+        c.userProviderUuid = billingsResponse.response.user.userProviderUuid;
+      });
+    })
+    //
+    // we create the subscription in biling-api
+    //
+    .then(function () {
+      var subscriptionBillingData = {
+        userBillingUuid: c.userBillingUuid,
+        internalPlanUuid: c.bodyInternalPlanUuid,
+        subscriptionProviderUuid: c.bodySubscriptionProviderUuid,
+        billingInfoOpts: {}
+      };
+      return billingApi.createSubscription(subscriptionBillingData);
+    })
+    .then(
+      function success() {
+        var profile = req.user.profile;
+        profile.planCode = c.bodyInternalPlanUuid;
+        res.json(profile);
+      },
+      function error(err) {
+        console.error('ERROR: /api/billing/createSubscriptions', err);
+        res.status(err.statusCode || 500).send({error: String(err)});
+      }
+    );
 };

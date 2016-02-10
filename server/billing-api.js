@@ -107,7 +107,7 @@ var createSubscription = function (subscriptionBillingData) {
  */
 var getUser = function (userReferenceUuid, providerName) {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
-  assert(providerName === 'recurly'); // add other providers here later.
+  assert(['recurly', 'celery', 'bachat'].indexOf(providerName) !== -1); // add other providers here later.
 
   return requestBilling({
     url: config.billings.url + '/billings/api/users/'

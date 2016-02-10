@@ -101,4 +101,66 @@ describe('User API:', function() {
         });
     });
   });
+
+  describe('POST /api/billings/subscriptions', function () {
+    var bouyguesMiamiClient = null;
+    before(function () {
+      return Client.find({where: {type: 'legacy-api.bouygues-miami'}}).then(function (c) {
+        assert(c, 'client bouygues doesnt exist in db, please seed.');
+        bouyguesMiamiClient = c;
+      });
+    });
+
+    var bouyguesMiamiClientToken = null;
+    before(function () {
+      // login client
+      return bootstrap.getClientToken(app, bouyguesMiamiClient).then(function (t) {
+        assert(t, 'missing client token');
+        bouyguesMiamiClientToken = t;
+      });
+    });
+
+    // log the user using bouygues client
+    var access_token;
+    before(function (done) {
+      request(app)
+        .post('/auth/oauth2/token')
+        .send({
+          grant_type: 'password',
+          client_id: bouyguesMiamiClient.get('_id'),
+          client_secret: bouyguesMiamiClient.get('secret'),
+          username: 'test.integration+billing@afrostream.tv',
+          password: 'password'
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          assert(typeof res.body.access_token === 'string');
+          assert(typeof res.body.refresh_token === 'string');
+          assert(typeof res.body.expires_in === 'number');
+          assert(res.body.token_type === 'Bearer');
+          access_token = res.body.access_token;
+          done();
+        });
+    });
+
+    it('calling with bouygues client should call the mock using providerName=bachat', function (done) {
+      request(app)
+        .post('/api/billings/subscriptions')
+        .set('Authorization', 'Bearer ' + access_token)
+        .send({
+          firstName: "foo",
+          lastName: "bar",
+          internalPlanUuid: "bachat-afrostreamdaily",
+          subscriptionProviderUuid: "42424242"
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          if (err) return done(err);
+          assert(res.body.planCode === 'bachat-afrostreamdaily');
+          done();
+        });
+    });
+  });
 });
