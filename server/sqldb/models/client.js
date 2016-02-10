@@ -20,6 +20,7 @@ module.exports = function (sequelize, DataTypes) {
     name: DataTypes.STRING,
     redirectUrl: DataTypes.STRING,
     active: DataTypes.BOOLEAN,
-    type: DataTypes.STRING(32)
+    type: DataTypes.STRING(32),
+    billingProviderName: DataTypes.STRING(32)
   });
 };
