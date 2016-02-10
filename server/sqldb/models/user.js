@@ -66,7 +66,7 @@ module.exports = function (sequelize, DataTypes) {
           'email': this.email,
           'provider': this.provider,
           'facebook': this.facebook,
-          'bouyguesId': this.bouyguesId
+          'bouyguesId': this.bouyguesId // fixme: security: should this id be exported or useless ?
         };
       },
 

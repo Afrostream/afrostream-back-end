@@ -101,6 +101,23 @@ exports.create = function (req, res, next) {
 };
 
 /**
+ * Update a user
+ *   currently, only used for bouygues
+ */
+exports.update = function (req, res) {
+  var updateableFields = ['name', 'first_name', 'last_name', 'email', 'bouyguesId'];
+  updateableFields.forEach(function (field) {
+    if (typeof req.body[field] !== 'undefined') {
+      req.user[field] = req.body[field];
+    }
+  });
+  // FIXME: security: we should ensure bouyguesId could only be updated by bouygues client.
+  req.user.save()
+    .then(function () { res.json(req.user.profile); })
+    .catch(validationError(res));
+};
+
+/**
  * Get a single user
  */
 exports.show = function (req, res, next) {
