@@ -53,7 +53,7 @@ module.exports.showInternalplans = function (req, res) {
       },
       function (err) {
         console.error('ERROR: /api/billing/internalplans', err);
-        res.status(err.statusCode || 500).send({error: String(err)});
+        res.status(500).send({error: String(err)});
       }
     );
 };
@@ -124,7 +124,7 @@ module.exports.createSubscriptions = function (req, res) {
       },
       function error(err) {
         console.error('ERROR: /api/billing/createSubscriptions', err);
-        res.status(err.statusCode || 500).send({error: String(err)});
+        res.status(500).send({error: String(err)});
       }
     );
 };
