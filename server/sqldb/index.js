@@ -113,7 +113,7 @@ db.CatchupProvider.belongsTo(db.Category, {as: 'category', foreignKey: 'category
 db.CatchupProvider.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId', constraints: false});
 
 db.AccessToken.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false});
-db.AccessToken.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', constraints: false});
+db.AccessToken.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', targetKey: '_id', constraints: false});
 
 db.Log.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false});
 db.Log.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', targetKey: '_id', constraints: false});
