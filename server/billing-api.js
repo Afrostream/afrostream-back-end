@@ -190,6 +190,21 @@ var updateUser = function (userBillingUuid, billingsData) {
 };
 */
 
+var getInternalPlans = function (userReferenceUuid, providerName) {
+  assert(typeof userReferenceUuid === 'number');
+  assert(userReferenceUuid);
+
+  return requestBilling({
+    url: config.billings.url + '/billings/api/internalplans/',
+    qs: {
+      userReferenceUuid: userReferenceUuid,
+      providerName: providerName
+    }
+  }).then(function (body) {
+    return body && body.response && body.response.internalPlans || [];
+  });
+};
+
 // subscriptions manipulation
 module.exports.getSubscriptions = getSubscriptions;
 module.exports.someSubscriptionActive = someSubscriptionActive;
@@ -200,3 +215,5 @@ module.exports.getUser = getUser;
 module.exports.createUser = createUser;
 //module.exports.updateUser = updateUser;
 module.exports.getOrCreateUser = getOrCreateUser;
+// fetching internal infos
+module.exports.getInternalPlans = getInternalPlans;

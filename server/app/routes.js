@@ -12,6 +12,7 @@ module.exports = function (app) {
   // Insert routes below
   app.use('/api/posts', require('./api/post/index'));
   app.use('/api/actors', require('./api/actor/index'));
+  app.use('/api/billings', require('./api/billing/index'));
   app.use('/api/catchup', require('./api/catchup/index'));
   app.use('/api/config', require('./api/config/index'));
   app.use('/api/plans', require('./api/plan/index'));
