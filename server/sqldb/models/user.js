@@ -66,7 +66,7 @@ module.exports = function (sequelize, DataTypes) {
           'email': this.email,
           'provider': this.provider,
           'facebook': this.facebook,
-          'bouygues': this.bouygues
+          'bouyguesId': this.bouyguesId
         };
       },
 
