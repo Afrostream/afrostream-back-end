@@ -98,7 +98,7 @@ describe('User API:', function() {
         .expect('Content-Type', /json/)
         .end(function (err, res) {
           if (err) return  done(err);
-          assert(res.body.error === 'Error: unknown provider named : unknown');
+          assert(res.body.error === 'unknown provider named : unknown');
           done();
         });
     });
