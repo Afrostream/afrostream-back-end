@@ -33,8 +33,8 @@ var requestBilling = function (options) {
         console.error('FATAL: billing-api: cannot request api ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         throw new Error("cannot request billing-api");
       }
-      if (response.statusCode !== 200 || body.status !== 'done') {
-        console.error('WARNING: billing-api: ' + response.statusCode + ' ' + body.status + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
+      if (response.statusCode !== 200 || !body || body.status !== 'done') {
+        console.error('WARNING: billing-api: ' + response.statusCode + ' ' + (body && body.status) + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         error = new Error(body && body.statusMessage || body && body.message || 'unknown');
         error.statusCode = response.statusCode;
         throw error;
