@@ -64,7 +64,17 @@ module.exports.showInternalplans = function (req, res) {
  *   firstName: "...",
  *   lastName: "...",
  *   internalPlanUuid: "..."
- *   subscriptionProviderUuid: "..."
+ *   subscriptionProviderUuid: "...",
+ *   subOpts: {
+ *      "requestId": "requestIdValue",
+ *      "promoEnabled": "false",
+ *      "promoItemBasePrice": "0",
+ *      "promoItemTaxAmount": "20",
+ *      "promoItemTotal": "0",
+ *      "promoCurrency": "EUR",
+ *      "promoPeriod": "1",
+ *      "promoDuration": "0"
+ *   }
  * }
  * @param req
  * @param res
@@ -77,7 +87,8 @@ module.exports.createSubscriptions = function (req, res) {
     bodyFirstName: req.body.firstName,
     bodyLastName: req.body.lastName,
     bodyInternalPlanUuid: req.body.internalPlanUuid,
-    bodySubscriptionProviderUuid: req.body.subscriptionProviderUuid
+    bodySubscriptionProviderUuid: req.body.subscriptionProviderUuid,
+    bodySubOpts: req.body.subOpts
   }; // closure
 
   getClient(req)
@@ -123,16 +134,7 @@ module.exports.createSubscriptions = function (req, res) {
         internalPlanUuid: c.bodyInternalPlanUuid,
         subscriptionProviderUuid: c.bodySubscriptionProviderUuid,
         billingInfoOpts: {},
-        subOpts: {
-          requestId: "unknown",
-          promoEnabled: "false",
-          promoItemBasePrice: "0",
-          promoItemTaxAmount: "20",
-          promoItemTotal: "0",
-          promoCurrency: "EUR",
-          promoPeriod: "1",
-          promoDuration: "0"
-        }
+        subOpts: c.bodySubOpts
       };
       return billingApi.createSubscription(subscriptionBillingData);
     })

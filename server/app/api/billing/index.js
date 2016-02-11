@@ -88,6 +88,18 @@
  * @apiParam (postData) {String} lastName (optional)
  * @apiParam (postData) {String} internalPlanUuid from /api/billings/internalplans
  * @apiParam (postData) {String} subscriptionProviderUuid ex: bouygues subscription id
+ * @apiParam (postData) {Object} subOpts
+ * @apiParamExample {json} subOpts
+ *  {
+ *      "requestId": "requestIdValue",
+ *      "promoEnabled": "false",
+ *      "promoItemBasePrice": "0",
+ *      "promoItemTaxAmount": "20",
+ *      "promoItemTotal": "0",
+ *      "promoCurrency": "EUR",
+ *      "promoPeriod": "1",
+ *      "promoDuration": "0"
+ *   }
  *
  * @apiSuccessExample {json} Success-Response:
  *   HTTP/1.1 200 OK
