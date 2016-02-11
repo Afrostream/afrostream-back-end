@@ -44,12 +44,12 @@ module.exports.showInternalplans = function (req, res) {
   // who is initiating this request ?
   getClient(req)
     .then(function (client) {
-      var billingProviderName = client ? client.billingProviderName : undefined;
+      var billingProviderName = req.query.providerName || (client ? client.billingProviderName : '');
       return billingApi.getInternalPlans(req.user._id, billingProviderName);
     })
     .then(
-      function (client) {
-        res.json(client);
+      function (internalPlans) {
+        res.json(internalPlans);
       },
       function (err) {
         console.error('ERROR: /api/billing/internalplans', err);
