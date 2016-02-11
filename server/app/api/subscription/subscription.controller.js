@@ -149,6 +149,9 @@ exports.me = function (req, res, next) {
               return subscription.internalPlan.internalPlanUuid;
             }
           }
+        }, function () {
+          // utilisateur inscrit mais non abonné
+          return;
         });
     })
     //
@@ -157,7 +160,9 @@ exports.me = function (req, res, next) {
     .then(
     function success(planCode) {
       var profile = c.user.profile;
-      profile.planCode = planCode;
+      if (planCode) {
+        profile.planCode = planCode;
+      }
       res.json(profile);
     },
     function error(err) {
