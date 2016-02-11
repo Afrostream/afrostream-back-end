@@ -37,6 +37,12 @@ app.use(clientIp());
 app.use(userAgent());
 app.use(cacheHandler());
 
+var middlewareAllowPreflight = require('./middlewares/middleware-allowpreflight.js');
+var middlewareAllowCrossDomain = require('./middlewares/middleware-allowcrossdomain.js');
+
+app.use(middlewareAllowCrossDomain());
+app.use(middlewareAllowPreflight());
+
 if (config.dumpPostData) {
   app.use(dumpPostData());
 }
