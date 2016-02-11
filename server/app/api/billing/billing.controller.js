@@ -122,7 +122,17 @@ module.exports.createSubscriptions = function (req, res) {
         userBillingUuid: c.userBillingUuid,
         internalPlanUuid: c.bodyInternalPlanUuid,
         subscriptionProviderUuid: c.bodySubscriptionProviderUuid,
-        billingInfoOpts: {}
+        billingInfoOpts: {},
+        subOpts: {
+          requestId: "unknown",
+          promoEnabled: "false",
+          promoItemBasePrice: "0",
+          promoItemTaxAmount: "20",
+          promoItemTotal: "0",
+          promoCurrency: "EUR",
+          promoPeriod: "1",
+          promoDuration: "0"
+        }
       };
       return billingApi.createSubscription(subscriptionBillingData);
     })
