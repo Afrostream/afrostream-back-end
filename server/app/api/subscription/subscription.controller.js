@@ -504,8 +504,8 @@ exports.create = function (req, res) {
         account: {
           account_code: c.userProviderUuid,
           email: c.user.email,
-          first_name: c.firstName,
-          last_name: c.lastName,
+          first_name: c.bodyFirstName,
+          last_name: c.bodyLastName,
           billing_info: {
             token_id: c.bodyRecurlyToken
           }
