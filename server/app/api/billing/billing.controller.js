@@ -52,8 +52,9 @@ module.exports.showInternalplans = function (req, res) {
         res.json(internalPlans);
       },
       function (err) {
-        console.error('ERROR: /api/billing/internalplans', err);
-        res.status(500).send({error: String(err)});
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/internalplans', message);
+        res.status(500).send({error: message});
       }
     );
 };
@@ -121,8 +122,9 @@ module.exports.createSubscriptions = function (req, res) {
         res.json(subscription);
       },
       function error(err) {
-        console.error('ERROR: /api/billing/createSubscriptions', err);
-        res.status(500).send({error: String(err)});
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/createSubscriptions', message);
+        res.status(500).send({error: message});
       }
     );
 };
