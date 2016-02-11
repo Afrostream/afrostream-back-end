@@ -117,10 +117,8 @@ module.exports.createSubscriptions = function (req, res) {
       return billingApi.createSubscription(subscriptionBillingData);
     })
     .then(
-      function success() {
-        var profile = req.user.profile;
-        profile.planCode = c.bodyInternalPlanUuid;
-        res.json(profile);
+      function success(subscription) {
+        res.json(subscription);
       },
       function error(err) {
         console.error('ERROR: /api/billing/createSubscriptions', err);

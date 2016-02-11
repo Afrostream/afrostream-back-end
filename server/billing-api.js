@@ -94,6 +94,9 @@ var createSubscription = function (subscriptionBillingData) {
     method: 'POST'
   , url: config.billings.url + '/billings/api/subscriptions/'
   , body: subscriptionBillingData
+  })
+    .then(function (body) {
+      return body && body.response && body.response.subscription || {};
   });
 };
 
