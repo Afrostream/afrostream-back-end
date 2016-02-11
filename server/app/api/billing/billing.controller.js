@@ -73,6 +73,7 @@ module.exports.createSubscriptions = function (req, res) {
   var c = {
     userId: req.user._id,
     userEmail: req.user.email,
+    userProviderUuid: null,
     bodyFirstName: req.body.firstName,
     bodyLastName: req.body.lastName,
     bodyInternalPlanUuid: req.body.internalPlanUuid,
@@ -87,6 +88,13 @@ module.exports.createSubscriptions = function (req, res) {
       if (!client) throw new Error('unknown client');
       if (!client.billingProviderName) throw new Error('unknown billingProviderName');
       c.billingProviderName = client.billingProviderName;
+      switch (client.type) {
+        case 'legacy-api.bouygues-miami':
+          c.userProviderUuid = req.user.bouyguesId;
+          break;
+        default:
+          throw new Error('unknown userProviderUuid for user ' + c.userId + ' client type ' + client.type);
+      }
     })
     //
     // we create the user in the billing-api if he doesn't exist yet
@@ -95,6 +103,7 @@ module.exports.createSubscriptions = function (req, res) {
       return billingApi.getOrCreateUser({
         providerName : c.billingProviderName,
         userReferenceUuid : c.userId,
+        userProviderUuid : c.userProviderUuid,
         userOpts : {
           email : c.userEmail,
           firstName : c.bodyFirstName || req.user.first_name || '',
