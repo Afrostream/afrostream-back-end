@@ -30,7 +30,7 @@ describe('User API:', function() {
   });
 
   after(function() {
-    return User.destroy({ where: { email: 'test.integration+bouygues_miami@afrostream.tv' }});
+    return User.destroy({ where: { email: 'test.integration+billing@afrostream.tv' }});
   });
 
   describe('GET /api/billings/internalplans', function () {
@@ -39,6 +39,7 @@ describe('User API:', function() {
       return Client.find({where: {type: 'legacy-api.bouygues-miami'}}).then(function (c) {
         assert(c, 'client bouygues doesnt exist in db, please seed.');
         bouyguesMiamiClient = c;
+        assert(c.billingProviderName === 'bachat');
       });
     });
 
@@ -91,11 +92,12 @@ describe('User API:', function() {
     it('calling with bouygues client should call the mock using providerName=other', function (done) {
       request(app)
         .get('/api/billings/internalplans')
+        .query({providerName: 'other'})
         .set('Authorization', 'Bearer ' + access_token)
-        .expect(200)
+        .expect(500)
         .expect('Content-Type', /json/)
         .end(function (err, res) {
-          if (err) return done(err);
+          if (err) return  done(err);
           assert(res.body.error === 'Error: unknown provider named : unknown');
           done();
         });
@@ -158,7 +160,7 @@ describe('User API:', function() {
         .expect('Content-Type', /json/)
         .end(function (err, res) {
           if (err) return done(err);
-          assert(res.body.planCode === 'bachat-afrostreamdaily');
+          assert(res.body.subscriptionBillingUuid === 'SubscriptionBillingUUID');
           done();
         });
     });
