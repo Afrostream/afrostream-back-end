@@ -14,6 +14,7 @@ var nock = require('nock');
 console.log('mocking ' + config.billings.url);
 
 nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
   .get('/billings/api/subscriptions/')
   .query(true)
   .reply(200, {
@@ -69,6 +70,7 @@ nock(config.billings.url)
   });
 
 nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
   .get('/billings/api/internalplans/')
   .query({providerName: 'bachat',userReferenceUuid:/.*/})
   .reply(200, {
@@ -146,6 +148,7 @@ nock(config.billings.url)
   });
 
 nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
   .get('/billings/api/internalplans/')
   .query({providerName: /.+/,userReferenceUuid:/.*/})
   .reply(200, {
@@ -165,6 +168,7 @@ nock(config.billings.url)
   });
 
 nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
   .get('/billings/api/internalplans/')
   .query({userReferenceUuid:/.*/})
   .reply(200, {
@@ -387,6 +391,7 @@ nock(config.billings.url)
 
 
 nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
   .get('/billings/api/users/')
   .query({providerName:"celery", userReferenceUuid: /.*/})
   .reply(200, {
@@ -411,6 +416,7 @@ nock(config.billings.url)
   });
 
 nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
   .get('/billings/api/users/')
   .query({providerName:"recurly", userReferenceUuid: /.*/})
   .reply(200, {
@@ -435,6 +441,7 @@ nock(config.billings.url)
   });
 
 nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
   .get('/billings/api/users/')
   .query({providerName:"bachat", userReferenceUuid: /.*/})
   .reply(200, {
@@ -459,6 +466,7 @@ nock(config.billings.url)
   });
 
 nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
   .get('/billings/api/users/')
   .query()
   .reply(200, {
@@ -478,6 +486,7 @@ nock(config.billings.url)
   });
 
 nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
   .post('/billings/api/subscriptions/')
   .reply(200, {
       "status": "done",
