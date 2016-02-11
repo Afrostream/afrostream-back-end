@@ -84,8 +84,8 @@
  * @apiName CreateBillingSubscription
  * @apiGroup Billing
  *
- * @apiParam (postData) {String} firstName
- * @apiParam (postData) {String} lastName
+ * @apiParam (postData) {String} firstName (optional)
+ * @apiParam (postData) {String} lastName (optional)
  * @apiParam (postData) {String} internalPlanUuid from /api/billings/internalplans
  * @apiParam (postData) {String} subscriptionProviderUuid ex: bouygues subscription id
  *

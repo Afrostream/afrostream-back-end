@@ -96,8 +96,8 @@ module.exports.createSubscriptions = function (req, res) {
         userReferenceUuid : c.userId,
         userOpts : {
           email : c.userEmail,
-          firstName : c.bodyFirstName,
-          lastName : c.bodyLastName
+          firstName : c.bodyFirstName || req.user.first_name || '',
+          lastName : c.bodyLastName || req.user.last_name || ''
         }
       }).then(function (billingsResponse) {
         c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
