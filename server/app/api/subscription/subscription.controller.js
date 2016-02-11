@@ -697,10 +697,10 @@ exports.gift = function (req, res) {
           console.log('no invoice info');
         }
         var invoice = _.find(invoicesInfo, function (inv) {
-          return inv['invoice_number'] == invoiceId;
+          return inv['invoice_number'] == c.subscriptionInvoiceId;
         });
         if (!invoice) {
-          console.error('ERROR: invoices: searching ' + invoiceId + ' in ' + JSON.stringify(invoicesInfo));
+          console.error('ERROR: invoices: searching ' + c.subscriptionInvoiceId + ' in ' + JSON.stringify(invoicesInfo));
           throw new Error("missing invoice");
         }
         if (typeof invoice['total_in_cents'] === 'undefined'
