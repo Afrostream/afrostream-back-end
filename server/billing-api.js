@@ -23,6 +23,9 @@ var requestBilling = function (options) {
     auth: { user: config.billings.apiUser, pass: config.billings.apiPass, sendImmediately: true}
   };
   options = _.merge({}, defaultOptions, options);
+
+  console.log('INFO: [BILLING-API]: request ', JSON.stringify(options));
+
   return Q.nfcall(request, options)
     .then(function (data) {
       var response = data[0]
@@ -30,15 +33,18 @@ var requestBilling = function (options) {
         , error;
 
       if (!response) {
-        console.error('FATAL: billing-api: cannot request api ' + JSON.stringify(options) + " => " + JSON.stringify(body));
+        console.error('FATAL: [BILLING-API]: cannot request api ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         throw new Error("cannot request billing-api");
       }
       if (response.statusCode !== 200 || !body || body.status !== 'done') {
-        console.error('WARNING: billing-api: ' + response.statusCode + ' ' + (body && body.status) + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
+        console.error('WARNING: [BILLING-API]: ' + response.statusCode + ' ' + (body && body.status) + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         error = new Error(body && body.statusMessage || body && body.message || 'unknown');
         error.statusCode = response.statusCode;
         throw error;
       }
+
+      console.log('INFO: [BILLING-API]: 200 ok' + JSON.stringify(body));
+
       return body;
     });
 };
