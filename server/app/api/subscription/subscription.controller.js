@@ -580,7 +580,7 @@ exports.gift = function (req, res) {
   //
   // first, we load the user from the database
   //
-  readUser(c.userId)
+  readUser(req.user._id)
     .then(function (user) {
       c.user = user;
       c.userId = user.get('_id');
