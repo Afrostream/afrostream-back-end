@@ -140,4 +140,6 @@ router.get('/:id', auth.hasRole('admin'), controller.show);
 router.post('/', auth.isAuthenticated(), validator.validateCreateBody, controller.create);
 router.put('/:userId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, validator.validateUpdateBody, controller.update);
 
+router.use('/:userId/videos', require('./video'));
+
 module.exports = router;

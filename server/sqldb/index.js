@@ -42,6 +42,7 @@ db.WaitingUser = db.sequelize.import('models/waitingUser');
 db.CategoryMovies = db.sequelize.import('models/categoryMovies');
 db.CategoryAdSpots = db.sequelize.import('models/categoryAdSpots');
 db.MoviesActors = db.sequelize.import('models/moviesActors.js');
+db.UsersVideos = db.sequelize.import('models/usersVideos.js');
 
 db.Actor.belongsTo(db.Image, {as: 'picture', constraints: false});
 db.Actor.belongsToMany(db.Movie, {through: db.MoviesActors, as: 'movies'});
@@ -90,6 +91,8 @@ db.Video.hasOne(db.Episode, {as: 'episode', foreignKey: 'videoId'});
 
 db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints: false});
 
+db.User.hasMany(db.UsersVideos, {as: 'videos', foreignKey: 'userId'});
+
 db.UsersFavoritesEpisodes = db.sequelize.import('models/usersFavoritesEpisodes');
 db.Episode.belongsToMany(db.User, {through: db.UsersFavoritesEpisodes, as: 'users', foreignKey: 'episodeId'});
 db.User.belongsToMany(db.Episode, {through: db.UsersFavoritesEpisodes, as: 'favoritesEpisodes', foreignKey: 'userId'});
@@ -117,6 +120,8 @@ db.AccessToken.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', targe
 
 db.Log.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false});
 db.Log.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', targetKey: '_id', constraints: false});
+
+
 
 ///// HELPERS FUNCTIONS /////
 var _ = require('lodash');
