@@ -10,6 +10,8 @@ var AccessToken = require('../../sqldb').AccessToken;
 var RefreshToken = require('../../sqldb').RefreshToken;
 var Log = require('../../sqldb').Log;
 
+var TokenError = oauth2orize.TokenError;
+
 // custom oauth2 exchange
 var exchangeBouygues = require('./exchange/bouygues.js');
 
@@ -203,16 +205,14 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
         })
         .then(function (user) {
           if (user === null) {
-            return done(null, false);
+            return done(new TokenError('unknown user', 'invalid_grant'), false);
           }
           user.authenticate(password, function (authError, authenticated) {
             if (authError) {
               return done(authError);
             }
             if (!authenticated) {
-              return done(null, false, {
-                message: 'This password is not correct.'
-              });
+              return done(new TokenError('wrong password', 'invalid_grant'), false);
             } else {
               return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
             }
@@ -246,7 +246,7 @@ server.exchange(exchangeBouygues(function (client, id, scope, reqBody, done) {
       })
         .then(function (user) {
           if (user === null) {
-            return done(null, false, { message: 'unknown id'});
+            return done(new TokenError('unknown bouyguesId', 'invalid_grant'), false);
           }
           return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
         })

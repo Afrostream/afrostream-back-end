@@ -48,10 +48,23 @@
  *   }
  * @apiError (500) {String} error message
  * @apiError (403) {String} error message
- * @apiErrorExample {json} Error-Response:
+ * @apiErrorExample {json} Error-Response grant_type password
  *   HTTP/1.1 403 Forbidden
  *   {
- *     "error": "invalid_grant"
+ *     "error": "invalid_grant",
+ *     "error_description": "unknown user"
+ *   }
+ * @apiErrorExample {json} Error-Response grant_type password
+ *   HTTP/1.1 403 Forbidden
+ *   {
+ *     "error": "invalid_grant",
+ *     "error_description": "wrong password"
+ *   }
+ * @apiErrorExample {json} Error-Response grant_type bouygues
+ *   HTTP/1.1 403 Forbidden
+ *   {
+ *     "error": "invalid_grant",
+ *     "error_description": "unknown bouyguesId"
  *   }
  */
 

@@ -136,6 +136,42 @@ describe('User API:', function () {
           .expect('Content-Type', /json/)
           .expect(200, done);
       });
+
+      it('should answer 403 with wrong password', function (done) {
+        request(app)
+          .post('/auth/oauth2/token')
+          .send({
+            grant_type: 'password',
+            client_id: client.get('_id'),
+            client_secret: client.get('secret'),
+            username: 'test.oauth2@afrostream.tv',
+            password: 'wrongpassword'
+          })
+          .expect(403)
+          .expect('Content-Type', /json/)
+          .end(function (err, res) {
+            assert(res.body.error_description === 'wrong password');
+            done(err);
+          });
+      });
+
+      it('should answer 403 with unknown user', function (done) {
+        request(app)
+          .post('/auth/oauth2/token')
+          .send({
+            grant_type: 'password',
+            client_id: client.get('_id'),
+            client_secret: client.get('secret'),
+            username: 'test.oauth2.zeifjazoefuhaozehifua@afrostream.tv',
+            password: 'wrongpassword'
+          })
+          .expect(403)
+          .expect('Content-Type', /json/)
+          .end(function (err, res) {
+            assert(res.body.error_description === 'unknown user');
+            done(err);
+          });
+      });
     });
 
     describe('using grant type bouygues', function () {
@@ -195,7 +231,6 @@ describe('User API:', function () {
           .expect(403)
           .expect('Content-Type', /json/)
           .end(function (err, res) {
-            console.log(res.body)
             done(err);
           });
       });
