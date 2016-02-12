@@ -180,14 +180,57 @@ function removeEntity(res) {
 // Gets a list of categorys
 exports.index = function (req, res) {
   var queryName = req.param('query');
+  var populate = req.query.populate || 'movies,adSpots';
 
-  var queryOptions = {
-    include: [
-      {model: Movie, as: 'movies', required: false, order: [['sort', 'ASC']]},
-      {model: Movie, as: 'adSpots', required: false, order: [['sort', 'ASC']]}
-    ],
-    order: [['sort', 'ASC']]
-  };
+  var queryOptions = {order: [['sort', 'ASC']]};
+
+  var moviesIncludes = [];
+  if (populate.indexOf('movies.categorys') !== -1) {
+    moviesIncludes.push({model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']});
+  }
+  if (populate.indexOf('movies.logo') !== -1) {
+    moviesIncludes.push({model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']});
+  }
+  if (populate.indexOf('movies.poster') !== -1) {
+    moviesIncludes.push({model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']});
+  }
+  if (populate.indexOf('movies.thumb') !== -1) {
+    moviesIncludes.push({model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']});
+  }
+
+  if (populate.indexOf('movies') !== -1) {
+    queryOptions.include = queryOptions.include ? queryOptions.include : [];
+    queryOptions.include.push({
+      model: Movie, as: 'movies',
+      required: false,
+      order: [['sort', 'ASC']],
+      include: moviesIncludes
+    });
+  }
+
+  var adSpotsIncludes = [];
+  if (populate.indexOf('adSpots.categorys') !== -1) {
+    adSpotsIncludes.push({model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']});
+  }
+  if (populate.indexOf('adSpots.logo') !== -1) {
+    adSpotsIncludes.push({model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']});
+  }
+  if (populate.indexOf('adSpots.poster') !== -1) {
+    adSpotsIncludes.push({model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']});
+  }
+  if (populate.indexOf('adSpots.thumb') !== -1) {
+    adSpotsIncludes.push({model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']});
+  }
+
+  if (populate.indexOf('adSpots') !== -1) {
+    queryOptions.include = queryOptions.include ? queryOptions.include : [];
+    queryOptions.include.push({
+      model: Movie, as: 'adSpots',
+      required: false,
+      order: [['sort', 'ASC']],
+      include: adSpotsIncludes
+    });
+  }
 
   // pagination
   utils.mergeReqRange(queryOptions, req);

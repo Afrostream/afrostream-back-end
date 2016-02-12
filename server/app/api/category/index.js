@@ -1,6 +1,34 @@
 'use strict';
 
 /**
+ * @api {get} /api/categorys/ Request Category list
+ * @apiParam (queryString) {String} populate object associations
+ * @apiParamExample {json} populate
+ *  ?populate=movies
+ *  ?populate=adSpots
+ *  ?populate=movies,adSpots (default)
+ *  ?populate=movies.poster,movies.thumb,adSpots
+ *  
+ *  list of associations:
+ *    movies,movies.categorys,movies.logo,movies.poster,movies.thumb,
+ *    adSpots,adSpots.categorys,adSpots.logo,adSpots.poster,adSpots.thumb
+ *
+ * @apiName GetAllCategorys
+ * @apiGroup Category
+ *
+ * @apiSuccessExample (200) {json} Success-Response:
+ * [
+ *    {
+ *       id: ...
+ *       (...)
+ *    },
+ *    (...)
+ * ]
+ * @apiError {text} 401/Unauthorized.
+ * @apiError {text} 403/Forbidden Required field [...] omitted.
+ */
+
+/**
  * @api {get} /api/categorys/:id Request Category information
  * @apiName GetCategory
  * @apiGroup Category
