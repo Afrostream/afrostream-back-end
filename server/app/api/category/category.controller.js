@@ -232,8 +232,18 @@ exports.index = function (req, res) {
     });
   }
 
-  // pagination
-  utils.mergeReqRange(queryOptions, req);
+  // pagination :
+  if (req.query.backo) {
+    utils.mergeReqRange(queryOptions, req);
+  } else {
+    if (parseInt(req.query.limit)) {
+      // adding limit option if limit is NaN or 0 (undefined/whatever/"0")
+      _.merge(queryOptions, { limit: req.query.limit });
+    }
+    if (!isNaN(req.query.offset)) {
+      _.merge(queryOptions, { offset: req.query.offset });
+    }
+  }
 
   if (queryName) {
     queryOptions = _.merge(queryOptions, {
@@ -247,6 +257,27 @@ exports.index = function (req, res) {
 
   Category.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
+    .then(function (entity) {
+      // limiting movies in categories...
+      // HACKY, cannot do this with sequelize yet
+      // @see https://github.com/sequelize/sequelize/issues/1897
+      // we should use : include.seperate
+      if (parseInt(req.query.limitMovies)) {
+        entity.rows.forEach(function (row) {
+          if (row.movies) {
+            row.movies.splice(parseInt(req.query.limitMovies));
+          }
+        });
+      }
+      if (parseInt(req.query.limitAdSpots)) {
+        entity.rows.forEach(function (row) {
+          if (row.adSpots) {
+            row.adSpots.splice(parseInt(req.query.limitAdSpots));
+          }
+        });
+      }
+      return entity;
+    })
     .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };
