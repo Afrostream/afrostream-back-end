@@ -53,6 +53,8 @@ module.exports = function (app) {
 
   app.use('/alive', require('./alive.controller.js').alive);
 
+  app.use('/tests', require('./test/index'));
+
   app.route('/doc')
     .get(function (req, res) {
       res.sendFile(path.resolve(app.get('docPath') + '/index.html'));
