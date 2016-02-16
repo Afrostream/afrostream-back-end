@@ -1,5 +1,7 @@
 'use strict';
 
+var config = rootRequire('/server/config');
+
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Video', {
     _id: {
@@ -22,6 +24,12 @@ module.exports = function (sequelize, DataTypes) {
     drm: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
+    }
+  }, {
+    getterMethods   : {
+      sharing: function()  {
+        return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/video/' + this._id }
+      }
     }
   });
 };

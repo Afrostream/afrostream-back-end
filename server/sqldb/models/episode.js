@@ -1,5 +1,7 @@
 'use strict';
 
+var config = rootRequire('/server/config');
+
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Episode', {
     _id: {
@@ -38,6 +40,12 @@ module.exports = function (sequelize, DataTypes) {
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
+    }
+  }, {
+    getterMethods   : {
+      sharing: function()  {
+        return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/episode/' + this._id }
+      }
     }
   });
 };
