@@ -59,7 +59,7 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     getterMethods   : {
       sharing: function()  {
-        return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/movie/' + this._id }
+        return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/sharing/movie/' + this._id }
       }
     }
   });

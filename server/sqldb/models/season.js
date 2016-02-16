@@ -35,7 +35,7 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     getterMethods   : {
       sharing: function()  {
-        return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/season/' + this._id }
+        return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/sharing/season/' + this._id }
       }
     }
   });
