@@ -52,9 +52,10 @@ app.use(function (req, res, next) {
   console.log('DEBUG: req.cookies: ' + JSON.stringify(req.cookies));
   console.log('DEBUG: req.ip: ' + JSON.stringify(req.ip));
   console.log('DEBUG: req.protocol: ' + JSON.stringify(req.protocol));
+  console.log('DEBUG: req.protocol: ' + JSON.stringify(req.clientIp));
 
   if (req.url !== '/wiztivi.json' && req.url !== '/favicon.ico') {
-    var message = { date: new Date(), url: req.url, headers: req.headers, body: req.body, cookies: req.cookies, ip: req.ip, protocol: req.protocol };
+    var message = { date: new Date(), url: req.url, headers: req.headers, body: req.body, cookies: req.cookies, ip: req.ip, clientIp: req.clientIp, protocol: req.protocol };
     stack.unshift(message);
     if (stack.length > 100) {
       stack.pop();
