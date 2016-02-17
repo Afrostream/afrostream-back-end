@@ -43,6 +43,8 @@ var middlewareAllowCrossDomain = require('./middlewares/middleware-allowcrossdom
 app.use(middlewareAllowCrossDomain());
 app.use(middlewareAllowPreflight());
 
+var stack = [];
+
 app.use(function (req, res, next) {
   console.log('DEBUG: req.url: ' + req.url);
   console.log('DEBUG: req.headers: ' + JSON.stringify(req.headers));
@@ -50,7 +52,20 @@ app.use(function (req, res, next) {
   console.log('DEBUG: req.cookies: ' + JSON.stringify(req.cookies));
   console.log('DEBUG: req.ip: ' + JSON.stringify(req.ip));
   console.log('DEBUG: req.protocol: ' + JSON.stringify(req.protocol));
+
+  if (req.url !== '/wiztivi.json' && req.url !== '/favicon.ico') {
+    var message = { date: new Date(), url: req.url, headers: req.headers, body: req.body, cookies: req.cookies, ip: req.ip, protocol: req.protocol };
+    stack.unshift(message);
+    if (stack.length > 100) {
+      stack.pop();
+    }
+  }
   next();
+});
+
+app.get('/wiztivi.json', function (req, res) {
+  res.set('Content-Type', 'application/json');
+  res.json(stack);
 });
 
 if (config.dumpPostData) {
