@@ -43,6 +43,16 @@ var middlewareAllowCrossDomain = require('./middlewares/middleware-allowcrossdom
 app.use(middlewareAllowCrossDomain());
 app.use(middlewareAllowPreflight());
 
+app.use(function (req, res, next) {
+  console.log('DEBUG: req.url: ' + req.url);
+  console.log('DEBUG: req.headers: ' + JSON.stringify(req.headers));
+  console.log('DEBUG: req.body: ' + JSON.stringify(req.body));
+  console.log('DEBUG: req.cookies: ' + JSON.stringify(req.cookies));
+  console.log('DEBUG: req.ip: ' + JSON.stringify(req.ip));
+  console.log('DEBUG: req.protocol: ' + JSON.stringify(req.protocol));
+  next();
+});
+
 if (config.dumpPostData) {
   app.use(dumpPostData());
 }
