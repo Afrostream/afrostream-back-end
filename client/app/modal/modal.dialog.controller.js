@@ -184,6 +184,10 @@ angular.module('afrostreamAdminApp')
           item = $scope.modalHooks.hydrateItem(item);
         }
         $scope.item = parseItemDates(item);
+        // fixme: horrible...
+        if (typeof $scope.modalHooks.onItemLoaded === 'function') {
+          $scope.modalHooks.onItemLoaded();
+        }
       }, function (err) {
         showError();
         $log.debug(err);

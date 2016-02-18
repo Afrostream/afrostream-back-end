@@ -12,6 +12,7 @@ module.exports = function (app) {
   // Insert routes below
   app.use('/api/posts', require('./api/post/index'));
   app.use('/api/actors', require('./api/actor/index'));
+  app.use('/api/billings', require('./api/billing/index'));
   app.use('/api/catchup', require('./api/catchup/index'));
   app.use('/api/config', require('./api/config/index'));
   app.use('/api/plans', require('./api/plan/index'));
@@ -22,6 +23,7 @@ module.exports = function (app) {
   app.use('/api/clients', require('./api/client/index'));
   app.use('/api/licensors', require('./api/licensor/index'));
   app.use('/api/languages', require('./api/language/index'));
+  app.use('/api/logs', require('./api/log/index'));
   app.use('/api/comments', require('./api/comment/index'));
   app.use('/api/captions', require('./api/caption/index'));
   app.use('/api/videos', require('./api/video/index'));
@@ -38,9 +40,12 @@ module.exports = function (app) {
   app.use('/api/mam', require('./api/mam/index'));
   app.use('/api/dashboard', require('./api/dashboard/index'));
   app.use('/api/waitingUsers', require('./api/waitingUser/index'));
+  app.use('/api/stats', require('./api/stat/index'));
 
   app.use('/api/player', require('./api/player/index'));
   app.use('/api/cdnselector', require('./api/cdnselector/index'));
+
+  app.use('/api/exchanges', require('./api/exchange'));
 
   app.use('/auth', require('../auth/index'));
 
@@ -50,13 +55,15 @@ module.exports = function (app) {
 
   app.use('/alive', require('./alive.controller.js').alive);
 
+  app.use('/tests', require('./test/index'));
+
   app.route('/doc')
     .get(function (req, res) {
       res.sendFile(path.resolve(app.get('docPath') + '/index.html'));
     });
 
   // All other routes should redirect to the index.html
-  app.route(/\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|users|plans|subscriptions|clients|actors|settings|login|logout|jobs|posts|catchup)/)
+  app.route(/\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|users|plans|subscriptions|clients|actors|settings|login|logout|jobs|posts|catchup|users\-logs)/)
     .get(function (req, res) {
       res.set('Cache-Control', 'public, max-age=0');
       res.sendFile(path.resolve(app.get('appPath') + '/index.html'));

@@ -80,7 +80,8 @@ exports.show = function(req, res) {
 
 // Creates a new accessToken in the DB
 exports.create = function(req, res) {
-  AccessToken.create(req.body)
+  var data = _.merge({}, req.body, { userIp: req.clientIp });
+  AccessToken.create(data)
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };

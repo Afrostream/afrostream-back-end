@@ -52,5 +52,12 @@ module.exports = {
     }
   },
 
+  billings: {
+    mocked: true,
+    url: 'http://billings.afrostream.dev',
+    apiUser: 'admin',
+    apiPass: 'billingsapirocks'
+  },
+
   env: 'test'
 };

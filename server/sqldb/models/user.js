@@ -46,6 +46,7 @@ module.exports = function (sequelize, DataTypes) {
     google: DataTypes.JSON,
     github: DataTypes.JSON,
     facebook: DataTypes.JSON,
+    bouyguesId: DataTypes.STRING(128),
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
@@ -64,7 +65,8 @@ module.exports = function (sequelize, DataTypes) {
           '_id': this._id,
           'email': this.email,
           'provider': this.provider,
-          'facebook': this.facebook
+          'facebook': this.facebook,
+          'bouyguesId': this.bouyguesId // fixme: security: should this id be exported or useless ?
         };
       },
 

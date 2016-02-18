@@ -20,7 +20,7 @@ module.exports = {
   sequelize: {
     uri: 'postgres://postgres:root@localhost:5432/afrostream',
     options: {
-      logging: false,
+      logging: console.log,
       storage: 'dev.postgres',
       define: {
         timestamps: false
@@ -60,7 +60,7 @@ module.exports = {
   },
 
   billings: {
-    url: 'http://afrostream-billings-staging.herokuapp.com/',
+    url: 'http://billings.afrostream.dev',
     apiUser: 'admin',
     apiPass: 'billingsapirocks'
   },

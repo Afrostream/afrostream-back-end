@@ -22,6 +22,8 @@ module.exports = function (sequelize, DataTypes) {
       allowNull: false,
       defaultValue: DataTypes.NOW
     },
-    expirationTimespan: DataTypes.INTEGER
+    expirationTimespan: DataTypes.INTEGER,
+    userIp: DataTypes.STRING, // FIXME should be cidr
+    userAgent: DataTypes.STRING
   });
 };

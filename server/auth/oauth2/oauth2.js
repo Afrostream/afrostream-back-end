@@ -8,6 +8,13 @@ var User = require('../../sqldb').User;
 var AuthCode = require('../../sqldb').AuthCode;
 var AccessToken = require('../../sqldb').AccessToken;
 var RefreshToken = require('../../sqldb').RefreshToken;
+var Log = require('../../sqldb').Log;
+
+var TokenError = oauth2orize.TokenError;
+
+// custom oauth2 exchange
+var exchangeBouygues = require('./exchange/bouygues.js');
+
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
 server.serializeClient(function (client, done) {
@@ -60,9 +67,29 @@ var generateTokenData = function (client, user, code) {
   }
 };
 
-var generateToken = function (client, user, code, done) {
+var generateToken = function (client, user, code, userIp, userAgent, done) {
   var tokenData = generateTokenData(client, user, code);
 
+  // log accessToken (duplicate with db)
+  console.log('[AUTH]: ' +
+    'client=' + tokenData.clientId + ' ' +
+    'user=' + tokenData.userId + ' ' +
+    'userIp=' + userIp + ' ' +
+    'userAgent=' + userAgent + ' ' +
+    'accessToken=' + tokenData.token);
+
+  // logs
+  Log.create({
+    type: 'access_token',
+    clientId: tokenData.clientId,
+    userId: tokenData.userId,
+    data: {
+      token: tokenData.token,
+      userIp: userIp || null,
+      userAgent: userAgent
+    }
+  }).then(function () { }, function (err) { console.error(err); }); // can finish
+  //
   AccessToken.create({
       token: tokenData.token,
       clientId: tokenData.clientId,
@@ -81,7 +108,6 @@ var generateToken = function (client, user, code, done) {
           userId: tokenData.userId
         })
         .then(function (refreshTokenEntity) {
-          console.log('refreshTokenEntity', refreshTokenEntity.token);
           return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
         }).catch(function (err) {
         console.log('RefreshToken', err);
@@ -114,6 +140,7 @@ var refreshAccessToken = function (client, userId) {
     });
 };
 
+/*
 server.grant(oauth2orize.grant.code(function (client, redirectURI, user, ares, done) {
   AuthCode.create({clientId: client._id, redirectURI: redirectURI, userId: user._id})
     .then(function (entity) {
@@ -154,8 +181,9 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, d
       });
   });
 }));
+*/
 
-server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, done) {
+server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, reqBody, done) {
   Client.find({
       where: {
         _id: client._id
@@ -177,18 +205,16 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
         })
         .then(function (user) {
           if (user === null) {
-            return done(null, false);
+            return done(new TokenError('unknown user', 'invalid_grant'), false);
           }
           user.authenticate(password, function (authError, authenticated) {
             if (authError) {
               return done(authError);
             }
             if (!authenticated) {
-              return done(null, false, {
-                message: 'This password is not correct.'
-              });
+              return done(new TokenError('wrong password', 'invalid_grant'), false);
             } else {
-              return generateToken(entity, user, null, done);
+              return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
             }
           });
 
@@ -202,7 +228,38 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
     });
 }));
 
-server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, done) {
+server.exchange(exchangeBouygues(function (client, id, scope, reqBody, done) {
+  Client.find({
+    where: {
+      _id: client._id
+    }
+  })
+    .then(function (entity) {
+      if (entity === null) {
+        return done(null, false);
+      }
+      if (entity.secret !== client.secret) {
+        return done(null, false);
+      }
+      User.find({
+        where: {bouyguesId: id}
+      })
+        .then(function (user) {
+          if (user === null) {
+            return done(new TokenError('unknown bouyguesId', 'invalid_grant'), false);
+          }
+          return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
+        })
+        .catch(function (err) {
+          return done(err);
+        });
+    })
+    .catch(function (err) {
+      return done(err);
+    });
+}));
+
+server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, reqBody, done) {
   Client.find({
       where: {
         _id: client._id
@@ -215,7 +272,7 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
       if (entity.secret !== client.secret) {
         return done(null, false);
       }
-      return generateToken(entity, null, null, done);
+      return generateToken(entity, null, null, reqBody.userIp, reqBody.userAgent, done);
     })
     .catch(function (err) {
       return done(err);
@@ -265,31 +322,15 @@ exports.decision = [
 ];
 
 exports.token = [
+  function (req, res, next) {
+    // req.clientIp is the browser client ip
+    req.body.userIp = req.clientIp;
+    req.body.userAgent = req.userAgent;
+    next();
+  },
   passport.authenticate(['clientBasic', 'clientPassword'], {session: false}),
   server.token(),
   server.errorHandler()
-];
-
-exports.login = [
-  function (req, res, next) {
-    passport.authenticate(['local'], function (err, user, info) {
-      var error = err || info;
-      if (error) {
-        return res.status(401).json(error);
-      }
-      if (!user) {
-        return res.status(404).json({message: 'Something went wrong, please try again.'});
-      }
-
-      return generateToken(null, user, null, function (err, token, refreshToken, info) {
-        if (err) {
-          return res.status(401).json(err);
-        }
-        return res.json({token: token, info: info});
-      });
-
-    })(req, res, next)
-  }
 ];
 
 exports.generateToken = generateToken;

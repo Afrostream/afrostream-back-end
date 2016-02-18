@@ -26,6 +26,19 @@ var flatten = function (xml) {
             result[key] = null;
           }
           break;
+        case 'TX_SCHED_DATE':
+          try {
+            if (!Array.isArray(val) || val.length <= 0) {
+              throw "missing date info";
+            }
+            result['TX_SCHED_DATE_PARSED'] = new Date(val[0]);
+            if (!result['TX_SCHED_DATE_PARSED'].getTime()) {
+              throw "invalid date";
+            }
+          } catch (e) {
+            result['TX_SCHED_DATE_PARSED'] = null;
+          }
+          break;
         default:
           if (val && typeof val === 'object')
             rec(val);

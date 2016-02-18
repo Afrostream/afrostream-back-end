@@ -23,57 +23,32 @@ var Q = require('q');
  * Otherwise returns 403
  */
 function isAuthenticated() {
-  if (config.oauth2 !== undefined) {
-    return function (req, res, next) {
-      if (~'development,test'.indexOf(process.env.NODE_ENV) && req.get('bypass-auth')) {
-        User.find({
-          where: {
-            email: req.get('user-email')
-          }
-        }).then(function (user) {
-          if (!user) {
-            console.error('missing header user-email while using bypass-auth ?');
-            return res.status(401).end();
-          }
-          req.user = user;
-        }).then(function () {
-            next();
-          })
-          .catch(next);
-      } else {
-        return passport.authenticate('bearer', {session: false})(req, res, next);
-      }
-    }
-  }
-  return compose()
-  //Validate jwt
-    .use(function (req, res, next) {
-      // allow access_token to be passed through query parameter as well
-      if (req.query && req.query.hasOwnProperty('access_token')) {
-        req.headers.authorization = 'Bearer ' + req.query.access_token;
-      }
-      validateJwt(req, res, next);
-    })
-    //// Attach user to request
-    .use(function (req, res, next) {
+  return function (req, res, next) {
+    if (~'development,test'.indexOf(process.env.NODE_ENV) && req.get('bypass-auth')) {
+      //
+      // dev or test auth bypass
+      //
       User.find({
-          where: {
-            _id: req.user._id
-          }
-        })
-        .then(function (user) {
-          console.log(user);
-          if (!user) {
-            return res.status(401).end();
-          }
-          req.user = user;
+        where: {
+          email: req.get('user-email')
+        }
+      }).then(function (user) {
+        if (!user) {
+          console.error('missing header user-email while using bypass-auth ?');
+          return res.status(401).end();
+        }
+        req.user = user;
+      }).then(function () {
           next();
         })
-        .catch(function (err) {
-          return next(err);
-        });
-    });
-
+        .catch(next);
+    } else {
+      //
+      // PRODUCTION CODE HERE.
+      //
+      return passport.authenticate('bearer', {session: false})(req, res, next);
+    }
+  }
 }
 
 function validRole(req, roleRequired) {
@@ -122,36 +97,33 @@ function reqUserIsBacko(req) {
 }
 
 /**
- * Returns a jwt token signed by the app secret
+ * OAuth2 user token
  */
-function signToken(user) {
+function getOauth2UserTokens(user, userIp, userAgent) {
   var deferred = Q.defer();
-  if (config.oauth2 !== undefined) {
-    oauth2.generateToken(null, user, null, function (err, token, refreshToken, data) {
-      if (err)  return deferred.reject(err);
-      return deferred.resolve(token);
-    });
+  if (!user) {
+    deferred.reject(new Error("no user"));
   } else {
-    var token = jwt.sign({_id: user._id}, config.secrets.session, {
-      expiresInMinutes: 60 * 5
+    oauth2.generateToken(null, user, null, userIp, userAgent, function (err, accessToken, refreshToken, info) {
+      if (err)  return deferred.reject(err);
+      return deferred.resolve({
+        token: accessToken, // backward compatibility
+        access_token:accessToken,
+        refresh_token:refreshToken,
+        expires_in:info.expires_in
+      });
     });
-    deferred.resolve(token);
   }
   return deferred.promise;
 }
 
 /**
- * Set token cookie directly for oAuth strategies
+ * respond oauth2 user token.
  */
-function setTokenCookie(req, res) {
-  if (!req.user) {
-    return res.status(404).send('Something went wrong, please try again.');
-  }
-  return signToken(req.user)
-    .then(function (token) {
-      res.json({
-        token: token
-      });
+function respondOauth2UserTokens(req, res) {
+  getOauth2UserTokens(req.user, req.clientIp, req.userAgent)
+    .then(function (tokens) {
+      res.json(tokens);
     })
     .catch(function () {
       return res.status(404).send('Something went wrong, please try again.');
@@ -270,7 +242,7 @@ exports.authenticate = authenticate;
 exports.isAuthenticated = isAuthenticated;
 exports.hasRole = hasRole;
 exports.validRole = validRole;
-exports.signToken = signToken;
-exports.setTokenCookie = setTokenCookie;
+exports.getOauth2UserTokens = getOauth2UserTokens;
+exports.respondOauth2UserTokens = respondOauth2UserTokens;
 //
 exports.filterQueryOptions = filterQueryOptions;

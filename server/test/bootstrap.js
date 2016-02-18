@@ -21,7 +21,7 @@ before(function () {
     var user = User.build({
       name: 'Test User',
       email: 'test@test.com',
-      password: 'test'
+      password: '123456'
     });
     return user.save();
   });
@@ -67,7 +67,7 @@ module.exports.getToken = function (app) {
     .post('/auth/local')
     .send({
       email: 'test@test.com',
-      password: 'test'
+      password: '123456'
     })
     .expect(200)
     .expect('Content-Type', /json/);
@@ -75,7 +75,32 @@ module.exports.getToken = function (app) {
   return f().then(function (res) {
     var token = res.body.token;
     return token;
+  }, function (err) {
+    console.error(err);
+    throw err;
   })
+};
+
+module.exports.getClientToken = function (app, client) {
+  var request = require('supertest');
+  var bluebird = require('bluebird');
+
+  var r = request(app)
+    .post('/auth/oauth2/token')
+    .send({
+      grant_type: 'client_credentials',
+      client_id: client.get('_id'),
+      client_secret: client.get('secret')
+    })
+    .expect(200)
+    .expect('Content-Type', /json/);
+  var f = bluebird.promisify(r.end, r);
+  return f().then(function (res) {
+    return res.body.access_token;
+  }, function (err) {
+    console.error(err);
+    throw err;
+  });
 };
 
 module.exports.getRandomMovie = function (app) {

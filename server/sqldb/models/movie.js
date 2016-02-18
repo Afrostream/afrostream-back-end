@@ -1,5 +1,7 @@
 'use strict';
 
+var config = rootRequire('/server/config');
+
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Movie', {
     _id: {
@@ -53,6 +55,12 @@ module.exports = function (sequelize, DataTypes) {
     live: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
+    }
+  }, {
+    getterMethods   : {
+      sharing: function()  {
+        return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/sharing/movie/' + this._id }
+      }
     }
   });
 };

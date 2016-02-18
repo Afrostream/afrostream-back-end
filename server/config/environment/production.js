@@ -72,7 +72,7 @@ module.exports = {
   },
 
   billings: {
-    url: 'http://billings.afrostream.tv/',
+    url: 'https://billings.afrostream.tv',
     apiUser: 'admin',
     apiPass: 'billingsapirocks'
   },

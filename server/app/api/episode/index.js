@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @api {get} /episodes/:id Request Episode information
+ * @api {get} /api/episodes/:id Request Episode information
  * @apiName GetEpisode
  * @apiGroup Episode
  *
@@ -27,12 +27,12 @@
  * @apiSuccess {String} poster Poster Image Object.
  * @apiSuccess {String} thumb Thumb Image Object.
  * @apiExample {curl} Example usage:
- *    curl -i http://backend.afrostream.tv/api/episodes/426
- * @apiSampleRequest http://backend.afrostream.tv/api/episodes/426
+ *    curl -i https://legacy-api.afrostream.tv/api/episodes/426
+ * @apiSampleRequest https://legacy-api.afrostream.tv/api/episodes/426
  */
 
 /**
- * @api {post} /episodes/search    Search episode
+ * @api {post} /api/episodes/search    Search episode
  * @apiName EpisodeSearch
  * @apiGroup Search
  *

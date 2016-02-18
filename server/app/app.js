@@ -11,10 +11,12 @@ var config = require('../config');
 var dumpPostData = require('./middlewares/middleware-dumppostdata.js');
 var morgan = require('./middlewares/middleware-morgan.js');
 var clientIp = require('./middlewares/middleware-client-ip.js');
+var userAgent = require('./middlewares/middleware-user-agent.js');
 var cacheHandler = require('./middlewares/middleware-cachehandler.js');
 
 // Setup server
 var app =  require('express')();
+app.set('startDate', new Date());
 app.set('views', config.root + '/server/views');
 app.set('view engine', 'jade');
 app.set('etag', false);
@@ -32,7 +34,14 @@ app.use(require('connect-busboy')());
 app.use(require('passport').initialize());
 //app.use(require('passport').session());
 app.use(clientIp());
+app.use(userAgent());
 app.use(cacheHandler());
+
+var middlewareAllowPreflight = require('./middlewares/middleware-allowpreflight.js');
+var middlewareAllowCrossDomain = require('./middlewares/middleware-allowcrossdomain.js');
+
+app.use(middlewareAllowCrossDomain());
+app.use(middlewareAllowPreflight());
 
 if (config.dumpPostData) {
   app.use(dumpPostData());

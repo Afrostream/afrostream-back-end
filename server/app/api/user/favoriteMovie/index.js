@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @api {get} /users/:userId/favoritesMovies/ Request favorites movies list
+ * @api {get} /api/users/:userId/favoritesMovies/ Request favorites movies list
  * @apiName GetFavoritesMovies
  * @apiDescription this api call return the favorites movies object list
  * @apiGroup User
@@ -12,7 +12,7 @@
 
 /**
  *
- * @api {post} /users/:userId/favoritesMovies/ Add movie to favorites
+ * @api {post} /api/users/:userId/favoritesMovies/ Add movie to favorites
  * @apiName AddFavoriteMovie
  * @apiDescription this api call return the movie object added
  * @apiGroup User
@@ -24,7 +24,7 @@
 
 /**
  *
- * @api {delete} /users/:userId/favoritesMovies/:movieId Remove movie from favorites
+ * @api {delete} /api/users/:userId/favoritesMovies/:movieId Remove movie from favorites
  * @apiName RemoveFavoriteMovie
  * @apiDescription this api call return nothing :)
  * @apiGroup User

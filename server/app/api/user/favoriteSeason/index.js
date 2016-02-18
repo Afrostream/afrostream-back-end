@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @api {get} /users/:userId/favoritesSeasons/ Request favorites seasons list
+ * @api {get} /api/users/:userId/favoritesSeasons/ Request favorites seasons list
  * @apiName GetFavoritesSeasons
  * @apiDescription this api call return the favorites seasons object list
  * @apiGroup User
@@ -12,7 +12,7 @@
 
 /**
  *
- * @api {post} /users/:userId/favoritesSeasons/ Add season to favorites
+ * @api {post} /api/users/:userId/favoritesSeasons/ Add season to favorites
  * @apiName AddFavoriteSeason
  * @apiDescription this api call return the season object added
  * @apiGroup User
@@ -24,7 +24,7 @@
 
 /**
  *
- * @api {delete} /users/:userId/favoritesSeasons/:seasonId Remove season from favorites
+ * @api {delete} /api/users/:userId/favoritesSeasons/:seasonId Remove season from favorites
  * @apiName RemoveFavoriteSeason
  * @apiDescription this api call return nothing :)
  * @apiGroup User

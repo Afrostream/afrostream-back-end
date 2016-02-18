@@ -180,17 +180,70 @@ function removeEntity(res) {
 // Gets a list of categorys
 exports.index = function (req, res) {
   var queryName = req.param('query');
+  var populate = req.query.populate || 'movies,adSpots';
 
-  var queryOptions = {
-    include: [
-      {model: Movie, as: 'movies', required: false, order: [['sort', 'ASC']]},
-      {model: Movie, as: 'adSpots', required: false, order: [['sort', 'ASC']]}
-    ],
-    order: [['sort', 'ASC']]
-  };
+  var queryOptions = {order: [['sort', 'ASC']]};
 
-  // pagination
-  utils.mergeReqRange(queryOptions, req);
+  var moviesIncludes = [];
+  if (populate.indexOf('movies.categorys') !== -1) {
+    moviesIncludes.push({model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']});
+  }
+  if (populate.indexOf('movies.logo') !== -1) {
+    moviesIncludes.push({model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']});
+  }
+  if (populate.indexOf('movies.poster') !== -1) {
+    moviesIncludes.push({model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']});
+  }
+  if (populate.indexOf('movies.thumb') !== -1) {
+    moviesIncludes.push({model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']});
+  }
+
+  if (populate.indexOf('movies') !== -1) {
+    queryOptions.include = queryOptions.include ? queryOptions.include : [];
+    queryOptions.include.push({
+      model: Movie, as: 'movies',
+      required: false,
+      order: [['sort', 'ASC']],
+      include: moviesIncludes
+    });
+  }
+
+  var adSpotsIncludes = [];
+  if (populate.indexOf('adSpots.categorys') !== -1) {
+    adSpotsIncludes.push({model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']});
+  }
+  if (populate.indexOf('adSpots.logo') !== -1) {
+    adSpotsIncludes.push({model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']});
+  }
+  if (populate.indexOf('adSpots.poster') !== -1) {
+    adSpotsIncludes.push({model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']});
+  }
+  if (populate.indexOf('adSpots.thumb') !== -1) {
+    adSpotsIncludes.push({model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']});
+  }
+
+  if (populate.indexOf('adSpots') !== -1) {
+    queryOptions.include = queryOptions.include ? queryOptions.include : [];
+    queryOptions.include.push({
+      model: Movie, as: 'adSpots',
+      required: false,
+      order: [['sort', 'ASC']],
+      include: adSpotsIncludes
+    });
+  }
+
+  // pagination :
+  if (req.query.backo) {
+    utils.mergeReqRange(queryOptions, req);
+  } else {
+    if (parseInt(req.query.limit)) {
+      // adding limit option if limit is NaN or 0 (undefined/whatever/"0")
+      _.merge(queryOptions, { limit: req.query.limit });
+    }
+    if (!isNaN(req.query.offset)) {
+      _.merge(queryOptions, { offset: req.query.offset });
+    }
+  }
 
   if (queryName) {
     queryOptions = _.merge(queryOptions, {
@@ -204,6 +257,27 @@ exports.index = function (req, res) {
 
   Category.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
+    .then(function (entity) {
+      // limiting movies in categories...
+      // HACKY, cannot do this with sequelize yet
+      // @see https://github.com/sequelize/sequelize/issues/1897
+      // we should use : include.seperate
+      if (parseInt(req.query.limitMovies)) {
+        entity.rows.forEach(function (row) {
+          if (row.movies) {
+            row.movies.splice(parseInt(req.query.limitMovies));
+          }
+        });
+      }
+      if (parseInt(req.query.limitAdSpots)) {
+        entity.rows.forEach(function (row) {
+          if (row.adSpots) {
+            row.adSpots.splice(parseInt(req.query.limitAdSpots));
+          }
+        });
+      }
+      return entity;
+    })
     .then(utils.responseWithResultAndTotal(res))
     .catch(handleError(res));
 };

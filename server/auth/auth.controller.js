@@ -78,11 +78,10 @@ var decrypt = function (k) {
 };
 
 var loadUserOrFail = function (email) {
-  return User.find({ where: { email: email } })
+  return User.findOne({ where: { email: {$iLike: email} } })
     .then(function (user) {
       if (!user) {
-        return
-        throw new Error("cannot find user attached to this email")
+        throw new Error("unknown email " + email);
       }
       return user;
     });
@@ -109,7 +108,7 @@ var reset = function (req, res) {
             typeof infos.password !== "string") {
           throw new Error("malformed token");
         }
-        if (infos.createdAt < Date.now() - 3600 * 1000) {
+        if (infos.createdAt < Date.now() - 2 * 3600 * 1000) { // 2h to reset email
           throw new Error("token expired");
         }
         return loadUserOrFail(infos.email)

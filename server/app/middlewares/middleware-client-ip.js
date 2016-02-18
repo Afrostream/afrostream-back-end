@@ -1,25 +1,35 @@
 'use strict';
 
+var ip = require('ip');
+
 /**
- * req.clientIp will contain the client ip
+ * req.userIp will contain the client ip
  *   searching in :
- *      the header x-forwarded-client-ip (call from api-v1)
- *   or the header fastly-client-ip (call throw CDN)
- *   or in x-forwarded-for list (first on the left, direct heroku call)
- *   or in req.ip
+ *  - the header x-forwarded-user-ip
+ *  - the leftmost x-forwarded-for non private ip (rfc 1918)
+ *  - req.ip
+ *
+ * should work :
+ *  - locally (dev env)
+ *  - heroku direct call
+ *  - behind fastly
+ *  - behind hw
+ *
  * @param options
  * @returns void
  */
 module.exports = function (options) {
   return function (req, res, next) {
-    // if x-forwarded-for is set, we assume we are on heroku ...
-    //  the client is then the last one (right) in the list of x-forwarded-for
-    //  heroku router ip is in req.ip
-    // we trim the result.
-    req.clientIp = req.get('x-forwarded-client-ip') ||
-                   req.get('fastly-client-ip') ||
-                   req.get('x-forwarded-for') && req.get('x-forwarded-for').split(',').pop().replace(/^\s+|\s+$/g, '') ||
-                   req.ip;
+    req.clientIp = req.get('x-forwarded-user-ip') ||
+      (req.get('x-forwarded-for') || '')
+        .split(',')
+        // trim spaces
+        .map(function (i) { return i.replace(/^\s+|\s+$/g, ''); })
+        // remove private ip
+        .filter(function (i) { return ip.isPublic(i); })
+        // leftmost x-forwarded-for or req.ip
+        .shift() ||
+      req.ip;
     //
     next();
   };
