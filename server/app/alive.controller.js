@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports.alive = function (req, res) {
+  res.noCache();
   res.json({
     alive: true,
     workerStartDate: req.app.get('startDate'),

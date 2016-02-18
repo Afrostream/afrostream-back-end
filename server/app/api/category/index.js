@@ -12,6 +12,9 @@
  *  list of associations:
  *    movies,movies.categorys,movies.logo,movies.poster,movies.thumb,
  *    adSpots,adSpots.categorys,adSpots.logo,adSpots.poster,adSpots.thumb
+ * @apiParam (queryString) {String} limit limit the number of categories returned, 0 = unlimited, default=unlimited
+ * @apiParam (queryString) {String} limitMovies limit the number of movies in categories.movies returned, 0 = unlimited, default=unlimited
+ * @apiParam (queryString) {String} limitAdSpots limit the number of movies categories.adSpots returned, 0 = unlimited, default=unlimited
  *
  * @apiName GetAllCategorys
  * @apiGroup Category
