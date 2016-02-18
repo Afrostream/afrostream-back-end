@@ -60,6 +60,51 @@ module.exports.showInternalplans = function (req, res) {
 };
 
 /**
+ * PUT
+ * @param req :{
+ * params :{
+ *      id : subscriptionUuid
+ *    }
+ * }
+ * @param res
+ */
+module.exports.cancelSubscriptions = function (req, res) {
+  var c = {
+    subscriptionUuid: req.params.subscriptionUuid
+  }; // closure
+  getClient(req)
+  //
+  // grab client billingProviderName ex: recurly, bachat
+  //
+    .then(function (client) {
+      if (!client) throw new Error('unknown client');
+      switch (client.type) {
+        case 'front-api.front-end':
+          c.billingProviderName = c.bodyProviderName;
+          break;
+        default:
+          throw new Error('unknown userProviderUuid for user ' + c.userId + ' client type ' + client.type);
+      }
+    })
+    //
+    // we create the user in the billing-api if he doesn't exist yet
+    //
+    .then(function () {
+      return billingApi.cancelSubscription(c.subscriptionUuid)
+    })
+    .then(
+      function success(subscription) {
+        res.json(subscription);
+      },
+      function error(err) {
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/cancelSubscriptions', message);
+        res.status(500).send({error: message});
+      }
+    );
+};
+
+/**
  * POST {
  *   firstName: "...",
  *   lastName: "...",
@@ -73,7 +118,8 @@ module.exports.showInternalplans = function (req, res) {
  *      "promoItemTotal": "0",
  *      "promoCurrency": "EUR",
  *      "promoPeriod": "1",
- *      "promoDuration": "0"
+ *      "promoDuration": "0",
+ *      "customerBankAccountToken":""
  *   }
  * }
  * @param req
@@ -84,8 +130,10 @@ module.exports.createSubscriptions = function (req, res) {
     userId: req.user._id,
     userEmail: req.user.email,
     userProviderUuid: null,
+    billingProviderName:req.body.billingProvider,
     bodyFirstName: req.body.firstName,
     bodyLastName: req.body.lastName,
+    bodyProviderName: req.body.providerName,
     bodyInternalPlanUuid: req.body.internalPlanUuid,
     bodySubscriptionProviderUuid: req.body.subscriptionProviderUuid,
     bodySubOpts: req.body.subOpts
@@ -97,11 +145,14 @@ module.exports.createSubscriptions = function (req, res) {
     //
     .then(function (client) {
       if (!client) throw new Error('unknown client');
-      if (!client.billingProviderName) throw new Error('unknown billingProviderName');
-      c.billingProviderName = client.billingProviderName;
       switch (client.type) {
         case 'legacy-api.bouygues-miami':
+          if (!client.billingProviderName) throw new Error('unknown billingProviderName');
+          c.billingProviderName = client.billingProviderName;
           c.userProviderUuid = req.user.bouyguesId;
+          break;
+        case 'front-api.front-end':
+          c.billingProviderName = c.bodyProviderName;
           break;
         default:
           throw new Error('unknown userProviderUuid for user ' + c.userId + ' client type ' + client.type);
