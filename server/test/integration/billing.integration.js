@@ -210,6 +210,7 @@ describe('User API:', function () {
     });
 
     it('calling with front client should call the mock using providerName=gocardless', function (done) {
+      console.log(access_token);
       request(app)
         .post('/api/billings/subscriptions')
         .set('Authorization', 'Bearer ' + access_token)

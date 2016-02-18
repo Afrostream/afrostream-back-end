@@ -132,7 +132,7 @@ var cancelSubscription = function (subscriptionBillingUuid) {
  */
 var getUser = function (userReferenceUuid, providerName) {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
-  assert(['recurly', 'celery', 'bachat'].indexOf(providerName) !== -1); // add other providers here later.
+  assert(['gocardless', 'recurly', 'celery', 'bachat'].indexOf(providerName) !== -1); // add other providers here later.
 
   return requestBilling({
     url: config.billings.url + '/billings/api/users/'
