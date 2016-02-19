@@ -24,5 +24,6 @@ var tokenUserMatchParamUser = function (req, res, next) {
 
 router.put('/:videoId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.update);
 router.get('/:videoId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.show);
+router.get('/', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.index);
 
 module.exports = router;
