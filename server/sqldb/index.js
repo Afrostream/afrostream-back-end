@@ -91,7 +91,8 @@ db.Video.hasOne(db.Episode, {as: 'episode', foreignKey: 'videoId'});
 
 db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints: false});
 
-db.User.hasMany(db.UsersVideos, {as: 'videos', foreignKey: 'userId'});
+db.UsersVideos.belongsTo(db.Video, {as: 'video', foreignKey: 'videoId', targetKey: '_id'});
+db.UsersVideos.belongsTo(db.User, {as: 'user', foreignKey: 'userId', targetKey: '_id'});
 
 db.UsersFavoritesEpisodes = db.sequelize.import('models/usersFavoritesEpisodes');
 db.Episode.belongsToMany(db.User, {through: db.UsersFavoritesEpisodes, as: 'users', foreignKey: 'episodeId'});
