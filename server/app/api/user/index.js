@@ -141,5 +141,6 @@ router.post('/', auth.isAuthenticated(), validator.validateCreateBody, controlle
 router.put('/:userId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, validator.validateUpdateBody, controller.update);
 
 router.use('/:userId/videos', require('./video'));
+router.get('/:userId/history', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.history);
 
-module.exports = router;
+  module.exports = router;

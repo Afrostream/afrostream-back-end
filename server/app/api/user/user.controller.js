@@ -5,6 +5,12 @@ var Q = require('q');
 var sqldb = rootRequire('/server/sqldb');
 var User = sqldb.User;
 var Client = sqldb.Client;
+var Movie = sqldb.Movie;
+var Episode = sqldb.Episode;
+var Season = sqldb.Season;
+var Video = sqldb.Video;
+var Image = sqldb.Image;
+var UsersVideos = sqldb.UsersVideos;
 var passport = require('passport');
 var config = rootRequire('/server/config');
 var jwt = require('jsonwebtoken');
@@ -153,6 +159,70 @@ exports.show = function (req, res, next) {
     .catch(function (err) {
       return next(err);
     });
+};
+
+exports.history = function (req, res, next) {
+  UsersVideos.findAll({
+    where: { userId: req.user._id },
+    order: [ ['dateLastRead', 'desc'] ],
+    include: [{
+      model: Video,
+      as: 'video',
+      include: [
+        {
+          model: Movie,
+          as: 'movie',
+          include: [
+            {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']},
+            {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
+            {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']}
+          ]
+        },
+        {
+          model: Episode,
+          as: 'episode',
+          include: [
+            {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
+            {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']},
+            {
+              model: Season, as: 'season',
+              required: false,
+              order: [['sort', 'ASC']]
+            }
+          ]
+        }
+      ]
+    }],
+    limit: 5
+  })
+  .then(
+    function (usersVideos) {
+      return usersVideos
+        // convert sequelize result to plain object
+        .map(function (userVideo) {
+          return userVideo.toJSON();
+        })
+        // exclude malformed objects
+        .filter(function (userVideo) {
+          return userVideo.video && (userVideo.video.episode || userVideo.video.movie);
+        })
+        // extract video
+        .map(function (userVideo) {
+          return userVideo.video;
+        })
+        // return movie or episode
+        .map(function (video) {
+          if (video.episode) {
+            return video.episode;
+          } else {
+            return video.movie;
+          }
+        });
+    })
+  .then(
+    function (moviesEpisodes) { res.json(moviesEpisodes); },
+    function (err) { res.status(err.statusCode || 500).json({error: String(err)})}
+  );
 };
 
 /**
