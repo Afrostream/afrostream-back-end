@@ -9,6 +9,14 @@ module.exports = function (sequelize, DataTypes) {
       unique: true,
       autoIncrement: true
     },
+    userId: {
+      type: DataTypes.INTEGER,
+      unique: 'userId_videoId'
+    },
+    videoId: {
+      type: DataTypes.UUID,
+      unique: 'userId_videoId'
+    },
     dateStartRead: {
       type: DataTypes.DATE,
       allowNull: false,
