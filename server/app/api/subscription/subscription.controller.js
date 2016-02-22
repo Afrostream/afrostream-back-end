@@ -545,24 +545,14 @@ exports.create = function (req, res) {
         res.json(profile);
       },
       function error(err) {
-
         console.error('subscription.controller.js#create(): error: ' + err, err);
-
-        if (typeof err.name !== 'undefined' && err.name === 'RecurlyError') {
-
-          res.status(400).json(err);
-        } else {
-
-          res.status(err.statusCode || 500).json({error:String(err)});
-        }
-
+        res.status(err.statusCode || 500).json({error:String(err)});
       }
     );
 };
 
 exports.gift = function (req, res) {
   // FIXME: we should use joy to filter req.body.
-
   var c = { // closure
     user: null,
     userId: null,
@@ -602,7 +592,6 @@ exports.gift = function (req, res) {
     .then(function () {
       if (c.user.email === c.bodyGiftedEmail) {
         throw new Error('Cannot buy a gift for yourself!');
-
       }
     })
     //
@@ -756,6 +745,9 @@ exports.gift = function (req, res) {
       , billingInfoOpts: {}
       });
     })
+    //
+    // Answering the client, success or error.
+    //
     .then(
       function success() {
         var profile = c.giftedUser.profile;
@@ -763,25 +755,8 @@ exports.gift = function (req, res) {
         res.json(profile);
       },
       function error(err) {
-
-        console.error('subscription.controller.js#create(): error: ' + err, err);
-
-        if ((typeof err.message !== 'undefined' && err.message === 'Cannot buy a gift for yourself!'))
-        {
-
-          var selfGiftError = {
-            name: 'SelfGiftError',
-            message: 'You cannot buy a gift for yourself!'
-          };
-          res.status(400).json(selfGiftError);
-
-        } else if (typeof err.name !== 'undefined' && err.name === 'RecurlyError') {
-
-          res.status(400).json(err);
-        } else {
-
-          res.status(err.statusCode || 500).json({error:String(err)});
-        }
+        console.error('subscription.controller.js#gift(): error: ' + err, err);
+        res.status(err.statusCode || 500).json({error:String(err)});
       }
     );
 };
