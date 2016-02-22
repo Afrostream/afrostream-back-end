@@ -77,5 +77,10 @@ module.exports = {
     apiPass: 'billingsapirocks'
   },
 
+  mq: {
+    endPoint: 'amqp://rabbitmq-1.adm.afrostream.net',
+    exchangeName: 'afrostream-back-end'
+  },
+
   dumpPostData: true
 };

@@ -65,6 +65,13 @@ module.exports = {
     apiPass: 'billingsapirocks'
   },
 
+  mq: {
+    endPoint: 'amqp://localhost',
+    exchangeName: 'afrostream-back-end',
+    autoReconnect: false,
+    displayErrors: false
+  },
+
   // if you want to seed:
   // use: export SEED_DB=true before launching node/grunt
   seedDB: (process.env.SEED_DB === 'true')

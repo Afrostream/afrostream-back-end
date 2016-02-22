@@ -17,6 +17,8 @@ if (config.seedDB) {
   require('../sqldb/seed');
 }
 
+var mq = rootRequire('/server/mq');
+
 var sqldb = require('../sqldb');
 
 // Start server

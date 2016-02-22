@@ -59,5 +59,12 @@ module.exports = {
     apiPass: 'billingsapirocks'
   },
 
+  mq: {
+    endPoint: 'amqp://localhost',
+    exchangeName: 'afrostream-back-end',
+    autoReconnect: false,
+    displayErrors: false
+  },
+
   env: 'test'
 };
