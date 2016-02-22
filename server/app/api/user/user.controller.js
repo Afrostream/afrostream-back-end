@@ -173,17 +173,17 @@ exports.history = function (req, res, next) {
           model: Movie,
           as: 'movie',
           include: [
-            {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']},
-            {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
-            {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']}
+            {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+            {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+            {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
           ]
         },
         {
           model: Episode,
           as: 'episode',
           include: [
-            {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
-            {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']},
+            {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+            {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
             {
               model: Season, as: 'season',
               required: false,

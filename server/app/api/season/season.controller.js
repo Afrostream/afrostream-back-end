@@ -172,8 +172,8 @@ exports.show = function (req, res) {
     },
     include: [
       {model: Movie, as: 'movie', required: false}, // load related movie
-      {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']}, // load poster image
-      {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']} // load thumb image
+      {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']}, // load poster image
+      {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']} // load thumb image
     ],
     order: [
       [{model: Episode, as: 'episodes'}, 'sort'],
@@ -192,8 +192,8 @@ exports.show = function (req, res) {
       model: Episode, as: 'episodes',
       required: false,
       include: [
-        {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
-        {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']}
+        {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+        {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
       ]
     });
   }
