@@ -7,3 +7,9 @@ module.exports.log = function (req, res) {
   console[level](message);
   res.send('<pre>console.' + level + '("'+ message + '")</pre>');
 };
+
+module.exports.mq = function (req, res) {
+  var mq = rootRequire('/server/mq');
+  mq.send({date: new Date().toISOString(), q: req.query.q || 'foo'});
+  res.send('done');
+};

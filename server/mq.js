@@ -26,7 +26,7 @@ mq.send = function (data) {
 
 // CHANNEL OPEN => DRAIN
 mq.on('channel.opened', function () {
-  mq.channel.assertExchange('backend', 'fanout', { durable: true });
+  mq.channel.assertExchange(exchangeName, 'fanout', { durable: true });
   // drain localQueue
   console.log('[INFO]: [MQ]: channel.opened: draining ' + localQueue.length + ' messages');
   localQueue.forEach(function (message) {

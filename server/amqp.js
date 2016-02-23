@@ -73,15 +73,16 @@ AMQP.prototype.open = function () {
     )
     .then(
       function (channel) {
+        console.log('[INFO]: [AMQP]: channel opened');
         that.channel = channel;
         that.channel.on('error',onError);
         that.channel.on('close', onError);
         that.emit('channel.opened');
+        return channel;
       }
     )
     .then(
       function (channel) {
-        console.log('[INFO]: [AMQP]: channel opened');
         return channel;
       },
       onError
