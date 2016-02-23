@@ -32,7 +32,7 @@ module.exports = {
   },
 
   sendGrid: {
-    api_key: 'FIXME'
+    api_key: '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'
   },
 
   sequelize: {
