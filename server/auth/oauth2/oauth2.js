@@ -207,6 +207,10 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
           if (user === null) {
             return done(new TokenError('unknown user', 'invalid_grant'), false);
           }
+          if (entity.type === 'legacy-api.bouygues-miami' &&
+              user.email.match(/@bbox\.fr$/i)) {
+            return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
+          }
           user.authenticate(password, function (authError, authenticated) {
             if (authError) {
               return done(authError);
