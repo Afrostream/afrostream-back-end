@@ -242,7 +242,7 @@ var subscriptionToPromo = function (subscription) {
   }
   var d = new Date(subscription.subPeriodEndsDate);
   return !isADate(d) ||
-         d < new Date(new Date.getTime() - config.billings.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
+         d < new Date(new Date().getTime() - config.billings.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
 };
 
 var getSubscriptionsStatus = function (userId) {
