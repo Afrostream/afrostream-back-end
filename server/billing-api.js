@@ -248,16 +248,13 @@ var subscriptionToPromo = function (subscription) {
 var getSubscriptionsStatus = function (userId) {
   return getSubscriptions(userId)
     .then(function (subscriptions) {
-      console.log('subscriptions = ', subscriptions);
-      var subscription = subscriptions.shift();
-      console.log('subscription = ', subscription);
-      var billingInfos = {
+      var lastSubscription = subscriptions[0];
+      var subscriptionsStatus = {
         subscriptions: subscriptions,
-        lastSubscription : subscription,
-        planCode: subscriptionToPlanCode(subscription),
-        promo: subscriptionToPromo(subscription)
+        planCode: subscriptionToPlanCode(lastSubscription),
+        promo: subscriptionToPromo(lastSubscription)
       };
-      return billingInfos;
+      return subscriptionsStatus;
     }, function () {
       console.log('no subscriptions found :(');
       return null;
