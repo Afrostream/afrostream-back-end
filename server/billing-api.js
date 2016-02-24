@@ -248,7 +248,9 @@ var subscriptionToPromo = function (subscription) {
 var getSubscriptionsStatus = function (userId) {
   return getSubscriptions(userId)
     .then(function (subscriptions) {
+      console.log('subscriptions = ', subscriptions);
       var subscription = subscriptions.shift();
+      console.log('subscription = ', subscription);
       var billingInfos = {
         subscriptions: subscriptions,
         lastSubscription : subscription,
@@ -257,6 +259,7 @@ var getSubscriptionsStatus = function (userId) {
       };
       return billingInfos;
     }, function () {
+      console.log('no subscriptions found :(');
       return null;
     });
 };
