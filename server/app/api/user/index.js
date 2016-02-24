@@ -11,6 +11,19 @@
  * @apiSuccess {String} email  Email of the User.
  * @apiSuccess {String} role  Role of the User.
  * @apiSuccess {String} planCode  Payment Plan Code of the User.
+ * @apiSuccess {Object} subscriptionsStatus light version of the content on GET /api/subscriptions/status
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *     "name": "foo",
+ *     "email": "foo@foo.com",
+ *     "role": "admin",
+ *     "planCode": "afrostreamambassadeur2",
+ *     "subscriptionsStatus": {
+ *       "planCode": "afrostreamambassadeur2",
+ *       "promo": false
+ *     }
+ *   }
  */
 
 /**
