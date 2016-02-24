@@ -191,12 +191,12 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
     })
     .then(function (entity) {
       if (entity === null) {
-        return done(null, false);
+        return done(new TokenError('unknown client', 'invalid_grant'), false);
       }
       if (entity.secret !== client.secret) {
-        return done(null, false);
+        return done(new TokenError('wrong secret', 'invalid_grant'), false);
       }
-      User.find({
+      return User.find({
           where: {
             email: {
               $iLike: username
@@ -221,10 +221,6 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
               return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
             }
           });
-
-        })
-        .catch(function (err) {
-          return done(err);
         });
     })
     .catch(function (err) {

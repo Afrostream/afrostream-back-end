@@ -80,5 +80,20 @@ exports = module.exports = {
       + 'AFROSTREAM'
     };
     return send(email);
+  },
+
+  sendPasswordEmail: function (emailAddress, password) {
+    var email = {
+      from: 'no-reply@afrostream.tv',
+      to: emailAddress,
+      bcc: [/*FIXME*/],
+      subject: 'Votre mot de passe Afrostream',
+      text: 'Bonjour, \n\n' +
+      'Le mot de passe de votre compte afrostream est : ' + password + '\n\n'
+      + '\n\n'
+      + '--\n\n'
+      + 'AFROSTREAM'
+    };
+    return send(email);
   }
 };

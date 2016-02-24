@@ -12407,6 +12407,23 @@
         }
       }
     },
+    "sha1": {
+      "version": "1.1.1",
+      "from": "sha1@*",
+      "resolved": "https://registry.npmjs.org/sha1/-/sha1-1.1.1.tgz",
+      "dependencies": {
+        "charenc": {
+          "version": "0.0.1",
+          "from": "charenc@>=0.0.1",
+          "resolved": "https://registry.npmjs.org/charenc/-/charenc-0.0.1.tgz"
+        },
+        "crypt": {
+          "version": "0.0.1",
+          "from": "crypt@>=0.0.1",
+          "resolved": "https://registry.npmjs.org/crypt/-/crypt-0.0.1.tgz"
+        }
+      }
+    },
     "slugify": {
       "version": "0.1.1",
       "from": "slugify@>=0.1.1 <0.2.0",

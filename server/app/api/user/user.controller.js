@@ -16,6 +16,10 @@ var config = rootRequire('/server/config');
 var jwt = require('jsonwebtoken');
 var subscriptionController = require('../subscription/subscription.controller.js');
 
+var sha1 = require('sha1');
+
+var mailer = rootRequire('/server/components/mailer');
+
 var utils = require('../utils.js');
 
 var auth = rootRequire('/server/auth/auth.service');
@@ -82,17 +86,9 @@ exports.index = function (req, res) {
 exports.create = function (req, res, next) {
   Q()
     .then(function () {
-      // specific filter for bouygues
-      if (req.user instanceof Client.Instance &&
-        req.user.get('type') === 'legacy-api.bouygues-miami') {
-        // ensure bouygues field exist
-        if (!req.body.bouyguesId) {
-          throw new Error("missing bouyguesId");
-        }
+      if (req.client.isBouygues()) {
+        req.body.password = sha1('youpi'+new Date()+Math.random()).substr(2, 6);
       }
-    })
-    .then(function () {
-      // inserting the user
       var newUser = User.build(req.body);
       newUser.setDataValue('provider', 'local');
       newUser.setDataValue('role', 'user');
@@ -101,6 +97,13 @@ exports.create = function (req, res, next) {
     .then(function (user) {
       // everything went ok, we send an oauth2 access token
       return auth.getOauth2UserTokens(user, req.clientIp, req.userAgent);
+    })
+    .then(function (token) {
+      // bouygues: sending password by email.
+      if (req.client.isBouygues()) {
+        mailer.sendPasswordEmail(req.body.email, req.body.password);
+      }
+      return token;
     })
     .then(res.json.bind(res))
     .catch(validationError(res));
