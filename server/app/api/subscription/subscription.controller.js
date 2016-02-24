@@ -89,206 +89,7 @@ exports.index = function (req, res) {
   });
 };
 
-// Gets a single subscription from the DB
-exports.show = function (req, res, next) {
-
-  var userId = req.params.id;
-
-  User.find({
-    where: {
-      _id: userId
-    }
-  })
-    .then(function (user) {
-      if (!user) {
-        return res.status(404).end();
-      }
-      if (user.account_code === null) {
-        return handleError(res)('missing account code');
-      }
-      var account = new recurly.Account();
-      account.id = user.account_code;
-      var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
-      return fetchAsync().then(function (subscriptions) {
-        return res.json(subscriptions);
-      }).catch(handleError(res));
-    })
-    .catch(handleError(res));
-};
-
-// Gets the authentified user's subscriptions
-exports.me = function (req, res, next) {
-  var c = {
-    user: null,
-    userId: null
-  };
-
-  //
-  // read the user in the db
-  //
-  readUser(req.user._id)
-    .then(function (user) {
-      c.user = user;
-      c.userId = user.get('_id');
-    })
-    //
-    // get subscriptions from the billing api
-    //   & extract the planCode
-    //
-    .then(function () {
-      return billingApi.getSubscriptions(c.userId)
-        .then(function (subscriptions) {
-          for (var i = 0; i < subscriptions.length; ++i) {
-            var subscription = subscriptions[i];
-
-            if (subscription &&
-                subscription.isActive === 'yes' &&
-                subscription.internalPlan &&
-                subscription.internalPlan.internalPlanUuid) {
-              return subscription.internalPlan.internalPlanUuid;
-            }
-          }
-        }, function () {
-          // utilisateur inscrit mais non abonné
-          return;
-        });
-    })
-    //
-    // Answering the client, success or error.
-    //
-    .then(
-    function success(planCode) {
-      var profile = c.user.profile;
-      if (planCode) {
-        profile.planCode = planCode;
-      }
-      res.json(profile);
-    },
-    function error(err) {
-      console.error('subscription.controller.js#me(): error: ' + err, err);
-      res.status(err.statusCode || 500).json({error:String(err)});
-    }
-  );
-};
-
-exports.all = function (req, res, next) {
-  var userId = req.user._id;
-
-  User.find({
-    where: {
-      _id: userId
-    }
-  })
-    .then(function (user) {
-      if (!user) {
-        return res.status(401).end();
-      }
-      var profile = user.profile;
-      if (user.billing_provider && user.billing_provider === 'celery') {
-        var now = new Date().getTime();
-        var finalDate = new Date('2016/09/01').getTime();
-        if (now < finalDate) {
-          profile.planCode = 'afrostreamambassadeurs';
-          return res.json([]);
-        }
-      }
-      if (user.account_code === null) {
-        return res.json([]);
-      }
-      var account = new recurly.Account();
-      account.id = user.account_code;
-      var fetchAsync = Promise.promisify(account.fetchSubscriptions, account);
-      return fetchAsync().then(function (subscriptions) {
-        return res.json(subscriptions);
-      }).catch(function () {
-        return res.json([]);
-      });
-
-    })
-    .catch(handleError(res));
-};
-
-exports.billing = function (req, res, next) {
-  var userId = req.user._id;
-  User.find({
-    where: {
-      _id: userId
-    }
-  })
-    .then(function (user) {
-      if (!user) {
-        return res.status(401).end();
-      }
-      if (user.account_code === null) {
-        return handleError(res)('missing account code');
-      }
-      var account = new recurly.Account();
-      account.id = user.account_code;
-      var fetchAsync = Promise.promisify(account.fetchBillingInfo, account);
-      return fetchAsync().then(function (billingInfo) {
-        if (!billingInfo) {
-          return handleError(res)('missing billing info');
-        }
-        return res.json(_.pick(billingInfo.properties, [
-          'first_name',
-          'last_name',
-          'country',
-          'card_type',
-          'year',
-          'month',
-          'first_six',
-          'last_four'
-        ]));
-      }).catch(handleError(res));
-
-    })
-    .catch(handleError(res));
-};
-
-exports.invoice = function (req, res, next) {
-  var userId = req.user._id;
-  User.find({
-    where: {
-      _id: userId
-    }
-  })
-    .then(function (user) {
-      if (!user) {
-        return res.status(401).end();
-      }
-      if (user.account_code === null) {
-        return handleError(res)('missing account code');
-      }
-      var account = new recurly.Account();
-      account.id = user.account_code;
-      var fetchAsync = Promise.promisify(account.getInvoices, account);
-      return fetchAsync().then(function (invoicesInfo) {
-        if (!invoicesInfo) {
-          return handleError(res)('missing invoices info');
-        }
-
-        var invoicesMapped = _.map(invoicesInfo, _.partialRight(_.pick, [
-            'address',
-            'state',
-            'invoice_number',
-            'subtotal_in_cents',
-            'total_in_cents',
-            'tax_in_cents',
-            'currency',
-            'created_at',
-            'closed_at',
-            'terms_and_conditions',
-            'customer_notes'])
-        );
-
-        return res.json(invoicesMapped);
-      }).catch(handleError(res));
-
-    })
-    .catch(handleError(res));
-};
-
-exports.cancel= function (req, res, next) {
+exports.cancel = function (req, res, next) {
   var userId = req.user._id;
   User.find({
     where: {
@@ -325,37 +126,6 @@ exports.cancel= function (req, res, next) {
     })
     .catch(handleError(res));
 };
-
-/**
- * extract the user info from the database using userId = req.user._id
- * @param req
- * @returns {*}
- */
-function reqUser(req) {
-  var userId = req && req.user && req.user._id;
-
-  return User.find({where: { _id: userId } })
-  .then(function (user) {
-    if (!user) {
-      var error = new Error("user doesn't exist");
-      error.httpCode = 401;
-    }
-    return user;
-  });
-}
-
-/**
- * generic error handler.
- *
- * @param res
- * @returns {Function}
- */
-function error(res) {
-  return function (err) {
-    err = err || new Error('unknown error');
-    res.status(err.httpCode || 500).send(String(err));
-  };
-}
 
 /**
  * response :
@@ -698,7 +468,7 @@ exports.gift = function (req, res) {
       },
       function error(err) {
 
-        console.error('subscription.controller.js#create(): error: ' + err, err);
+        console.error('subscription.controller.js#gift(): error: ' + err, err);
 
         if ((typeof err.message !== 'undefined' && err.message === 'Cannot buy a gift for yourself!'))
         {
@@ -719,13 +489,3 @@ exports.gift = function (req, res) {
       }
     );
 };
-
-// Updates an existing subscription in the DB
-exports.update = function (req, res) {
-};
-
-// Deletes a subscription from the DB
-exports.destroy = function (req, res) {
-
-};
-
