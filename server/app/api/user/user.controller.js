@@ -354,9 +354,9 @@ exports.me = function (req, res) {
       // utilisateur inscrit
       profile.subscriptionsStatus = subscriptionsStatus;
       profile.planCode = subscriptionsStatus ? subscriptionsStatus.planCode : undefined;
-    }, function () {
+    }, function (err) {
       // utilisateur inscrit mais non abonné
-      console.log('[INFO]: /api/users/me: user registered but no subscriptions (' + req.user._id + ')');
+      console.log('[INFO]: /api/users/me: user registered but no subscriptions (' + req.user._id + ')', err);
     })
     .then(
     function success() { res.json(profile); },
