@@ -62,7 +62,8 @@ module.exports = {
   billings: {
     url: 'http://billings.afrostream.dev',
     apiUser: 'admin',
-    apiPass: 'billingsapirocks'
+    apiPass: 'billingsapirocks',
+    promoLastSubscriptionMinDays: 30 * 6 // days, ~= 6 months
   },
 
   // if you want to seed:
