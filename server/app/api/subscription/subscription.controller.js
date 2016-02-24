@@ -19,7 +19,6 @@ var User = sqldb.User;
 var GiftGiver = sqldb.GiftGiver;
 var Promise = sqldb.Sequelize.Promise;
 recurly.setAPIKey(config.recurly.apiKey);
-var requestPromise = require('request-promise');
 
 var billingApi = rootRequire('/server/billing-api');
 
@@ -359,71 +358,6 @@ function error(res) {
 }
 
 /**
- * @param user
- * @return Promise({
- *   _id: '...'
- *   name: '...'
- *   role: '...'
- *   email: '...'
- *   provider: '...'
- *   planCode: '...'
- *   accountCode: '...'
- *   billingProvider: '...'
- *   subscriptions: [
- *     { state: ..., activatedAt:..., canceledAt:..., expiresAt:..., plan: { planCode: ... } }
- *   ]
- * })
- */
-function userInfos(user) {
-  return Promise.resolve({
-    name: user.name,
-    role: user.role,
-    _id: user._id,
-    email: user.email,
-    planCode: '',
-    accountCode: user.account_code,
-    billingProvider: user.billing_provider,
-    subscriptions : []
-  }).then(function (infos) {
-    if (user.billing_provider === 'celery') {
-      if (Date.now() < new Date('2016/09/01').getTime()) {
-        infos.planCode = 'afrostreamambassadeurs';
-        return infos;
-      }
-    }
-    if (user.account_code === null) {
-      return infos;
-    }
-    //
-    var account = new recurly.Account();
-    account.id = user.account_code;
-
-    return Promise.promisify(account.fetchSubscriptions, account)()
-      .then(function (subscriptions) {
-        _.forEach(subscriptions, function (subscription, i) {
-          infos.subscriptions.push({
-            state: subscription.properties.state,
-            activatedAt: subscription.properties.activated_at,
-            canceledAt: subscription.properties.canceled_at,
-            expiresAt: subscription.properties.expires_at,
-            plan: {planCode: subscription.properties.plan.plan_code}
-          });
-          // @see https://dev.recurly.com/docs/list-subscriptions
-          // possible status: 'pending', 'active', 'canceled', 'expired', 'future'
-          if (~'pending,active,canceled'.indexOf(subscription.properties.state) && !infos.planCode) {
-            infos.planCode = subscription.properties.plan.plan_code;
-          }
-        });
-        return infos;
-      })
-      .catch(function (e) {
-        console.error('error: subscription.controller.js#userInfos(user) on user_id ' + user._id + ':', e);
-        return infos;
-      });
-  });
-}
-
-/**
  * response :
  * {
  *   planCode: string,
@@ -435,17 +369,17 @@ function userInfos(user) {
  * }
  */
 exports.status = function (req, res) {
-  reqUser(req)
-  .then(function (user) {
-    return userInfos(user);
-  })
-  .then(function (infos) {
-    return res.json({
-      planCode: infos.planCode,
-      subscriptions: infos.subscriptions
-    });
-  })
-  .catch(error(res));
+  billingApi.getSubscriptionsStatus(req.user._id)
+    .then(function (subscriptionsStatus) {
+      res.json(subscriptionsStatus);
+    })
+    .then(
+      function success(data) { res.json(data); },
+      function error(err) {
+        console.error('subscription.controller.js#status(): error: ' + err, err);
+        res.status(err.statusCode || 500).json({error:String(err)});
+      }
+    );
 };
 
 // Creates a new subscription in the DB
@@ -794,6 +728,4 @@ exports.update = function (req, res) {
 exports.destroy = function (req, res) {
 
 };
-
-exports.userInfos = userInfos;
 

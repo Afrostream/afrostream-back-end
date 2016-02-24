@@ -13,8 +13,8 @@ var Image = sqldb.Image;
 var UsersVideos = sqldb.UsersVideos;
 var passport = require('passport');
 var config = rootRequire('/server/config');
-var jwt = require('jsonwebtoken');
-var subscriptionController = require('../subscription/subscription.controller.js');
+
+var billingApi = rootRequire('/server/billing-api');
 
 var sha1 = require('sha1');
 
@@ -342,33 +342,28 @@ exports.verify = function (req, res) {
 };
 
 /**
- * Get my info
+ * User profile +
+ *  profile.subscriptionsStatus
+ *  profile.planCode
  */
-exports.me = function (req, res, next) {
-  var userId = req.user._id;
-
-  User.find({
-    where: {
-      _id: userId
-    },
-    attributes: [
-      '_id',
-      'name',
-      'email',
-      'role',
-      'provider',
-      'account_code'
-    ]
-  })
-    .then(function (user) { // don't ever give out the password or salt
-      if (!user) {
-        return res.status(401).end();
-      }
-      return subscriptionController.me(req, res, next);
+exports.me = function (req, res) {
+  var profile = req.user.profile;
+  // on enrichi le profile avec des infos de souscriptions
+  billingApi.getSubscriptionsStatus(req.user._id)
+    .then(function (subscriptionsStatus) {
+      // utilisateur inscrit
+      profile.subscriptionsStatus = subscriptionsStatus;
+      profile.planCode = subscriptionsStatus ? subscriptionsStatus.planCode : undefined;
+    }, function () {
+      // utilisateur inscrit mais non abonné
     })
-    .catch(function (err) {
-      return next(err);
-    });
+    .then(
+    function success() { res.json(profile); },
+    function error(err) {
+      console.error('user.controller.js#me(): error: ' + err, err);
+      res.status(err.statusCode || 500).json({error:String(err)});
+    }
+  );
 };
 
 /**

@@ -214,6 +214,56 @@ var getInternalPlans = function (userReferenceUuid, providerName) {
   });
 };
 
+var subscriptionToPlanCode = function (subscription) {
+  if (subscription &&
+      subscription.isActive === 'yes' &&
+      subscription.internalPlan &&
+      subscription.internalPlan.internalPlanUuid) {
+    return subscription.internalPlan.internalPlanUuid;
+  }
+  return null;
+};
+
+// @see http://stackoverflow.com/questions/1353684/detecting-an-invalid-date-date-instance-in-javascript
+var isADate = function (s) {
+  return Object.prototype.toString.call(d) === "[object Date]" ? !isNaN(d.getTime()):false;
+};
+
+/**
+ * return true si pas de souscription, ou si la date de la
+ *  derniere souscription est antérieure a Date.now() - 6 mois.
+ *
+ * @param subscription
+ * @returns {boolean}
+ */
+var subscriptionToPromo = function (subscription) {
+  if (!subscription) {
+    return true;
+  }
+  var d = new Date(subscription.subPeriodEndsDate);
+  return !isADate(d) ||
+         d < new Date(new Date.getTime() - config.billing.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
+};
+
+var getSubscriptionsStatus = function (userId) {
+  return getSubscriptions(userId)
+    .then(function (subscriptions) {
+      var subscription = subscriptions.shift();
+      var billingInfos = {
+        subscriptions: subscriptions,
+        lastSubscription : subscription,
+        planCode: subscriptionToPlanCode(subscription),
+        promo: subscriptionToPromo(subscription)
+      };
+      return billingInfos;
+    }, function () {
+      return null;
+    });
+};
+
+
+// very high level
+module.exports.getSubscriptionsStatus = getSubscriptionsStatus;
 // subscriptions manipulation
 module.exports.getSubscriptions = getSubscriptions;
 module.exports.someSubscriptionActive = someSubscriptionActive;
@@ -226,3 +276,6 @@ module.exports.createUser = createUser;
 module.exports.getOrCreateUser = getOrCreateUser;
 // fetching internal infos
 module.exports.getInternalPlans = getInternalPlans;
+// parsing subscription
+module.exports.subscriptionToPlanCode = subscriptionToPlanCode;
+module.exports.subscriptionToPromo = subscriptionToPromo;
