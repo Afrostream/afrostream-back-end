@@ -124,8 +124,6 @@ router.use('/:userId/favoritesEpisodes', require('./favoriteEpisode/index'));
 router.use('/:userId/favoritesMovies', require('./favoriteMovie/index'));
 router.use('/:userId/favoritesSeasons', require('./favoriteSeason/index'));
 
-router.use('/:userId/subscriptions', require('./subscription/index'));
-
 router.get('/', auth.hasRole('admin'), controller.index);
 router.delete('/:id', auth.hasRole('client'), controller.destroy);
 router.get('/me', auth.isAuthenticated(), controller.me);
