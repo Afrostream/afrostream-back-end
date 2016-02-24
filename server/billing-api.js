@@ -245,21 +245,22 @@ var subscriptionToPromo = function (subscription) {
          d < new Date(new Date().getTime() - config.billings.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
 };
 
-var getSubscriptionsStatus = function (userId) {
+var getSubscriptionsStatus = function (userId, withSubscriptions) {
   return getSubscriptions(userId)
     .then(function (subscriptions) {
       var lastSubscription = subscriptions[0];
       var subscriptionsStatus = {
-        subscriptions: subscriptions,
+        subscriptions: withSubscriptions ? subscriptions : undefined,
         planCode: subscriptionToPlanCode(lastSubscription),
         promo: subscriptionToPromo(lastSubscription)
       };
       return subscriptionsStatus;
     }, function () {
-      return null;
+      return {
+        promo: true
+      };
     });
 };
-
 
 // very high level
 module.exports.getSubscriptionsStatus = getSubscriptionsStatus;

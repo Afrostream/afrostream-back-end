@@ -139,7 +139,7 @@ exports.cancel = function (req, res, next) {
  * }
  */
 exports.status = function (req, res) {
-  billingApi.getSubscriptionsStatus(req.user._id)
+  billingApi.getSubscriptionsStatus(req.user._id, true)
     .then(function (subscriptionsStatus) {
       res.json(subscriptionsStatus);
     })
