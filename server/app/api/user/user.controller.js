@@ -356,11 +356,12 @@ exports.me = function (req, res) {
       profile.planCode = subscriptionsStatus ? subscriptionsStatus.planCode : undefined;
     }, function () {
       // utilisateur inscrit mais non abonné
+      console.log('[INFO]: /api/users/me: user registered but no subscriptions (' + req.user._id + ')');
     })
     .then(
     function success() { res.json(profile); },
     function error(err) {
-      console.error('user.controller.js#me(): error: ' + err, err);
+      console.error('[ERROR]: /api/users/me: ' + err, err);
       res.status(err.statusCode || 500).json({error:String(err)});
     }
   );
