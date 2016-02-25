@@ -185,5 +185,6 @@ var router = express.Router();
 
 router.get('/internalplans', auth.isAuthenticated(), controller.showInternalplans);
 router.post('/subscriptions', auth.isAuthenticated(), controller.createSubscriptions);
+router.put('/subscriptions/:subscriptionUuid/cancel', auth.isAuthenticated(), controller.cancelSubscriptions);
 
 module.exports = router;

@@ -14,10 +14,10 @@ var request = require('supertest');
 
 var assert = require('better-assert');
 
-describe('User API:', function() {
+describe('User API:', function () {
   before(function () {
     return User.destroy({
-      where: { email: 'test.integration+billing@afrostream.tv'}
+      where: {email: 'test.integration+billing@afrostream.tv'}
     }).then(function () {
       var user = User.build({
         name: 'toto',
@@ -29,8 +29,8 @@ describe('User API:', function() {
     });
   });
 
-  after(function() {
-    return User.destroy({ where: { email: 'test.integration+billing@afrostream.tv' }});
+  after(function () {
+    return User.destroy({where: {email: 'test.integration+billing@afrostream.tv'}});
   });
 
   describe('GET /api/billings/internalplans', function () {
@@ -97,7 +97,7 @@ describe('User API:', function() {
         .expect(500)
         .expect('Content-Type', /json/)
         .end(function (err, res) {
-          if (err) return  done(err);
+          if (err) return done(err);
           assert(res.body.error === 'unknown provider named : unknown');
           done();
         });
@@ -155,6 +155,69 @@ describe('User API:', function() {
           lastName: "bar",
           internalPlanUuid: "bachat-afrostreamdaily",
           subscriptionProviderUuid: "42424242"
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          if (err) return done(err);
+          assert(res.body.subscriptionBillingUuid === 'SubscriptionBillingUUID');
+          done();
+        });
+    });
+
+  });
+
+  describe('POST /api/billings/subscriptions', function () {
+    var frontClient = null;
+    before(function () {
+      return Client.find({where: {type: 'front-api.front-end'}}).then(function (c) {
+        assert(c, 'client front doesnt exist in db, please seed.');
+        frontClient = c;
+      });
+    });
+
+    var frontClientToken = null;
+    before(function () {
+      // login client
+      return bootstrap.getClientToken(app, frontClient).then(function (t) {
+        assert(t, 'missing client token');
+        frontClientToken = t;
+      });
+    });
+
+    // log the user using bouygues client
+    var access_token;
+    before(function (done) {
+      request(app)
+        .post('/auth/oauth2/token')
+        .send({
+          grant_type: 'password',
+          client_id: frontClient.get('_id'),
+          client_secret: frontClient.get('secret'),
+          username: 'test.integration+billing@afrostream.tv',
+          password: 'password'
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          assert(typeof res.body.access_token === 'string');
+          assert(typeof res.body.refresh_token === 'string');
+          assert(typeof res.body.expires_in === 'number');
+          assert(res.body.token_type === 'Bearer');
+          access_token = res.body.access_token;
+          done();
+        });
+    });
+
+    it('calling with front client should call the mock using providerName=gocardless', function (done) {
+      console.log(access_token);
+      request(app)
+        .post('/api/billings/subscriptions')
+        .set('Authorization', 'Bearer ' + access_token)
+        .send({
+          firstName: "foo",
+          lastName: "bar",
+          providerName: "gocardless"
         })
         .expect(200)
         .expect('Content-Type', /json/)

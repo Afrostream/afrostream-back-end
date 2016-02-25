@@ -107,6 +107,22 @@ var createSubscription = function (subscriptionBillingData) {
 };
 
 /**
+ * cancel a subscription in the billing-api
+ *
+ * @param subscriptionBillingUuid  string
+ * @return FIXME
+ */
+var cancelSubscription = function (subscriptionBillingUuid) {
+  return requestBilling({
+    method: 'PUT'
+  , url: config.billings.url + '/billings/api/subscriptions/'+subscriptionBillingUuid+'/cancel'
+  })
+    .then(function (body) {
+      return body && body.response && body.response.subscription || {};
+  });
+};
+
+/**
  * get a user from billing api,
  *   userReferenceUuid is the backend postgresql user id
  *
@@ -116,7 +132,7 @@ var createSubscription = function (subscriptionBillingData) {
  */
 var getUser = function (userReferenceUuid, providerName) {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
-  assert(['recurly', 'celery', 'bachat'].indexOf(providerName) !== -1); // add other providers here later.
+  assert(['gocardless', 'recurly', 'celery', 'bachat'].indexOf(providerName) !== -1); // add other providers here later.
 
   return requestBilling({
     url: config.billings.url + '/billings/api/users/'
@@ -269,6 +285,7 @@ module.exports.getSubscriptions = getSubscriptions;
 module.exports.someSubscriptionActive = someSubscriptionActive;
 module.exports.someSubscriptionActiveSafe = someSubscriptionActiveSafe;
 module.exports.createSubscription = createSubscription;
+module.exports.cancelSubscription = cancelSubscription;
 // user manipulation
 module.exports.getUser = getUser;
 module.exports.createUser = createUser;
