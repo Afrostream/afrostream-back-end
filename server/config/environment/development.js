@@ -29,8 +29,8 @@ module.exports = {
   },
 
   sendGrid: {
-    api_user: 'azure_3e7c4f32e08f4c0ba3c3ec8eb6c2fe58@azure.com',
-    api_key: 'Afr@stream77'
+    api_key: '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',
+    doNotSend: true
   },
 
   client: {
@@ -62,7 +62,8 @@ module.exports = {
   billings: {
     url: 'http://billings.afrostream.dev',
     apiUser: 'admin',
-    apiPass: 'billingsapirocks'
+    apiPass: 'billingsapirocks',
+    promoLastSubscriptionMinDays: 30 * 6 // days, ~= 6 months
   },
 
   // if you want to seed:

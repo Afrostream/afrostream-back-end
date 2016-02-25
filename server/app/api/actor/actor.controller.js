@@ -81,7 +81,7 @@ exports.index = function (req, res) {
   var queryName = req.param('query');
   var queryOptions = {
     include: [
-      {model: Image, as: 'picture', required: false, attributes: ['_id', 'name', 'imgix']}
+      {model: Image, as: 'picture', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
     ],
     order: [ [ 'lastName' ] ]
   };

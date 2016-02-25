@@ -39,9 +39,11 @@ app.use(cacheHandler());
 
 var middlewareAllowPreflight = require('./middlewares/middleware-allowpreflight.js');
 var middlewareAllowCrossDomain = require('./middlewares/middleware-allowcrossdomain.js');
+var middlewareAuth = require('./middlewares/middleware-auth.js');
 
 app.use(middlewareAllowCrossDomain());
 app.use(middlewareAllowPreflight());
+app.use(middlewareAuth());
 
 var stack = [];
 

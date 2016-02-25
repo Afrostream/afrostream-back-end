@@ -104,17 +104,17 @@ function responseWithAdSpot(req, res, statusCode) {
                       {model: Caption, as: 'captions', attributes: ['_id'], required: false}
                     ]
                   },
-                  {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
-                  {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']}
+                  {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+                  {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
                 ],
                 attributes: ['_id', 'slug']
               }
             ]
           },
           {model: Category, as: 'categorys', attributes: ['_id', 'label'], required: false},
-          {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']},   // load logo image
-          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']}, // load poster image
-          {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']}   // load thumb image
+          {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},   // load logo image
+          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']}, // load poster image
+          {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}   // load thumb image
         ]
       };
 
@@ -189,13 +189,13 @@ exports.index = function (req, res) {
     moviesIncludes.push({model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']});
   }
   if (populate.indexOf('movies.logo') !== -1) {
-    moviesIncludes.push({model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']});
+    moviesIncludes.push({model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
   }
   if (populate.indexOf('movies.poster') !== -1) {
-    moviesIncludes.push({model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']});
+    moviesIncludes.push({model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
   }
   if (populate.indexOf('movies.thumb') !== -1) {
-    moviesIncludes.push({model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']});
+    moviesIncludes.push({model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
   }
 
   if (populate.indexOf('movies') !== -1) {
@@ -213,13 +213,13 @@ exports.index = function (req, res) {
     adSpotsIncludes.push({model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']});
   }
   if (populate.indexOf('adSpots.logo') !== -1) {
-    adSpotsIncludes.push({model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']});
+    adSpotsIncludes.push({model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
   }
   if (populate.indexOf('adSpots.poster') !== -1) {
-    adSpotsIncludes.push({model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']});
+    adSpotsIncludes.push({model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
   }
   if (populate.indexOf('adSpots.thumb') !== -1) {
-    adSpotsIncludes.push({model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']});
+    adSpotsIncludes.push({model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
   }
 
   if (populate.indexOf('adSpots') !== -1) {
@@ -295,9 +295,9 @@ exports.show = function (req, res) {
         order: [['sort', 'ASC']],
         include: [
           {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
-          {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']},
-          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
-          {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']}
+          {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+          {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
         ]
       },
       {
@@ -306,9 +306,9 @@ exports.show = function (req, res) {
         order: [['sort', 'ASC']],
         include: [
           {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
-          {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix']},
-          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix']},
-          {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix']}
+          {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+          {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
         ]
       }
     ]
@@ -365,9 +365,9 @@ exports.mea = function (req, res) {
         order: ['sort', 'ASC'],
         include: [
           {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
-          {model: Image, as: 'logo', required: false, attributes: ['imgix']},
-          {model: Image, as: 'poster', required: false, attributes: ['imgix']},
-          {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
+          {model: Image, as: 'logo', required: false, attributes: ['imgix', 'path']},
+          {model: Image, as: 'poster', required: false, attributes: ['imgix', 'path']},
+          {model: Image, as: 'thumb', required: false, attributes: ['imgix', 'path']}
         ]
       }
     ]
@@ -394,9 +394,9 @@ exports.allSpots = function (req, res) {
         required: false,
         order: ['sort', 'ASC'],
         include: [
-          {model: Image, as: 'logo', required: false, attributes: ['imgix']},
-          {model: Image, as: 'poster', required: false, attributes: ['imgix']},
-          {model: Image, as: 'thumb', required: false, attributes: ['imgix']}
+          {model: Image, as: 'logo', required: false, attributes: ['imgix', 'path']},
+          {model: Image, as: 'poster', required: false, attributes: ['imgix', 'path']},
+          {model: Image, as: 'thumb', required: false, attributes: ['imgix', 'path']}
         ]
       }
     ]

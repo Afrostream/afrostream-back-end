@@ -140,21 +140,6 @@ describe('User API:', function() {
         });
     });
 
-    it('shouldnt be able to create a user with a password too short', function (done) {
-      request(app)
-        .post('/api/users')
-        .send({
-          access_token: bouyguesMiamiClientToken,
-          email: 'toto@toto.com',
-          password: 'pass',
-          bouyguesId: "abcdef"
-        }).expect(422)
-        .end(function (err, res) {
-          assert(res.body.error.indexOf('password') !== -1);
-          done(err);
-        });
-    });
-
     it('shouldnt be able to create a user without bouygues info', function (done) {
       request(app)
         .post('/api/users')
@@ -164,7 +149,7 @@ describe('User API:', function() {
           password: 'password'
         }).expect(422)
         .end(function (err, res) {
-          assert(res.body.error.indexOf('missing bouyguesId') !== -1);
+          assert(res.body.error.indexOf('"bouyguesId" is required') !== -1);
           done(err);
         });
     });

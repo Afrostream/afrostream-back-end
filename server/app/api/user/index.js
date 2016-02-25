@@ -11,6 +11,19 @@
  * @apiSuccess {String} email  Email of the User.
  * @apiSuccess {String} role  Role of the User.
  * @apiSuccess {String} planCode  Payment Plan Code of the User.
+ * @apiSuccess {Object} subscriptionsStatus light version of the content on GET /api/subscriptions/status
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *     "name": "foo",
+ *     "email": "foo@foo.com",
+ *     "role": "admin",
+ *     "planCode": "afrostreamambassadeur2",
+ *     "subscriptionsStatus": {
+ *       "planCode": "afrostreamambassadeur2",
+ *       "promo": false
+ *     }
+ *   }
  */
 
 /**
@@ -124,8 +137,6 @@ router.use('/:userId/favoritesEpisodes', require('./favoriteEpisode/index'));
 router.use('/:userId/favoritesMovies', require('./favoriteMovie/index'));
 router.use('/:userId/favoritesSeasons', require('./favoriteSeason/index'));
 
-router.use('/:userId/subscriptions', require('./subscription/index'));
-
 router.get('/', auth.hasRole('admin'), controller.index);
 router.delete('/:id', auth.hasRole('client'), controller.destroy);
 router.get('/me', auth.isAuthenticated(), controller.me);
@@ -141,5 +152,6 @@ router.post('/', auth.isAuthenticated(), validator.validateCreateBody, controlle
 router.put('/:userId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, validator.validateUpdateBody, controller.update);
 
 router.use('/:userId/videos', require('./video'));
+router.get('/:userId/history', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.history);
 
-module.exports = router;
+  module.exports = router;

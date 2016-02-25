@@ -28,6 +28,12 @@ module.exports = {
     }
   },
 
+  sendGrid: {
+    api_key: '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',
+    doNotSend: true
+  },
+
+
   client: {
     jobs: {
       api: 'http://localhost:12000/api',

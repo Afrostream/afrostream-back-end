@@ -5,10 +5,20 @@ var Q = require('q');
 var sqldb = rootRequire('/server/sqldb');
 var User = sqldb.User;
 var Client = sqldb.Client;
+var Movie = sqldb.Movie;
+var Episode = sqldb.Episode;
+var Season = sqldb.Season;
+var Video = sqldb.Video;
+var Image = sqldb.Image;
+var UsersVideos = sqldb.UsersVideos;
 var passport = require('passport');
 var config = rootRequire('/server/config');
-var jwt = require('jsonwebtoken');
-var subscriptionController = require('../subscription/subscription.controller.js');
+
+var billingApi = rootRequire('/server/billing-api');
+
+var sha1 = require('sha1');
+
+var mailer = rootRequire('/server/components/mailer');
 
 var utils = require('../utils.js');
 
@@ -76,17 +86,9 @@ exports.index = function (req, res) {
 exports.create = function (req, res, next) {
   Q()
     .then(function () {
-      // specific filter for bouygues
-      if (req.user instanceof Client.Instance &&
-        req.user.get('type') === 'legacy-api.bouygues-miami') {
-        // ensure bouygues field exist
-        if (!req.body.bouyguesId) {
-          throw new Error("missing bouyguesId");
-        }
+      if (req.client.isBouygues()) {
+        req.body.password = sha1('youpi'+new Date()+Math.random()).substr(2, 6);
       }
-    })
-    .then(function () {
-      // inserting the user
       var newUser = User.build(req.body);
       newUser.setDataValue('provider', 'local');
       newUser.setDataValue('role', 'user');
@@ -95,6 +97,13 @@ exports.create = function (req, res, next) {
     .then(function (user) {
       // everything went ok, we send an oauth2 access token
       return auth.getOauth2UserTokens(user, req.clientIp, req.userAgent);
+    })
+    .then(function (token) {
+      // bouygues: sending password by email.
+      if (req.client.isBouygues()) {
+        mailer.sendPasswordEmail(req.body.email, req.body.password);
+      }
+      return token;
     })
     .then(res.json.bind(res))
     .catch(validationError(res));
@@ -153,6 +162,70 @@ exports.show = function (req, res, next) {
     .catch(function (err) {
       return next(err);
     });
+};
+
+exports.history = function (req, res, next) {
+  UsersVideos.findAll({
+    where: { userId: req.user._id },
+    order: [ ['dateLastRead', 'desc'] ],
+    include: [{
+      model: Video,
+      as: 'video',
+      include: [
+        {
+          model: Movie,
+          as: 'movie',
+          include: [
+            {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+            {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+            {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
+          ]
+        },
+        {
+          model: Episode,
+          as: 'episode',
+          include: [
+            {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+            {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+            {
+              model: Season, as: 'season',
+              required: false,
+              order: [['sort', 'ASC']]
+            }
+          ]
+        }
+      ]
+    }],
+    limit: 5
+  })
+  .then(
+    function (usersVideos) {
+      return usersVideos
+        // convert sequelize result to plain object
+        .map(function (userVideo) {
+          return userVideo.toJSON();
+        })
+        // exclude malformed objects
+        .filter(function (userVideo) {
+          return userVideo.video && (userVideo.video.episode || userVideo.video.movie);
+        })
+        // extract video
+        .map(function (userVideo) {
+          return userVideo.video;
+        })
+        // return movie or episode
+        .map(function (video) {
+          if (video.episode) {
+            return video.episode;
+          } else {
+            return video.movie;
+          }
+        });
+    })
+  .then(
+    function (moviesEpisodes) { res.json(moviesEpisodes); },
+    function (err) { res.status(err.statusCode || 500).json({error: String(err)})}
+  );
 };
 
 /**
@@ -269,33 +342,29 @@ exports.verify = function (req, res) {
 };
 
 /**
- * Get my info
+ * User profile +
+ *  profile.subscriptionsStatus
+ *  profile.planCode
  */
-exports.me = function (req, res, next) {
-  var userId = req.user._id;
-
-  User.find({
-    where: {
-      _id: userId
-    },
-    attributes: [
-      '_id',
-      'name',
-      'email',
-      'role',
-      'provider',
-      'account_code'
-    ]
-  })
-    .then(function (user) { // don't ever give out the password or salt
-      if (!user) {
-        return res.status(401).end();
-      }
-      return subscriptionController.me(req, res, next);
+exports.me = function (req, res) {
+  var profile = req.user.profile;
+  // on enrichi le profile avec des infos de souscriptions
+  billingApi.getSubscriptionsStatus(req.user._id)
+    .then(function (subscriptionsStatus) {
+      // utilisateur inscrit
+      profile.subscriptionsStatus = subscriptionsStatus;
+      profile.planCode = subscriptionsStatus ? subscriptionsStatus.planCode : undefined;
+    }, function () {
+      // utilisateur inscrit mais non abonné
+      console.log('[INFO]: /api/users/me: user registered but no subscriptions (' + req.user._id + ')');
     })
-    .catch(function (err) {
-      return next(err);
-    });
+    .then(
+    function success() { res.json(profile); },
+    function error(err) {
+      console.error('[ERROR]: /api/users/me: ' + err, err);
+      res.status(err.statusCode || 500).json({error:String(err)});
+    }
+  );
 };
 
 /**

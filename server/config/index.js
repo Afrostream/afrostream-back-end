@@ -88,10 +88,6 @@ var all = {
   algolia: {
     appId: process.env.ALGOLIA_APP_ID || '3OKNPL7ZVA',
     apiKey: process.env.ALGOLIA_API_KEY || '47d48040a13e973aca2ea9f492eca17e'
-  },
-  sendGrid: {
-    api_user: process.env.SEND_GRID_CLIENT_ID || 'azure_3e7c4f32e08f4c0ba3c3ec8eb6c2fe58@azure.com',
-    api_key: process.env.SEND_GRID_API_KEY || 'Afr@stream77'
   }
 };
 
