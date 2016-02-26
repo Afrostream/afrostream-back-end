@@ -33,44 +33,6 @@ angular.module('afrostreamAdminApp')
       $scope.item.slug = Slug.slugify(input);
     };
 
-    $scope.genres = [
-      'Action', //'Action',
-      'Animation', //'Animation',
-      'Aventure', //'Adventure',
-      'Classique',
-      'Comédie', //'Comedy',
-      'Comédie dramatique',
-      'Comédie familiale', // 'Family',
-      'Concert',
-      'Dessin animé',
-      'Divers',
-      'Documentaire', //'Documentary',
-      'Drame', // 'Drama',
-      'Epouvante',
-      'Espionnage',
-      'Expérimental',
-      'Famille',
-      'Fantastique', // 'Fantasy',
-      'Guerre',
-      'Historique',
-      'Horreur',// 'Horror',
-      'Jeunesse', //'Children',
-      'Judiciaire',
-      'LGBT',
-      'Mini-Series', //'Mini-Series',
-      'Musical',
-      'Péplum',
-      'Policier', //'Crime',
-      'Romantique', // 'Romance',
-      'Science-fiction', //'Sci-Fi',
-      'Sport', // 'Sport',
-      'Sport event',
-      'Suspense', // 'Suspense',
-      'Thriller', // 'Thriller'
-      'Tv Show',
-      'Western'
-    ];
-
     $scope.typeaheadOpts = {
       minLength: 3,
       templateUrl: '/path/to/my/template.html',

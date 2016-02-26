@@ -7,6 +7,9 @@ angular.module('afrostreamAdminApp')
         url: '/licensors',
         templateUrl: 'app/data/data.html',
         controller: 'DataCtrl',
-        type: 'licensor'
+        type: 'licensor',
+        resolve: {
+          genres: 'DataEmpty' // unused
+        }
       });
   });
