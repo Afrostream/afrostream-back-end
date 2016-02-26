@@ -5,8 +5,8 @@ angular.module('afrostreamAdminApp')
     $stateProvider
       .state('images', {
         url: '/images',
-        templateUrl: 'app/images/images.html',
-        controller: 'ImagesCtrl',
+        templateUrl: 'app/data/data.html',
+        controller: 'DataCtrl',
         type: 'image'
       });
   });

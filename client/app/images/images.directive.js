@@ -5,6 +5,6 @@ angular.module('afrostreamAdminApp')
     return {
       templateUrl: 'app/images/item.html',
       restrict: 'E',
-      controller: 'DataCtrl'
+      controller: 'ImagesCtrl'
     };
   });
