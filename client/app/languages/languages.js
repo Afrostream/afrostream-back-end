@@ -7,6 +7,9 @@ angular.module('afrostreamAdminApp')
         url: '/languages',
         templateUrl: 'app/data/data.html',
         controller: 'DataCtrl',
-        type: 'language'
+        type: 'language',
+        resolve: {
+          genres: 'DataEmpty' // unused
+        }
       });
   });

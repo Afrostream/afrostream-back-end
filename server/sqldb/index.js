@@ -24,6 +24,7 @@ db.Category = db.sequelize.import('models/category');
 db.Client = db.sequelize.import('models/client');
 db.Comment = db.sequelize.import('models/comment');
 db.Episode = db.sequelize.import('models/episode');
+db.Genre = db.sequelize.import('models/genre');
 db.GiftGiver = db.sequelize.import('models/giftGiver');
 db.Image = db.sequelize.import('models/image');
 db.Language = db.sequelize.import('models/language');

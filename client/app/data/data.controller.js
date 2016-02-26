@@ -8,12 +8,12 @@ angular.module('afrostreamAdminApp')
          || item.label
          || item.name
          || ((item.firstName || item.lastName) ? item.firstName + ' ' + item.lastName : '' );
-        item.genericThumb = item.thumb || item.picture;
+        item.genericThumb = (item.imgix) ? item : item.thumb || item.picture;
       });
       return items;
     };
  })
-  .controller('DataCtrl', function ($scope, $log, $http, $modal, ngToast, $state, Modal) {
+  .controller('DataCtrl', function ($scope, $log, $http, $modal, ngToast, $state, Modal, genres) {
     var defaultPerPage = 30;
 
     $scope.type = $state.current.type || 'movie';
@@ -28,6 +28,7 @@ angular.module('afrostreamAdminApp')
       query: $scope.searchField
     };
     $scope.pagination = { current: 1 };
+    $scope.genres = genres;
 
     $scope.reload = function () {
       $scope.loadPage($scope.pagination.current);
@@ -81,6 +82,30 @@ angular.module('afrostreamAdminApp')
         }
       }
     };
+    var modalNewOpts = modalOpts;
+    var modalEditOpts = modalOpts;
+
+    //////////// EXCEPTION IMAGE /////////////////
+    if ($scope.type === 'image') {
+      modalNewOpts = {
+        templateUrl: 'app/images/modal/images.html', // Url du template HTML
+        controller: 'ImagesDialogCtrl',
+        size: 'lg',
+        scope: $scope,
+        resolve: {
+          item: function () {
+            return $scope.currentItem;
+          },
+          list: function () {
+            return [];
+          },
+          type: function () {
+            return $scope.type;
+          }
+        }
+      };
+    }
+
 
     if ($scope.sortable) {
       $scope.sortableOptions = {
@@ -122,7 +147,7 @@ angular.module('afrostreamAdminApp')
 
     $scope.editIndex = function (item) {
       $scope.currentItem = item;
-      var $modalInstance = $modal.open(modalOpts);
+      var $modalInstance = $modal.open(modalEditOpts);
       $modalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
     };
 
@@ -148,7 +173,7 @@ angular.module('afrostreamAdminApp')
 
     $scope.newIndex = function () {
       $scope.currentItem = {};
-      var $modalInstance = $modal.open(modalOpts);
+      var $modalInstance = $modal.open(modalNewOpts);
       $modalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
     };
 
