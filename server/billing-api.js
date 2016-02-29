@@ -19,7 +19,7 @@ if (process.env.NODE_ENV === 'development' ||
 var requestBilling = function (options) {
   var defaultOptions = {
     json: true,
-    timeout: 5000,
+    timeout: 25000, // browser request timeout is 30 sec
     auth: { user: config.billings.apiUser, pass: config.billings.apiPass, sendImmediately: true}
   };
   options = _.merge({}, defaultOptions, options);
