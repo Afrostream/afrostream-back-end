@@ -389,6 +389,11 @@ promises.push(
       _id: 'cbd89e11-4242-4242-93be-deaade1bd17f',
       secret: '6bb9d594-4242-4242-ab04-d76dda10c76a',
       type: 'legacy-api.bouygues-miami'
+    }, {
+      name: 'afrostream-exports-bouygues',
+      _id: '5df3bb18-02a0-4a58-9a4a-4fc5ed5ea7c4',
+      secret: '02694a0b-5e67-4f03-8a80-a55329ad9975',
+      type: 'legacy-api.bouygues-ingrid'
     }]);
   })
 );
