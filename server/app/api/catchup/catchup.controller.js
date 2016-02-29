@@ -73,7 +73,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
       ]);
     }).spread(function (episode, season, movie) {
       console.log('catchup: database: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id + ' video ' + video._id + ' ' +
-                  'episode '+episodeNumber+' [' + episodeTitle + '] season '+seasonNumber+' [' + seriesTitle + ']');
+                  'episode '+episodeNumber+' [' + episodeTitle + '] season '+seasonNumber+' [' + seriesTitle + '] #content');
       // set Video in Episode
       return Q.all([
         episode.setVideo(video),
@@ -88,7 +88,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
     }).then(function (movieInfos) {
       var movie = movieInfos[0];
       console.log('catchup: database: movie ' + movie._id + ' video ' + video._id + ' ' +
-                  'movie [' + seriesTitle + ']');
+                  'movie [' + seriesTitle + '] #content');
       return movie.update({ slug: seriesSlug, type: 'movie', dateFrom: dateFrom, dateTo: dateTo });
     }).then(function (movie) {
       return movie.setVideo(video).then(function () { return movie; });
