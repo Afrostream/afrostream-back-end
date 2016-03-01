@@ -30,6 +30,12 @@ var auth = rootRequire('/server/auth/auth.service');
 
 var router = express.Router();
 
+// all video routes cannot be cached.
+router.use(function (req, res, next) {
+  res.noCache();
+  next();
+});
+
 // video manipulation.
 router.get('/', auth.hasRole('admin'), controller.index);
 router.get('/:id', auth.isAuthenticated(), controller.show);
