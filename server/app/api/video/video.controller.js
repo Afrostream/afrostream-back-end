@@ -189,9 +189,6 @@ exports.index = function (req, res) {
 
 // Gets a single video from the DB
 exports.show = function (req, res) {
-  // cannot cache /api/videos/:id because of the cdn selector.
-  res.set('Cache-Control', 'public, max-age=0');
-
   Q()
     //
     // first, on mobile (android & iOS)

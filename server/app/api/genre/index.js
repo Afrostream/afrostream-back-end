@@ -24,7 +24,7 @@ var auth = rootRequire('/server/auth/auth.service');
 
 var router = express.Router();
 
-router.get('/', auth.isAuthenticated(), controller.index);
-router.get('/:id', auth.isAuthenticated(), controller.show);
+router.get('/', controller.index);
+router.get('/:id', controller.show);
 
 module.exports = router;

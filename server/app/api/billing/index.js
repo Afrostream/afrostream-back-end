@@ -183,6 +183,12 @@ var auth = rootRequire('/server/auth/auth.service');
 
 var router = express.Router();
 
+// all billing routes cannot be cached.
+router.use(function (req, res, next) {
+  res.noCache();
+  next();
+});
+
 router.get('/internalplans', auth.isAuthenticated(), controller.showInternalplans);
 router.post('/subscriptions', auth.isAuthenticated(), controller.createSubscriptions);
 router.put('/subscriptions/:subscriptionUuid/cancel', auth.isAuthenticated(), controller.cancelSubscriptions);
