@@ -70,6 +70,8 @@ Q.all([
     }, '');
     console.log('#content Top 5 des visualisations hier :' + "\n" + text);
   }
+}).then(function () {
+  console.log('[INFO]: [CRON]: stats-usersVideos stop');
   process.exit();
 }, function (e) {
   console.error('[ERROR]: [CRON]: stats-usersVideos ' + e, e);
