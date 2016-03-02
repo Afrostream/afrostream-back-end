@@ -258,6 +258,7 @@ exports.create = function (req, res) {
     .then(addImages(req.body))
     .then(addLicensor(req.body))
     .then(addVideo(req.body))
+    .then(addActors(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
