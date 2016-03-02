@@ -75,5 +75,6 @@ Q.all([
   process.exit();
 }, function (e) {
   console.error('[ERROR]: [CRON]: stats-usersVideos ' + e, e);
+  console.error(e.stack);
   process.exit();
 });
