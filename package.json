@@ -69,7 +69,7 @@
     "lodash": "~2.4.1",
     "maxmind": "^0.6.0",
     "method-override": "~1.0.0",
-    "moment": "^2.10.6",
+    "moment": "https://registry.npmjs.org/moment/-/moment-2.10.6.tgz",
     "morgan": "^1.6.1",
     "nock": "^7.0.2",
     "node-uuid": "^1.4.3",
@@ -119,7 +119,8 @@
     "postinstall": "bower install && grunt build",
     "dev": ". ~/.nvm/nvm.sh && nvm use 0.12 && grunt serve",
     "test": "grunt test",
-    "seed": "export SEED_DB=true && npm run dev"
+    "seed": "export SEED_DB=true && npm run dev",
+    "cron-stats-usersVideos": "node server/cron/stats-usersVideos.js"
   },
   "private": true
 }

@@ -134,6 +134,8 @@ angular.module('afrostreamAdminApp')
       $scope.directiveType = type + 's';
 
       if (!item || !item._id) {
+        // FIXME: ... est-ce le cas ou l'on est en création ???
+        $scope.item = item; // on tente un hotfix..
         return;
       }
       $http.get('/api/' + $scope.directiveType + '/' + item._id, { params : { backo: 1} }).then(function (result) {
