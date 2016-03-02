@@ -12,6 +12,8 @@ var sqldb = require('../sqldb');
 var _ = require('lodash');
 var Q = require('q');
 
+console.log('[INFO]: [CRON]: stats-usersVideos start');
+
 var requireText = function (filename) {
   var fs = require('fs');
   return fs.readFileSync(__dirname + '/' + filename).toString();
@@ -41,6 +43,8 @@ Q.all([
   sqldb.sequelize.query(queryTop5ViewsLast7Days),
   sqldb.sequelize.query(queryTop5ViewsLastDay)
 ]).then(function (results) {
+  console.log('[INFO]: [CRON]: stats-usersVideos query done');
+
   var text;
   // analyse query 1
   if (Array.isArray(results[0][0]) && results[0][0].length) {
@@ -68,6 +72,6 @@ Q.all([
   }
   process.exit();
 }, function (e) {
-  console.error('clean database error ' + e, e);
+  console.error('[ERROR]: [CRON]: stats-usersVideos ' + e, e);
   process.exit();
 });
