@@ -5,4 +5,4 @@ select count("UsersVideos"."userId") as "nbUsers", "UsersVideos"."videoId", "Vid
 	      "dateLastRead" < '{{dateLastReadTo}}'
       group by "UsersVideos"."videoId", "Videos"."name"
       order by "nbUsers" desc
-      limit 10
+      limit 5
