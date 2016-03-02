@@ -196,7 +196,7 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
-      {model: Video, required: false, as: 'video', attributes: ['_id', 'name']},
+      {model: Video, required: false, as: 'video', attributes: ['_id', 'name', 'duration' ]},
       {model: Category, required: false, as: 'categorys'},
       {
         model: Season,
@@ -208,7 +208,7 @@ exports.show = function (req, res) {
             as: 'episodes',
             required: false,
             include: [
-              {model: Video, as: 'video', required: false, attributes: ['_id']}
+              {model: Video, as: 'video', required: false, attributes: ['_id', 'name', 'duration' ]}
             ],
             attributes: ['_id', 'slug']
           }
