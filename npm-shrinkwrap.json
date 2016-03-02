@@ -11175,7 +11175,7 @@
     },
     "moment": {
       "version": "2.10.6",
-      "from": "moment@>=2.10.6 <3.0.0",
+      "from": "https://registry.npmjs.org/moment/-/moment-2.10.6.tgz",
       "resolved": "https://registry.npmjs.org/moment/-/moment-2.10.6.tgz"
     },
     "morgan": {
