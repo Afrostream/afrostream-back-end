@@ -8,8 +8,6 @@ global.rootRequire = function (name) { return require(global.__basedir + '/' + (
 
 var config = require('../config');
 var sqldb = require('../sqldb');
-
-var _ = require('lodash');
 var Q = require('q');
 
 console.log('[INFO]: [CRON]: stats-usersVideos start');
@@ -51,7 +49,7 @@ Q.all([
     text = results[0][0].filter(function (row) {
       return row && row.avgRatings && row.name && row.nbRatings
     }).reduce(function (text, row) {
-      return text + 'Rating moyen: ' + _.round(row.avgRatings, 2) + ' -> ' + row.name + ' (' + row.nbRatings + ' utilisateurs)' + "\n";
+      return text + 'Rating moyen: ' + (Math.round(row.avgRatings* 100) / 100) + ' -> ' + row.name + ' (' + row.nbRatings + ' utilisateurs)' + "\n";
     }, '');
     console.log('#content Top 5 du contenu (rating utilisateur) sur les 7 derniers jours :' + "\n" + text);
   }
