@@ -43,30 +43,28 @@ Q.all([
 ]).then(function (results) {
   console.log('[INFO]: [CRON]: stats-usersVideos query done');
 
-  var text;
   // analyse query 1
   if (Array.isArray(results[0][0]) && results[0][0].length) {
-    text = results[0][0].filter(function (row) {
+    console.log('Top 5 du contenu (rating utilisateur) sur les 7 derniers jours : #content');
+    results[0][0].filter(function (row) {
       return row && row.avgRatings && row.name && row.nbRatings
-    }).reduce(function (text, row) {
-      return text + 'Rating moyen: ' + (Math.round(row.avgRatings* 100) / 100) + ' -> ' + row.name + ' (' + row.nbRatings + ' utilisateurs)' + "\n";
-    }, '');
-    console.log('#content Top 5 du contenu (rating utilisateur) sur les 7 derniers jours :' + "\n" + text);
+    }).forEach(function (row) {
+      console.log('Rating moyen: ' + (Math.round(row.avgRatings* 100) / 100) + ' -> ' + row.name + ' (' + row.nbRatings + ' utilisateurs) #content');
+    });
   }
   // analyse query 2
   if (Array.isArray(results[1][0]) && results[1][0].length) {
-    text = results[1][0].reduce(function (text, row) {
-      console.log(row);
-      return text + 'Nombre d\'utilisateurs: ' + row.nbUsers + ' -> ' + row.name + "\n";
-    }, '');
-    console.log('#content Top 5 des visualisations sur les 7 derniers jours :' + "\n" + text);
+    console.log('Top 5 des visualisations sur les 7 derniers jours : #content');
+    results[1][0].forEach(function (row) {
+      console.log('Nombre d\'utilisateurs: ' + row.nbUsers + ' -> ' + row.name + ' #content');
+    });
   }
   // analyse query 2
   if (Array.isArray(results[2][0]) && results[2][0].length) {
-    text = results[2][0].reduce(function (text, row) {
-      return text + 'Nombre d\'utilisateurs: ' + row.nbUsers + ' -> ' + row.name + "\n";
-    }, '');
-    console.log('#content Top 5 des visualisations hier :' + "\n" + text);
+    console.log('#content Top 5 des visualisations hier : #content');
+    results[2][0].forEach(function (row) {
+      console.log('Nombre d\'utilisateurs: ' + row.nbUsers + ' -> ' + row.name + ' #content');
+    });
   }
 }).then(function () {
   console.log('[INFO]: [CRON]: stats-usersVideos stop');
