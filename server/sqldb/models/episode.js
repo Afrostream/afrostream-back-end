@@ -40,7 +40,8 @@ module.exports = function (sequelize, DataTypes) {
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
-    }
+    },
+    CSA: DataTypes.INTEGER
   }, {
     getterMethods   : {
       sharing: function()  {
