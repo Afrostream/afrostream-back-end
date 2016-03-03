@@ -9,7 +9,8 @@ exports.setup = function (User, config) {
       enableProof: true,
       profileFields: [
         'displayName',
-        'emails'
+        'emails',
+        'name'
       ],
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
@@ -18,17 +19,39 @@ exports.setup = function (User, config) {
       if (!req.user) {
         User.find({
             where: {
-              'facebook.id': profile.id
+              $or: [
+                {
+                  'facebook.id': profile.id
+                },
+                {
+                  'email': {
+                    $iLike: profile.emails[0].value
+                  }
+                }
+              ]
             }
           })
           .then(function (user) {
             if (user) {
+              console.log(user.facebook);
+              if (!user.facebook) {
+                user.facebook = profile._json;
+
+                return user.save()
+                  .then(function () {
+                    return done(null, user);
+                  }).catch(function (err) {
+                    return done(err);
+                  });
+              }
               return done(null, user);
             }
             // if there is no user, create them
             user = User.build({
               name: profile.displayName,
               email: profile.emails[0].value,
+              first_name: profile.name.givenName,
+              last_name: profile.name.familyName,
               role: 'user',
               provider: 'facebook',
               facebook: profile._json
@@ -47,11 +70,10 @@ exports.setup = function (User, config) {
       } else {
         // user already exists and is logged in, we have to link accounts
         var user = req.user; // pull the user out of the session
-        user.updateAttributes({
-            facebook: profile._json
-          })
-          .then(function (linkedUser) {
-            return done(null, linkedUser);
+        user.facebook = profile._json;
+        user.save()
+          .then(function (user) {
+            return done(null, user);
           }).catch(function (err) {
           return done(err);
         });
