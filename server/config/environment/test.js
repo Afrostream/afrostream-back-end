@@ -65,5 +65,9 @@ module.exports = {
     apiPass: 'billingsapirocks'
   },
 
+  logs: {
+    basicAuth: {user: 'test', password: 'test'}
+  },
+
   env: 'test'
 };

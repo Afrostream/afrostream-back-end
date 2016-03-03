@@ -76,5 +76,9 @@ module.exports = {
     apiPass: 'billingsapirocks'
   },
 
+  logs: {
+    basicAuth: {user: 'afrostream', password: 'r4nd0mT0k3n'}
+  },
+
   dumpPostData: true
 };

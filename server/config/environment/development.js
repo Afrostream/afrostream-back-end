@@ -66,6 +66,10 @@ module.exports = {
     promoLastSubscriptionMinDays: 30 * 6 // days, ~= 6 months
   },
 
+  logs: {
+    basicAuth: {user: 'dev', password: 'dev'}
+  },
+
   // if you want to seed:
   // use: export SEED_DB=true before launching node/grunt
   seedDB: (process.env.SEED_DB === 'true')
