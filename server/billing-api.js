@@ -215,14 +215,10 @@ var updateUser = function (userBillingUuid, billingsData) {
 };
 */
 
-var getInternalPlans = function (userReferenceUuid, providerName) {
-  assert(typeof userReferenceUuid === 'number');
-  assert(userReferenceUuid);
-
+var getInternalPlans = function (providerName) {
   return requestBilling({
     url: config.billings.url + '/billings/api/internalplans/',
     qs: {
-      userReferenceUuid: userReferenceUuid,
       providerName: providerName
     }
   }).then(function (body) {

@@ -52,7 +52,7 @@ module.exports.showInternalplans = function (req, res) {
   getClient(req)
     .then(function (client) {
       var billingProviderName = req.query.providerName || (client ? client.billingProviderName : '');
-      return billingApi.getInternalPlans(req.user._id, billingProviderName);
+      return billingApi.getInternalPlans(billingProviderName);
     })
     .then(
       function (internalPlans) {
