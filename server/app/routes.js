@@ -34,7 +34,7 @@ module.exports = function (app) {
   app.use('/api/episodes', require('./api/episode/index'));
   app.use('/api/seasons', require('./api/season/index'));
   app.use('/api/tags', require('./api/tag/index'));
-  app.use('/api/catalog', require('./api/catalog/index'));
+  app.use('/api/sitemap', require('./api/sitemap/index'));
   app.use('/api/categorys', require('./api/category/index'));
   app.use('/api/movies', require('./api/movie/index'));
   app.use('/api/series', require('./api/movie/index'));

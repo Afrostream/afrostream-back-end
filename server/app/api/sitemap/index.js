@@ -18,8 +18,10 @@
  */
 
 var express = require('express');
-var controller = require('./catalog.controller.js');
+var controller = require('./sitemap.controller.js');
 
 var router = express.Router();
 
 router.get('/', controller.index);
+
+module.exports = router;
