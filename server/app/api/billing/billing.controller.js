@@ -2,13 +2,13 @@
 
 var Q = require('q');
 
-var sqldb = rootRequire('/server/sqldb');
-
-var User = sqldb.User;
-
 var billingApi = rootRequire('/server/billing-api.js');
 
+var User = rootRequire('/server/sqldb').User;
+
 var AccessToken = rootRequire('/server/sqldb').AccessToken;
+
+var mailer = rootRequire('/server/components/mailer');
 
 var getAccessToken = function (req) {
   return Q()
@@ -240,8 +240,7 @@ module.exports.createGift = function (req, res) {
     bodyLastName: req.body.lastName,
     bodyInternalPlanUuid: req.body.internalPlanUuid,
     bodySubscriptionProviderUuid: req.body.subscriptionProviderUuid,
-    bodySubOpts: req.body.subOpts,
-    giftUser: null
+    bodySubOpts: req.body.subOpts
   }; // closure
 
   getClient(req)
@@ -275,12 +274,14 @@ module.exports.createGift = function (req, res) {
           email: {$iLike: c.bodySubOpts.gift.email}
         }
       }).then(function (giftedUser) {
-        //detect if gift email is same like user
-        if (giftedUser._id === c.userId) {
-          throw new Error('Cannot buy a gift for yourself!');
-        }
         // user already exist
-        if (giftedUser) return giftedUser;
+        if (giftedUser) {
+          //detect if gift email is same like user
+          if (giftedUser._id === c.userId) {
+            throw new Error('Cannot buy a gift for yourself!');
+          }
+          return giftedUser;
+        }
         // new user
         return User.create({
           name: c.bodySubOpts.gift.firstName + ' ' + c.bodySubOpts.gift.lastName,
@@ -296,15 +297,14 @@ module.exports.createGift = function (req, res) {
     // we create the user in the billing-api if he doesn't exist yet
     //
     .then(function (giftUser) {
-      c.giftUser = giftUser;
       return billingApi.getOrCreateUser({
         providerName: c.billingProviderName,
-        userReferenceUuid: c.giftUser._id,
+        userReferenceUuid: giftUser._id,
         userProviderUuid: c.userProviderUuid,
         userOpts: {
-          email: c.giftUser.email,
-          firstName: c.giftUser.firstName || '',
-          lastName: c.giftUser.lastName || ''
+          email: giftUser.email,
+          firstName: giftUser.firstName || '',
+          lastName: giftUser.lastName || ''
         }
       }).then(function (billingsResponse) {
         c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
@@ -324,10 +324,17 @@ module.exports.createGift = function (req, res) {
       };
       return billingApi.createSubscription(subscriptionBillingData);
     })
-    //FIXME send email to gifter
+    //
+    // Sending the email
+    //
+    .then(function (subscription) {
+
+      return mailer.sendGiftEmail(c, subscription);
+
+    })
     .then(
-      function success(subscription) {
-        res.json(subscription);
+      function success() {
+        res.json({});
       },
       function error(err) {
         var message = (err instanceof Error) ? err.message : String(err);
