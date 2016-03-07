@@ -2,6 +2,10 @@
 
 var Q = require('q');
 
+var sqldb = rootRequire('/server/sqldb');
+
+var User = sqldb.User;
+
 var billingApi = rootRequire('/server/billing-api.js');
 
 var AccessToken = rootRequire('/server/sqldb').AccessToken;
@@ -201,6 +205,133 @@ module.exports.createSubscriptions = function (req, res) {
       function error(err) {
         var message = (err instanceof Error) ? err.message : String(err);
         console.error('ERROR: /api/billing/createSubscriptions', message);
+        res.status(500).send({error: message});
+      }
+    );
+};
+
+/**
+ * POST {
+ *   firstName: "...",
+ *   lastName: "...",
+ *   internalPlanUuid: "..."
+ *   subscriptionProviderUuid: "...",
+ *   subOpts: {
+ *      "gift": {
+ *        "email": "...",
+ *        "firstName": "...",
+ *        "lastName": "..."
+ *      }
+ *      "customerBankAccountToken":""
+ *   }
+ * }
+ * @param req
+ * @param res
+ */
+module.exports.createGift = function (req, res) {
+
+  // FIXME: we should use joy to filter req.body.
+  var c = {
+    userId: req.user._id,
+    userEmail: req.user.email,
+    userProviderUuid: null,
+    billingProviderName: req.body.billingProvider,
+    bodyFirstName: req.body.firstName,
+    bodyLastName: req.body.lastName,
+    bodyInternalPlanUuid: req.body.internalPlanUuid,
+    bodySubscriptionProviderUuid: req.body.subscriptionProviderUuid,
+    bodySubOpts: req.body.subOpts,
+    giftUser: null
+  }; // closure
+
+  getClient(req)
+  //
+  // grab client billingProviderName ex: recurly, bachat
+  //
+    .then(function (client) {
+      if (!client) throw new Error('unknown client');
+      switch (client.type) {
+        case 'front-api.front-end':
+          break;
+        default:
+          throw new Error('can’t create gift for user ' + c.userId + ' client type ' + client.type);
+      }
+    })
+    // Validate body gift infos
+    // ensure gift_email !== user email
+    //
+    .then(function () {
+      if (!c.bodySubOpts.gift) {
+        throw new Error('missing gift infos !');
+
+      }
+    })
+    //
+    // get or create the gifted user
+    //
+    .then(function () {
+      return User.find({
+        where: {
+          email: {$iLike: c.bodySubOpts.gift.email}
+        }
+      }).then(function (giftedUser) {
+        //detect if gift email is same like user
+        if (giftedUser._id === c.userId) {
+          throw new Error('Cannot buy a gift for yourself!');
+        }
+        // user already exist
+        if (giftedUser) return giftedUser;
+        // new user
+        return User.create({
+          name: c.bodySubOpts.gift.firstName + ' ' + c.bodySubOpts.gift.lastName,
+          email: c.bodySubOpts.gift.email,
+          first_name: c.bodySubOpts.gift.firstName,
+          last_name: c.bodySubOpts.gift.lastName,
+          provider: 'local',
+          active: false
+        });
+      })
+    })
+    //
+    // we create the user in the billing-api if he doesn't exist yet
+    //
+    .then(function (giftUser) {
+      c.giftUser = giftUser;
+      return billingApi.getOrCreateUser({
+        providerName: c.billingProviderName,
+        userReferenceUuid: c.giftUser._id,
+        userProviderUuid: c.userProviderUuid,
+        userOpts: {
+          email: c.giftUser.email,
+          firstName: c.giftUser.firstName || '',
+          lastName: c.giftUser.lastName || ''
+        }
+      }).then(function (billingsResponse) {
+        c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
+        c.userProviderUuid = billingsResponse.response.user.userProviderUuid;
+      });
+    })
+    //
+    // we create the subscription in biling-api
+    //
+    .then(function () {
+      var subscriptionBillingData = {
+        userBillingUuid: c.userBillingUuid,
+        internalPlanUuid: c.bodyInternalPlanUuid,
+        subscriptionProviderUuid: c.bodySubscriptionProviderUuid,
+        billingInfoOpts: {},
+        subOpts: c.bodySubOpts
+      };
+      return billingApi.createSubscription(subscriptionBillingData);
+    })
+    //FIXME send email to gifter
+    .then(
+      function success(subscription) {
+        res.json(subscription);
+      },
+      function error(err) {
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/gift', message);
         res.status(500).send({error: message});
       }
     );
