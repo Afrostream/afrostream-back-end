@@ -182,6 +182,10 @@ exports.index = function (req, res) {
 
   queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
 
+  if (req.query.limit) {
+    queryOptions = _.merge(queryOptions, { limit: req.query.limit });
+  }
+
   Movie.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
