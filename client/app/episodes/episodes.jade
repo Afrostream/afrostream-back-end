@@ -4,6 +4,21 @@
   slider(min='0' step='10' max='10000' ng-model="item.duration")
 
 .form-group
+  div
+    label.control-label CSA
+  div.btn-group
+    div.btn.csa(ng-model="item.CSA" uib-btn-radio="1")
+      img(src="/assets/images/CSA_1.gif")
+    div.btn.csa(ng-model="item.CSA" uib-btn-radio="2")
+      img(src="/assets/images/CSA_2.gif")
+    div.btn.csa(ng-model="item.CSA" uib-btn-radio="3")
+      img(src="/assets/images/CSA_3.gif")
+    div.btn.csa(ng-model="item.CSA" uib-btn-radio="4")
+      img(src="/assets/images/CSA_4.gif")
+    div.btn.csa(ng-model="item.CSA" uib-btn-radio="5")
+      img(src="/assets/images/CSA_5.gif")
+
+.form-group
   label.control-label Episode Number
   input.form-control(type='number' min='0' ng-model='item.episodeNumber')
 

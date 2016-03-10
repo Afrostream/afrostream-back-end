@@ -24,6 +24,15 @@ module.exports = function (sequelize, DataTypes) {
     drm: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
+    },
+    duration: {
+      type: DataTypes.DECIMAL,
+      // there is no sequelize equivalent to postgresql type "NUMERIC"
+      // when using DECIMAL or DOUBLE, equelize will convert postgresql NUMERIC into STRING
+      // we want a float.
+      get : function () {
+        return parseFloat(this.getDataValue('duration'));
+      }
     }
   }, {
     getterMethods   : {

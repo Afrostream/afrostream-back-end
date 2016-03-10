@@ -11,7 +11,14 @@ var getAccessToken = function (req) {
     .then(function () {
       var r = String(req.get('authorization')).match(/^Bearer (\w+)$/);
       if (!r || r.length !== 2) {
-        throw new Error("cannot parse header");
+        //TODO get token from request header when api v1 kill qeuryString
+        var qsToken = req.query.access_token || req.body.access_token;
+        if (qsToken) {
+          r = [, qsToken];
+        }
+        else {
+          throw new Error("cannot parse header");
+        }
       }
       return AccessToken.find({where: {token: r[1]}});
     })
@@ -45,7 +52,7 @@ module.exports.showInternalplans = function (req, res) {
   getClient(req)
     .then(function (client) {
       var billingProviderName = req.query.providerName || (client ? client.billingProviderName : '');
-      return billingApi.getInternalPlans(req.user._id, billingProviderName);
+      return billingApi.getInternalPlans(billingProviderName);
     })
     .then(
       function (internalPlans) {
@@ -54,6 +61,51 @@ module.exports.showInternalplans = function (req, res) {
       function (err) {
         var message = (err instanceof Error) ? err.message : String(err);
         console.error('ERROR: /api/billing/internalplans', message);
+        res.status(500).send({error: message});
+      }
+    );
+};
+
+/**
+ * PUT
+ * @param req :{
+ * params :{
+ *      id : subscriptionUuid
+ *    }
+ * }
+ * @param res
+ */
+module.exports.cancelSubscriptions = function (req, res) {
+  var c = {
+    userId: req.user._id,
+    subscriptionUuid: req.params.subscriptionUuid
+  }; // closure
+  getClient(req)
+  //
+  // grab client billingProviderName ex: recurly, bachat
+  //
+    .then(function (client) {
+      if (!client) throw new Error('unknown client');
+      switch (client.type) {
+        case 'front-api.front-end':
+          break;
+        default:
+          throw new Error('unknown subscriptionUuid for user ' + c.userId + ' client type ' + client.type);
+      }
+    })
+    //
+    // we create the user in the billing-api if he doesn't exist yet
+    //
+    .then(function () {
+      return billingApi.cancelSubscription(c.subscriptionUuid)
+    })
+    .then(
+      function success(subscription) {
+        res.json(subscription);
+      },
+      function error(err) {
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/cancelSubscriptions', message);
         res.status(500).send({error: message});
       }
     );
@@ -73,7 +125,8 @@ module.exports.showInternalplans = function (req, res) {
  *      "promoItemTotal": "0",
  *      "promoCurrency": "EUR",
  *      "promoPeriod": "1",
- *      "promoDuration": "0"
+ *      "promoDuration": "0",
+ *      "customerBankAccountToken":""
  *   }
  * }
  * @param req
@@ -84,6 +137,7 @@ module.exports.createSubscriptions = function (req, res) {
     userId: req.user._id,
     userEmail: req.user.email,
     userProviderUuid: null,
+    billingProviderName: req.body.billingProvider,
     bodyFirstName: req.body.firstName,
     bodyLastName: req.body.lastName,
     bodyInternalPlanUuid: req.body.internalPlanUuid,
@@ -92,16 +146,18 @@ module.exports.createSubscriptions = function (req, res) {
   }; // closure
 
   getClient(req)
-    //
-    // grab client billingProviderName ex: recurly, bachat
-    //
+  //
+  // grab client billingProviderName ex: recurly, bachat
+  //
     .then(function (client) {
       if (!client) throw new Error('unknown client');
-      if (!client.billingProviderName) throw new Error('unknown billingProviderName');
-      c.billingProviderName = client.billingProviderName;
       switch (client.type) {
         case 'legacy-api.bouygues-miami':
+          if (!client.billingProviderName) throw new Error('unknown billingProviderName');
+          c.billingProviderName = client.billingProviderName;
           c.userProviderUuid = req.user.bouyguesId;
+          break;
+        case 'front-api.front-end':
           break;
         default:
           throw new Error('unknown userProviderUuid for user ' + c.userId + ' client type ' + client.type);
@@ -112,13 +168,13 @@ module.exports.createSubscriptions = function (req, res) {
     //
     .then(function () {
       return billingApi.getOrCreateUser({
-        providerName : c.billingProviderName,
-        userReferenceUuid : c.userId,
-        userProviderUuid : c.userProviderUuid,
-        userOpts : {
-          email : c.userEmail,
-          firstName : c.bodyFirstName || req.user.first_name || '',
-          lastName : c.bodyLastName || req.user.last_name || ''
+        providerName: c.billingProviderName,
+        userReferenceUuid: c.userId,
+        userProviderUuid: c.userProviderUuid,
+        userOpts: {
+          email: c.userEmail,
+          firstName: c.bodyFirstName || req.user.first_name || '',
+          lastName: c.bodyLastName || req.user.last_name || ''
         }
       }).then(function (billingsResponse) {
         c.userBillingUuid = billingsResponse.response.user.userBillingUuid;

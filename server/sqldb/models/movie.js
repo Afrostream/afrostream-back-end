@@ -55,7 +55,9 @@ module.exports = function (sequelize, DataTypes) {
     live: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
-    }
+    },
+    productionCountry: DataTypes.STRING,
+    CSA: DataTypes.INTEGER
   }, {
     getterMethods   : {
       sharing: function()  {

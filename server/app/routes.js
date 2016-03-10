@@ -21,6 +21,7 @@ module.exports = function (app) {
   app.use('/api/accessTokens', require('./api/accessToken/index'));
   app.use('/api/authCodes', require('./api/authCode/index'));
   app.use('/api/clients', require('./api/client/index'));
+  app.use('/api/genres', require('./api/genre/index'));
   app.use('/api/licensors', require('./api/licensor/index'));
   app.use('/api/languages', require('./api/language/index'));
   app.use('/api/logs', require('./api/log/index'));

@@ -70,12 +70,10 @@
     "lodash": "~2.4.1",
     "maxmind": "^0.6.0",
     "method-override": "~1.0.0",
-    "moment": "^2.10.6",
+    "moment": "https://registry.npmjs.org/moment/-/moment-2.10.6.tgz",
     "morgan": "^1.6.1",
     "nock": "^7.0.2",
     "node-uuid": "^1.4.3",
-    "nodemailer": "^1.4.0",
-    "nodemailer-sendgrid-transport": "^0.2.0",
     "oauth2orize": "^1.2.0",
     "oauthorize": "^0.1.0",
     "open": "~0.0.4",
@@ -95,9 +93,10 @@
     "request": "^2.61.0",
     "request-promise": "^0.4.3",
     "requirejs": "~2.1.11",
-    "sendgrid": "^1.9.2",
+    "sendgrid": "^2.0.0",
     "sequelize": "^3.5.1",
     "serve-favicon": "~2.0.1",
+    "sha1": "^1.1.1",
     "slugify": "^0.1.1",
     "time-grunt": "~0.3.1",
     "urlsafe-base64": "^1.0.0",
@@ -121,7 +120,8 @@
     "postinstall": "bower install && grunt build",
     "dev": ". ~/.nvm/nvm.sh && nvm use 0.12 && grunt serve",
     "test": "grunt test",
-    "seed": "export SEED_DB=true && npm run dev"
+    "seed": "export SEED_DB=true && npm run dev",
+    "cron-stats-usersVideos": "node server/cron/stats-usersVideos.js"
   },
   "private": true
 }

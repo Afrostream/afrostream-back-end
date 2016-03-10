@@ -20,8 +20,7 @@ module.exports = {
   },
 
   sendGrid: {
-    api_user: 'azure_3e7c4f32e08f4c0ba3c3ec8eb6c2fe58@azure.com',
-    api_key: 'Afr@stream77'
+    api_key: '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'
   },
 
   sequelize: {
@@ -68,6 +67,10 @@ module.exports = {
   mq: {
     endPoint: 'amqp://yvkmghav:Uu-J25iHVqXV7C0_60e1V2JSgb0sEQ-3@chicken.rmq.cloudamqp.com/yvkmghav',
     exchangeName: 'afrostream-back-end'
+  },
+
+  logs: {
+    basicAuth: {user: 'afrostream', password: 'r4nd0mT0k3n'}
   },
 
   dumpPostData: true

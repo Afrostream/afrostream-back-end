@@ -11,6 +11,19 @@
  * @apiSuccess {String} email  Email of the User.
  * @apiSuccess {String} role  Role of the User.
  * @apiSuccess {String} planCode  Payment Plan Code of the User.
+ * @apiSuccess {Object} subscriptionsStatus light version of the content on GET /api/subscriptions/status
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *     "name": "foo",
+ *     "email": "foo@foo.com",
+ *     "role": "admin",
+ *     "planCode": "afrostreamambassadeur2",
+ *     "subscriptionsStatus": {
+ *       "planCode": "afrostreamambassadeur2",
+ *       "promo": false
+ *     }
+ *   }
  */
 
 /**
@@ -123,8 +136,6 @@ var tokenUserMatchParamUser = function (req, res, next) {
 router.use('/:userId/favoritesEpisodes', require('./favoriteEpisode/index'));
 router.use('/:userId/favoritesMovies', require('./favoriteMovie/index'));
 router.use('/:userId/favoritesSeasons', require('./favoriteSeason/index'));
-
-router.use('/:userId/subscriptions', require('./subscription/index'));
 
 router.get('/', auth.hasRole('admin'), controller.index);
 router.delete('/:id', auth.hasRole('client'), controller.destroy);

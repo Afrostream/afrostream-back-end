@@ -71,8 +71,120 @@ nock(config.billings.url)
 
 nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
+  .get('/billings/api/subscriptions/')
+  .query(true)
+  .reply(200, {
+    status: "done",
+    statusMessage: "success",
+    statusCode: 0,
+    response: {
+      subscriptions: [
+        {
+          subscriptionBillingUuid: "mock-billing-api",
+          subscriptionProviderUuid: "mock-billing-api",
+          isActive: "yes",
+          user: {
+            userBillingUuid: "mock-billing-api",
+            userReferenceUuid: "123456",
+            userProviderUuid: "mock-billing-api",
+            provider: {
+              providerName: "gocardless"
+            },
+            userOpts: {
+              email: "mock-billing-api",
+              firstName: "mock-billing-api",
+              lastName: "mock-billing-api"
+            }
+          },
+          provider: {
+            providerName: "gocardless"
+          },
+          creationDate: "2016-02-03 10:02:50.750197+00",
+          updatedDate: "2016-02-03 10:02:50.750197+00",
+          subStatus: "active",
+          subActivatedDate: "2015-08-31 23:00:00+00",
+          subCanceledDate: null,
+          subExpiresDate: null,
+          subPeriodStartedDate: "2015-08-31 23:00:00+00",
+          subPeriodEndsDate: "2016-08-31 23:00:00+00",
+          internalPlan: {
+            internalPlanUuid: "afrostreamambassadeurs3",
+            name: "Ambassadeurs",
+            description: "Ambassadeurs",
+            amount_in_cents: "5999",
+            currency: "EUR",
+            cycle: "once",
+            periodUnit: "year",
+            periodLength: "1",
+            internalPlanOpts: {
+              internalMaxScreens: "2"
+            }
+          }
+        }
+      ]
+    }
+  });
+
+nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
+  .put('/billings/api/subscriptions/mock-billing-api/cancel')
+  .query(true)
+  .reply(200, {
+    status: "done",
+    statusMessage: "success",
+    statusCode: 0,
+    response: {
+      subscriptions: [
+        {
+          subscriptionBillingUuid: "mock-billing-api",
+          subscriptionProviderUuid: "mock-billing-api",
+          isActive: "yes",
+          user: {
+            userBillingUuid: "mock-billing-api",
+            userReferenceUuid: "123456",
+            userProviderUuid: "mock-billing-api",
+            provider: {
+              providerName: "gocardless"
+            },
+            userOpts: {
+              email: "mock-billing-api",
+              firstName: "mock-billing-api",
+              lastName: "mock-billing-api"
+            }
+          },
+          provider: {
+            providerName: "gocardless"
+          },
+          creationDate: "2016-02-03 10:02:50.750197+00",
+          updatedDate: "2016-02-03 10:02:50.750197+00",
+          subStatus: "canceled",
+          subActivatedDate: "2015-08-31 23:00:00+00",
+          subCanceledDate: null,
+          subExpiresDate: null,
+          subPeriodStartedDate: "2015-08-31 23:00:00+00",
+          subPeriodEndsDate: "2016-08-31 23:00:00+00",
+          internalPlan: {
+            internalPlanUuid: "afrostreamambassadeurs3",
+            name: "Ambassadeurs",
+            description: "Ambassadeurs",
+            amount_in_cents: "5999",
+            currency: "EUR",
+            cycle: "once",
+            periodUnit: "year",
+            periodLength: "1",
+            internalPlanOpts: {
+              internalMaxScreens: "2"
+            }
+          }
+        }
+      ]
+    }
+  });
+
+nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
   .get('/billings/api/internalplans/')
-  .query({providerName: 'bachat',userReferenceUuid:/.*/})
+  .query({providerName: 'bachat', userReferenceUuid: /.*/})
   .reply(200, {
     status: "done",
     statusMessage: "success",
@@ -150,7 +262,7 @@ nock(config.billings.url)
 nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
   .get('/billings/api/internalplans/')
-  .query({providerName: /.+/,userReferenceUuid:/.*/})
+  .query({providerName: /.+/, userReferenceUuid: /.*/})
   .reply(200, {
     status: "error",
     statusMessage: "unknown provider named : unknown",
@@ -170,7 +282,7 @@ nock(config.billings.url)
 nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
   .get('/billings/api/internalplans/')
-  .query({userReferenceUuid:/.*/})
+  .query({userReferenceUuid: /.*/})
   .reply(200, {
     status: "done",
     statusMessage: "success",
@@ -393,7 +505,7 @@ nock(config.billings.url)
 nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
   .get('/billings/api/users/')
-  .query({providerName:"celery", userReferenceUuid: /.*/})
+  .query({providerName: "celery", userReferenceUuid: /.*/})
   .reply(200, {
     status: "done",
     statusMessage: "success",
@@ -418,7 +530,7 @@ nock(config.billings.url)
 nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
   .get('/billings/api/users/')
-  .query({providerName:"recurly", userReferenceUuid: /.*/})
+  .query({providerName: "recurly", userReferenceUuid: /.*/})
   .reply(200, {
     status: "done",
     statusMessage: "success",
@@ -443,7 +555,32 @@ nock(config.billings.url)
 nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
   .get('/billings/api/users/')
-  .query({providerName:"bachat", userReferenceUuid: /.*/})
+  .query({providerName: "gocardless", userReferenceUuid: /.*/})
+  .reply(200, {
+    status: "done",
+    statusMessage: "success",
+    statusCode: 0,
+    response: {
+      user: {
+        userBillingUuid: "f946e738-2c32-8144-d6bd-d7532256ae7b",
+        userReferenceUuid: "1392",
+        userProviderUuid: "oliviadigbiali@gmail.com",
+        provider: {
+          providerName: "gocardless"
+        },
+        userOpts: {
+          email: "oliviadigbiali@gmail.com",
+          firstName: "firstNameValue",
+          lastName: "lastNameValue"
+        }
+      }
+    }
+  });
+
+nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
+  .get('/billings/api/users/')
+  .query({providerName: "bachat", userReferenceUuid: /.*/})
   .reply(200, {
     status: "done",
     statusMessage: "success",
@@ -489,42 +626,42 @@ nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
   .post('/billings/api/subscriptions/')
   .reply(200, {
-      "status": "done",
-      "statusMessage": "success",
-      "statusCode": 0,
-      "response": {
-        "subscription": {
-          "subscriptionBillingUuid": "SubscriptionBillingUUID",
-          "subscriptionProviderUuid": "SubscriptionProviderUUID",
-          "isActive": "yes",
-          "user": {
-            "userBillingUuid": "UserBillingUUID",
-            "userReferenceUuid": "afrostreamUUID",
-            "userProviderUuid": "UserProviderUUID",
-            "provider": {
-              "providerName": "bachat"
-            },
-            "userOpts": {
-              "email": "email@domain.com",
-              "firstName": "myFirstName",
-              "lastName": "myLastName"
-            }
-          },
+    "status": "done",
+    "statusMessage": "success",
+    "statusCode": 0,
+    "response": {
+      "subscription": {
+        "subscriptionBillingUuid": "SubscriptionBillingUUID",
+        "subscriptionProviderUuid": "SubscriptionProviderUUID",
+        "isActive": "yes",
+        "user": {
+          "userBillingUuid": "UserBillingUUID",
+          "userReferenceUuid": "afrostreamUUID",
+          "userProviderUuid": "UserProviderUUID",
           "provider": {
             "providerName": "bachat"
           },
-          "internalPlan": {
-            "internalPlanUuid": "bachat-afrostreamdaily",
-            "name": "bachat-afrostreamdaily",
-            "description": "bachat-afrostreamdaily",
-            "amountInCents": "199",
-            "amountInCentsExclTax": "159",
-            "vatRate": "20,00",
-            "currency": "EUR",
-            "cycle": "auto",
-            "periodUnit": "day",
-            "periodLength": "1",
-            "internalPlanOpts": {
+          "userOpts": {
+            "email": "email@domain.com",
+            "firstName": "myFirstName",
+            "lastName": "myLastName"
+          }
+        },
+        "provider": {
+          "providerName": "bachat"
+        },
+        "internalPlan": {
+          "internalPlanUuid": "bachat-afrostreamdaily",
+          "name": "bachat-afrostreamdaily",
+          "description": "bachat-afrostreamdaily",
+          "amountInCents": "199",
+          "amountInCentsExclTax": "159",
+          "vatRate": "20,00",
+          "currency": "EUR",
+          "cycle": "auto",
+          "periodUnit": "day",
+          "periodLength": "1",
+          "internalPlanOpts": {
             "promoEnabled": "false",
             "promoItemBasePrice": "0",
             "promoItemTaxAmount": "20",
@@ -535,7 +672,7 @@ nock(config.billings.url)
           },
           "thumb": {
             "path": "/staging/billings/afrolover.jpg",
-              "imgix": "https://afrostream.imgix.net/staging/billings/afrolover.jpg"
+            "imgix": "https://afrostream.imgix.net/staging/billings/afrolover.jpg"
           }
         },
         "creationDate": "2015-12-25 12:00:00+00",
@@ -547,7 +684,7 @@ nock(config.billings.url)
         "subPeriodStartedDate": "2015-12-25 12:00:00+00",
         "subPeriodEndsDate": "2016-01-25 12:00:00+00",
         "subOpts": {
-        "requestId": "requestIdValue",
+          "requestId": "requestIdValue",
           "promoEnabled": "false",
           "promoItemBasePrice": "0",
           "promoItemTaxAmount": "20",

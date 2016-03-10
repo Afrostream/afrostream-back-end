@@ -182,6 +182,10 @@ exports.index = function (req, res) {
 
   queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
 
+  if (req.query.limit) {
+    queryOptions = _.merge(queryOptions, { limit: req.query.limit });
+  }
+
   Movie.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
@@ -196,7 +200,7 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
-      {model: Video, required: false, as: 'video', attributes: ['_id', 'name']},
+      {model: Video, required: false, as: 'video', attributes: ['_id', 'name', 'duration' ]},
       {model: Category, required: false, as: 'categorys'},
       {
         model: Season,
@@ -208,7 +212,7 @@ exports.show = function (req, res) {
             as: 'episodes',
             required: false,
             include: [
-              {model: Video, as: 'video', required: false, attributes: ['_id']}
+              {model: Video, as: 'video', required: false, attributes: ['_id', 'name', 'duration' ]}
             ],
             attributes: ['_id', 'slug']
           }
@@ -258,6 +262,7 @@ exports.create = function (req, res) {
     .then(addImages(req.body))
     .then(addLicensor(req.body))
     .then(addVideo(req.body))
+    .then(addActors(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };

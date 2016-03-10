@@ -12,6 +12,12 @@
 
 .form-group.form-group-heading
   .row.row-header
+    label(for='duration').control-label Duration (sec)
+  .row
+    input.form-control(id='duration' type='number' ng-model='item.duration' placeholder='0')
+
+.form-group.form-group-heading
+  .row.row-header
     label.control-label Assets
     button.btn.btn-xs.btn-primary.pull-right(ng-click='newElem(item.sources)')
       span.glyphicon.glyphicon-plus

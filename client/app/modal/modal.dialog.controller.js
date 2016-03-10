@@ -33,44 +33,6 @@ angular.module('afrostreamAdminApp')
       $scope.item.slug = Slug.slugify(input);
     };
 
-    $scope.genres = [
-      'Action', //'Action',
-      'Animation', //'Animation',
-      'Aventure', //'Adventure',
-      'Classique',
-      'Comédie', //'Comedy',
-      'Comédie dramatique',
-      'Comédie familiale', // 'Family',
-      'Concert',
-      'Dessin animé',
-      'Divers',
-      'Documentaire', //'Documentary',
-      'Drame', // 'Drama',
-      'Epouvante',
-      'Espionnage',
-      'Expérimental',
-      'Famille',
-      'Fantastique', // 'Fantasy',
-      'Guerre',
-      'Historique',
-      'Horreur',// 'Horror',
-      'Jeunesse', //'Children',
-      'Judiciaire',
-      'LGBT',
-      'Mini-Series', //'Mini-Series',
-      'Musical',
-      'Péplum',
-      'Policier', //'Crime',
-      'Romantique', // 'Romance',
-      'Science-fiction', //'Sci-Fi',
-      'Sport', // 'Sport',
-      'Sport event',
-      'Suspense', // 'Suspense',
-      'Thriller', // 'Thriller'
-      'Tv Show',
-      'Western'
-    ];
-
     $scope.typeaheadOpts = {
       minLength: 3,
       templateUrl: '/path/to/my/template.html',
@@ -169,11 +131,11 @@ angular.module('afrostreamAdminApp')
     };
 
     $scope.getItem = function () {
-      $scope.directiveType = (item.type || type) + 's';
+      $scope.directiveType = type + 's';
 
       if (!item || !item._id) {
-        $scope.item = item;
-        $scope.item.type = item.type || type;
+        // FIXME: ... est-ce le cas ou l'on est en création ???
+        $scope.item = item; // on tente un hotfix..
         return;
       }
       $http.get('/api/' + $scope.directiveType + '/' + item._id, { params : { backo: 1} }).then(function (result) {

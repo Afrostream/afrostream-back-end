@@ -19,7 +19,7 @@ if (process.env.NODE_ENV === 'development' ||
 var requestBilling = function (options) {
   var defaultOptions = {
     json: true,
-    timeout: 5000,
+    timeout: 25000, // browser request timeout is 30 sec
     auth: { user: config.billings.apiUser, pass: config.billings.apiPass, sendImmediately: true}
   };
   options = _.merge({}, defaultOptions, options);
@@ -107,6 +107,22 @@ var createSubscription = function (subscriptionBillingData) {
 };
 
 /**
+ * cancel a subscription in the billing-api
+ *
+ * @param subscriptionBillingUuid  string
+ * @return FIXME
+ */
+var cancelSubscription = function (subscriptionBillingUuid) {
+  return requestBilling({
+    method: 'PUT'
+  , url: config.billings.url + '/billings/api/subscriptions/'+subscriptionBillingUuid+'/cancel'
+  })
+    .then(function (body) {
+      return body && body.response && body.response.subscription || {};
+  });
+};
+
+/**
  * get a user from billing api,
  *   userReferenceUuid is the backend postgresql user id
  *
@@ -116,7 +132,7 @@ var createSubscription = function (subscriptionBillingData) {
  */
 var getUser = function (userReferenceUuid, providerName) {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
-  assert(['recurly', 'celery', 'bachat'].indexOf(providerName) !== -1); // add other providers here later.
+  assert(['gocardless', 'recurly', 'celery', 'bachat'].indexOf(providerName) !== -1); // add other providers here later.
 
   return requestBilling({
     url: config.billings.url + '/billings/api/users/'
@@ -199,14 +215,10 @@ var updateUser = function (userBillingUuid, billingsData) {
 };
 */
 
-var getInternalPlans = function (userReferenceUuid, providerName) {
-  assert(typeof userReferenceUuid === 'number');
-  assert(userReferenceUuid);
-
+var getInternalPlans = function (providerName) {
   return requestBilling({
     url: config.billings.url + '/billings/api/internalplans/',
     qs: {
-      userReferenceUuid: userReferenceUuid,
       providerName: providerName
     }
   }).then(function (body) {
@@ -214,11 +226,62 @@ var getInternalPlans = function (userReferenceUuid, providerName) {
   });
 };
 
+var subscriptionToPlanCode = function (subscription) {
+  if (subscription &&
+      subscription.isActive === 'yes' &&
+      subscription.internalPlan &&
+      subscription.internalPlan.internalPlanUuid) {
+    return subscription.internalPlan.internalPlanUuid;
+  }
+  return null;
+};
+
+// @see http://stackoverflow.com/questions/1353684/detecting-an-invalid-date-date-instance-in-javascript
+var isADate = function (d) {
+  return (Object.prototype.toString.call(d) === "[object Date]") ? (!isNaN(d.getTime())):false;
+};
+
+/**
+ * return true si pas de souscription, ou si la date de la
+ *  derniere souscription est antérieure a Date.now() - 6 mois.
+ *
+ * @param subscription
+ * @returns {boolean}
+ */
+var subscriptionToPromo = function (subscription) {
+  if (!subscription) {
+    return true;
+  }
+  var d = new Date(subscription.subPeriodEndsDate);
+  return !isADate(d) ||
+         d < new Date(new Date().getTime() - config.billings.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
+};
+
+var getSubscriptionsStatus = function (userId, withSubscriptions) {
+  return getSubscriptions(userId)
+    .then(function (subscriptions) {
+      var lastSubscription = subscriptions[0];
+      var subscriptionsStatus = {
+        subscriptions: withSubscriptions ? subscriptions : undefined,
+        planCode: subscriptionToPlanCode(lastSubscription),
+        promo: subscriptionToPromo(lastSubscription)
+      };
+      return subscriptionsStatus;
+    }, function () {
+      return {
+        promo: true
+      };
+    });
+};
+
+// very high level
+module.exports.getSubscriptionsStatus = getSubscriptionsStatus;
 // subscriptions manipulation
 module.exports.getSubscriptions = getSubscriptions;
 module.exports.someSubscriptionActive = someSubscriptionActive;
 module.exports.someSubscriptionActiveSafe = someSubscriptionActiveSafe;
 module.exports.createSubscription = createSubscription;
+module.exports.cancelSubscription = cancelSubscription;
 // user manipulation
 module.exports.getUser = getUser;
 module.exports.createUser = createUser;
@@ -226,3 +289,6 @@ module.exports.createUser = createUser;
 module.exports.getOrCreateUser = getOrCreateUser;
 // fetching internal infos
 module.exports.getInternalPlans = getInternalPlans;
+// parsing subscription
+module.exports.subscriptionToPlanCode = subscriptionToPlanCode;
+module.exports.subscriptionToPromo = subscriptionToPromo;
