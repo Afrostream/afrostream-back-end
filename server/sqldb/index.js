@@ -4,14 +4,24 @@
 
 'use strict';
 
+var _ = require('lodash');
+
 var path = require('path');
 var config = require('../config');
 
 var Sequelize = require('sequelize');
 
+var hooks = require('./hooks');
+
+var options = _.merge({}, config.sequelize.options, {
+  define: {
+    hooks: hooks
+  }
+});
+
 var db = {
   Sequelize: Sequelize,
-  sequelize: new Sequelize(config.sequelize.uri, config.sequelize.options)
+  sequelize: new Sequelize(config.sequelize.uri, options)
 };
 
 db.AccessToken = db.sequelize.import('models/accessToken');

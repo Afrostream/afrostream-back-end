@@ -31,6 +31,10 @@ module.exports = {
       define: {
         timestamps: false
       }
+    },
+    hooks: {
+      mqModelBlacklist: [ 'Logs', 'AccessToken', 'RefreshToken' ],
+      mqFields: [ '_id', 'title' ]
     }
   },
 
