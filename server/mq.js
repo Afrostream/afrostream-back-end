@@ -20,6 +20,10 @@ mq.send = function (data) {
     }
     setImmediate(function () {
       localQueue.push(JSON.parse(JSON.stringify(data)));
+      // security: if the nb of standby events is too large, skip the old ones
+      if (localQueue.length > 10000) {
+        localQueue.shift();
+      }
     });
   }
 };
