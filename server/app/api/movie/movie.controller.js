@@ -124,17 +124,15 @@ function addVideo(updates) {
   };
 }
 
-function addImages(updates) {
+function updateImages(updates) {
   return function (entity) {
-    var chainer = sqldb.Sequelize.Promise.join;
-    var poster = Image.build(updates.poster);
-    var thumb = Image.build(updates.thumb);
-    var logo = Image.build(updates.logo);
-    return chainer(
-      entity.setPoster(poster),
-      entity.setThumb(thumb),
-      entity.setLogo(logo)
-    ).then(function () {
+    var promises = [];
+    promises.push(entity.setPoster(updates.poster && Image.build(updates.poster) || null));
+    promises.push(entity.setThumb(updates.thumb && Image.build(updates.thumb) || null));
+    promises.push(entity.setLogo(updates.logo && Image.build(updates.logo) || null));
+    return sqldb.Sequelize.Promise
+      .all(promises)
+      .then(function () {
         return entity;
       });
   };
@@ -259,7 +257,7 @@ exports.create = function (req, res) {
   Movie.create(req.body)
     .then(addCategorys(req.body))
     .then(addSeasons(req.body))
-    .then(addImages(req.body))
+    .then(updateImages(req.body))
     .then(addLicensor(req.body))
     .then(addVideo(req.body))
     .then(addActors(req.body))
@@ -304,7 +302,7 @@ exports.update = function (req, res) {
     .then(saveUpdates(req.body))
     .then(addCategorys(req.body))
     .then(addSeasons(req.body))
-    .then(addImages(req.body))
+    .then(updateImages(req.body))
     .then(addLicensor(req.body))
     .then(addVideo(req.body))
     .then(addActors(req.body))

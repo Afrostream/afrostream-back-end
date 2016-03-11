@@ -78,15 +78,14 @@ function addVideo(updates) {
   };
 }
 
-function addImages(updates) {
+function updateImages(updates) {
   return function (entity) {
-    var chainer = sqldb.Sequelize.Promise.join;
-    var poster = Image.build(updates.poster);
-    var thumb = Image.build(updates.thumb);
-    return chainer(
-      entity.setPoster(poster),
-      entity.setThumb(thumb)
-    ).then(function () {
+    var promises = [];
+    promises.push(entity.setPoster(updates.poster && Image.build(updates.poster) || null));
+    promises.push(entity.setThumb(updates.thumb && Image.build(updates.thumb) || null));
+    return sqldb.Sequelize.Promise
+      .all(promises)
+      .then(function () {
         return entity;
       });
   };
@@ -155,7 +154,7 @@ exports.create = function (req, res) {
   Episode.create(req.body)
     .then(addSeason(req.body))
     .then(addVideo(req.body))
-    .then(addImages(req.body))
+    .then(updateImages(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
@@ -185,7 +184,7 @@ exports.update = function (req, res) {
     .then(saveUpdates(req.body))
     .then(addSeason(req.body))
     .then(addVideo(req.body))
-    .then(addImages(req.body))
+    .then(updateImages(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };

@@ -57,15 +57,15 @@ function saveUpdates(updates) {
   };
 }
 
-function addImages(updates) {
+function updateImages(updates) {
   return function (entity) {
-    var chainer = sqldb.Sequelize.Promise.join;
-    var poster = Image.build(updates.poster);
-    return chainer(
-      entity.setPoster(poster)
-    ).then(function () {
-      return entity;
-    });
+    var promises = [];
+    promises.push(entity.setPoster(updates.poster && Image.build(updates.poster) || null));
+    return sqldb.Sequelize.Promise
+      .all(promises)
+      .then(function () {
+        return entity;
+      });
   };
 }
 
@@ -138,7 +138,7 @@ exports.show = function (req, res) {
 // Creates a new post in the DB
 exports.create = function (req, res) {
   Post.create(req.body)
-    .then(addImages(req.body))
+    .then(updateImages(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
@@ -155,7 +155,7 @@ exports.update = function (req, res) {
     })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
-    .then(addImages(req.body))
+    .then(updateImages(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };

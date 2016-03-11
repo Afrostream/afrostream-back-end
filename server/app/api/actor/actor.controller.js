@@ -58,10 +58,15 @@ function saveUpdates(updates) {
   };
 }
 
-function addImages(updates) {
+function updateImages(updates) {
   return function (entity) {
-    var picture = Image.build(updates.picture);
-    return entity.setPicture(picture).then(function () { return entity; });
+    var promises = [];
+    promises.push(entity.setPicture(updates.picture && Image.build(updates.picture) || null));
+    return sqldb.Sequelize.Promise
+      .all(promises)
+      .then(function () {
+        return entity;
+      });
   };
 }
 
@@ -127,7 +132,7 @@ exports.show = function (req, res) {
 // Creates a new actor in the DB
 exports.create = function (req, res) {
   Actor.create(req.body)
-    .then(addImages(req.body))
+    .then(updateImages(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
 };
@@ -145,7 +150,7 @@ exports.update = function (req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
-    .then(addImages(req.body))
+    .then(updateImages(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
