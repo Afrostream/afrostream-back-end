@@ -68,10 +68,9 @@ function addSeason(updates) {
   };
 }
 
-function addVideo(updates) {
-  var video = Video.build(updates.video);
+function updateVideo(updates) {
   return function (entity) {
-    return entity.setVideo(video)
+    return entity.setVideo(updates.video && Video.build(updates.video) || null)
       .then(function () {
         return entity;
       });
@@ -153,7 +152,7 @@ exports.show = function (req, res) {
 exports.create = function (req, res) {
   Episode.create(req.body)
     .then(addSeason(req.body))
-    .then(addVideo(req.body))
+    .then(updateVideo(req.body))
     .then(updateImages(req.body))
     .then(responseWithResult(res, 201))
     .catch(handleError(res));
@@ -183,7 +182,7 @@ exports.update = function (req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addSeason(req.body))
-    .then(addVideo(req.body))
+    .then(updateVideo(req.body))
     .then(updateImages(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
