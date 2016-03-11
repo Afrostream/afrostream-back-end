@@ -13,37 +13,30 @@ var send = function (email) {
   }
   return Q.ninvoke(sendgrid, 'send', email)
     .then(
-    function success(data) {
-      console.log('[INFO]: [SENDGRID]: send ', data);
-      return data;
-    },
-    function error(err) {
-      console.error('[ERROR]: [SENDGRID]: error ', err);
-      throw err;
-    }
-  );
+      function success(data) {
+        console.log('[INFO]: [SENDGRID]: send ', data);
+        return data;
+      },
+      function error(err) {
+        console.error('[ERROR]: [SENDGRID]: error ', err);
+        throw err;
+      }
+    );
 };
 
 exports = module.exports = {
-  sendGiftEmail: function (purchaseDetails) {
-    var giverFullName = (purchaseDetails['giverFirstName'] && purchaseDetails['giverLastName']
-    !== 'undefined' ? (purchaseDetails['giverFirstName'] + ' ' + purchaseDetails['giverLastName']) : '');
-    var recipientFullName = (purchaseDetails['recipientFirstName'] && purchaseDetails['recipientLastName']
-    !== 'undefined' ? (purchaseDetails['recipientFirstName'] + ' ' + purchaseDetails['recipientLastName']) : '');
-    var formattedSubtotal = (purchaseDetails['subtotalInCents'] / 100).toLocaleString('fr-FR');
-    var formattedTotal = (purchaseDetails['totalInCents'] / 100).toLocaleString('fr-FR');
-    var discountLineItem = (purchaseDetails['discountInCents'] > 0)
-      ? 'Code Promo: -' + (purchaseDetails['discountInCents'] / 100).toLocaleString('fr-FR') +
-    ' ' + purchaseDetails['invoiceCurrency'] + '\n\n' : '';
+  sendGiftEmail: function (c, subscription) {
+
+    var formattedTotal = subscription.internalPlan.amountInCents / 100;
+    var gifterFullName = c.bodyFirstName + ' ' + c.bodyLastName;
+    var recipientFullName = subscription.user.userOpts.firstName + ' ' + subscription.user.userOpts.lastName;
 
     var email = {
       from: 'abonnement@afrostream.tv',
-      to: purchaseDetails['giverEmail'],
-      //bcc: ['abonnement@afrostream.tv'],
-      subject: 'Confirmation de votre cadeau à '
-      + recipientFullName,
+      to: c.userEmail,
+      subject: 'Confirmation de votre cadeau à ' + recipientFullName,
 
-      text: 'Bonjour ' + giverFullName + ', \n\n' +
+      text: 'Bonjour ' + gifterFullName + ', \n\n' +
       'Grâce à vous, ' + recipientFullName + ' est maintenant abonné(e) à Afrostream et va profiter de 12 mois de séries et films afro en illimité.\n\n'
       + recipientFullName + ' vient de recevoir par email les informations nécessaires pour se connecter à Afrostream.\n\n'
       + 'N\'hésitez pas à lui envoyer un message pour vérifier que notre email n\'est pas dans ses spams.\n\n'
@@ -51,15 +44,11 @@ exports = module.exports = {
       + 'Tonjé BAKANG\n\n'
       + 'Fondateur d\'AFROSTREAM'
       + '-----------------------------------\n\n'
-      + 'Votre sélection : Formule ' + purchaseDetails['planName'] + '\n\n'
-      + 'Commande n° ' + purchaseDetails['invoiceNumber'] + '\n\n'
-      + 'Prix:' + formattedSubtotal + ' ' + purchaseDetails['invoiceCurrency'] + '\n\n'
-      + 'Sous-total:  ' + formattedTotal + ' ' + purchaseDetails['invoiceCurrency'] + '\n\n'
-      + discountLineItem
-      + 'Payé:      ' + formattedTotal + ' ' + purchaseDetails['invoiceCurrency'] + '\n\n'
-      + 'Valable jusqu\'au ' + purchaseDetails['closedAt'] + '\n\n\n'
+      + 'Votre sélection : Formule ' + subscription.internalPlan.name + '\n\n'
+      + 'Payé:      ' + formattedTotal + ' ' + subscription.internalPlan.currency + '\n\n'
+      + 'Valable jusqu\'au ' + subscription.subPeriodEndsDate + '\n\n\n'
       + 'Facturé à :\n\n'
-      + giverFullName + '\n\n'
+      + gifterFullName + '\n\n'
       + '-----------------------------------\n\n'
     };
     return send(email);
