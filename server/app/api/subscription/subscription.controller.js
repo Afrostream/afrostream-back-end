@@ -78,7 +78,7 @@ function ensureUserExist(user) {
 }
 
 function readUser(userId) {
-  return User.find({ where: { _id: userId } }).then(ensureUserExist);
+  return User.find({where: {_id: userId}}).then(ensureUserExist);
 }
 
 // Gets a list of subscriptions
@@ -92,10 +92,10 @@ exports.index = function (req, res) {
 exports.cancel = function (req, res, next) {
   var userId = req.user._id;
   User.find({
-    where: {
-      _id: userId
-    }
-  })
+      where: {
+        _id: userId
+      }
+    })
     .then(function (user) {
       if (!user) {
         return res.status(401).end();
@@ -122,7 +122,7 @@ exports.cancel = function (req, res, next) {
       return Promise.all(promises);
     })
     .then(function (canceled) {
-      res.json({canceled:((canceled && canceled.length)?true:false)});
+      res.json({canceled: ((canceled && canceled.length) ? true : false)});
     })
     .catch(handleError(res));
 };
@@ -144,10 +144,12 @@ exports.status = function (req, res) {
       res.json(subscriptionsStatus);
     })
     .then(
-      function success(data) { res.json(data); },
+      function success(data) {
+        res.json(data);
+      },
       function error(err) {
         console.error('subscription.controller.js#status(): error: ' + err, err);
-        res.status(err.statusCode || 500).json({error:String(err)});
+        res.status(err.statusCode || 500).json({error: String(err)});
       }
     );
 };
@@ -183,12 +185,12 @@ exports.create = function (req, res) {
     //
     .then(function () {
       return billingApi.getOrCreateUser({
-        providerName : "recurly",
-        userReferenceUuid : c.userId,
-        userOpts : {
-          email : c.user.email,
-          firstName : c.bodyFirstName,
-          lastName : c.bodyLastName
+        providerName: "recurly",
+        userReferenceUuid: c.userId,
+        userOpts: {
+          email: c.user.email,
+          firstName: c.bodyFirstName,
+          lastName: c.bodyLastName
         }
       }).then(function (billingsResponse) {
         c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
@@ -257,7 +259,7 @@ exports.create = function (req, res) {
           res.status(400).json(err);
         } else {
 
-          res.status(err.statusCode || 500).json({error:String(err)});
+          res.status(err.statusCode || 500).json({error: String(err)});
         }
 
       }
@@ -315,7 +317,7 @@ exports.gift = function (req, res) {
     .then(function () {
       return User.find({
         where: {
-          email: { $iLike: c.bodyGiftedEmail }
+          email: {$iLike: c.bodyGiftedEmail}
         }
       }).then(function (giftedUser) {
         // user already exist
@@ -339,12 +341,12 @@ exports.gift = function (req, res) {
     //
     .then(function () {
       var userBillingsData = {
-        "providerName" : "recurly",
-        "userReferenceUuid" : c.giftedUserId,
-        "userOpts" : {
-          "email" : c.bodyGiftedEmail,
-          "firstName" : c.bodyGiftedFirstName,
-          "lastName" : c.bodyGiftedLastName
+        "providerName": "recurly",
+        "userReferenceUuid": c.giftedUserId,
+        "userOpts": {
+          "email": c.bodyGiftedEmail,
+          "firstName": c.bodyGiftedFirstName,
+          "lastName": c.bodyGiftedLastName
         }
       };
       return billingApi.getOrCreateUser(userBillingsData);
@@ -436,17 +438,17 @@ exports.gift = function (req, res) {
     .then(function () {
       return mailer.sendGiftEmail({
         giverFirstName: c.bodyFirstName
-      , giverLastName: c.bodyLastName
-      , giverEmail: c.userEmail
-      , recipientFirstName: c.bodyGiftedFirstName
-      , recipientLastName: c.bodyGiftedLastName
-      , planName: c.subscriptionPlanName
-      , invoiceNumber: c.subscriptionInvoiceId
-      , subtotalInCents: c.subscriptionInvoice.subtotal_in_cents
-      , totalInCents: c.subscriptionInvoice.total_in_cents
-      , discountInCents: c.subscriptionInvoice.line_items[0].discount_in_cents
-      , closedAt: c.subscriptionInvoice.line_items[0].end_date
-      , invoiceCurrency: c.subscriptionInvoice.currency
+        , giverLastName: c.bodyLastName
+        , giverEmail: c.userEmail
+        , recipientFirstName: c.bodyGiftedFirstName
+        , recipientLastName: c.bodyGiftedLastName
+        , planName: c.subscriptionPlanName
+        , invoiceNumber: c.subscriptionInvoiceId
+        , subtotalInCents: c.subscriptionInvoice.subtotal_in_cents
+        , totalInCents: c.subscriptionInvoice.total_in_cents
+        , discountInCents: c.subscriptionInvoice.line_items[0].discount_in_cents
+        , closedAt: c.subscriptionInvoice.line_items[0].end_date
+        , invoiceCurrency: c.subscriptionInvoice.currency
       });
     })
     //
@@ -455,9 +457,9 @@ exports.gift = function (req, res) {
     .then(function () {
       return billingApi.createSubscription({
         userBillingUuid: c.giftedUserBillingUuid
-      , internalPlanUuid: c.subscriptionPlanCode
-      , subscriptionProviderUuid: c.subscriptionProviderUuid
-      , billingInfoOpts: {}
+        , internalPlanUuid: c.subscriptionPlanCode
+        , subscriptionProviderUuid: c.subscriptionProviderUuid
+        , billingInfoOpts: {}
       });
     })
     .then(
@@ -470,8 +472,7 @@ exports.gift = function (req, res) {
 
         console.error('subscription.controller.js#gift(): error: ' + err, err);
 
-        if ((typeof err.message !== 'undefined' && err.message === 'Cannot buy a gift for yourself!'))
-        {
+        if ((typeof err.message !== 'undefined' && err.message === 'Cannot buy a gift for yourself!')) {
 
           var selfGiftError = {
             name: 'SelfGiftError',
@@ -484,7 +485,7 @@ exports.gift = function (req, res) {
           res.status(400).json(err);
         } else {
 
-          res.status(err.statusCode || 500).json({error:String(err)});
+          res.status(err.statusCode || 500).json({error: String(err)});
         }
       }
     );
