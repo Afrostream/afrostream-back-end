@@ -32,6 +32,7 @@ mq.on('channel.opened', function () {
   localQueue.forEach(function (message) {
     mq.send(message);
   });
+  localQueue = []; // reset.
 });
 
 mq.open();
