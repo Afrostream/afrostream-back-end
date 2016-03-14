@@ -370,3 +370,24 @@ module.exports.createGift = function (req, res) {
       }
     );
 };
+
+module.exports.validateCoupons = function (req, res) {
+
+  console.log('*** billing.controller.js => validateCoupons ***');
+
+  getClient(req)
+    .then(function (client) {
+      var couponCode = req.query.coupon;
+      return billingApi.validateCoupons(couponCode);
+    })
+    .then(
+    function (couponStatus) {
+      res.json(couponStatus);
+    },
+    function (err) {
+      var message = (err instanceof Error) ? err.message : String(err);
+      console.error('ERROR: /api/billing/coupons', message);
+      res.status(500).send({error: message});
+    }
+  );
+};

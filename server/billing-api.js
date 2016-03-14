@@ -274,6 +274,22 @@ var getSubscriptionsStatus = function (userId, withSubscriptions) {
     });
 };
 
+var validateCoupons = function (couponCode) {
+  console.log('*** billing-api => validate Coupons***');
+  return requestBilling({
+    url: config.billings.url + '/billings/api/coupons/',
+    qs: {
+      providerName: 'afr',
+      couponCode: 'test-2months-wp4zas'
+    }
+  }).then(function (body) {
+    console.log('*** billings coupon response ***');
+    console.log(body.response);
+    console.log('*** END OF billings coupon response ***');
+    return body && body.response && body.response.coupon || [];
+  });
+};
+
 // very high level
 module.exports.getSubscriptionsStatus = getSubscriptionsStatus;
 // subscriptions manipulation
@@ -292,3 +308,5 @@ module.exports.getInternalPlans = getInternalPlans;
 // parsing subscription
 module.exports.subscriptionToPlanCode = subscriptionToPlanCode;
 module.exports.subscriptionToPromo = subscriptionToPromo;
+// coupon codes
+module.exports.validateCoupons = validateCoupons;
