@@ -30,6 +30,10 @@ module.exports = {
       storage: 'afrostream.postgres',
       define: {
         timestamps: false
+      },
+      dialect: 'postgres',
+      dialectOptions: {
+        ssl: true
       }
     },
     hooks: {
