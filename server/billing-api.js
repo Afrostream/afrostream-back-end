@@ -308,5 +308,6 @@ module.exports.getInternalPlans = getInternalPlans;
 // parsing subscription
 module.exports.subscriptionToPlanCode = subscriptionToPlanCode;
 module.exports.subscriptionToPromo = subscriptionToPromo;
+
 // coupon codes
 module.exports.validateCoupons = validateCoupons;
