@@ -382,6 +382,9 @@ module.exports.validateCoupons = function (req, res) {
     })
     .then(
     function (couponStatus) {
+      console.log('*** here is the coupon status ***');
+      console.log(couponStatus);
+      console.log('*** end of the coupon status ***');
       res.json(couponStatus);
     },
     function (err) {
