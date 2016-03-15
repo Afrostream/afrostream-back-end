@@ -82,7 +82,7 @@ module.exports = {
 
   mq: {
     endPoint: 'amqp://rabbitmq-1.adm.afrostream.net',
-    exchangeName: 'afrostream-back-end'
+    exchangeName: 'afrostream-backend'
   },
 
   logs: {

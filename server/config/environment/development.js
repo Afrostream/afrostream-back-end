@@ -76,7 +76,7 @@ module.exports = {
 
   mq: {
     endPoint: 'amqp://localhost',
-    exchangeName: 'afrostream-back-end',
+    exchangeName: 'afrostream-backend',
     autoReconnect: false,
     displayErrors: false
   },

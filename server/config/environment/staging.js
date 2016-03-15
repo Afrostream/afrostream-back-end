@@ -74,7 +74,7 @@ module.exports = {
 
   mq: {
     endPoint: 'amqp://yvkmghav:Uu-J25iHVqXV7C0_60e1V2JSgb0sEQ-3@chicken.rmq.cloudamqp.com/yvkmghav',
-    exchangeName: 'afrostream-back-end'
+    exchangeName: 'afrostream-backend'
   },
 
   logs: {
