@@ -18,8 +18,14 @@ angular.module('afrostreamAdminApp')
       };
 
       var refreshButtons = function () {
+        var previousStats = $scope.stats || null;
         jobs.getStats().then(function (stats) {
           $scope.stats = stats;
+          var statsState = $scope.stateFilter + 'Count';
+          if (previousStats &&
+              previousStats[statsState] !== stats[statsState]) {
+            refreshList();
+          }
         });
       };
 
@@ -36,6 +42,8 @@ angular.module('afrostreamAdminApp')
       var refresh = function () {
         refreshButtons();
       };
+
+      $scope.retryJob = function (jobId) { jobs.retry(jobId).then(function () { refreshList(); }); };
 
       $scope.deleteJob = function (jobId) { jobs.remove(jobId).then(function () { refreshList(); }) };
 

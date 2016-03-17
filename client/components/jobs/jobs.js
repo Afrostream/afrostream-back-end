@@ -57,5 +57,14 @@ angular.module('afrostreamAdminApp')
         });
     };
 
+    this.retry = function (jobId) {
+      return init()
+        .then(function () {
+          return $http.get(self.conf.api + '/job/' + jobId + '/retry', {
+            headers: {Authorization: self.authorization}
+          });
+        });
+    };
+
     return this;
   });
