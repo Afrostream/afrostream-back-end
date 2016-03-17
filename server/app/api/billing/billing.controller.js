@@ -330,8 +330,8 @@ module.exports.createGift = function (req, res) {
         userProviderUuid: c.userProviderUuid,
         userOpts: {
           email: giftUser.email,
-          firstName: giftUser.firstName || '',
-          lastName: giftUser.lastName || ''
+          firstName: giftUser.first_name || '',
+          lastName: giftUser.last_name || ''
         }
       }).then(function (billingsResponse) {
         c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
