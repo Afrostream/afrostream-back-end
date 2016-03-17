@@ -81,7 +81,7 @@ module.exports = {
   },
 
   mq: {
-    endPoint: 'amqp://rabbitmq-1.adm.afrostream.net',
+    endPoint: 'amqp://bjkjcuac:AZXv0QBokSQpjM545tlFXTMER2QN9F9K@chicken.rmq.cloudamqp.com/bjkjcuac',
     exchangeName: 'afrostream-backend'
   },
 
