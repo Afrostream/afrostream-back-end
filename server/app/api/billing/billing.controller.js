@@ -50,6 +50,21 @@ var getClient = function (req) {
     });
 };
 
+var updateUserName = function (req, c) {
+  return Q()
+    .then(function () {
+      req.user.first_name = req.user.first_name || c.bodyFirstName;
+      req.user.last_name = req.user.last_name || c.bodyLastName;
+      return req.user.save();
+    })
+    .then(function (user) {
+      return user;
+    }, function (err) {
+      console.error('ERROR: /api/billing/#updateUserName(): ' + err, req.headers);
+      return null;
+    });
+};
+
 module.exports.showInternalplans = function (req, res) {
   // FIXME: should be refactored with #209
   // who is initiating this request ?
@@ -167,6 +182,12 @@ module.exports.createSubscriptions = function (req, res) {
           throw new Error('unknown userProviderUuid for user ' + c.userId + ' client type ' + client.type);
       }
     })
+    // Update user info
+    // Fixme : don't update user infos from billing subscription
+    //
+    .then(function () {
+      return updateUserName(req, c);
+    })
     //
     // we create the user in the billing-api if he doesn't exist yet
     //
@@ -264,6 +285,12 @@ module.exports.createGift = function (req, res) {
         throw new Error('missing gift infos !');
 
       }
+    })
+    // Update user info
+    // Fixme : don't update user infos from billing subscription
+    //
+    .then(function () {
+      return updateUserName(req, c);
     })
     //
     // get or create the gifted user
