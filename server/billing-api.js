@@ -40,6 +40,7 @@ var requestBilling = function (options) {
         console.error('WARNING: [BILLING-API]: ' + response.statusCode + ' ' + (body && body.status) + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         error = new Error(body && body.statusMessage || body && body.message || 'unknown');
         error.statusCode = response.statusCode;
+        console.log('***JOHNARCH error code*** ' + error.statusCode);
         throw error;
       }
 
@@ -132,7 +133,7 @@ var cancelSubscription = function (subscriptionBillingUuid) {
  */
 var getUser = function (userReferenceUuid, providerName) {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
-  assert(['gocardless', 'recurly', 'celery', 'bachat'].indexOf(providerName) !== -1); // add other providers here later.
+  assert(['gocardless', 'recurly', 'celery', 'bachat', 'afr'].indexOf(providerName) !== -1); // add other providers here later.
 
   return requestBilling({
     url: config.billings.url + '/billings/api/users/'
@@ -280,13 +281,13 @@ var validateCoupons = function (couponCode) {
     url: config.billings.url + '/billings/api/coupons/',
     qs: {
       providerName: 'afr',
-      couponCode: 'test-2months-wp4zas'
+      couponCode: couponCode
     }
   }).then(function (body) {
     console.log('*** billings coupon response ***');
     console.log(body.response);
     console.log('*** END OF billings coupon response ***');
-    return body && body.response && body.response.coupon || [];
+    return body && body.response && body.response || {};
   });
 };
 

@@ -605,6 +605,31 @@ nock(config.billings.url)
 nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
   .get('/billings/api/users/')
+  .query({providerName: "afr", userReferenceUuid: /.*/})
+  .reply(200, {
+    status: "done",
+    statusMessage: "success",
+    statusCode: 0,
+    response: {
+      user: {
+        userBillingUuid: "f946e738-2c32-8144-d6bd-d7532256ae7b",
+        userReferenceUuid: "1392",
+        userProviderUuid: "oliviadigbiali@gmail.com",
+        provider: {
+          providerName: "afr"
+        },
+        userOpts: {
+          email: "oliviadigbiali@gmail.com",
+          firstName: "firstNameValue",
+          lastName: "lastNameValue"
+        }
+      }
+    }
+  });
+
+nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
+  .get('/billings/api/users/')
   .query()
   .reply(200, {
     status: "error",
@@ -696,3 +721,76 @@ nock(config.billings.url)
       }
     }
   });
+
+nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
+  .get('/billings/api/coupons/')
+  .query({providerName: 'afr', couponCode: 'test-2months-wp4zas'})
+  .reply(200, {
+    "status":"done",
+    "statusMessage":"success",
+    "statusCode":0,
+    "response":{
+      "coupon":{
+        "code":"test-2months-wp4zas",
+        "status":"waiting",
+        "campaign":{
+          "couponCampaignBillingUuid":"4aef0220-5a52-4781-bd4b-0283a277cfe8",
+          "creationDate":"2016-03-07 10:57:12.412057+00",
+          "name":"campaign-test-2months",
+          "description":"campaign-test-2months",
+          "provider":{
+            "providerName":"afr"
+          },"internalPlan":{
+            "internalPlanUuid":"afr-2months",
+            "name":"afr-2months",
+            "description":"afr-2months",
+            "amountInCents":"1000",
+            "amountInCentsExclTax":"833",
+            "vatRate":"20,00",
+            "currency":"EUR",
+            "cycle":"once",
+            "periodUnit":"month",
+            "periodLength":"2",
+            "internalPlanOpts":[],
+            "thumb":null
+          }
+        },"provider":{
+          "providerName":"afr"
+        },"internalPlan":{
+          "internalPlanUuid":"afr-2months",
+          "name":"afr-2months",
+          "description":"afr-2months",
+          "amountInCents":"1000",
+          "amountInCentsExclTax":"833",
+          "vatRate":"20,00",
+          "currency":"EUR",
+          "cycle":"once",
+          "periodUnit":"month",
+          "periodLength":"2",
+          "internalPlanOpts":[],
+          "thumb":null
+        }
+      }
+    }
+  }
+);
+
+nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
+  .get('/billings/api/coupons/')
+  .query({providerName: 'afr', couponCode: 'test-error'})
+  .reply(404, {
+    "status":"error",
+    "statusMessage":"NOT FOUND",
+    "statusCode":0,
+    "statusType":"internal",
+    "errors":[
+      {"error":{
+        "errorMessage":"NOT FOUND",
+        "errorType":"internal",
+        "errorCode":0
+      }}
+    ]
+  }
+);
