@@ -40,7 +40,6 @@ var requestBilling = function (options) {
         console.error('WARNING: [BILLING-API]: ' + response.statusCode + ' ' + (body && body.status) + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         error = new Error(body && body.statusMessage || body && body.message || 'unknown');
         error.statusCode = response.statusCode;
-        console.log('***JOHNARCH error code*** ' + error.statusCode);
         throw error;
       }
 
@@ -276,7 +275,6 @@ var getSubscriptionsStatus = function (userId, withSubscriptions) {
 };
 
 var validateCoupons = function (couponCode) {
-  console.log('*** billing-api => validate Coupons***');
   return requestBilling({
     url: config.billings.url + '/billings/api/coupons/',
     qs: {
@@ -284,9 +282,6 @@ var validateCoupons = function (couponCode) {
       couponCode: couponCode
     }
   }).then(function (body) {
-    console.log('*** billings coupon response ***');
-    console.log(body.response);
-    console.log('*** END OF billings coupon response ***');
     return body && body.response && body.response || {};
   });
 };

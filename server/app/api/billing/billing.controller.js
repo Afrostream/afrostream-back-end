@@ -152,6 +152,8 @@ module.exports.cancelSubscriptions = function (req, res) {
  * @param res
  */
 module.exports.createSubscriptions = function (req, res) {
+
+
   var c = {
     userId: req.user._id,
     userEmail: req.user.email,
@@ -217,6 +219,7 @@ module.exports.createSubscriptions = function (req, res) {
         billingInfoOpts: {},
         subOpts: c.bodySubOpts
       };
+
       return billingApi.createSubscription(subscriptionBillingData);
     })
     .then(
@@ -373,8 +376,6 @@ module.exports.createGift = function (req, res) {
 
 module.exports.validateCoupons = function (req, res) {
 
-  console.log('*** billing.controller.js => validateCoupons ***');
-
   getClient(req)
     .then(function (client) {
       var couponCode = req.query.coupon;
@@ -382,9 +383,6 @@ module.exports.validateCoupons = function (req, res) {
     })
     .then(
     function (couponStatus) {
-      console.log('*** here is the coupon status ***');
-      console.log(couponStatus);
-      console.log('*** end of the coupon status ***');
       res.json(couponStatus);
     },
     function (err) {
