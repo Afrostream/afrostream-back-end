@@ -31,7 +31,7 @@
  * @apiName CreateUser
  * @apiGroup User
  *
- * @apiHeader (postData) {String) Authorization  ClientToken (issued from  grant_type: 'client_credentials')
+ * @apiHeader (header) {String} Authorization  ClientToken (issued from  grant_type: 'client_credentials')
  *
  * @apiParam (postData) {String} email
  * @apiParam (postData) {String} password
