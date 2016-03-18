@@ -175,8 +175,6 @@
  *     "error": "whatever"
  *   }
  */
-
-
 var express = require('express');
 var controller = require('./billing.controller.js');
 var auth = rootRequire('/server/auth/auth.service');
@@ -192,6 +190,7 @@ router.use(function (req, res, next) {
 router.get('/internalplans', auth.isAuthenticated(), controller.showInternalplans);
 router.post('/subscriptions', auth.isAuthenticated(), controller.createSubscriptions);
 router.post('/gifts', auth.isAuthenticated(), controller.createGift);
+router.get('/coupons', auth.isAuthenticated(), controller.validateCoupons);
 router.put('/subscriptions/:subscriptionUuid/cancel', auth.isAuthenticated(), controller.cancelSubscriptions);
 
 module.exports = router;
