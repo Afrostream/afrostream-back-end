@@ -152,6 +152,8 @@ module.exports.cancelSubscriptions = function (req, res) {
  * @param res
  */
 module.exports.createSubscriptions = function (req, res) {
+
+
   var c = {
     userId: req.user._id,
     userEmail: req.user.email,
@@ -217,6 +219,7 @@ module.exports.createSubscriptions = function (req, res) {
         billingInfoOpts: {},
         subOpts: c.bodySubOpts
       };
+
       return billingApi.createSubscription(subscriptionBillingData);
     })
     .then(
@@ -330,8 +333,8 @@ module.exports.createGift = function (req, res) {
         userProviderUuid: c.userProviderUuid,
         userOpts: {
           email: giftUser.email,
-          firstName: giftUser.firstName || '',
-          lastName: giftUser.lastName || ''
+          firstName: giftUser.first_name || '',
+          lastName: giftUser.last_name || ''
         }
       }).then(function (billingsResponse) {
         c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
@@ -369,4 +372,23 @@ module.exports.createGift = function (req, res) {
         res.status(500).send({error: message});
       }
     );
+};
+
+module.exports.validateCoupons = function (req, res) {
+
+  getClient(req)
+    .then(function (client) {
+      var couponCode = req.query.coupon;
+      return billingApi.validateCoupons(couponCode);
+    })
+    .then(
+    function (couponStatus) {
+      res.json(couponStatus);
+    },
+    function (err) {
+      var message = (err instanceof Error) ? err.message : String(err);
+      console.error('ERROR: /api/billing/coupons', message);
+      res.status(500).send({error: message});
+    }
+  );
 };

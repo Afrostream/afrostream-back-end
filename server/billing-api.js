@@ -132,7 +132,7 @@ var cancelSubscription = function (subscriptionBillingUuid) {
  */
 var getUser = function (userReferenceUuid, providerName) {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
-  assert(['gocardless', 'recurly', 'celery', 'bachat'].indexOf(providerName) !== -1); // add other providers here later.
+  assert(['gocardless', 'recurly', 'celery', 'bachat', 'afr'].indexOf(providerName) !== -1); // add other providers here later.
 
   return requestBilling({
     url: config.billings.url + '/billings/api/users/'
@@ -274,6 +274,18 @@ var getSubscriptionsStatus = function (userId, withSubscriptions) {
     });
 };
 
+var validateCoupons = function (couponCode) {
+  return requestBilling({
+    url: config.billings.url + '/billings/api/coupons/',
+    qs: {
+      providerName: 'afr',
+      couponCode: couponCode
+    }
+  }).then(function (body) {
+    return body && body.response && body.response || {};
+  });
+};
+
 // very high level
 module.exports.getSubscriptionsStatus = getSubscriptionsStatus;
 // subscriptions manipulation
@@ -292,3 +304,6 @@ module.exports.getInternalPlans = getInternalPlans;
 // parsing subscription
 module.exports.subscriptionToPlanCode = subscriptionToPlanCode;
 module.exports.subscriptionToPromo = subscriptionToPromo;
+
+// coupon codes
+module.exports.validateCoupons = validateCoupons;
