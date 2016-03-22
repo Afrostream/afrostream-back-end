@@ -56,6 +56,9 @@ if (config.dumpPostData) {
   app.use(dumpPostData());
 }
 
+var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
+app.use(middlewarePassport());
+
 app.use('/heapdumps', require('./heapdump'));
 
 switch (process.env.NODE_ENV) {

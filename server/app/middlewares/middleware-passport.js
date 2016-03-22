@@ -148,7 +148,7 @@ function getPassport(req) {
 module.exports = function (options) {
   options = options || {};
   return function (req, res, next) {
-    req.getPassport = getPassport.bind(null, req);
+    req.getPassport = req.getPassport || getPassport.bind(null, req);
     if (options.preload) {
       req.getPassport().then(function (passport) {
         req.passport = passport;
