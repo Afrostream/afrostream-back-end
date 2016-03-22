@@ -1,5 +1,7 @@
 var Joi = require('joi');
 
+var assert = require('better-assert');
+
 var createBody = Joi.object().keys({
   email: Joi.string().max(255).email().required(),
   password: Joi.string().max(50).min(6).required()
@@ -19,8 +21,10 @@ var updateBody = Joi.object().keys({
 });
 
 module.exports.validateCreateBody = function (req, res, next) {
+  assert(req.passport);
+
   var schema;
-  if (req.client.isBouygues()) {
+  if (req.passport.client && req.passport.client.isBouygues()) {
     schema = createBodyBouygues;
   } else {
     schema = createBody;

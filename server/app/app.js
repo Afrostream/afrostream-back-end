@@ -39,7 +39,6 @@ app.use(cacheHandler());
 
 var middlewareAllowPreflight = require('./middlewares/middleware-allowpreflight.js');
 var middlewareAllowCrossDomain = require('./middlewares/middleware-allowcrossdomain.js');
-var middlewareAuth = require('./middlewares/middleware-auth.js');
 
 var basicAuth = require('basic-auth-connect');
 var controllerLogs = require('./logs.controller.js');
@@ -50,7 +49,6 @@ if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging'
 
 app.use(middlewareAllowCrossDomain());
 app.use(middlewareAllowPreflight());
-app.use(middlewareAuth());
 
 if (config.dumpPostData) {
   app.use(dumpPostData());

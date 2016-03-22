@@ -97,6 +97,8 @@ var auth = rootRequire('/server/auth/auth.service');
 
 var router = express.Router();
 
+var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
+
 var validator = require('./user.validator.js');
 
 // all user routes cannot be cached.
@@ -150,7 +152,7 @@ router.put('/password', auth.isAuthenticated(), controller.auth0ChangePassword);
 router.put('/:id/password', auth.hasRole('admin'), controller.changePassword);
 router.put('/:id/role', auth.hasRole('admin'), controller.changeRole);
 router.get('/:id', auth.hasRole('admin'), controller.show);
-router.post('/', auth.isAuthenticated(), validator.validateCreateBody, controller.create);
+router.post('/', auth.isAuthenticated(), middlewarePassport({preload: true}), validator.validateCreateBody, controller.create);
 router.put('/:userId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, validator.validateUpdateBody, controller.update);
 
 router.use('/:userId/videos', require('./video'));
