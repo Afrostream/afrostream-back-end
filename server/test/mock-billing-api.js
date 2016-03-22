@@ -184,7 +184,7 @@ nock(config.billings.url)
 nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
   .get('/billings/api/internalplans/')
-  .query({providerName: 'bachat', userReferenceUuid: /.*/})
+  .query({providerName: 'bachat'}) // , userReferenceUuid: /.*/
   .reply(200, {
     status: "done",
     statusMessage: "success",
@@ -262,7 +262,7 @@ nock(config.billings.url)
 nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
   .get('/billings/api/internalplans/')
-  .query({providerName: /.+/, userReferenceUuid: /.*/})
+  .query({providerName: /.+/}) // , userReferenceUuid: /.*/
   .reply(200, {
     status: "error",
     statusMessage: "unknown provider named : unknown",
@@ -542,6 +542,31 @@ nock(config.billings.url)
         userProviderUuid: "oliviadigbiali@gmail.com",
         provider: {
           providerName: "recurly"
+        },
+        userOpts: {
+          email: "oliviadigbiali@gmail.com",
+          firstName: "firstNameValue",
+          lastName: "lastNameValue"
+        }
+      }
+    }
+  });
+
+nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
+  .get('/billings/api/users/')
+  .query({providerName: "gocardless"}) // , userReferenceUuid: /.*/
+  .reply(200, {
+    status: "done",
+    statusMessage: "success",
+    statusCode: 0,
+    response: {
+      user: {
+        userBillingUuid: "f946e738-2c32-8144-d6bd-d7532256ae7b",
+        userReferenceUuid: "1392",
+        userProviderUuid: "oliviadigbiali@gmail.com",
+        provider: {
+          providerName: "gocardless"
         },
         userOpts: {
           email: "oliviadigbiali@gmail.com",

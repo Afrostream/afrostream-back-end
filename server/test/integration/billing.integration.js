@@ -217,7 +217,7 @@ describe('User API:', function () {
         .send({
           firstName: "foo",
           lastName: "bar",
-          providerName: "gocardless"
+          billingProvider: "gocardless"
         })
         .expect(200)
         .expect('Content-Type', /json/)

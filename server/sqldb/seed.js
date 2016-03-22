@@ -371,24 +371,30 @@ promises.push(
   })
   .then(function () {
     return Client.bulkCreate([{
-      name: 'Test Client',
+      name: 'afrostream-front',
       _id: '8c261045-89a3-44bb-af38-65a847269605',
-      secret: '3dc3cae6-9c79-487a-9e0f-712be857dcee'
+      secret: '3dc3cae6-9c79-487a-9e0f-712be857dcee',
+      type: 'front-api.front-end',
+      role: 'client'
     }, {
       name: 'tapptic',
       _id: '1abf31b2-4242-4242-9fd2-f3a63bda64b4',
       secret: 'ba287044-4242-4242-a6f7-51aed34d4791',
-      type: 'legacy-api.tapptic'
+      type: 'legacy-api.tapptic',
+      role: 'client'
     }, {
       name: 'roku',
       _id: '84b2041b-4242-4242-9081-f6629f512edf',
       secret: '0533056e-4242-4242-9f09-6c74d5e68a27',
-      type: 'legacy-api.roku'
+      type: 'legacy-api.roku',
+      role: 'client'
     }, {
       name: 'bouygues miami',
       _id: 'cbd89e11-4242-4242-93be-deaade1bd17f',
       secret: '6bb9d594-4242-4242-ab04-d76dda10c76a',
-      type: 'legacy-api.bouygues-miami'
+      type: 'legacy-api.bouygues-miami',
+      billingProviderName: 'bachat',
+      role: 'client'
     }, {
       name: 'afrostream-exports-bouygues',
       _id: '5df3bb18-02a0-4a58-9a4a-4fc5ed5ea7c4',
