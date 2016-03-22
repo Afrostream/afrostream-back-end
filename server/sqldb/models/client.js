@@ -23,9 +23,14 @@ module.exports = function (sequelize, DataTypes) {
     type: DataTypes.STRING(32),
     billingProviderName: DataTypes.STRING(32)
   }, {
+    // fixme: we should use classMethods to define the constants.
     instanceMethods: {
       isBouygues: function () {
         return this.getDataValue('type') === 'legacy-api.bouygues-miami';
+      },
+
+      isAfrostreamExportsBouygues: function () {
+        return this.getDataValue('type') === 'afrostream-exports-bouygues';
       }
     }
   });

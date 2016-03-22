@@ -169,19 +169,16 @@ var authenticate = function (req, res, next) {
 var filterQueryOptions = function (req, options, rootModel) {
   assert(rootModel);
 
-  var isAdmin = reqUserIsAdmin(req);
   var isBacko = reqUserIsBacko(req);
+
+  // opportunistic guess... (req.passport might not be loaded)
+  var isAfrostreamExportsBouygues = req.passport && req.passport.client && req.passport.client.isAfrostreamExportsBouygues();
 
   return sqldb.filterOptions(options, function filter(options, root) {
     var model = root ? rootModel : options.model;
 
-    if (isBacko) {
-      // nothing yet
-      if (model &&
-        model.attributes &&
-        model.attributes.catchupProviderId) {
-        // options = _.merge(options, {where: {catchupProviderId: { $eq: null }}});
-      }
+    if (isBacko || isAfrostreamExportsBouygues) {
+      // no restrictions.
     } else {
       if (model &&
         model.attributes &&
