@@ -46,7 +46,7 @@ var auth = rootRequire('/server/auth/auth.service');
 var router = express.Router();
 
 var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
-router.use(middlewarePassport({preloaded: true}));
+router.use(middlewarePassport({preload: true}));
 
 router.get('/', auth.hasRole('admin'), controller.index);
 router.get('/:id', controller.show);

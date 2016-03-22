@@ -101,7 +101,7 @@ function getPassport(req) {
     accessToken: null
   };
   // searching token
-  Q()
+  return Q()
     .then(function () {
       return getAccessToken(req)
     })
