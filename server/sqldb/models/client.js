@@ -22,5 +22,11 @@ module.exports = function (sequelize, DataTypes) {
     active: DataTypes.BOOLEAN,
     type: DataTypes.STRING(32),
     billingProviderName: DataTypes.STRING(32)
+  }, {
+    instanceMethods: {
+      isBouygues: function () {
+        return this.getDataValue('type') === 'legacy-api.bouygues-miami';
+      }
+    }
   });
 };
