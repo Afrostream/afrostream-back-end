@@ -7,7 +7,10 @@
 var errors = require('./../components/errors/index');
 var path = require('path');
 
+var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
+
 module.exports = function (app) {
+  app.use('/api/*', middlewarePassport());
 
   // Insert routes below
   app.use('/api/posts', require('./api/post/index'));
