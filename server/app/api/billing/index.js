@@ -187,6 +187,9 @@ router.use(function (req, res, next) {
   next();
 });
 
+var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
+router.use(middlewarePassport({preload: true}));
+
 router.get('/internalplans', auth.isAuthenticated(), controller.showInternalplans);
 router.post('/subscriptions', auth.isAuthenticated(), controller.createSubscriptions);
 router.post('/gifts', auth.isAuthenticated(), controller.createGift);

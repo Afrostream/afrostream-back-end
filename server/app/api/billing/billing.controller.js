@@ -10,46 +10,6 @@ var AccessToken = rootRequire('/server/sqldb').AccessToken;
 
 var mailer = rootRequire('/server/components/mailer');
 
-var getAccessToken = function (req) {
-  return Q()
-    .then(function () {
-      var r = String(req.get('authorization')).match(/^Bearer (\w+)$/);
-      if (!r || r.length !== 2) {
-        //TODO get token from request header when api v1 kill qeuryString
-        var qsToken = req.query.access_token || req.body.access_token;
-        if (qsToken) {
-          r = [, qsToken];
-        }
-        else {
-          throw new Error("cannot parse header");
-        }
-      }
-      return AccessToken.find({where: {token: r[1]}});
-    })
-    .then(function (accessToken) {
-      return accessToken;
-    }, function (err) {
-      console.error('ERROR: /api/billing/#getAccessToken(): ' + err, req.headers);
-      return null;
-    });
-};
-
-var getClient = function (req) {
-  return getAccessToken(req)
-    .then(function (accessToken) {
-      if (!accessToken) {
-        throw new Error("missing access token");
-      }
-      return accessToken.getClient();
-    })
-    .then(function (client) {
-      return client;
-    }, function (err) {
-      console.error('ERROR: /api/billing/#getClient(): ' + err, req.headers);
-      return null;
-    });
-};
-
 var updateUserName = function (req, c) {
   return Q()
     .then(function () {
@@ -68,8 +28,9 @@ var updateUserName = function (req, c) {
 module.exports.showInternalplans = function (req, res) {
   // FIXME: should be refactored with #209
   // who is initiating this request ?
-  getClient(req)
-    .then(function (client) {
+  Q()
+    .then(function () {
+      var client = req.passport.client;
       var billingProviderName = req.query.providerName || (client ? client.billingProviderName : '');
       return billingApi.getInternalPlans(billingProviderName);
     })
@@ -99,11 +60,13 @@ module.exports.cancelSubscriptions = function (req, res) {
     userId: req.user._id,
     subscriptionUuid: req.params.subscriptionUuid
   }; // closure
-  getClient(req)
+
+  Q()
   //
   // grab client billingProviderName ex: recurly, bachat
   //
-    .then(function (client) {
+    .then(function () {
+      var client = req.passport.client;
       if (!client) throw new Error('unknown client');
       switch (client.type) {
         case 'front-api.front-end':
@@ -152,8 +115,6 @@ module.exports.cancelSubscriptions = function (req, res) {
  * @param res
  */
 module.exports.createSubscriptions = function (req, res) {
-
-
   var c = {
     userId: req.user._id,
     userEmail: req.user.email,
@@ -166,11 +127,12 @@ module.exports.createSubscriptions = function (req, res) {
     bodySubOpts: req.body.subOpts
   }; // closure
 
-  getClient(req)
+  Q()
   //
   // grab client billingProviderName ex: recurly, bachat
   //
-    .then(function (client) {
+    .then(function () {
+      var client = req.passport.client;
       if (!client) throw new Error('unknown client');
       switch (client.type) {
         case 'legacy-api.bouygues-miami':
@@ -253,7 +215,6 @@ module.exports.createSubscriptions = function (req, res) {
  * @param res
  */
 module.exports.createGift = function (req, res) {
-
   // FIXME: we should use joy to filter req.body.
   var c = {
     userId: req.user._id,
@@ -267,11 +228,12 @@ module.exports.createGift = function (req, res) {
     bodySubOpts: req.body.subOpts
   }; // closure
 
-  getClient(req)
+  Q()
   //
   // grab client billingProviderName ex: recurly, bachat
   //
-    .then(function (client) {
+    .then(function () {
+      var client = req.passport.client;
       if (!client) throw new Error('unknown client');
       switch (client.type) {
         case 'front-api.front-end':
@@ -358,9 +320,7 @@ module.exports.createGift = function (req, res) {
     // Sending the email
     //
     .then(function (subscription) {
-
       return mailer.sendGiftEmail(c, subscription);
-
     })
     .then(
       function success() {
@@ -375,9 +335,8 @@ module.exports.createGift = function (req, res) {
 };
 
 module.exports.validateCoupons = function (req, res) {
-
-  getClient(req)
-    .then(function (client) {
+  Q()
+    .then(function () {
       var couponCode = req.query.coupon;
       return billingApi.validateCoupons(couponCode);
     })
