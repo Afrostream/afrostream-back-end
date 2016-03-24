@@ -196,7 +196,7 @@ exports.history = function (req, res, next) {
         }
       ]
     }],
-    limit: 5
+    limit: 10
   })
   .then(
     function (usersVideos) {
