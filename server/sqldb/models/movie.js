@@ -57,7 +57,17 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: false
     },
     productionCountry: DataTypes.STRING,
-    CSA: DataTypes.INTEGER
+    CSA: DataTypes.INTEGER,
+    rating: {
+      type: DataTypes.DECIMAL,
+      defaultValue: 3,
+      // there is no sequelize equivalent to postgresql type "NUMERIC"
+      // when using DECIMAL or DOUBLE, sequelize will convert postgresql NUMERIC into STRING
+      // we want a float.
+      get : function () {
+        return parseFloat(this.getDataValue('rating'));
+      }
+    }
   }, {
     getterMethods   : {
       sharing: function()  {
