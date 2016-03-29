@@ -173,11 +173,12 @@ var filterQueryOptions = function (req, options, rootModel) {
 
   // opportunistic guess... (req.passport might not be loaded)
   var isAfrostreamExportsBouygues = req.passport && req.passport.client && req.passport.client.isAfrostreamExportsBouygues();
+  var isAfrostreamExportsOsearch = req.passport && req.passport.client && req.passport.client.isAfrostreamExportsOsearch();
 
   return sqldb.filterOptions(options, function filter(options, root) {
     var model = root ? rootModel : options.model;
 
-    if (isBacko || isAfrostreamExportsBouygues) {
+    if (isBacko || isAfrostreamExportsBouygues || isAfrostreamExportsOsearch) {
       // no restrictions.
     } else {
       if (model &&

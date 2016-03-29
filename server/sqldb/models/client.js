@@ -31,6 +31,10 @@ module.exports = function (sequelize, DataTypes) {
 
       isAfrostreamExportsBouygues: function () {
         return this.getDataValue('type') === 'afrostream-exports-bouygues';
+      },
+
+      isAfrostreamExportsOsearch: function () {
+        return this.getDataValue('type') === 'afrostream-exports-osearch';
       }
     }
   });
