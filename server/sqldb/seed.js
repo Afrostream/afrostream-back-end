@@ -401,6 +401,12 @@ promises.push(
       secret: '02694a0b-5e67-4f03-8a80-a55329ad9975',
       type: 'afrostream-exports-bouygues',
       role: 'admin'
+    }, {
+      name: 'afrostream-exports-osearch',
+      _id: 'a94343ce-5c4b-46f4-a7ce-480a41f77621',
+      secret: '5f6e946a-7140-4877-9c3c-1f3456c00a7a',
+      type: 'afrostream-exports-osearch',
+      role: 'admin'
     }]);
   })
 );
