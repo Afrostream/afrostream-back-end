@@ -39,7 +39,7 @@ module.exports = {
     try {
       var modelName = options.model.name;
       if (isModelBlacklisted(modelName)) {
-        console.log('[HOOK]: [AFTERCREATE]: skip mq message ('+modelName+' is blacklisted)');
+        //console.log('[HOOK]: [AFTERCREATE]: skip mq message ('+modelName+' is blacklisted)');
         return;
       }
       // sending only a selection of fields to avoid mq flooding
@@ -54,7 +54,7 @@ module.exports = {
           dataValues: getDataValues(instance, fields)
         }
       };
-      console.log('[HOOK]: [AFTERCREATE]: send '+ JSON.stringify(message) + ' to mq');
+      //console.log('[HOOK]: [AFTERCREATE]: send '+ JSON.stringify(message) + ' to mq');
       mq.send(message);
     } catch (e) {
       console.error('[HOOK]: [AFTERCREATE]: ' + String(e), e.stack);
@@ -64,7 +64,7 @@ module.exports = {
     try {
       var modelName = options.model.name;
       if (isModelBlacklisted(modelName)) {
-        console.log('[HOOK]: [AFTERUPDATE]: skip mq message ('+modelName+' is blacklisted)');
+        //console.log('[HOOK]: [AFTERUPDATE]: skip mq message ('+modelName+' is blacklisted)');
         return;
       }
       var changed = instance.changed() || [];
@@ -83,7 +83,7 @@ module.exports = {
           dataValues: getDataValues(instance, fields)
         }
       };
-      console.log('[HOOK]: [AFTERUPDATE]: send '+ JSON.stringify(message) + ' to mq');
+      //console.log('[HOOK]: [AFTERUPDATE]: send '+ JSON.stringify(message) + ' to mq');
       mq.send(message);
     } catch (e) {
       console.error('[HOOK]: [AFTERUPDATE]: ' + String(e), e.stack);
@@ -93,7 +93,7 @@ module.exports = {
     try {
       var modelName = options.model.name;
       if (isModelBlacklisted(modelName)) {
-        console.log('[HOOK]: [AFTERDESTROY]: skip mq message ('+modelName+' is blacklisted)');
+        //console.log('[HOOK]: [AFTERDESTROY]: skip mq message ('+modelName+' is blacklisted)');
         return;
       }
       // sending only a selection of fields to avoid mq flooding
@@ -108,7 +108,7 @@ module.exports = {
           dataValues: getDataValues(instance, fields)
         }
       };
-      console.log('[HOOK]: [AFTERDESTROY]: send '+ JSON.stringify(message) + ' to mq');
+      //console.log('[HOOK]: [AFTERDESTROY]: send '+ JSON.stringify(message) + ' to mq');
       mq.send(message);
     } catch (e) {
       console.error('[HOOK]: [AFTERDESTROY]: ' + String(e), e.stack);
