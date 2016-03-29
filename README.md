@@ -33,7 +33,7 @@ Run `grunt build` for building and `grunt serve` for preview.
 On dev environment, you need to seed the database at least once
 
 ```
-export SEED_DB=true && grunt serve
+export SEED_DB=true && npm run dev
 ```
 
 ## Siouxeries
