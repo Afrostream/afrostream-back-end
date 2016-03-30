@@ -68,7 +68,7 @@ describe('User API:', function() {
     });
   });
 
-  describe('POST /api/users/me', function () {
+  describe('POST /api/users/me (bouygues) ', function () {
     before(function() {
       return User.destroy({ where: { $or: [
         { email: 'test.integration+bouygues_miami@afrostream.tv' },
@@ -181,7 +181,122 @@ describe('User API:', function() {
         .expect(200)
         .expect('Content-Type', /json/)
         .end(function (err, res) {
-          console.log(res.body);
+          assert(typeof res.body.access_token === 'string');
+          assert(typeof res.body.refresh_token === 'string');
+          assert(typeof res.body.expires_in === 'number');
+          assert(res.body.token_type === 'Bearer');
+          done(err);
+        });
+    });
+  });
+
+  describe('POST /api/users/me (orange) ', function () {
+    before(function() {
+      return User.destroy({ where: {
+        ise2: "PARTNR-200-2Hy2e/PCQ1Y/NPKQPhSeKG3JbZfxQYKk+beCgch2vUQ="
+      }});
+    });
+
+    var orangeClient = null;
+    before(function() {
+      return Client.find({ where: {type: 'legacy-api.orange'}}).then(function (c) {
+        assert(c, 'client orange doesnt exist in db, please seed.');
+        orangeClient = c;
+      });
+    });
+
+    var orangeClientToken = null;
+    before(function () {
+      // login client
+      return bootstrap.getClientToken(app, orangeClient).then(function (t) {
+        assert(t, 'missing client token');
+        orangeClientToken = t;
+      });
+    });
+
+    after(function() {
+      return User.destroy({ where: {
+        ise2: "PARTNR-200-2Hy2e/PCQ1Y/NPKQPhSeKG3JbZfxQYKk+beCgch2vUQ="
+      }});
+    });
+
+    it('should not be able to login with an unknown orange ise2 id', function (done) {
+      request(app)
+        .post('/auth/oauth2/token')
+        .set('X_WASSUP_ISE2', 'PARTNR-200-2Hy2e/PCQ1Y/NPKQPhSeKG3JbZfxQYKk+beCgch2vUQ=')
+        .send({
+          grant_type: 'ise2',
+          client_id: orangeClient.get('_id'),
+          client_secret: orangeClient.get('secret')
+        })
+        .expect(403)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          assert(res.body.error_description === 'UNKNOWN_ISE2:PARTNR-200-2Hy2e/PCQ1Y/NPKQPhSeKG3JbZfxQYKk+beCgch2vUQ=')
+          done(err);
+        });
+    });
+
+    it('should create a random user using client orange', function (done) {
+      request(app)
+        .post('/api/users')
+        .send({
+          access_token: orangeClientToken,
+          ise2: "PARTNR-200-2Hy2e/PCQ1Y/NPKQPhSeKG3JbZfxQYKk+beCgch2vUQ="
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          if (err) return done(err);
+          request(app)
+            .get('/api/users/me')
+            .set('Content-type', 'application/json')
+            .set('Authorization', 'Bearer ' + res.body.token)
+            .expect(200)
+            .end(function (err, res) {
+              assert(res.body.ise2 === 'PARTNR-200-2Hy2e/PCQ1Y/NPKQPhSeKG3JbZfxQYKk+beCgch2vUQ=');
+              done(err);
+            });
+        });
+    });
+
+    it('shouldnt be able to create a user without orange info', function (done) {
+      request(app)
+        .post('/api/users')
+        .send({
+          access_token: orangeClientToken
+        }).expect(422)
+        .end(function (err, res) {
+          assert(res.body.error.indexOf('"ise2" is required') !== -1);
+          done(err);
+        });
+    });
+
+    it('shouldnt be able to create a different user with an existing orange ise2 id', function (done) {
+      request(app)
+        .post('/api/users')
+        .send({
+          access_token: orangeClientToken,
+          ise2: "PARTNR-200-2Hy2e/PCQ1Y/NPKQPhSeKG3JbZfxQYKk+beCgch2vUQ="
+        }).expect(422)
+        .end(function (err, res) {
+          assert(res.body.error.indexOf('SequelizeUniqueConstraintError') !== -1);
+          done(err);
+        });
+    });
+
+    it('should be able to login with the orange ise2 id after creation', function (done) {
+      request(app)
+        .post('/auth/oauth2/token')
+        .set('X_WASSUP_ISE2', 'PARTNR-200-2Hy2e/PCQ1Y/NPKQPhSeKG3JbZfxQYKk+beCgch2vUQ=')
+        .send({
+          grant_type: 'ise2',
+          client_id: orangeClient.get('_id'),
+          client_secret: orangeClient.get('secret')
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
           assert(typeof res.body.access_token === 'string');
           assert(typeof res.body.refresh_token === 'string');
           assert(typeof res.body.expires_in === 'number');

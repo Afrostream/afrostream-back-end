@@ -12,12 +12,17 @@ var createBodyBouygues = Joi.object().keys({
   bouyguesId: Joi.string().required()
 });
 
+var createBodyOrange = Joi.object().keys({
+  ise2: Joi.string().required()
+});
+
 var updateBody = Joi.object().keys({
   email: Joi.string().max(255).email(),
   name: Joi.string().max(255),
   first_name: Joi.string().max(255),
   last_name: Joi.string().max(255),
-  bouyguesId: Joi.string().max(128)
+  bouyguesId: Joi.string().max(128),
+  ise2: Joi.string().max(128)
 });
 
 module.exports.validateCreateBody = function (req, res, next) {
@@ -26,6 +31,8 @@ module.exports.validateCreateBody = function (req, res, next) {
   var schema;
   if (req.passport.client && req.passport.client.isBouygues()) {
     schema = createBodyBouygues;
+  } else if (req.passport.client && req.passport.client.isOrange()) {
+    schema = createBodyOrange;
   } else {
     schema = createBody;
   }

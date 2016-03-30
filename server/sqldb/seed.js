@@ -407,6 +407,12 @@ promises.push(
       secret: '5f6e946a-7140-4877-9c3c-1f3456c00a7a',
       type: 'afrostream-exports-osearch',
       role: 'admin'
+    }, {
+      name: 'orange',
+      _id: '610fa4d5-05ec-4493-b9a6-e50a04f7fdcc',
+      secret: "b0eee6d9-8771-4d93-8407-ee67af60408c",
+      type: "legacy-api.orange",
+      role: "client"
     }]);
   })
 );

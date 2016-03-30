@@ -29,6 +29,10 @@ module.exports = function (sequelize, DataTypes) {
         return this.getDataValue('type') === 'legacy-api.bouygues-miami';
       },
 
+      isOrange: function () {
+        return this.getDataValue('type') === 'legacy-api.orange';
+      },
+
       isAfrostreamExportsBouygues: function () {
         return this.getDataValue('type') === 'afrostream-exports-bouygues';
       },

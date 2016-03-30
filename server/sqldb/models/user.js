@@ -47,6 +47,7 @@ module.exports = function (sequelize, DataTypes) {
     github: DataTypes.JSON,
     facebook: DataTypes.JSON,
     bouyguesId: DataTypes.STRING(128),
+    ise2: DataTypes.STRING(128), // orange ise2 id.
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
@@ -66,7 +67,8 @@ module.exports = function (sequelize, DataTypes) {
           'email': this.email,
           'provider': this.provider,
           'facebook': this.facebook,
-          'bouyguesId': this.bouyguesId // fixme: security: should this id be exported or useless ?
+          'bouyguesId': this.bouyguesId, // fixme: security: should this id be exported ?
+          'ise2': this.ise2              // fixme: security: should this id be exported ?
         };
       },
 

@@ -14,6 +14,7 @@ var TokenError = oauth2orize.TokenError;
 
 // custom oauth2 exchange
 var exchangeBouygues = require('./exchange/bouygues.js');
+var exchangeIse2 = require('./exchange/ise2.js');
 
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
@@ -236,10 +237,10 @@ server.exchange(exchangeBouygues(function (client, id, scope, reqBody, done) {
   })
     .then(function (entity) {
       if (entity === null) {
-        return done(null, false);
+        return done(new TokenError('unknown client', 'invalid_grant'), false);
       }
       if (entity.secret !== client.secret) {
-        return done(null, false);
+        return done(new TokenError('wrong secret', 'invalid_grant'), false);
       }
       User.find({
         where: {bouyguesId: id}
@@ -247,6 +248,37 @@ server.exchange(exchangeBouygues(function (client, id, scope, reqBody, done) {
         .then(function (user) {
           if (user === null) {
             return done(new TokenError('unknown bouyguesId', 'invalid_grant'), false);
+          }
+          return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
+        })
+        .catch(function (err) {
+          return done(err);
+        });
+    })
+    .catch(function (err) {
+      return done(err);
+    });
+}));
+
+server.exchange(exchangeIse2(function (client, id, scope, reqBody, done) {
+  Client.find({
+    where: {
+      _id: client._id
+    }
+  })
+    .then(function (entity) {
+      if (entity === null) {
+        return done(new TokenError('unknown client', 'invalid_grant'), false);
+      }
+      if (entity.secret !== client.secret) {
+        return done(new TokenError('wrong secret', 'invalid_grant'), false);
+      }
+      User.find({
+        where: {ise2: id}
+      })
+        .then(function (user) {
+          if (user === null) {
+            return done(new TokenError('UNKNOWN_ISE2:' + id, 'invalid_grant'), false);
           }
           return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
         })
