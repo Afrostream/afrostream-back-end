@@ -165,7 +165,7 @@ exports.show = function (req, res, next) {
 };
 
 exports.history = function (req, res, next) {
-  UsersVideos.findAll({
+  var queryOptions = {
     where: { userId: req.user._id },
     order: [ ['dateLastRead', 'desc'] ],
     include: [{
@@ -197,7 +197,11 @@ exports.history = function (req, res, next) {
       ]
     }],
     limit: 10
-  })
+  };
+  //
+  queryOptions = auth.filterQueryOptions(req, queryOptions, UsersVideos);
+  //
+  UsersVideos.findAll(queryOptions)
   .then(
     function (usersVideos) {
       return usersVideos
