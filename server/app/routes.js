@@ -57,7 +57,8 @@ module.exports = function (app) {
 
   app.use('/right', require('../right/index'));
 
-  app.use('/alive', require('./alive.controller.js').alive);
+  app.use('/alive', require('./controller.js').alive);
+  app.use('/headers', require('./controller.js').headers);
 
   app.use('/tests', require('./test/index'));
 

@@ -9,3 +9,8 @@ module.exports.alive = function (req, res) {
     env: process.env.NODE_ENV
   });
 };
+
+module.exports.headers = function (req, res) {
+  res.noCache();
+  res.send('<pre>' + JSON.stringify(req.headers) + '</pre>');
+};
