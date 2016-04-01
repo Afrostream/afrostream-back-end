@@ -27,7 +27,7 @@ module.exports = {
       }
     },
     hooks: {
-      mqModelBlacklist: [ 'Logs', 'AccessToken', 'RefreshToken' ],
+      mqModelBlacklist: [ 'Logs', 'AccessToken', 'RefreshToken', 'UsersVideos' ],
       mqFields: [ '_id', 'title' ]
     }
   },
