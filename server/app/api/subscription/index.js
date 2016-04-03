@@ -12,7 +12,9 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/', auth.hasRole('admin'), controller.index);
+// disabling this route
+//  recurring is using RAM cache (leaking memory)
+//router.get('/', auth.hasRole('admin'), controller.index);
 router.get('/cancel', auth.isAuthenticated(), controller.cancel);
 router.get('/status', auth.isAuthenticated(), controller.status);
 router.post('/', auth.isAuthenticated(), controller.create);
