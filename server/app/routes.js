@@ -68,7 +68,7 @@ module.exports = function (app) {
     });
 
   // All other routes should redirect to the index.html
-  app.route(/\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|users|plans|subscriptions|clients|actors|settings|login|logout|jobs|posts|catchup|users\-logs)/)
+  app.route(/^\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|users|plans|subscriptions|clients|actors|settings|login|logout|jobs|posts|catchup|users\-logs)/)
     .get(function (req, res) {
       res.set('Cache-Control', 'public, max-age=0');
       res.sendFile(path.resolve(app.get('appPath') + '/index.html'));
