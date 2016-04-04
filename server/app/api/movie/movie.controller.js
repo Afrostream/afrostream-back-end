@@ -208,9 +208,11 @@ exports.show = function (req, res) {
             as: 'episodes',
             required: false,
             include: [
-              {model: Video, as: 'video', required: false, attributes: ['_id', 'name', 'duration' ]}
+              {model: Video, as: 'video', required: false, attributes: ['_id', 'name', 'duration' ]},
+              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+              {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
             ],
-            attributes: ['_id', 'slug']
+            attributes: ['_id', 'title', 'episodeNumber', 'slug']
           }
         ]
       }, // load all seasons
