@@ -34,6 +34,9 @@ exports.setup = function (User, config) {
             user.facebook = profile._json;
             return user.save();
           } else {
+            if (req.passportStrategyFacebookOptions && req.passportStrategyFacebookOptions.createAccountIfNotFound === false) {
+              throw new Error('No user found, please associate your profile with facebook after being connected');
+            }
             // new user => create
             return User.create({
               name: profile.displayName,

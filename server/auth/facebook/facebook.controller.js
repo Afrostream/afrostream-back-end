@@ -1,13 +1,27 @@
 'use strict';
 
 var Q = require('q');
+var _ = require('lodash');
 var passport = require('passport');
 var auth = require('../auth.service');
 var config = require('../../config');
 var sqldb = rootRequire('/server/sqldb');
 var User = sqldb.User;
 
-function validationError(res, statusCode) {
+/**
+ * Scope authorizations
+ * @type {string[]}
+ */
+var scope = ['email', 'user_about_me'];
+
+var strategyOptions = function (options) {
+  return function (req, res, next) {
+    req.passportStrategyFacebookOptions = _.merge(options || {}, {createAccountIfNotFound: false});
+    next();
+  };
+};
+
+function validationError (res, statusCode) {
   statusCode = statusCode || 422;
   return function (err) {
     console.error('/auth/facebook/: error: validationError: ', err);
@@ -18,7 +32,15 @@ function validationError(res, statusCode) {
 var signin = function (req, res, next) {
   passport.authenticate('facebook', {
     display: 'popup',
-    scope: ['email', 'user_about_me'],
+    scope: scope,
+    session: false
+  })(req, res, next);
+};
+
+var signup = function (req, res, next) {
+  passport.authenticate('facebook', {
+    display: 'popup',
+    scope: scope,
     session: false
   })(req, res, next);
 };
@@ -58,16 +80,23 @@ var callback = function (req, res, next) {
         return auth.getOauth2UserTokens(user, req.clientIp, req.userAgent);
       })
       .then(
-        function success(tokens) {
+        function success (tokens) {
           res.json(tokens);
         },
-        function error(err) {
+        function error (err) {
           console.error('/auth/facebook/: error: ' + err, err);
           return res.status(401).json({message: String(err)});
         });
   })(req, res, next);
 };
 
+module.exports.middlewares = {
+  strategyOptions: strategyOptions
+};
+
 module.exports.signin = signin;
+module.exports.signup = signup;
 module.exports.unlink = unlink;
 module.exports.callback = callback;
+
+
