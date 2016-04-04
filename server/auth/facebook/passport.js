@@ -6,7 +6,6 @@ exports.setup = function (User, config) {
   passport.use(new FacebookStrategy({
       clientID: config.facebook.clientID,
       clientSecret: config.facebook.clientSecret,
-      callbackURL: config.facebook.callbackURL,
       enableProof: true,
       profileFields: [
         'displayName',
@@ -16,25 +15,33 @@ exports.setup = function (User, config) {
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function (req, accessToken, refreshToken, profile, done) {
+      var userId = req.query.id;
+      var status = req.query.status;
       bluebird.resolve(req.user)
         .then(function (user) {
           // user exist => continue
           if (user) return user;
           // missing in req.user ? => fetching in DB
+          var whereUser = [{'facebook.id': profile.id}, {'_id': userId}];
+          if (status !== 'signin') {
+            whereUser.push({'email': {$iLike: profile.emails[0].value}});
+          }
           return User.find({
             where: {
-              $or: [{'facebook.id': profile.id},
-                {'email': {$iLike: profile.emails[0].value}}]
+              $or: whereUser
             }
           });
         })
         .then(function (user) {
           if (user) {
+            if (userId && userId != user._id) {
+              throw new Error('Your profile is already linked to another user');
+            }
             // user exist => update
             user.facebook = profile._json;
             return user.save();
           } else {
-            if (req.passportStrategyFacebookOptions && req.passportStrategyFacebookOptions.createAccountIfNotFound === false) {
+            if (status === 'signin') {
               throw new Error('No user found, please associate your profile with facebook after being connected');
             }
             // new user => create

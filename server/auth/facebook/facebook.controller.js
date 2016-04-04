@@ -16,7 +16,10 @@ var scope = ['email', 'user_about_me'];
 
 var strategyOptions = function (options) {
   return function (req, res, next) {
-    req.passportStrategyFacebookOptions = _.merge(options || {}, {createAccountIfNotFound: false});
+    req.passportStrategyFacebookOptions = _.merge(
+      {
+        createAccountIfNotFound: false
+      }, options || {});
     next();
   };
 };
@@ -30,7 +33,9 @@ function validationError (res, statusCode) {
 }
 
 var signin = function (req, res, next) {
+  var userId = req.user ? req.user._id : null;
   passport.authenticate('facebook', {
+    callbackURL: config.facebook.callbackURL + '?status=signin' + (userId ? '&id=' + userId : ''),
     display: 'popup',
     scope: scope,
     session: false
@@ -38,7 +43,9 @@ var signin = function (req, res, next) {
 };
 
 var signup = function (req, res, next) {
+  var userId = req.user ? req.user._id : null;
   passport.authenticate('facebook', {
+    callbackURL: config.facebook.callbackURL + '?status=signup' + (userId ? '&id=' + userId : ''),
     display: 'popup',
     scope: scope,
     session: false
@@ -65,9 +72,11 @@ var unlink = function (req, res) {
 };
 
 var callback = function (req, res, next) {
+  var userId = req.query.id;
+  var status = req.query.status;
   passport.authenticate('facebook', {
     display: 'popup',
-    //successRedirect: config.facebook.successURL,
+    callbackURL: config.facebook.callbackURL + '?status=' + status + ( userId ? '&id=' + userId : ''),
     failureRedirect: config.facebook.failureURL,
     session: false
   }, function (err, user, info) {
