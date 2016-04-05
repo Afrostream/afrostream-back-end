@@ -18,7 +18,6 @@ module.exports = function (app) {
   app.use('/api/billings', require('./api/billing/index'));
   app.use('/api/catchup', require('./api/catchup/index'));
   app.use('/api/config', require('./api/config/index'));
-  app.use('/api/plans', require('./api/plan/index'));
   app.use('/api/subscriptions', require('./api/subscription/index'));
   app.use('/api/refreshTokens', require('./api/refreshToken/index'));
   app.use('/api/accessTokens', require('./api/accessToken/index'));
@@ -68,7 +67,7 @@ module.exports = function (app) {
     });
 
   // All other routes should redirect to the index.html
-  app.route(/^\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|users|plans|subscriptions|clients|actors|settings|login|logout|jobs|posts|catchup|users\-logs)/)
+  app.route(/^\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|users|subscriptions|clients|actors|settings|login|logout|jobs|posts|catchup|users\-logs)/)
     .get(function (req, res) {
       res.set('Cache-Control', 'public, max-age=0');
       res.sendFile(path.resolve(app.get('appPath') + '/index.html'));

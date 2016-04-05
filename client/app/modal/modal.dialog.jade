@@ -27,9 +27,6 @@ script(type='text/ng-template' id='imagesTemplate.html')
     div(ng-if='modalType === "client"')
       clients
 
-    div(ng-if='modalType === "plan"')
-      plans
-
     div(ng-if='modalType === "user"')
       users
 
@@ -39,7 +36,7 @@ script(type='text/ng-template' id='imagesTemplate.html')
     div(ng-if='modalType === "post"')
       posts
 
-    div(ng-if='modalType !== "category" && modalType !== "video" && modalType !== "language" && modalType !== "image" && modalType !== "licensor" && modalType !== "client" && modalType !== "plan" && modalType !== "user" && modalType !== "actor" && modalType !== "post"')
+    div(ng-if='modalType !== "category" && modalType !== "video" && modalType !== "language" && modalType !== "image" && modalType !== "licensor" && modalType !== "client" && modalType !== "user" && modalType !== "actor" && modalType !== "post"')
       .form-group
         label(for='type').control-label Type
       .form-group

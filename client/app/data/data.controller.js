@@ -199,7 +199,6 @@ angular.module('afrostreamAdminApp')
         case'language':
         case'client':
         case'video':
-        case'plan':
         case'user':
         case'subscription':
         case'post':
