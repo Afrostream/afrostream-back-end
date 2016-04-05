@@ -1,3 +1,4 @@
+var bluebird = require('bluebird');
 var passport = require('passport');
 var FacebookStrategy = require('passport-facebook');
 
@@ -5,56 +6,55 @@ exports.setup = function (User, config) {
   passport.use(new FacebookStrategy({
       clientID: config.facebook.clientID,
       clientSecret: config.facebook.clientSecret,
-      callbackURL: config.facebook.callbackURL,
       enableProof: true,
       profileFields: [
         'displayName',
-        'emails'
+        'emails',
+        'name'
       ],
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function (req, accessToken, refreshToken, profile, done) {
-      // check if the user is already logged in
-      if (!req.user) {
-        User.find({
+      var userId = req.query.id;
+      var status = req.query.status;
+      bluebird.resolve(req.user)
+        .then(function (user) {
+          // user exist => continue
+          if (user) return user;
+          // missing in req.user ? => fetching in DB
+          var whereUser = [{'facebook.id': profile.id}, {'_id': userId}];
+          if (status !== 'signin') {
+            whereUser.push({'email': {$iLike: profile.emails[0].value}});
+          }
+          return User.find({
             where: {
-              'facebook.id': profile.id
+              $or: whereUser
             }
-          })
-          .then(function (user) {
-            if (user) {
-              return done(null, user);
+          });
+        })
+        .then(function (user) {
+          if (user) {
+            if (userId && userId != user._id) {
+              throw new Error('Your profile is already linked to another user');
             }
-            // if there is no user, create them
-            user = User.build({
+            // user exist => update
+            user.facebook = profile._json;
+            return user.save();
+          } else {
+            if (status === 'signin') {
+              throw new Error('No user found, please associate your profile with facebook after being connected');
+            }
+            // new user => create
+            return User.create({
               name: profile.displayName,
               email: profile.emails[0].value,
+              first_name: profile.name.givenName,
+              last_name: profile.name.familyName,
               role: 'user',
               provider: 'facebook',
               facebook: profile._json
             });
-            user.save()
-              .then(function (user) {
-                return done(null, user);
-              })
-              .catch(function (err) {
-                return done(err);
-              });
-          })
-          .catch(function (err) {
-            return done(err);
-          });
-      } else {
-        // user already exists and is logged in, we have to link accounts
-        var user = req.user; // pull the user out of the session
-        user.updateAttributes({
-            facebook: profile._json
-          })
-          .then(function (linkedUser) {
-            return done(null, linkedUser);
-          }).catch(function (err) {
-          return done(err);
-        });
-      }
+          }
+        }).nodeify(done);
     }));
 };
