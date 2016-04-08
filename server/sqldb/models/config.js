@@ -5,10 +5,11 @@ var config = rootRequire('/server/config');
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Config', {
     _id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
       unique: true,
-      allowNull: false
+      autoIncrement: true
     },
     target: DataTypes.STRING,
     data: {
