@@ -49,15 +49,6 @@ function responseWithResult (res, statusCode) {
   };
 }
 
-function saveUpdates (updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
-}
-
 function removeEntity (res) {
   return function (entity) {
     if (entity) {
