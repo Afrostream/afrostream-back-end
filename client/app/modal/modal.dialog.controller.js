@@ -4,7 +4,7 @@ angular.module('afrostreamAdminApp')
   .controller('ModalDialogCtrl', function ($scope, $sce, $log, $http, $modalInstance, item, type, Slug, ngToast, Image, $timeout, $modal) {
     // BEGIN temporary fix on dates...
     // should be generic & added to $httpProvider
-    function parseItemDates(item) {
+    function parseItemDates (item) {
       if (item.dateReleased) {
         item.dateReleased = new Date(item.dateReleased);
       }
@@ -16,7 +16,7 @@ angular.module('afrostreamAdminApp')
     $scope.modalHooks = {};
 
     var getTitle = function (item) {
-      return item.title || item.label || item.name || ((item.firstName || item.lastName) ? item.firstName + ' ' + item.lastName : '' );
+      return item.title || item.label || item.name || item.target || ((item.firstName || item.lastName) ? item.firstName + ' ' + item.lastName : '' );
     };
 
     $scope.isFilm = function () {
@@ -138,7 +138,7 @@ angular.module('afrostreamAdminApp')
         $scope.item = item; // on tente un hotfix..
         return;
       }
-      $http.get('/api/' + $scope.directiveType + '/' + item._id, { params : { backo: 1} }).then(function (result) {
+      $http.get('/api/' + $scope.directiveType + '/' + item._id, {params: {backo: 1}}).then(function (result) {
         // FIXME: network code inside modal/* data/* should be in a single place
         //  & user $httpProvider to filter dates..
         var item = result.data;

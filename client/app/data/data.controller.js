@@ -7,6 +7,7 @@ angular.module('afrostreamAdminApp')
         item.genericTitle = item.title
          || item.label
          || item.name
+         || item.target
          || ((item.firstName || item.lastName) ? item.firstName + ' ' + item.lastName : '' );
         item.genericThumb = (item.imgix) ? item : item.thumb || item.picture;
       });
@@ -106,7 +107,6 @@ angular.module('afrostreamAdminApp')
       };
     }
 
-
     if ($scope.sortable) {
       $scope.sortableOptions = {
         axis: 'y',
@@ -171,8 +171,11 @@ angular.module('afrostreamAdminApp')
       });
     };
 
-    $scope.newIndex = function () {
-      $scope.currentItem = {};
+    $scope.newIndex = function (item) {
+      var newIndex = item ? angular.copy(item) : {};
+      delete newIndex.id;
+      delete newIndex._id;
+      $scope.currentItem = newIndex;
       var $modalInstance = $modal.open(modalNewOpts);
       $modalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
     };
@@ -191,6 +194,18 @@ angular.module('afrostreamAdminApp')
       });
     };
 
+    $scope.isEditable = function () {
+      var isEdit = true;
+      switch ($scope.type) {
+        case'config':
+          isEdit = false;
+          break;
+        default:
+          break;
+      }
+      return isEdit;
+    };
+
     $scope.hasThumb = function () {
       var hasTmb = true;
       switch ($scope.type) {
@@ -202,6 +217,7 @@ angular.module('afrostreamAdminApp')
         case'user':
         case'subscription':
         case'post':
+        case'config':
           hasTmb = false;
           break;
         default:

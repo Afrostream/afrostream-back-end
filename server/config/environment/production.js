@@ -23,7 +23,26 @@ module.exports = {
   },
 
   player: {
-    foo: 'bar'
+    dash: {
+      autoSwitch: true,
+      bolaEnabled: false,
+      scheduleWhilePaused: true,
+      initialBitrate: 400,
+      liveFragmentCount: 4,
+      buffer: {
+        bufferToKeep: 60,
+        minBufferTime: 24,
+        bufferPruningInterval: 30,
+        bandwidthSafetyFactor: 0.9,
+        bufferTimeAtTopQuality: 30,
+        bufferTimeAtTopQualityLongForm: 60,
+        longFormContentDurationThreshold: 600,
+        richBufferThreshold: 20,
+        abandonLoadTimeout: 4,
+        fragmentLoaderRetryAttempts: 3,
+        fragmentLoaderRetryInterval: 1000
+      }
+    }
   },
 
   frontEnd: {
@@ -45,15 +64,19 @@ module.exports = {
       }
     },
     hooks: {
-      mqModelBlacklist: [ 'Logs', 'AccessToken', 'RefreshToken', 'UsersVideos' ],
-      mqFields: [ '_id', 'title' ]
+      mqModelBlacklist: ['Logs', 'AccessToken', 'RefreshToken', 'UsersVideos'],
+      mqFields: ['_id', 'title']
     }
   },
 
   client: {
     jobs: {
       api: 'https://afrostream-jobs.herokuapp.com/api',
-      basicAuth: {user: 'afrostream', password: 'r4nd0mT0k3n', header: 'Authorization: Basic YWZyb3N0cmVhbTpyNG5kMG1UMGszbg=='}
+      basicAuth: {
+        user: 'afrostream',
+        password: 'r4nd0mT0k3n',
+        header: 'Authorization: Basic YWZyb3N0cmVhbTpyNG5kMG1UMGszbg=='
+      }
     }
   },
 
