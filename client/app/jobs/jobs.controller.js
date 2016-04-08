@@ -3,7 +3,7 @@
 angular.module('afrostreamAdminApp')
   .controller('JobsCtrl', function ($scope, $http, $interval, jobs) {
     $scope.ready=false;
-    $http.get('/api/config/client').then(function (result) {
+    $http.get('/api/configs/client').then(function (result) {
       $scope.ready=true;
 
       var user = result.data.jobs.basicAuth.user;

@@ -47,6 +47,7 @@ db.Season = db.sequelize.import('models/season');
 db.Tag = db.sequelize.import('models/tag');
 db.User = db.sequelize.import('models/user');
 db.Video = db.sequelize.import('models/video');
+db.Config = db.sequelize.import('models/config');
 db.WaitingUser = db.sequelize.import('models/waitingUser');
 
 db.CategoryMovies = db.sequelize.import('models/categoryMovies');

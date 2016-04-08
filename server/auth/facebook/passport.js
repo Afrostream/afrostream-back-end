@@ -44,6 +44,7 @@ exports.setup = function (User, config) {
             if (status === 'signin') {
               throw new Error('No user found, please associate your profile with facebook after being connected');
             }
+
             // new user => create
             return User.create({
               name: profile.displayName,

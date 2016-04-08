@@ -8,7 +8,7 @@ angular.module('afrostreamAdminApp')
       if (self.authorization) {
         return $q(function (resolve) { resolve(); });
       } else {
-        return $http.get('/api/config/client').then(function (result) {
+        return $http.get('/api/configs/client').then(function (result) {
           self.conf = result.data.jobs;
           var user = self.conf.basicAuth.user;
           var password = self.conf.basicAuth.password;

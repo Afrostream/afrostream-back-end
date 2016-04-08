@@ -66,6 +66,10 @@ angular.module('afrostreamAdminApp')
       'title': 'Posts',
       'state': 'posts',
       'icon': 'fa-newspaper-o'
+    }, {
+      'title': 'Configs',
+      'state': 'configs',
+      'icon': 'fa-cogs'
     }];
 
     $scope.isCollapsed = true;
