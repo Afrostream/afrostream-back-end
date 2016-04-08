@@ -22,29 +22,6 @@ module.exports = {
     'mongodb://localhost/afrostreamadmin'
   },
 
-  player: {
-    dash: {
-      autoSwitch: true,
-      bolaEnabled: false,
-      scheduleWhilePaused: true,
-      initialBitrate: 400,
-      liveFragmentCount: 4,
-      buffer: {
-        bufferToKeep: 60,
-        minBufferTime: 24,
-        bufferPruningInterval: 30,
-        bandwidthSafetyFactor: 0.9,
-        bufferTimeAtTopQuality: 30,
-        bufferTimeAtTopQualityLongForm: 60,
-        longFormContentDurationThreshold: 600,
-        richBufferThreshold: 20,
-        abandonLoadTimeout: 4,
-        fragmentLoaderRetryAttempts: 3,
-        fragmentLoaderRetryInterval: 1000
-      }
-    }
-  },
-
   frontEnd: {
     protocol: 'https',
     authority: 'afrostream.tv'
