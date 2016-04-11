@@ -89,9 +89,6 @@ exports.index = function (req, res) {
 exports.create = function (req, res, next) {
   Q()
     .then(function () {
-      if (req.passport.client.isBouygues()) {
-        req.body.password = sha1('youpi'+new Date()+Math.random()).substr(2, 6);
-      }
       var newUser = User.build(req.body);
       newUser.setDataValue('provider', 'local');
       newUser.setDataValue('role', 'user');
@@ -117,13 +114,6 @@ exports.create = function (req, res, next) {
             expires_in:info.expires_in
           };
         });
-    })
-    .then(function (token) {
-      // bouygues: sending password by email.
-      if (req.passport.client.isBouygues()) {
-        mailer.sendPasswordEmail(req.body.email, req.body.password);
-      }
-      return token;
     })
     .then(res.json.bind(res))
     .catch(validationError(res));

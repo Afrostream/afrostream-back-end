@@ -8,7 +8,7 @@ var createBody = Joi.object().keys({
 });
 
 var createBodyBouygues = Joi.object().keys({
-  email: Joi.string().max(255).email().required(),
+  email: Joi.string().max(255).email(),
   bouyguesId: Joi.string().required()
 });
 
