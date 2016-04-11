@@ -3,7 +3,7 @@
 var Q = require('q');
 var _ = require('lodash');
 var passport = require('passport');
-var auth = require('../auth.service');
+var oauth2 = require('../oauth2/oauth2');
 var config = require('../../config');
 var sqldb = rootRequire('/server/sqldb');
 var User = sqldb.User;
@@ -86,7 +86,22 @@ var callback = function (req, res, next) {
         if (info) throw info;
         if (!user) throw new Error('Something went wrong, please try again.');
         console.log('authenticate getOauth2UserTokens', user);
-        return auth.getOauth2UserTokens(user, req.clientIp, req.userAgent);
+        return req.getPassport();
+      })
+      .then(function () {
+        console.log('generate token with client', req.passport.client, user);
+        var deferred = Q.defer();
+        oauth2.generateToken(req.passport.client, user, null, req.clientIp, req.userAgent, function (err, accessToken, refreshToken, info) {
+          if (err)  return deferred.reject(err);
+          return deferred.resolve({
+            token: accessToken,
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            expires_in: info.expires_in
+          });
+        });
+        return deferred.promise;
+
       })
       .then(
         function success (tokens) {
