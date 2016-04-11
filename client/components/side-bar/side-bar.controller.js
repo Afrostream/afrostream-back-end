@@ -70,6 +70,10 @@ angular.module('afrostreamAdminApp')
       'title': 'Imports',
       'state': 'imports',
       'icon': 'fa-download'
+    }, {
+      'title': 'Configs',
+      'state': 'configs',
+      'icon': 'fa-cogs'
     }];
 
     $scope.isCollapsed = true;

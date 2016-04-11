@@ -22,10 +22,6 @@ module.exports = {
     'mongodb://localhost/afrostreamadmin'
   },
 
-  player: {
-    foo: 'bar'
-  },
-
   frontEnd: {
     protocol: 'https',
     authority: 'afrostream.tv'
@@ -45,15 +41,19 @@ module.exports = {
       }
     },
     hooks: {
-      mqModelBlacklist: [ 'Logs', 'AccessToken', 'RefreshToken', 'UsersVideos' ],
-      mqFields: [ '_id', 'title' ]
+      mqModelBlacklist: ['Logs', 'AccessToken', 'RefreshToken', 'UsersVideos'],
+      mqFields: ['_id', 'title']
     }
   },
 
   client: {
     jobs: {
       api: 'https://afrostream-jobs.herokuapp.com/api',
-      basicAuth: {user: 'afrostream', password: 'r4nd0mT0k3n', header: 'Authorization: Basic YWZyb3N0cmVhbTpyNG5kMG1UMGszbg=='}
+      basicAuth: {
+        user: 'afrostream',
+        password: 'r4nd0mT0k3n',
+        header: 'Authorization: Basic YWZyb3N0cmVhbTpyNG5kMG1UMGszbg=='
+      }
     }
   },
 
