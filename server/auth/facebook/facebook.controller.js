@@ -90,18 +90,16 @@ var callback = function (req, res, next) {
       })
       .then(function (passport) {
         console.log('generate token with client', passport.client._id, user._id);
-        var deferred = Q.defer();
-        oauth2.generateToken(passport.client, user, null, req.clientIp, req.userAgent, function (err, accessToken, refreshToken, info) {
-          if (err)  return deferred.reject(err);
-          return deferred.resolve({
-            token: accessToken,
-            access_token: accessToken,
-            refresh_token: refreshToken,
-            expires_in: info.expires_in
-          });
-        });
-        return deferred.promise;
 
+        return oauth2.generateToken(passport.client, user, null, req.clientIp, req.userAgent)
+          .spread(function (accessToken, refreshToken, info) {
+            return {
+              token: accessToken,
+              access_token: accessToken,
+              refresh_token: refreshToken,
+              expires_in: info.expires_in
+            };
+          });
       })
       .then(
         function success (tokens) {
