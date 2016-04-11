@@ -45,6 +45,10 @@ angular.module('afrostreamAdminApp', [
       // Add authorization token to headers
       request: function (config) {
         config.headers = config.headers || {};
+        // avoid adding Authorization headers to cross domain requests.
+        if (config.url && config.url.substr(0, 4) === 'http') {
+          return config;
+        }
         if ($cookies.get('token')) {
           config.headers.Authorization = config.headers.Authorization || 'Bearer ' + $cookies.get('token');
         }
