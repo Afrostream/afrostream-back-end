@@ -2,6 +2,9 @@
 
 var _ = require('lodash');
 var Q = require('q');
+
+var oauth2 = rootRequire('/server/auth/oauth2/oauth2');
+
 var sqldb = rootRequire('/server/sqldb');
 var User = sqldb.User;
 var Client = sqldb.Client;
@@ -96,7 +99,24 @@ exports.create = function (req, res, next) {
     })
     .then(function (user) {
       // everything went ok, we send an oauth2 access token
-      return auth.getOauth2UserTokens(user, req.clientIp, req.userAgent);
+      return Q.ninvoke(oauth2, "generateToken",
+        req.passport.client || null,
+        user,
+        null, // code
+        req.clientIp,
+        req.userAgent
+      ).then(function (data) {
+          var accessToken = data[0]
+            , refreshToken = data[1]
+            , info = data[2];
+
+          return {
+            token: accessToken, // backward compatibility
+            access_token:accessToken,
+            refresh_token:refreshToken,
+            expires_in:info.expires_in
+          };
+        });
     })
     .then(function (token) {
       // bouygues: sending password by email.
