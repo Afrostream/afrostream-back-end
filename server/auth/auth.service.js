@@ -100,21 +100,15 @@ function reqUserIsBacko(req) {
  * OAuth2 user token
  */
 function getOauth2UserTokens(user, userIp, userAgent) {
-  var deferred = Q.defer();
-  if (!user) {
-    deferred.reject(new Error("no user"));
-  } else {
-    oauth2.generateToken(null, user, null, userIp, userAgent, function (err, accessToken, refreshToken, info) {
-      if (err)  return deferred.reject(err);
-      return deferred.resolve({
+  return oauth2.generateToken(null, user, null, userIp, userAgent)
+    .spread(function (accessToken, refreshToken, info) {
+      return {
         token: accessToken, // backward compatibility
         access_token:accessToken,
         refresh_token:refreshToken,
         expires_in:info.expires_in
-      });
+      };
     });
-  }
-  return deferred.promise;
 }
 
 /**

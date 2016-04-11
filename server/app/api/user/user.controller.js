@@ -96,7 +96,15 @@ exports.create = function (req, res, next) {
     })
     .then(function (user) {
       // everything went ok, we send an oauth2 access token
-      return auth.getOauth2UserTokens(user, req.clientIp, req.userAgent);
+      return oauth2.generateToken(req.passport.client, user, null, req.clientIp, req.userAgent)
+        .spread(function (accessToken, refreshToken, info) {
+          return {
+            token: accessToken, // backward compatibility
+            access_token:accessToken,
+            refresh_token:refreshToken,
+            expires_in:info.expires_in
+          };
+        });
     })
     .then(function (token) {
       // bouygues: sending password by email.
