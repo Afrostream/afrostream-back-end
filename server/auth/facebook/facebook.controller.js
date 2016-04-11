@@ -85,13 +85,13 @@ var callback = function (req, res, next) {
         if (err) throw err;
         if (info) throw info;
         if (!user) throw new Error('Something went wrong, please try again.');
-        console.log('authenticate getOauth2UserTokens', user);
+        console.log('authenticate getOauth2UserTokens', user._id);
         return req.getPassport();
       })
-      .then(function () {
-        console.log('generate token with client', req.passport.client, user);
+      .then(function (passport) {
+        console.log('generate token with client', passport.client._id, user._id);
         var deferred = Q.defer();
-        oauth2.generateToken(req.passport.client, user, null, req.clientIp, req.userAgent, function (err, accessToken, refreshToken, info) {
+        oauth2.generateToken(passport.client, user, null, req.clientIp, req.userAgent, function (err, accessToken, refreshToken, info) {
           if (err)  return deferred.reject(err);
           return deferred.resolve({
             token: accessToken,
