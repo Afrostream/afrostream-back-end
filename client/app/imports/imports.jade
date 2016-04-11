@@ -1,0 +1,39 @@
+div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
+    side-bar
+
+    div(id='content-wrapper')
+        navbar
+        .page-content
+            .row
+                .col-lg-12
+                    h3 PF Movies
+
+                    div(class="btn-group" uib-dropdown is-open="!!statusDropdownIsOpen")
+                        button(type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled")
+                            | {{state}} &nbsp;
+                            span(class="caret")
+                        ul(class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown")
+                            li(ng-repeat="newState in states")
+                                a(ng-click="setState(newState)")
+                                    | {{newState}}
+
+                    table.table
+                        colgroup
+                            col.col-md-1
+                        thead
+                            tr
+                                th.text-center ID
+                                td uuid
+                                td filename
+                                td(ng-if="state=='initialized'") import
+                        tbody
+                            tr(ng-repeat='content in contentList')
+                                td.text-center
+                                    span {{content.contentId}}
+                                td.text-center
+                                    span {{content.uuid}}
+                                td.text-center
+                                    span {{content.filename}}
+                                td(ng-if="state='initialized'")
+                                    button(type="button" class="btn btn-primary active" style="margin:0" ng-click="fixme()")
+                                        | import
