@@ -2,6 +2,15 @@
 
 angular.module('afrostreamAdminApp')
   .controller('MoviesCtrl', function ($scope, $http, Category, Season, Licensor, Video, Actor) {
+    $scope.vXstYList = [
+      'VO',
+      'VF',
+      'VOST',
+      'VOSTFR',
+      'VOSTENG',
+      'VD'
+    ];
+
     var hydrateActor = function (actor) {
       actor.fullName = actor.firstName + ' ' + actor.lastName;
     };

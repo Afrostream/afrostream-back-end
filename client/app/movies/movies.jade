@@ -8,7 +8,11 @@
 
 .form-group
   label.control-label Production country
-  select.form-control(type='text' ng-model='item.productionCountry' ng-options='o as o for o in countries')
+  select.form-control(type='text' ng-model='item.productionCountry' ng-options='o as o for o in countries' style="width:auto;")
+
+.form-group
+  label.control-label VO/VOST/...
+  select.form-control(type='text' ng-model='item.vXstY' ng-options='o as o for o in vXstYList' style="width:auto;")
 
 .form-group
   div

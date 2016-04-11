@@ -4,6 +4,10 @@
   slider(min='0' step='10' max='10000' ng-model="item.duration")
 
 .form-group
+  label.control-label VO/VOST/...
+  select.form-control(type='text' ng-model='item.vXstY' ng-options='o as o for o in vXstYList' style="width:auto;")
+
+.form-group
   div
     label.control-label CSA
   div.btn-group

@@ -2,6 +2,15 @@
 
 angular.module('afrostreamAdminApp')
   .controller('EpisodesCtrl', function ($scope, Season, Video) {
+    $scope.vXstYList = [
+      'VO',
+      'VF',
+      'VOST',
+      'VOSTFR',
+      'VOSTENG',
+      'VD'
+    ];
+
     $scope.$watch('item.episodeNumber', function() {
       if ($scope.item) {
         $scope.item.sort = $scope.item.episodeNumber;
