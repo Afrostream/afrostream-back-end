@@ -80,6 +80,11 @@ module.exports = {
     apiPass: 'billingsapirocks'
   },
 
+  pf: {
+    timeout: 500,
+    url: 'http://p-afsmsch-001.afrostream.tv:4000'
+  },
+
   mq: {
     endPoint: 'amqp://bjkjcuac:AZXv0QBokSQpjM545tlFXTMER2QN9F9K@chicken.rmq.cloudamqp.com/bjkjcuac',
     exchangeName: 'afrostream-backend'

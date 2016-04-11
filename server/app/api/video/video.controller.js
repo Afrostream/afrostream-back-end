@@ -33,6 +33,7 @@ var billingApi = rootRequire('/server/billing-api.js');
 
 var getClientIp = rootRequire('/server/auth/geo').getClientIp;
 var cdnselector = rootRequire('/server/cdnselector');
+var pf = rootRequire('/server/pf');
 
 var getIncludedModel = function () {
   return [
@@ -296,6 +297,17 @@ exports.show = function (req, res) {
           },
           function (err) { return entity; }
       );
+    })
+    //
+    // PF infos
+    //  FIXME: PF & CDNSELECTOR should be launched // and not sequential...
+    //
+    .then(function (entity) {
+      var plainObject = entity.get({plain: true}) || {};
+      return pf.getContentAssetsSafe(plainObject.encodingId).then(function (assets) {
+        plainObject.assets = Array.isArray(assets) ? assets: [];
+        return plainObject;
+      });
     })
      .then(responseWithResult(res))
      .catch(handleError(res));

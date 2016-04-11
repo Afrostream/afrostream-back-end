@@ -70,6 +70,11 @@ module.exports = {
     promoLastSubscriptionMinDays: 30 * 6 // days, ~= 6 months
   },
 
+  pf: {
+    timeout: 500,
+    url: 'http://p-afsmsch-001.afrostream.dev'
+  },
+
   logs: {
     basicAuth: {user: 'dev', password: 'dev'}
   },
