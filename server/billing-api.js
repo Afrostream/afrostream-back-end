@@ -90,6 +90,7 @@ var someSubscriptionActiveSafe = function (userReferenceUuid) {
 };
 
 var someSubscriptionActiveSafeTrue = function (userReferenceUuid) {
+  assert(false); // FIXME: differencier un timeout d'un 404 (user non subscribed)
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 

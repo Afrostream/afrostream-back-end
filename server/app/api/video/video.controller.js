@@ -199,7 +199,7 @@ exports.show = function (req, res) {
           throw new Error('missing user');
         }
         // mobile, we check req.user
-        return billingApi.someSubscriptionActiveSafeTrue(req.user._id)
+        return billingApi.someSubscriptionActiveSafe(req.user._id)
           .then(function (active) {
           if (!active) {
             console.error('error: user ' + req.user._id + ' UA=' + req.userAgent + ' no active subscription');
