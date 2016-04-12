@@ -89,6 +89,16 @@ var someSubscriptionActiveSafe = function (userReferenceUuid) {
   );
 };
 
+var someSubscriptionActiveSafeTrue = function (userReferenceUuid) {
+  assert(typeof userReferenceUuid === 'number');
+  assert(userReferenceUuid);
+
+  return someSubscriptionActive(userReferenceUuid).then(
+    function success(bool) { return bool; }
+    , function error(err) { console.error('[ERROR]: BILLING API DOWN => subscribed=true', err); return true; }
+  );
+};
+
 /**
  * create a subscription in the billing-api
  *
@@ -292,6 +302,7 @@ module.exports.getSubscriptionsStatus = getSubscriptionsStatus;
 module.exports.getSubscriptions = getSubscriptions;
 module.exports.someSubscriptionActive = someSubscriptionActive;
 module.exports.someSubscriptionActiveSafe = someSubscriptionActiveSafe;
+module.exports.someSubscriptionActiveSafeTrue = someSubscriptionActiveSafeTrue;
 module.exports.createSubscription = createSubscription;
 module.exports.cancelSubscription = cancelSubscription;
 // user manipulation

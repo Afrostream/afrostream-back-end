@@ -195,21 +195,17 @@ exports.show = function (req, res) {
     //  we check if the user has an active subscription
     //
     .then(function () {
-      //
-      if (req.userAgent.indexOf('okhttp') !== -1 ||
-          req.userAgent.indexOf('iPhone') !== -1) {
         if (!req.user) {
           throw new Error('missing user');
         }
         // mobile, we check req.user
-        return billingApi.someSubscriptionActiveSafe(req.user._id)
+        return billingApi.someSubscriptionActiveSafeTrue(req.user._id)
           .then(function (active) {
           if (!active) {
             console.error('error: user ' + req.user._id + ' UA=' + req.userAgent + ' no active subscription');
             throw new Error('no active subscriptions');
           }
         });
-      }
     })
     //
     // reading video object
