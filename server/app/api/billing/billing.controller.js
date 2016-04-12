@@ -351,3 +351,22 @@ module.exports.validateCoupons = function (req, res) {
     }
   );
 };
+
+module.exports.getCouponCampains = function (req, res) {
+  Q()
+    .then(function () {
+      var client = req.passport.client;
+      var billingProviderName = req.query.providerName || (client ? client.billingProviderName : '');
+      return billingApi.getCouponCampains(billingProviderName);
+    })
+    .then(
+    function (couponStatus) {
+      res.json(couponStatus);
+    },
+    function (err) {
+      var message = (err instanceof Error) ? err.message : String(err);
+      console.error('ERROR: /api/billing/couponscampaigns', message);
+      res.status(500).send({error: message});
+    }
+  );
+};
