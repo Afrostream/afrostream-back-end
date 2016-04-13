@@ -257,6 +257,16 @@ var subscriptionToPlanCode = function (subscription) {
   return null;
 };
 
+var subscriptionToStatus = function (subscription) {
+  if (subscription &&
+    subscription.subStatus &&
+    subscription.internalPlan &&
+    subscription.internalPlan.internalPlanUuid) {
+    return subscription.subStatus;
+  }
+  return null;
+};
+
 // @see http://stackoverflow.com/questions/1353684/detecting-an-invalid-date-date-instance-in-javascript
 var isADate = function (d) {
   return (Object.prototype.toString.call(d) === "[object Date]") ? (!isNaN(d.getTime())) : false;
@@ -284,6 +294,7 @@ var getSubscriptionsStatus = function (userId, withSubscriptions) {
       var lastSubscription = subscriptions[0];
       var subscriptionsStatus = {
         subscriptions: withSubscriptions ? subscriptions : undefined,
+        status: subscriptionToStatus(lastSubscription),
         planCode: subscriptionToPlanCode(lastSubscription),
         promo: subscriptionToPromo(lastSubscription)
       };
