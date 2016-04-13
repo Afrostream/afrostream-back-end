@@ -248,13 +248,17 @@ exports.show = function (req, res) {
           !req.user instanceof Client.Instance) {
         throw new Error('missing user/client');
       }
+      var disableSources = function (video) {
+        video.sources = [];
+        video.name = null;
+      };
       if (req.user instanceof User.Instance) {
         // mobile, we check req.user
         return billingApi.someSubscriptionActiveSafe(req.user._id)
           .then(function (active) {
             if (!active) {
-              console.error('error: user ' + req.user._id + ' UA=' + req.userAgent + ' no active subscription');
-              throw new Error('no active subscriptions');
+              console.log('[WARNING]: user ' + req.user._id + ' UA=' + req.userAgent + ' no active subscription => disabling sources');
+              disableSources(video);
             }
             return video;
           });
@@ -262,8 +266,8 @@ exports.show = function (req, res) {
         // FIXME: remove this query string test
         if (!req.query.bs) // bypass security
         {
-          video.sources = [];
-          video.name = null;
+          console.error('[WARNING]: client ' + req.user._id + ' request video => disabling sources');
+          disableSources(video);
         }
         return video;
       }
