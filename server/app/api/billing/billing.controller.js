@@ -355,11 +355,41 @@ module.exports.validateCoupons = function (req, res) {
 };
 
 module.exports.createCoupons = function (req, res) {
+
+  var c = {
+    userId: req.user._id,
+    userEmail: req.user.email,
+    userProviderUuid: null,
+    userBillingUuid: null,
+    billingProviderName: req.body.billingProvider,
+    bodyFirstName: req.body.firstName,
+    bodyLastName: req.body.lastName,
+    couponCampaignBillingUuid: req.body.couponCampaignBillingUuid
+  }; // closure
+
   Q()
+  //
+  // we create the user in the billing-api if he doesn't exist yet
+  //
     .then(function () {
-      var client = req.passport.client;
-      var couponCampaignBillingUuid = req.query.couponCampaignBillingUuid;
-      var userBillingUuid = req.query.userBillingUuid;
+      return billingApi.getOrCreateUser({
+        providerName: c.billingProviderName,
+        userReferenceUuid: c.userId,
+        userProviderUuid: c.userProviderUuid,
+        userOpts: {
+          email: c.userEmail,
+          firstName: c.bodyFirstName || req.user.first_name || '',
+          lastName: c.bodyLastName || req.user.last_name || ''
+        }
+      }).then(function (billingsResponse) {
+        c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
+        c.userProviderUuid = billingsResponse.response.user.userProviderUuid;
+      });
+    })
+
+    .then(function () {
+      var couponCampaignBillingUuid = c.couponCampaignBillingUuid;
+      var userBillingUuid = c.userBillingUuid;
       return billingApi.createCoupons(userBillingUuid, couponCampaignBillingUuid);
     })
     .then(
