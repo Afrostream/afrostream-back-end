@@ -82,10 +82,10 @@ module.exports.cancelSubscriptions = function (req, res) {
       return billingApi.cancelSubscription(c.subscriptionUuid)
     })
     .then(
-      function success(subscription) {
+      function success (subscription) {
         res.json(subscription);
       },
-      function error(err) {
+      function error (err) {
         var message = (err instanceof Error) ? err.message : String(err);
         console.error('ERROR: /api/billing/cancelSubscriptions', message);
         res.status(500).send({error: message});
@@ -185,10 +185,10 @@ module.exports.createSubscriptions = function (req, res) {
       return billingApi.createSubscription(subscriptionBillingData);
     })
     .then(
-      function success(subscription) {
+      function success (subscription) {
         res.json(subscription);
       },
-      function error(err) {
+      function error (err) {
         var message = (err instanceof Error) ? err.message : String(err);
         console.error('ERROR: /api/billing/createSubscriptions', message);
         res.status(500).send({error: message});
@@ -323,10 +323,10 @@ module.exports.createGift = function (req, res) {
       return mailer.sendGiftEmail(c, subscription);
     })
     .then(
-      function success() {
+      function success () {
         res.json({});
       },
-      function error(err) {
+      function error (err) {
         var message = (err instanceof Error) ? err.message : String(err);
         console.error('ERROR: /api/billing/gift', message);
         res.status(500).send({error: message});
@@ -337,17 +337,58 @@ module.exports.createGift = function (req, res) {
 module.exports.validateCoupons = function (req, res) {
   Q()
     .then(function () {
+      var client = req.passport.client;
+      var billingProviderName = req.query.providerName;
       var couponCode = req.query.coupon;
-      return billingApi.validateCoupons(couponCode);
+      return billingApi.validateCoupons(billingProviderName, couponCode);
     })
     .then(
-    function (couponStatus) {
-      res.json(couponStatus);
-    },
-    function (err) {
-      var message = (err instanceof Error) ? err.message : String(err);
-      console.error('ERROR: /api/billing/coupons', message);
-      res.status(500).send({error: message});
-    }
-  );
+      function (couponStatus) {
+        res.json(couponStatus);
+      },
+      function (err) {
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/coupons', message);
+        res.status(500).send({error: message});
+      }
+    );
+};
+
+module.exports.createCoupons = function (req, res) {
+  Q()
+    .then(function () {
+      var client = req.passport.client;
+      var couponCampaignBillingUuid = req.query.couponCampaignBillingUuid;
+      var userBillingUuid = req.query.userBillingUuid;
+      return billingApi.createCoupons(userBillingUuid, couponCampaignBillingUuid);
+    })
+    .then(
+      function (couponStatus) {
+        res.json(couponStatus);
+      },
+      function (err) {
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/coupons', message);
+        res.status(500).send({error: message});
+      }
+    );
+};
+
+module.exports.getCouponCampains = function (req, res) {
+  Q()
+    .then(function () {
+      var client = req.passport.client;
+      var billingProviderName = req.query.providerName;
+      return billingApi.getCouponCampains(billingProviderName);
+    })
+    .then(
+      function (couponStatus) {
+        res.json(couponStatus);
+      },
+      function (err) {
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/couponscampaigns', message);
+        res.status(500).send({error: message});
+      }
+    );
 };
