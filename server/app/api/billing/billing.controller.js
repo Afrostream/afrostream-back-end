@@ -364,7 +364,7 @@ module.exports.createCoupons = function (req, res) {
     billingProviderName: req.body.billingProvider,
     bodyFirstName: req.body.firstName,
     bodyLastName: req.body.lastName,
-    couponsCampaignBillingUuid: req.body.couponCampaignBillingUuid
+    couponsCampaignBillingUuid: req.body.couponsCampaignBillingUuid
   }; // closure
 
   Q()
