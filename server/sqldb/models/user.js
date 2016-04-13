@@ -9,13 +9,17 @@ var validatePresenceOf = function (value) {
 
 module.exports = function (sequelize, DataTypes) {
   var User = sequelize.define('User', {
-
     _id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       unique: true,
       autoIncrement: true
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW
     },
     name: DataTypes.STRING,
     email: {
