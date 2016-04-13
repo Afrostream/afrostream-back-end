@@ -194,6 +194,7 @@ router.get('/internalplans', auth.isAuthenticated(), controller.showInternalplan
 router.post('/subscriptions', auth.isAuthenticated(), controller.createSubscriptions);
 router.post('/gifts', auth.isAuthenticated(), controller.createGift);
 router.get('/coupons', auth.isAuthenticated(), controller.validateCoupons);
+router.post('/coupons', auth.isAuthenticated(), controller.createCoupons);
 router.get('/couponscampaigns', auth.isAuthenticated(), controller.getCouponCampains);
 router.put('/subscriptions/:subscriptionUuid/cancel', auth.isAuthenticated(), controller.cancelSubscriptions);
 

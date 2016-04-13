@@ -337,8 +337,30 @@ module.exports.createGift = function (req, res) {
 module.exports.validateCoupons = function (req, res) {
   Q()
     .then(function () {
+      var client = req.passport.client;
+      var billingProviderName = req.query.providerName;
       var couponCode = req.query.coupon;
-      return billingApi.validateCoupons(couponCode);
+      return billingApi.validateCoupons(billingProviderName,couponCode);
+    })
+    .then(
+    function (couponStatus) {
+      res.json(couponStatus);
+    },
+    function (err) {
+      var message = (err instanceof Error) ? err.message : String(err);
+      console.error('ERROR: /api/billing/coupons', message);
+      res.status(500).send({error: message});
+    }
+  );
+};
+
+module.exports.createCoupons = function (req, res) {
+  Q()
+    .then(function () {
+      var client = req.passport.client;
+      var couponCampaignBillingUuid = req.query.couponCampaignBillingUuid;
+      var userBillingUuid = req.query.userBillingUuid;
+      return billingApi.createCoupons(userBillingUuid,couponCampaignBillingUuid);
     })
     .then(
     function (couponStatus) {

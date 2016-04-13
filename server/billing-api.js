@@ -295,12 +295,24 @@ var getSubscriptionsStatus = function (userId, withSubscriptions) {
     });
 };
 
-var validateCoupons = function (couponCode) {
+var validateCoupons = function (providerName, couponCode) {
   return requestBilling({
     url: config.billings.url + '/billings/api/coupons/',
     qs: {
-      providerName: 'afr',
+      providerName: providerName,
       couponCode: couponCode
+    }
+  }).then(function (body) {
+    return body && body.response && body.response || {};
+  });
+};
+
+var createCoupons = function (userBillingUuid, couponCampaignBillingUuid) {
+  return requestBilling({
+    url: config.billings.url + '/billings/api/coupons/',
+    qs: {
+      userBillingUuid: userBillingUuid,
+      couponCampaignBillingUuid: couponCampaignBillingUuid
     }
   }).then(function (body) {
     return body && body.response && body.response || {};
@@ -340,4 +352,5 @@ module.exports.subscriptionToPromo = subscriptionToPromo;
 
 // coupon codes
 module.exports.validateCoupons = validateCoupons;
+module.exports.createCoupons = createCoupons;
 module.exports.getCouponCampains = getCouponCampains;
