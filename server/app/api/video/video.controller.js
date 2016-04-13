@@ -262,7 +262,7 @@ exports.show = function (req, res) {
         // FIXME: remove this query string test
         if (!req.query.bs) // bypass security
         {
-          video.sources = null;
+          video.sources = [];
           video.name = null;
         }
         return video;
