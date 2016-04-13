@@ -285,6 +285,7 @@ exports.show = function (req, res) {
       // hack staging cdnselector orange (testing)
       if (process.env.NODE_ENV === 'staging' && req.query.from === 'afrostream-orange-staging') {
         video.sources.forEach(function (source, i) {
+          var src = source.src;
           if (source.src.match(/^[^\:]+\:\/\/[^/]+\//)) {
             source.src = source.src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'https://orange-labs.cdn.afrostream.net/');
           }
@@ -299,6 +300,7 @@ exports.show = function (req, res) {
         .then(
           function (infos) {
             video.sources.forEach(function (source, i) {
+              var src = source.src;
               if (source.src.match(/^[^\:]+\:\/\/[^/]+\//)) {
                 source.src = source.src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, infos.scheme + '://' + infos.authority + '/');
               }
