@@ -309,8 +309,9 @@ var validateCoupons = function (providerName, couponCode) {
 
 var createCoupons = function (userBillingUuid, couponsCampaignBillingUuid) {
   return requestBilling({
+    method: 'POST',
     url: config.billings.url + '/billings/api/coupons/',
-    qs: {
+    body: {
       userBillingUuid: userBillingUuid,
       couponsCampaignBillingUuid: couponsCampaignBillingUuid
     }
