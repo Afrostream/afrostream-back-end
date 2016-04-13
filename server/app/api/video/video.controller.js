@@ -285,11 +285,10 @@ exports.show = function (req, res) {
       // hack staging cdnselector orange (testing)
       if (process.env.NODE_ENV === 'staging' && req.query.from === 'afrostream-orange-staging') {
         video.sources.forEach(function (source, i) {
-          var src = source.get('src');
-          if (src.match(/^[^\:]+\:\/\/[^/]+\//)) {
-            source.set('src', src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'https://orange-labs.cdn.afrostream.net/'));
+          if (source.src.match(/^[^\:]+\:\/\/[^/]+\//)) {
+            source.src = source.src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'https://orange-labs.cdn.afrostream.net/');
           }
-          console.log('video: cdnselector: cdn-orange: source ' + src + ' => ' + source.get('src'));
+          console.log('video: cdnselector: cdn-orange: source ' + src + ' => ' + source.src);
         });
         return video;
       }
@@ -300,13 +299,12 @@ exports.show = function (req, res) {
         .then(
           function (infos) {
             video.sources.forEach(function (source, i) {
-              var src = source.get('src');
-              if (src.match(/^[^\:]+\:\/\/[^/]+\//)) {
-                source.set('src', src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, infos.scheme + '://' + infos.authority + '/'));
+              if (source.src.match(/^[^\:]+\:\/\/[^/]+\//)) {
+                source.src = source.src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, infos.scheme + '://' + infos.authority + '/');
               }
               // FIXME: remove this
               // BEGIN
-              console.log('video: cdnselector: source ' + src + ' => ' + source.get('src'));
+              console.log('video: cdnselector: source ' + src + ' => ' + source.src);
               // END
             });
             return video;
