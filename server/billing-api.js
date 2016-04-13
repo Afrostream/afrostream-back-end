@@ -153,7 +153,7 @@ var cancelSubscription = function (subscriptionBillingUuid) {
  */
 var getUser = function (userReferenceUuid, providerName) {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
-  assert(['gocardless', 'recurly', 'celery', 'bachat', 'afr'].indexOf(providerName) !== -1); // add other providers here later.
+  assert(['gocardless', 'recurly', 'celery', 'bachat', 'afr', 'cashway'].indexOf(providerName) !== -1); // add other providers here later.
 
   return requestBilling({
     url: config.billings.url + '/billings/api/users/'
@@ -257,6 +257,16 @@ var subscriptionToPlanCode = function (subscription) {
   return null;
 };
 
+var subscriptionToStatus = function (subscription) {
+  if (subscription &&
+    subscription.subStatus &&
+    subscription.internalPlan &&
+    subscription.internalPlan.internalPlanUuid) {
+    return subscription.subStatus;
+  }
+  return null;
+};
+
 // @see http://stackoverflow.com/questions/1353684/detecting-an-invalid-date-date-instance-in-javascript
 var isADate = function (d) {
   return (Object.prototype.toString.call(d) === "[object Date]") ? (!isNaN(d.getTime())) : false;
@@ -284,6 +294,7 @@ var getSubscriptionsStatus = function (userId, withSubscriptions) {
       var lastSubscription = subscriptions[0];
       var subscriptionsStatus = {
         subscriptions: withSubscriptions ? subscriptions : undefined,
+        status: subscriptionToStatus(lastSubscription),
         planCode: subscriptionToPlanCode(lastSubscription),
         promo: subscriptionToPromo(lastSubscription)
       };
@@ -307,12 +318,13 @@ var validateCoupons = function (providerName, couponCode) {
   });
 };
 
-var createCoupons = function (userBillingUuid, couponCampaignBillingUuid) {
+var createCoupons = function (userBillingUuid, couponsCampaignBillingUuid) {
   return requestBilling({
+    method: 'POST',
     url: config.billings.url + '/billings/api/coupons/',
-    qs: {
+    body: {
       userBillingUuid: userBillingUuid,
-      couponCampaignBillingUuid: couponCampaignBillingUuid
+      couponsCampaignBillingUuid: couponsCampaignBillingUuid
     }
   }).then(function (body) {
     return body && body.response && body.response || {};
