@@ -307,12 +307,12 @@ var validateCoupons = function (providerName, couponCode) {
   });
 };
 
-var createCoupons = function (userBillingUuid, couponCampaignBillingUuid) {
+var createCoupons = function (userBillingUuid, couponsCampaignBillingUuid) {
   return requestBilling({
     url: config.billings.url + '/billings/api/coupons/',
     qs: {
       userBillingUuid: userBillingUuid,
-      couponCampaignBillingUuid: couponCampaignBillingUuid
+      couponsCampaignBillingUuid: couponsCampaignBillingUuid
     }
   }).then(function (body) {
     return body && body.response && body.response || {};
