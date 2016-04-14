@@ -82,10 +82,10 @@ module.exports.cancelSubscriptions = function (req, res) {
       return billingApi.cancelSubscription(c.subscriptionUuid)
     })
     .then(
-      function success(subscription) {
+      function success (subscription) {
         res.json(subscription);
       },
-      function error(err) {
+      function error (err) {
         var message = (err instanceof Error) ? err.message : String(err);
         console.error('ERROR: /api/billing/cancelSubscriptions', message);
         res.status(500).send({error: message});
@@ -185,10 +185,10 @@ module.exports.createSubscriptions = function (req, res) {
       return billingApi.createSubscription(subscriptionBillingData);
     })
     .then(
-      function success(subscription) {
+      function success (subscription) {
         res.json(subscription);
       },
-      function error(err) {
+      function error (err) {
         var message = (err instanceof Error) ? err.message : String(err);
         console.error('ERROR: /api/billing/createSubscriptions', message);
         res.status(500).send({error: message});
@@ -323,10 +323,10 @@ module.exports.createGift = function (req, res) {
       return mailer.sendGiftEmail(c, subscription);
     })
     .then(
-      function success() {
+      function success () {
         res.json({});
       },
-      function error(err) {
+      function error (err) {
         var message = (err instanceof Error) ? err.message : String(err);
         console.error('ERROR: /api/billing/gift', message);
         res.status(500).send({error: message});
@@ -337,17 +337,87 @@ module.exports.createGift = function (req, res) {
 module.exports.validateCoupons = function (req, res) {
   Q()
     .then(function () {
+      var client = req.passport.client;
+      var billingProviderName = req.query.providerName;
       var couponCode = req.query.coupon;
-      return billingApi.validateCoupons(couponCode);
+      return billingApi.validateCoupons(billingProviderName, couponCode);
     })
     .then(
-    function (couponStatus) {
-      res.json(couponStatus);
-    },
-    function (err) {
-      var message = (err instanceof Error) ? err.message : String(err);
-      console.error('ERROR: /api/billing/coupons', message);
-      res.status(500).send({error: message});
-    }
-  );
+      function (couponStatus) {
+        res.json(couponStatus);
+      },
+      function (err) {
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/coupons', message);
+        res.status(500).send({error: message});
+      }
+    );
+};
+
+module.exports.createCoupons = function (req, res) {
+
+  var c = {
+    userId: req.user._id,
+    userEmail: req.user.email,
+    userProviderUuid: null,
+    userBillingUuid: null,
+    billingProviderName: req.body.billingProvider,
+    bodyFirstName: req.body.firstName,
+    bodyLastName: req.body.lastName,
+    couponsCampaignBillingUuid: req.body.couponsCampaignBillingUuid
+  }; // closure
+
+  Q()
+  //
+  // we create the user in the billing-api if he doesn't exist yet
+  //
+    .then(function () {
+      return billingApi.getOrCreateUser({
+        providerName: c.billingProviderName,
+        userReferenceUuid: c.userId,
+        userProviderUuid: c.userProviderUuid,
+        userOpts: {
+          email: c.userEmail,
+          firstName: c.bodyFirstName || req.user.first_name || '',
+          lastName: c.bodyLastName || req.user.last_name || ''
+        }
+      }).then(function (billingsResponse) {
+        c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
+        c.userProviderUuid = billingsResponse.response.user.userProviderUuid;
+      });
+    })
+
+    .then(function () {
+      var couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
+      var userBillingUuid = c.userBillingUuid;
+      return billingApi.createCoupons(userBillingUuid, couponsCampaignBillingUuid);
+    })
+    .then(
+      function (couponStatus) {
+        res.json(couponStatus);
+      },
+      function (err) {
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/coupons', message);
+        res.status(500).send({error: message});
+      }
+    );
+};
+
+module.exports.getCouponCampains = function (req, res) {
+  Q()
+    .then(function () {
+      var billingProviderName = req.query.billingProvider;
+      return billingApi.getCouponCampains(billingProviderName);
+    })
+    .then(
+      function (couponStatus) {
+        res.json(couponStatus);
+      },
+      function (err) {
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/couponscampaigns', message);
+        res.status(500).send({error: message});
+      }
+    );
 };

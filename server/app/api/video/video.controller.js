@@ -35,6 +35,9 @@ var getClientIp = rootRequire('/server/auth/geo').getClientIp;
 var cdnselector = rootRequire('/server/cdnselector');
 var pf = rootRequire('/server/pf');
 
+var User = sqldb.User;
+var Client = sqldb.Client;
+
 var getIncludedModel = function () {
   return [
     {model: Movie, as: 'movie'}, // load all sources assets
@@ -192,28 +195,7 @@ exports.index = function (req, res) {
 exports.show = function (req, res) {
   Q()
     //
-    // first, on mobile (android & iOS)
-    //  we check if the user has an active subscription
-    //
-    .then(function () {
-      //
-      if (req.userAgent.indexOf('okhttp') !== -1 ||
-          req.userAgent.indexOf('iPhone') !== -1) {
-        if (!req.user) {
-          throw new Error('missing user');
-        }
-        // mobile, we check req.user
-        return billingApi.someSubscriptionActiveSafe(req.user._id)
-          .then(function (active) {
-          if (!active) {
-            console.error('error: user ' + req.user._id + ' UA=' + req.userAgent + ' no active subscription');
-            throw new Error('no active subscriptions');
-          }
-        });
-      }
-    })
-    //
-    // reading video object
+    // first: reading video object
     //
     .then(function () {
       return Video.find({
@@ -253,29 +235,68 @@ exports.show = function (req, res) {
       return entity;
     })
     //
-    // cdn selector
+    // convert entity to plain object
     //
     .then(function (entity) {
+      return entity.get({plain: true});
+    })
+    //
+    // first, on mobile (android & iOS)
+    //  we check if the user has an active subscription
+    //
+    .then(function (video) {
+      if (!req.user instanceof User.Instance &&
+          !req.user instanceof Client.Instance) {
+        throw new Error('missing user/client');
+      }
+      var disableSources = function (video) {
+        video.sources = [];
+        video.name = null;
+      };
+      if (req.user instanceof User.Instance) {
+        // mobile, we check req.user
+        return billingApi.someSubscriptionActiveSafe(req.user._id)
+          .then(function (active) {
+            if (!active) {
+              console.log('[WARNING]: user ' + req.user._id + ' UA=' + req.userAgent + ' no active subscription => disabling sources');
+              disableSources(video);
+            }
+            return video;
+          });
+      } else {
+        // FIXME: remove this query string test
+        if (!req.query.bs) // bypass security
+        {
+          console.error('[WARNING]: client ' + req.user._id + ' request video => disabling sources');
+          disableSources(video);
+        }
+        return video;
+      }
+    })
+    //
+    // cdn selector
+    //
+    .then(function (video) {
       if (req.query.backo) {
-        return entity;
+        return video;
       }
       if (!config.cdnselector.enabled) {
         console.log('video: cdnselector: is disabled'); // warning.
-        return entity;
+        return video;
       }
 
       // FIXME: to be removed
       // START REMOVE
       // hack staging cdnselector orange (testing)
       if (process.env.NODE_ENV === 'staging' && req.query.from === 'afrostream-orange-staging') {
-        entity.sources.forEach(function (source, i) {
-          var src = source.get('src');
-          if (src.match(/^[^\:]+\:\/\/[^/]+\//)) {
-            source.set('src', src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'https://orange-labs.cdn.afrostream.net/'));
+        video.sources.forEach(function (source, i) {
+          var src = source.src;
+          if (source.src.match(/^[^\:]+\:\/\/[^/]+\//)) {
+            source.src = source.src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'https://orange-labs.cdn.afrostream.net/');
           }
-          console.log('video: cdnselector: cdn-orange: source ' + src + ' => ' + source.get('src'));
+          console.log('video: cdnselector: cdn-orange: source ' + src + ' => ' + source.src);
         });
-        return entity;
+        return video;
       }
       // END REMOVE
 
@@ -283,19 +304,19 @@ exports.show = function (req, res) {
       return cdnselector.getFirstSafe(req.clientIp)
         .then(
           function (infos) {
-            entity.sources.forEach(function (source, i) {
-              var src = source.get('src');
-              if (src.match(/^[^\:]+\:\/\/[^/]+\//)) {
-                source.set('src', src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, infos.scheme + '://' + infos.authority + '/'));
+            video.sources.forEach(function (source, i) {
+              var src = source.src;
+              if (source.src.match(/^[^\:]+\:\/\/[^/]+\//)) {
+                source.src = source.src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, infos.scheme + '://' + infos.authority + '/');
               }
               // FIXME: remove this
               // BEGIN
-              console.log('video: cdnselector: source ' + src + ' => ' + source.get('src'));
+              console.log('video: cdnselector: source ' + src + ' => ' + source.src);
               // END
             });
-            return entity;
+            return video;
           },
-          function (err) { return entity; }
+          function (err) { return video; }
       );
     })
     //

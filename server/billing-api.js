@@ -11,7 +11,7 @@ var sqldb = rootRequire('/server/sqldb')
   , config = rootRequire('/server/config');
 
 if (process.env.NODE_ENV === 'development' ||
-    process.env.NODE_ENV === 'test') {
+  process.env.NODE_ENV === 'test') {
   // MOCKING API
   rootRequire('/server/test/mock-billing-api.js');
 }
@@ -20,7 +20,7 @@ var requestBilling = function (options) {
   var defaultOptions = {
     json: true,
     timeout: 25000, // browser request timeout is 30 sec
-    auth: { user: config.billings.apiUser, pass: config.billings.apiPass, sendImmediately: true}
+    auth: {user: config.billings.apiUser, pass: config.billings.apiPass, sendImmediately: true}
   };
   options = _.merge({}, defaultOptions, options);
 
@@ -61,7 +61,7 @@ var getSubscriptions = function (userReferenceUuid) {
 
   return requestBilling({
     url: config.billings.url + '/billings/api/subscriptions/',
-    qs: { userReferenceUuid: userReferenceUuid }
+    qs: {userReferenceUuid: userReferenceUuid}
   }).then(function (body) {
     return body && body.response && body.response.subscriptions || [];
   });
@@ -84,8 +84,29 @@ var someSubscriptionActiveSafe = function (userReferenceUuid) {
   assert(userReferenceUuid);
 
   return someSubscriptionActive(userReferenceUuid).then(
-    function success(bool) { return bool; }
-  , function error(err) { console.error(err); return false; }
+    function success (bool) {
+      return bool;
+    }
+    , function error (err) {
+      console.error(err);
+      return false;
+    }
+  );
+};
+
+var someSubscriptionActiveSafeTrue = function (userReferenceUuid) {
+  assert(false); // FIXME: differencier un timeout d'un 404 (user non subscribed)
+  assert(typeof userReferenceUuid === 'number');
+  assert(userReferenceUuid);
+
+  return someSubscriptionActive(userReferenceUuid).then(
+    function success (bool) {
+      return bool;
+    }
+    , function error (err) {
+      console.error('[ERROR]: BILLING API DOWN => subscribed=true', err);
+      return true;
+    }
   );
 };
 
@@ -98,12 +119,12 @@ var someSubscriptionActiveSafe = function (userReferenceUuid) {
 var createSubscription = function (subscriptionBillingData) {
   return requestBilling({
     method: 'POST'
-  , url: config.billings.url + '/billings/api/subscriptions/'
-  , body: subscriptionBillingData
+    , url: config.billings.url + '/billings/api/subscriptions/'
+    , body: subscriptionBillingData
   })
     .then(function (body) {
       return body && body.response && body.response.subscription || {};
-  });
+    });
 };
 
 /**
@@ -115,11 +136,11 @@ var createSubscription = function (subscriptionBillingData) {
 var cancelSubscription = function (subscriptionBillingUuid) {
   return requestBilling({
     method: 'PUT'
-  , url: config.billings.url + '/billings/api/subscriptions/'+subscriptionBillingUuid+'/cancel'
+    , url: config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/cancel'
   })
     .then(function (body) {
       return body && body.response && body.response.subscription || {};
-  });
+    });
 };
 
 /**
@@ -132,11 +153,11 @@ var cancelSubscription = function (subscriptionBillingUuid) {
  */
 var getUser = function (userReferenceUuid, providerName) {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
-  assert(['gocardless', 'recurly', 'celery', 'bachat', 'afr'].indexOf(providerName) !== -1); // add other providers here later.
+  assert(['gocardless', 'recurly', 'celery', 'bachat', 'afr', 'cashway'].indexOf(providerName) !== -1); // add other providers here later.
 
   return requestBilling({
     url: config.billings.url + '/billings/api/users/'
-  , qs: { providerName: providerName, userReferenceUuid: userReferenceUuid }
+    , qs: {providerName: providerName, userReferenceUuid: userReferenceUuid}
   });
 };
 
@@ -163,8 +184,8 @@ var createUser = function (billingsData) {
 
   return requestBilling({
     method: 'POST'
-  , url: config.billings.url + '/billings/api/users/'
-  , body: billingsData
+    , url: config.billings.url + '/billings/api/users/'
+    , body: billingsData
   });
 };
 
@@ -206,14 +227,14 @@ var getOrCreateUser = function (billingsData) {
  * FIXME: unused yet
  */
 /*
-var updateUser = function (userBillingUuid, billingsData) {
-  return requestBilling({
-    url: config.billings.url + 'billings/api/users/' + userBillingUuid
-    , method: 'PUT'
-    , body: billingsData
-  });
-};
-*/
+ var updateUser = function (userBillingUuid, billingsData) {
+ return requestBilling({
+ url: config.billings.url + 'billings/api/users/' + userBillingUuid
+ , method: 'PUT'
+ , body: billingsData
+ });
+ };
+ */
 
 var getInternalPlans = function (providerName) {
   return requestBilling({
@@ -228,17 +249,27 @@ var getInternalPlans = function (providerName) {
 
 var subscriptionToPlanCode = function (subscription) {
   if (subscription &&
-      subscription.isActive === 'yes' &&
-      subscription.internalPlan &&
-      subscription.internalPlan.internalPlanUuid) {
+    subscription.isActive === 'yes' &&
+    subscription.internalPlan &&
+    subscription.internalPlan.internalPlanUuid) {
     return subscription.internalPlan.internalPlanUuid;
+  }
+  return null;
+};
+
+var subscriptionToStatus = function (subscription) {
+  if (subscription &&
+    subscription.subStatus &&
+    subscription.internalPlan &&
+    subscription.internalPlan.internalPlanUuid) {
+    return subscription.subStatus;
   }
   return null;
 };
 
 // @see http://stackoverflow.com/questions/1353684/detecting-an-invalid-date-date-instance-in-javascript
 var isADate = function (d) {
-  return (Object.prototype.toString.call(d) === "[object Date]") ? (!isNaN(d.getTime())):false;
+  return (Object.prototype.toString.call(d) === "[object Date]") ? (!isNaN(d.getTime())) : false;
 };
 
 /**
@@ -254,7 +285,7 @@ var subscriptionToPromo = function (subscription) {
   }
   var d = new Date(subscription.subPeriodEndsDate);
   return !isADate(d) ||
-         d < new Date(new Date().getTime() - config.billings.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
+    d < new Date(new Date().getTime() - config.billings.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
 };
 
 var getSubscriptionsStatus = function (userId, withSubscriptions) {
@@ -263,6 +294,7 @@ var getSubscriptionsStatus = function (userId, withSubscriptions) {
       var lastSubscription = subscriptions[0];
       var subscriptionsStatus = {
         subscriptions: withSubscriptions ? subscriptions : undefined,
+        status: subscriptionToStatus(lastSubscription),
         planCode: subscriptionToPlanCode(lastSubscription),
         promo: subscriptionToPromo(lastSubscription)
       };
@@ -274,15 +306,39 @@ var getSubscriptionsStatus = function (userId, withSubscriptions) {
     });
 };
 
-var validateCoupons = function (couponCode) {
+var validateCoupons = function (providerName, couponCode) {
   return requestBilling({
     url: config.billings.url + '/billings/api/coupons/',
     qs: {
-      providerName: 'afr',
+      providerName: providerName,
       couponCode: couponCode
     }
   }).then(function (body) {
     return body && body.response && body.response || {};
+  });
+};
+
+var createCoupons = function (userBillingUuid, couponsCampaignBillingUuid) {
+  return requestBilling({
+    method: 'POST',
+    url: config.billings.url + '/billings/api/coupons/',
+    body: {
+      userBillingUuid: userBillingUuid,
+      couponsCampaignBillingUuid: couponsCampaignBillingUuid
+    }
+  }).then(function (body) {
+    return body && body.response && body.response || {};
+  });
+};
+
+var getCouponCampains = function (providerName) {
+  return requestBilling({
+    url: config.billings.url + '/billings/api/couponscampaigns/',
+    qs: {
+      providerName: providerName
+    }
+  }).then(function (body) {
+    return body && body.response && body.response || [];
   });
 };
 
@@ -292,6 +348,7 @@ module.exports.getSubscriptionsStatus = getSubscriptionsStatus;
 module.exports.getSubscriptions = getSubscriptions;
 module.exports.someSubscriptionActive = someSubscriptionActive;
 module.exports.someSubscriptionActiveSafe = someSubscriptionActiveSafe;
+module.exports.someSubscriptionActiveSafeTrue = someSubscriptionActiveSafeTrue;
 module.exports.createSubscription = createSubscription;
 module.exports.cancelSubscription = cancelSubscription;
 // user manipulation
@@ -307,3 +364,5 @@ module.exports.subscriptionToPromo = subscriptionToPromo;
 
 // coupon codes
 module.exports.validateCoupons = validateCoupons;
+module.exports.createCoupons = createCoupons;
+module.exports.getCouponCampains = getCouponCampains;

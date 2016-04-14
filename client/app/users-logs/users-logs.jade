@@ -42,6 +42,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                     table.table
                         colgroup
                             col.col-md-2
+                            col.col-md-1
                             col.col-md-4
                             col.col-md-1
                             col.col-md-4
@@ -49,6 +50,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         thead
                             tr
                                 th.text-center Login Date
+                                th.text-center ID
                                 th.text-center Email
                                 th.text-center User IP
                                 th.text-center User Agent
@@ -57,6 +59,8 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                             tr(ng-repeat='accessToken in accessTokens | DataFormater')
                                 td.text-center
                                     div {{accessToken.createdAt| date : "yyyy/MM/dd HH:mm:ss"}}
+                                td.text-center
+                                    span {{accessToken.userId}}
                                 td.text-center
                                     span {{accessToken.user.email}}
                                 td.text-center
