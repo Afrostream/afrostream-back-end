@@ -323,12 +323,20 @@ exports.show = function (req, res) {
     // PF infos
     //  FIXME: PF & CDNSELECTOR should be launched // and not sequential...
     //
-    .then(function (entity) {
-      var plainObject = entity.get({plain: true}) || {};
-      return pf.getContentAssetsSafe(plainObject.encodingId).then(function (assets) {
-        plainObject.assets = Array.isArray(assets) ? assets: [];
-        return plainObject;
+    .then(function (video) {
+      try {
+      var profileName = 'VIDEO0ENG_AUDIO0ENG_USP';
+      // le profileName depend du client, exportsBouygues
+      if (req.passport.client && req.passport.client.isAfrostreamExportsBouygues()) {
+        profileName = 'VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES';
+      }
+      return pf.getAudioStreamsSafe(video.encodingId, profileName).then(function (audioAssetsStreams) {
+        video.pf = { assetsStreams: { audio: Array.isArray(audioAssetsStreams) ? audioAssetsStreams: [] }};
+        return video;
       });
+      } catch (e) {
+        console.error(e);
+      }
     })
      .then(responseWithResult(res))
      .catch(handleError(res));

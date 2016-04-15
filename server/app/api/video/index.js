@@ -36,6 +36,9 @@ router.use(function (req, res, next) {
   next();
 });
 
+var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
+router.use(middlewarePassport({preload: true}));
+
 // video manipulation.
 router.get('/', auth.hasRole('admin'), controller.index);
 router.get('/:id', auth.isAuthenticated(), controller.show);
