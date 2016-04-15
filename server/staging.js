@@ -14,6 +14,7 @@ process.env.HEROKU_SLUG_COMMIT = 'b99d452a561fd4d6d8bf1562f2e29d1601eb7519';
 process.env.HEROKU_SLUG_DESCRIPTION = 'Deploy c2ebd25';
 */
 process.env.NODE_ENV = 'staging';
+process.env.PORT = '9000';
 
 var cluster = require('express-cluster');
 
