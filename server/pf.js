@@ -75,7 +75,7 @@ module.exports.getContentSafe = function (id) {
  * @param profilName  VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES | VIDEO0ENG_AUDIO0ENG_USP | VIDEO0ENG_AUDIO0FRA_BOUYGUES
  * @returns {*}
  */
-module.exports.getAudioStreamsSafe = function (md5Hash, profileName) {
+module.exports.getAssetsStreamsSafe = function (md5Hash, profileName) {
   assert(md5Hash);
   assert(profileName === 'VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES' ||
          profileName === 'VIDEO0ENG_AUDIO0ENG_USP' ||
@@ -121,12 +121,7 @@ module.exports.getAudioStreamsSafe = function (md5Hash, profileName) {
     return requestPF({
       url: config.pf.url + '/api/contents/'+ c.content.contentId+'/profiles/'+ c.profile.profileId+'/assets'
     });
-  }).then(
-    function (assets) {
-      return assets.filter(function (assetsStream) {
-        return assetsStream.type === 'audio';
-      });
-    })
+  })
     .then(
     function success(audioAssets) {
       return audioAssets;

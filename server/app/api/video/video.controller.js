@@ -333,8 +333,8 @@ exports.show = function (req, res) {
         if (!video.pfMd5Hash) {
           return video;
         }
-        return pf.getAudioStreamsSafe(video.pfMd5Hash, profileName).then(function (audioAssetsStreams) {
-          video.pf = { assetsStreams: { audio: Array.isArray(audioAssetsStreams) ? audioAssetsStreams: [] }};
+        return pf.getAssetsStreamsSafe(video.pfMd5Hash, profileName).then(function (assetsStreams) {
+          video.pf = { assetsStreams: Array.isArray(assetsStreams) ? assetsStreams : [] };
           return video;
         });
       } catch (e) {
