@@ -108,12 +108,18 @@ module.exports.getAudioStreamsSafe = function (md5Hash, profileName) {
       }
     });
   }).then(function (content) {
-    c.content = content;
-    if (!content) {
+    if (!Array.isArray(content)) {
+      throw new Error('bad content format, should be an array ' + typeof content);
+    }
+    if (content.length < 1) {
       throw new Error('content not found for md5Hash ' + md5Hash);
     }
+    if (content.length !== 1) {
+      console.log('[WARNING]: [PF]: multiple content (' + content.length + ') for md5Hash ' + md5Hash);
+    }
+    c.content = content.shift(); // take the first one.
     return requestPF({
-      url: config.pf.url + '/api/contents/'+content.contentId+'/profile/'+ c.profile.profileId+'/assets'
+      url: config.pf.url + '/api/contents/'+ c.content.contentId+'/profile/'+ c.profile.profileId+'/assets'
     });
   }).then(
     function (assets) {
