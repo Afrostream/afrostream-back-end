@@ -81,66 +81,43 @@ module.exports.getAudioStreamsSafe = function (encodingId, profileName) {
          profileName === 'VIDEO0ENG_AUDIO0ENG_USP' ||
          profileName === 'VIDEO0ENG_AUDIO0FRA_BOUYGUES');
 
-  // FIXME: BEGIN_HACK temporaire, tant que la PF n'implemente pas le filtre ?profileName=...
-  // on s'évite un hit supplémentaire sur http://p-afsmsch-001.afrostream.tv:4000/api/profiles
-  var profileNameToProfileId = {
-    VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES: 1,
-    VIDEO0ENG_AUDIO0ENG_USP: 2,
-    VIDEO0ENG_AUDIO0FRA_BOUYGUES: 3
-  };
-  var profileId = profileNameToProfileId[profileName];
-  // END_HACK
+  var c = {};
 
-  // pour l'instant on est obligé de faire plusieurs hits
-  return requestPF({
-    url: config.pf.url + '/api/contents',
-    qs:{
-      uuid: encodingId,
-      profileName: profileName
+  // FIXME: maybe we should call a meta API using profileName instead of profileId
+  //        this meta Api should also prevent the call of /api/contents?hash=...
+  requestPF({
+    url: config.pf.url + '/api/profiles'
+  }).then(function (profiles) {
+    if (!Array.isArray(profiles)) {
+      throw new Error('cannot fetch profiles')
     }
-  }).then(
-    function success(data) {
-      /*
-         [
-           {
-             profileId: 2,
-             contentId: 1604,
-             uuid: "b8ed17803e02c1fe",
-             filename: "/space/videos/sources/b8ed17803e02c1fe.mp4",
-             state: "ready",
-             size: 2147483647,
-             duration: "00:26:14",
-             uspPackage: "disabled",
-             drm: "disabled",
-             createdAt: "2016-04-13 13:39:52",
-             updatedAt: "2016-04-13 13:39:52"
-           }
-         ]
-       */
-      if (!Array.isArray(data)) {
-        throw new Error("[ERROR]: [PF]: malformed result on /api/contents");
+    // searching specific profile
+    var profile = profiles.filter(function (profile) {
+      return profile.name === profileName;
+    }).pop();
+    if (!profile) {
+      throw new Error('unknown profile ' + profile);
+    }
+    return profile;
+  }).then(function (profile) {
+    c.profile = profile;
+    return requestPF({
+      url: config.pf.url + '/api/contents',
+      qs: {
+        uuid: encodingId // FIXME: change with md5hash = b8ed17803e02c1fe
       }
-      // FIXME: BEGIN_HACK temporaire, tant que la PF n'implemente pas le filtre ?profileName=...
-      data = data.filter(function (content) {
-        return content.profileId === profileId;
-      });
-      // END_HACK
-      if (data.length !== 1) {
-        throw new Error("[ERROR]: [PF]: no contents found, uuid="+encodingId+" profileName="+profileName);
-      }
-      var content = data[0];
-      return requestPF({
-        url: config.pf.url + '/api/contents/'+content.contentId+'/assetsStreams'
-      });
+    });
+  }).then(function (content) {
+    c.content = content;
+    if (!content) {
+      throw new Error('content not found for encodingId ' + encodingId);
     }
-  ).then(
-    function success(data) {
-      return data.filter(function (assetsStream) {
-        return assetsStream.type === 'audio';
-      });
-    },
-    function error(e) {
-      return null;
-    }
-  );
+    return requestPF({
+      url: config.pf.url + '/api/contents/'+content.contentId+'/profile/'+ c.profile.profileId+'/assets'
+    });
+  }).then(function (assets) {
+    return assets.filter(function (assetsStream) {
+      return assetsStream.type === 'audio';
+    });
+  });
 };
