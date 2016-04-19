@@ -338,7 +338,7 @@ exports.show = function (req, res) {
           return video;
         });
       } catch (e) {
-        console.error('[ERROR]: getAudioStreamsSafe from PF ');
+        console.error('[ERROR]: getAudioStreamsSafe from PF ', e);
         return video;
       }
     })
