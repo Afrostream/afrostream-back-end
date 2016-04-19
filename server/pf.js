@@ -76,7 +76,7 @@ module.exports.getContentSafe = function (id) {
  * @returns {*}
  */
 module.exports.getAudioStreamsSafe = function (md5Hash, profileName) {
-  assert(encodingId);
+  assert(md5Hash);
   assert(profileName === 'VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES' ||
          profileName === 'VIDEO0ENG_AUDIO0ENG_USP' ||
          profileName === 'VIDEO0ENG_AUDIO0FRA_BOUYGUES');
@@ -110,7 +110,7 @@ module.exports.getAudioStreamsSafe = function (md5Hash, profileName) {
   }).then(function (content) {
     c.content = content;
     if (!content) {
-      throw new Error('content not found for encodingId ' + encodingId);
+      throw new Error('content not found for md5Hash ' + md5Hash);
     }
     return requestPF({
       url: config.pf.url + '/api/contents/'+content.contentId+'/profile/'+ c.profile.profileId+'/assets'
