@@ -71,11 +71,11 @@ module.exports.getContentSafe = function (id) {
 
 /**
  * if PF is on error, or without content => return an empty object
- * @param encodingId
+ * @param md5Hash
  * @param profilName  VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES | VIDEO0ENG_AUDIO0ENG_USP | VIDEO0ENG_AUDIO0FRA_BOUYGUES
  * @returns {*}
  */
-module.exports.getAudioStreamsSafe = function (encodingId, profileName) {
+module.exports.getAudioStreamsSafe = function (md5Hash, profileName) {
   assert(encodingId);
   assert(profileName === 'VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES' ||
          profileName === 'VIDEO0ENG_AUDIO0ENG_USP' ||
@@ -104,7 +104,7 @@ module.exports.getAudioStreamsSafe = function (encodingId, profileName) {
     return requestPF({
       url: config.pf.url + '/api/contents',
       qs: {
-        uuid: encodingId // FIXME: change with md5hash = b8ed17803e02c1fe
+        md5Hash: md5Hash
       }
     });
   }).then(function (content) {
