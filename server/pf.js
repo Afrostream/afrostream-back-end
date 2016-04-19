@@ -119,7 +119,7 @@ module.exports.getAudioStreamsSafe = function (md5Hash, profileName) {
     }
     c.content = content.shift(); // take the first one.
     return requestPF({
-      url: config.pf.url + '/api/contents/'+ c.content.contentId+'/profile/'+ c.profile.profileId+'/assets'
+      url: config.pf.url + '/api/contents/'+ c.content.contentId+'/profiles/'+ c.profile.profileId+'/assets'
     });
   }).then(
     function (assets) {
