@@ -115,9 +115,18 @@ module.exports.getAudioStreamsSafe = function (md5Hash, profileName) {
     return requestPF({
       url: config.pf.url + '/api/contents/'+content.contentId+'/profile/'+ c.profile.profileId+'/assets'
     });
-  }).then(function (assets) {
-    return assets.filter(function (assetsStream) {
-      return assetsStream.type === 'audio';
+  }).then(
+    function (assets) {
+      return assets.filter(function (assetsStream) {
+        return assetsStream.type === 'audio';
+      });
+    })
+    .then(
+    function success(audioAssets) {
+      return audioAssets;
+    },
+    function error(err) {
+      console.error('[ERROR]: [PF]: '+err, err.stack);
+      return null;
     });
-  });
 };
