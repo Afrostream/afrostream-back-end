@@ -81,53 +81,19 @@ module.exports.getAssetsStreamsSafe = function (md5Hash, profileName) {
          profileName === 'VIDEO0ENG_AUDIO0ENG_USP' ||
          profileName === 'VIDEO0ENG_AUDIO0FRA_BOUYGUES');
 
-  var c = {};
-
-  // FIXME: maybe we should call a meta API using profileName instead of profileId
-  //        this meta Api should also prevent the call of /api/contents?hash=...
   requestPF({
-    url: config.pf.url + '/api/profiles'
-  }).then(function (profiles) {
-    if (!Array.isArray(profiles)) {
-      throw new Error('cannot fetch profiles')
+    url: config.pf.url + '/api/assetsStreams',
+    qs: {
+      md5Hash: md5Hash,
+      profileName: profileName
     }
-    // searching specific profile
-    var profile = profiles.filter(function (profile) {
-      return profile.name === profileName;
-    }).pop();
-    if (!profile) {
-      throw new Error('unknown profile ' + profile);
-    }
-    return profile;
-  }).then(function (profile) {
-    c.profile = profile;
-    return requestPF({
-      url: config.pf.url + '/api/contents',
-      qs: {
-        md5Hash: md5Hash
-      }
-    });
-  }).then(function (content) {
-    if (!Array.isArray(content)) {
-      throw new Error('bad content format, should be an array ' + typeof content);
-    }
-    if (content.length < 1) {
-      throw new Error('content not found for md5Hash ' + md5Hash);
-    }
-    if (content.length !== 1) {
-      console.log('[WARNING]: [PF]: multiple content (' + content.length + ') for md5Hash ' + md5Hash);
-    }
-    c.content = content.shift(); // take the first one.
-    return requestPF({
-      url: config.pf.url + '/api/contents/'+ c.content.contentId+'/profiles/'+ c.profile.profileId+'/assets'
-    });
   })
     .then(
-    function success(audioAssets) {
-      return audioAssets;
+    function success(assets) {
+      return assets;
     },
     function error(err) {
       console.error('[ERROR]: [PF]: '+err, err.stack);
-      return null;
+      return [];
     });
 };

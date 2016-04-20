@@ -334,7 +334,7 @@ exports.show = function (req, res) {
           return video;
         }
         return pf.getAssetsStreamsSafe(video.pfMd5Hash, profileName).then(function (assetsStreams) {
-          video.pf = { assetsStreams: Array.isArray(assetsStreams) ? assetsStreams : [] };
+          video.pf = { assetsStreams: assetsStreams };
           return video;
         });
       } catch (e) {
