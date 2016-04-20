@@ -81,7 +81,7 @@ module.exports.getAssetsStreamsSafe = function (md5Hash, profileName) {
          profileName === 'VIDEO0ENG_AUDIO0ENG_USP' ||
          profileName === 'VIDEO0ENG_AUDIO0FRA_BOUYGUES');
 
-  requestPF({
+  return requestPF({
     url: config.pf.url + '/api/assetsStreams',
     qs: {
       md5Hash: md5Hash,
