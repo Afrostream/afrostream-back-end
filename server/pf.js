@@ -75,49 +75,25 @@ module.exports.getContentSafe = function (id) {
  * @param profilName  VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES | VIDEO0ENG_AUDIO0ENG_USP | VIDEO0ENG_AUDIO0FRA_BOUYGUES
  * @returns {*}
  */
-module.exports.getAudioStreamsSafe = function (md5Hash, profileName) {
-  assert(encodingId);
+module.exports.getAssetsStreamsSafe = function (md5Hash, profileName) {
+  assert(md5Hash);
   assert(profileName === 'VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES' ||
          profileName === 'VIDEO0ENG_AUDIO0ENG_USP' ||
          profileName === 'VIDEO0ENG_AUDIO0FRA_BOUYGUES');
 
-  var c = {};
-
-  // FIXME: maybe we should call a meta API using profileName instead of profileId
-  //        this meta Api should also prevent the call of /api/contents?hash=...
   requestPF({
-    url: config.pf.url + '/api/profiles'
-  }).then(function (profiles) {
-    if (!Array.isArray(profiles)) {
-      throw new Error('cannot fetch profiles')
+    url: config.pf.url + '/api/assetsStreams',
+    qs: {
+      md5Hash: md5Hash,
+      profileName: profileName
     }
-    // searching specific profile
-    var profile = profiles.filter(function (profile) {
-      return profile.name === profileName;
-    }).pop();
-    if (!profile) {
-      throw new Error('unknown profile ' + profile);
-    }
-    return profile;
-  }).then(function (profile) {
-    c.profile = profile;
-    return requestPF({
-      url: config.pf.url + '/api/contents',
-      qs: {
-        md5Hash: md5Hash
-      }
+  })
+    .then(
+    function success(assets) {
+      return assets;
+    },
+    function error(err) {
+      console.error('[ERROR]: [PF]: '+err, err.stack);
+      return [];
     });
-  }).then(function (content) {
-    c.content = content;
-    if (!content) {
-      throw new Error('content not found for encodingId ' + encodingId);
-    }
-    return requestPF({
-      url: config.pf.url + '/api/contents/'+content.contentId+'/profile/'+ c.profile.profileId+'/assets'
-    });
-  }).then(function (assets) {
-    return assets.filter(function (assetsStream) {
-      return assetsStream.type === 'audio';
-    });
-  });
 };
