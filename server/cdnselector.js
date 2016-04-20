@@ -33,13 +33,13 @@ var validateEntry = function (entry) {
 var getList = function (ip) {
   // FIXME: to be removed
   // BEGIN
-  console.log("cdnselector#getList() : ip = " + ip + ' on endpoint ' + config.cdnselector.endpoint + '/getFQDNList');
+  console.log("cdnselector#getList() : ip = " + ip + ' on endpoint ' + config.cdnselector.endpoint + '/api/getFQDNList');
   // END
 
   return Q.nfcall(request, {
     method: 'POST',
     timeout: config.cdnselector.timeout,
-    url: config.cdnselector.endpoint + '/getFQDNList',
+    url: config.cdnselector.endpoint + '/api/getFQDNList',
     body: { IP: ip },
     json: true
   });
