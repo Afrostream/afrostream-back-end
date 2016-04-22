@@ -161,6 +161,8 @@ function removeEntity(res) {
 // Gets a list of movies
 exports.index = function (req, res) {
   var queryName = req.param('query');
+  var queryType = req.param('type');
+
   var queryOptions = {
     include: getIncludedModel()
   };
@@ -174,6 +176,14 @@ exports.index = function (req, res) {
         title: {$iLike: '%' + queryName + '%'}
       }
     })
+  }
+
+  if (queryType) {
+    queryOptions = _.merge(queryOptions, {
+      where: {
+        type: queryType
+      }
+    });
   }
 
   queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
