@@ -1007,3 +1007,26 @@ UPDATE "Videos" SET "pfMd5Hash" = 'bf3e7813cc3f0b9d16a4d6873be11a10' WHERE "enco
 UPDATE "Videos" SET "pfMd5Hash" = 'c58ddbea6efa25197ff149d4110eb1f3' WHERE "encodingId" = '8b24ef0fedc344d0';
 UPDATE "Videos" SET "pfMd5Hash" = '3854055b3cb8f66aa3723b7dd180fff7' WHERE "encodingId" = 'd82a85af21284391';
 UPDATE "Videos" SET "pfMd5Hash" = '90081a71f0f9fb55d3d38e99d20b4dc4' WHERE "encodingId" = 'c373e73bd3ebf400';
+
+-- 20 first windeck
+
+UPDATE "Videos" SET "pfMd5Hash" = '1273d81e2b112b343f39730b5cffc405' WHERE "encodingId" = '684c88341d795dae';
+UPDATE "Videos" SET "pfMd5Hash" = '3bd2e30f985966dd602fc480d3b42829' WHERE "encodingId" = 'fcb3ed80b50b166c';
+UPDATE "Videos" SET "pfMd5Hash" = '9fdb323a1510c283dfd32c5fe3b35581' WHERE "encodingId" = '6f776402585a23ed';
+UPDATE "Videos" SET "pfMd5Hash" = '09ff10fddc49802cf274522b65c436e3' WHERE "encodingId" = '8b88bff7d22a57af';
+UPDATE "Videos" SET "pfMd5Hash" = '3cde2782532858d49c8231aa654043d5' WHERE "encodingId" = '4bcd21452f92a14a';
+UPDATE "Videos" SET "pfMd5Hash" = 'd41ecd186f197fee32670a096e63c900' WHERE "encodingId" = 'cb227ef01f5e7003';
+UPDATE "Videos" SET "pfMd5Hash" = '38a9ea237f1416da2c32116284044ebb' WHERE "encodingId" = '2b34786d5173eefa';
+UPDATE "Videos" SET "pfMd5Hash" = 'e78d24514102679a782c063d2f5edb8b' WHERE "encodingId" = 'ebe19b4b82a343dd';
+UPDATE "Videos" SET "pfMd5Hash" = '92df1eed31181da058c32b37eb08ba4e' WHERE "encodingId" = '5c3dd28d4114a2e6';
+UPDATE "Videos" SET "pfMd5Hash" = '86ec5ebcf01a48316c9c679c846e6929' WHERE "encodingId" = 'c81fadc1a9c29331';
+UPDATE "Videos" SET "pfMd5Hash" = 'fb17fa0ab2891565097351cd76f26416' WHERE "encodingId" = '1a4676712f2a4ae8';
+UPDATE "Videos" SET "pfMd5Hash" = 'b402606c6d2a73f866fbadc348ff21c0' WHERE "encodingId" = 'e434c1e8fdf455a7';
+UPDATE "Videos" SET "pfMd5Hash" = '6b038c7f206bd1a4b4287a5a5b093b78' WHERE "encodingId" = 'e58a0c6d1af302ea';
+UPDATE "Videos" SET "pfMd5Hash" = 'bbbde48e9e89fff93b44e23b7b0c35e3' WHERE "encodingId" = '349b91073221f49e';
+UPDATE "Videos" SET "pfMd5Hash" = '320e451ed6ec02c332642bf5fa932ca3' WHERE "encodingId" = '68b4c533299c5e76';
+UPDATE "Videos" SET "pfMd5Hash" = 'e8beb166694015ec537e1f6e03f739ee' WHERE "encodingId" = 'fd74b70828a62af5';
+UPDATE "Videos" SET "pfMd5Hash" = 'f163dc00b45243f1ae7041762d462c77' WHERE "encodingId" = '7beda29c387698d5';
+UPDATE "Videos" SET "pfMd5Hash" = '9bc74dee1957c4e67b6bb2279c5003b8' WHERE "encodingId" = 'e68f4ebe4b90dce0';
+UPDATE "Videos" SET "pfMd5Hash" = '69e1096a733c4ca812407195c3e24f87' WHERE "encodingId" = '41ada04eb6105a34';
+UPDATE "Videos" SET "pfMd5Hash" = '7a73a1cf7126903d08c8f43b3eb981ab' WHERE "encodingId" = '1261102bafbf9862';
