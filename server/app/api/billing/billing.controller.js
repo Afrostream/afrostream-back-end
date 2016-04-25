@@ -33,7 +33,7 @@ module.exports.showInternalplans = function (req, res) {
       var client = req.passport.client;
       return billingApi.getInternalPlans({
         providerName: req.query.providerName || (client ? client.billingProviderName : ''),
-        contextBillingUuid: req.query.contextBillingUuid || 'common'
+        contextBillingUuid: req.query.contextBillingUuid || ''
       });
     })
     .then(
