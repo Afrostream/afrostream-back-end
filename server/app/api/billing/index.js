@@ -190,7 +190,7 @@ router.use(function (req, res, next) {
 var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
 router.use(middlewarePassport({preload: true}));
 
-router.get('/internalplans', auth.isAuthenticated(), controller.showInternalplans);
+router.get('/internalplans', controller.showInternalplans);
 router.post('/subscriptions', auth.isAuthenticated(), controller.createSubscriptions);
 router.post('/gifts', auth.isAuthenticated(), controller.createGift);
 router.get('/coupons', auth.isAuthenticated(), controller.validateCoupons);
