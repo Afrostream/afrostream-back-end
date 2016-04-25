@@ -238,7 +238,6 @@ var getOrCreateUser = function (billingsData) {
 
 var getInternalPlans = function (billingsData) {
   assert(typeof billingsData === 'object' && billingsData);
-  assert(typeof billingsData.providerName === 'string');
   return requestBilling({
     url: config.billings.url + '/billings/api/internalplans/',
     qs: billingsData

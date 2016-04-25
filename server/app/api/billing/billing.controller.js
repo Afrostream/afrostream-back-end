@@ -26,15 +26,34 @@ var updateUserName = function (req, c) {
 };
 
 module.exports.showInternalplans = function (req, res) {
+  var c = {};
   // FIXME: should be refactored with #209
   // who is initiating this request ?
   Q()
     .then(function () {
       var client = req.passport.client;
-      return billingApi.getInternalPlans({
-        providerName: req.query.providerName || (client ? client.billingProviderName : ''),
-        contextBillingUuid: req.query.contextBillingUuid || ''
-      });
+      if (!client) throw new Error('unknown client');
+      switch (client.type) {
+        case 'legacy-api.bouygues-miami':
+          if (!client.billingProviderName) throw new Error('unknown billingProviderName');
+          c.providerName = client.billingProviderName;
+          break;
+        case 'front-api.front-end':
+          var providerName = req.query.providerName || (client ? client.billingProviderName : '');
+          var context = req.query.contextBillingUuid;
+          if (providerName) {
+            c.providerName = providerName;
+          }
+          if (context) {
+            c.contextBillingUuid = context;
+          }
+          break;
+        default:
+          throw new Error('unknown userProviderUuid for user ' + c.userId + ' client type ' + client.type);
+      }
+    })
+    .then(function () {
+      return billingApi.getInternalPlans(c)
     })
     .then(
       function (internalPlans) {
