@@ -236,12 +236,11 @@ var getOrCreateUser = function (billingsData) {
  };
  */
 
-var getInternalPlans = function (providerName) {
+var getInternalPlans = function (billingsData) {
+  assert(typeof billingsData === 'object' && billingsData);
   return requestBilling({
     url: config.billings.url + '/billings/api/internalplans/',
-    qs: {
-      providerName: providerName
-    }
+    qs: billingsData
   }).then(function (body) {
     return body && body.response && body.response.internalPlans || [];
   });
