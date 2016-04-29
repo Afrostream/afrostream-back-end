@@ -192,6 +192,10 @@ exports.index = function (req, res) {
     queryOptions = _.merge(queryOptions, { limit: req.query.limit });
   }
 
+  if (req.query.order) {
+    queryOptions = _.merge(queryOptions, {order: [[req.query.order, req.query.sort || 'DESC']]});
+  }
+
   Movie.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
