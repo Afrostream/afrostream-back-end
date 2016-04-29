@@ -9,13 +9,18 @@ module.exports = function (sequelize, DataTypes) {
       unique: true,
       autoIncrement: true
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW
+    },
     email: {
       type: DataTypes.STRING,
       validate: {
         isEmail: true
       }
     },
-    country: DataTypes.STRING,
+    country: DataTypes.STRING
   });
   return WaitingUser;
 };
