@@ -1,38 +1,77 @@
-ALTER TABLE "Genres" ADD COLUMN "osearchName" character varying(32);
+ALTER TABLE "Genres" ADD COLUMN "osearchNameMovie" character varying(32);
 
-UPDATE "Genres" SET "osearchName" = 'film action'                     WHERE "_id" = 1   ;
-UPDATE "Genres" SET "osearchName" = 'film animation'                  WHERE "_id" = 2   ;
-UPDATE "Genres" SET "osearchName" = 'film aventure'                   WHERE "_id" = 3   ;
-UPDATE "Genres" SET "osearchName" = 'émission'                        WHERE "_id" = 4   ;
-UPDATE "Genres" SET "osearchName" = 'classique'                       WHERE "_id" = 5   ;
-UPDATE "Genres" SET "osearchName" = 'comédie'                         WHERE "_id" = 6   ;
-UPDATE "Genres" SET "osearchName" = 'comédie dramatique'              WHERE "_id" = 7   ;
-UPDATE "Genres" SET "osearchName" = 'comédie'                         WHERE "_id" = 8   ;
-UPDATE "Genres" SET "osearchName" = 'concert'                         WHERE "_id" = 9   ;
-UPDATE "Genres" SET "osearchName" = 'film jeunesse'                   WHERE "_id" = 10  ;
-UPDATE "Genres" SET "osearchName" = 'autre'                           WHERE "_id" = 11  ;
-UPDATE "Genres" SET "osearchName" = 'documentaire'                    WHERE "_id" = 12  ;
-UPDATE "Genres" SET "osearchName" = 'drame'                           WHERE "_id" = 13  ;
-UPDATE "Genres" SET "osearchName" = 'film horreur'                    WHERE "_id" = 14  ;
-UPDATE "Genres" SET "osearchName" = 'film action'                     WHERE "_id" = 15  ;
-UPDATE "Genres" SET "osearchName" = 'contemporain'                    WHERE "_id" = 16  ;
-UPDATE "Genres" SET "osearchName" = 'film TV comédie'                 WHERE "_id" = 17  ;
-UPDATE "Genres" SET "osearchName" = 'film fantastique/SF'             WHERE "_id" = 18  ;
-UPDATE "Genres" SET "osearchName" = 'film de guerre'                  WHERE "_id" = 19  ;
-UPDATE "Genres" SET "osearchName" = 'doc. histoire'                   WHERE "_id" = 20  ;
-UPDATE "Genres" SET "osearchName" = 'film horreur'                    WHERE "_id" = 21  ;
-UPDATE "Genres" SET "osearchName" = 'film jeunesse'                   WHERE "_id" = 22  ;
-UPDATE "Genres" SET "osearchName" = 'film suspense'                   WHERE "_id" = 23  ;
-UPDATE "Genres" SET "osearchName" = 'autre'                           WHERE "_id" = 24  ;
-UPDATE "Genres" SET "osearchName" = 'court-métrage'                   WHERE "_id" = 25  ;
-UPDATE "Genres" SET "osearchName" = 'comédie musicale'                WHERE "_id" = 26  ;
-UPDATE "Genres" SET "osearchName" = 'film TV'                         WHERE "_id" = 27  ;
-UPDATE "Genres" SET "osearchName" = 'film TV'                         WHERE "_id" = 28  ;
-UPDATE "Genres" SET "osearchName" = 'film TV comédie romantique'      WHERE "_id" = 29  ;
-UPDATE "Genres" SET "osearchName" = 'film fantastique/SF'             WHERE "_id" = 30  ;
-UPDATE "Genres" SET "osearchName" = 'doc. sports'                     WHERE "_id" = 31  ;
-UPDATE "Genres" SET "osearchName" = 'événement sports'                WHERE "_id" = 32  ;
-UPDATE "Genres" SET "osearchName" = 'film suspense'                   WHERE "_id" = 33  ;
-UPDATE "Genres" SET "osearchName" = 'film suspense'                   WHERE "_id" = 34  ;
-UPDATE "Genres" SET "osearchName" = 'film TV'                         WHERE "_id" = 35  ;
-UPDATE "Genres" SET "osearchName" = 'western'                         WHERE "_id" = 36  ;
+UPDATE "Genres" SET "osearchNameMovie" = 'film action'                     WHERE "_id" = 1   ; -- "Action"
+UPDATE "Genres" SET "osearchNameMovie" = 'film animation'                  WHERE "_id" = 2   ; -- "Animation"
+UPDATE "Genres" SET "osearchNameMovie" = 'film aventure'                   WHERE "_id" = 3   ; -- "Aventure"
+UPDATE "Genres" SET "osearchNameMovie" = 'divertissement'                        WHERE "_id" = 4   ; -- "BET"
+UPDATE "Genres" SET "osearchNameMovie" = 'film classique'                       WHERE "_id" = 5   ; -- "Classique"
+UPDATE "Genres" SET "osearchNameMovie" = 'comédie'                         WHERE "_id" = 6   ; -- "Comédie"
+UPDATE "Genres" SET "osearchNameMovie" = 'comédie dramatique'              WHERE "_id" = 7   ; -- "Comédie dramatique"
+UPDATE "Genres" SET "osearchNameMovie" = 'comédie'                         WHERE "_id" = 8   ; -- "Comédie familiale"
+UPDATE "Genres" SET "osearchNameMovie" = 'concert'                         WHERE "_id" = 9   ; -- "Concert"
+UPDATE "Genres" SET "osearchNameMovie" = 'film jeunesse'                   WHERE "_id" = 10  ; -- "Dessin animé"
+UPDATE "Genres" SET "osearchNameMovie" = 'autre'                           WHERE "_id" = 11  ; -- "Divers"
+UPDATE "Genres" SET "osearchNameMovie" = 'documentaire'                    WHERE "_id" = 12  ; -- "Documentaire"
+UPDATE "Genres" SET "osearchNameMovie" = 'drame'                           WHERE "_id" = 13  ; -- "Drame"
+UPDATE "Genres" SET "osearchNameMovie" = 'film horreur'                    WHERE "_id" = 14  ; -- "Epouvante"
+UPDATE "Genres" SET "osearchNameMovie" = 'film action'                     WHERE "_id" = 15  ; -- "Espionnage"
+UPDATE "Genres" SET "osearchNameMovie" = 'film'                    WHERE "_id" = 16  ; -- "Expérimental"
+UPDATE "Genres" SET "osearchNameMovie" = 'film'                 WHERE "_id" = 17  ; -- "Famille"
+UPDATE "Genres" SET "osearchNameMovie" = 'film fantastique/SF'             WHERE "_id" = 18  ; -- "Fantastique"
+UPDATE "Genres" SET "osearchNameMovie" = 'film de guerre'                  WHERE "_id" = 19  ; -- "Guerre"
+UPDATE "Genres" SET "osearchNameMovie" = 'doc. histoire'                   WHERE "_id" = 20  ; -- "Historique"
+UPDATE "Genres" SET "osearchNameMovie" = 'film horreur'                    WHERE "_id" = 21  ; -- "Horreur"
+UPDATE "Genres" SET "osearchNameMovie" = 'film jeunesse'                   WHERE "_id" = 22  ; -- "Jeunesse"
+UPDATE "Genres" SET "osearchNameMovie" = 'film suspense'                   WHERE "_id" = 23  ; -- "Judiciaire"
+UPDATE "Genres" SET "osearchNameMovie" = 'autre'                           WHERE "_id" = 24  ; -- "LGBT"
+UPDATE "Genres" SET "osearchNameMovie" = 'série'                   WHERE "_id" = 25  ; -- "Mini-Series"
+UPDATE "Genres" SET "osearchNameMovie" = 'comédie musicale'                WHERE "_id" = 26  ; -- "Musical"
+UPDATE "Genres" SET "osearchNameMovie" = 'film'                         WHERE "_id" = 27  ; -- "Péplum"
+UPDATE "Genres" SET "osearchNameMovie" = 'film suspense'                         WHERE "_id" = 28  ; -- "Policier"
+UPDATE "Genres" SET "osearchNameMovie" = 'comédie romantique'      WHERE "_id" = 29  ; -- "Romantique"
+UPDATE "Genres" SET "osearchNameMovie" = 'film fantastique/SF'             WHERE "_id" = 30  ; -- "Science-fiction"
+UPDATE "Genres" SET "osearchNameMovie" = 'doc. sports'                     WHERE "_id" = 31  ; -- "Sport"
+UPDATE "Genres" SET "osearchNameMovie" = 'événement sports'                WHERE "_id" = 32  ; -- "Sport event"
+UPDATE "Genres" SET "osearchNameMovie" = 'film suspense'                   WHERE "_id" = 33  ; -- "Suspense"
+UPDATE "Genres" SET "osearchNameMovie" = 'film suspense'                   WHERE "_id" = 34  ; -- "Thriller"
+UPDATE "Genres" SET "osearchNameMovie" = 'émission'                         WHERE "_id" = 35  ; -- "Tv Show"
+UPDATE "Genres" SET "osearchNameMovie" = 'western'                         WHERE "_id" = 36  ; -- "Western"
+
+ALTER TABLE "Genres" ADD COLUMN "osearchNameSerie" character varying(32);
+
+UPDATE "Genres" SET "osearchNameSerie" = 'série action'                     WHERE "_id" = 1   ;  -- "Action"
+UPDATE "Genres" SET "osearchNameSerie" = 'série animation'                  WHERE "_id" = 2   ;  -- "Animation"
+UPDATE "Genres" SET "osearchNameSerie" = 'série aventure'                   WHERE "_id" = 3   ;  -- "Aventure"
+UPDATE "Genres" SET "osearchNameSerie" = 'divertissement'                        WHERE "_id" = 4   ;  -- "BET"
+UPDATE "Genres" SET "osearchNameSerie" = 'classique'                       WHERE "_id" = 5   ;  -- "Classique"
+UPDATE "Genres" SET "osearchNameSerie" = 'comédie'                         WHERE "_id" = 6   ;  -- "Comédie"
+UPDATE "Genres" SET "osearchNameSerie" = 'comédie dramatique'              WHERE "_id" = 7   ;  -- "Comédie dramatique"
+UPDATE "Genres" SET "osearchNameSerie" = 'comédie'                         WHERE "_id" = 8   ;  -- "Comédie familiale"
+UPDATE "Genres" SET "osearchNameSerie" = 'concert'                         WHERE "_id" = 9   ;  -- "Concert"
+UPDATE "Genres" SET "osearchNameSerie" = 'série jeunesse'                   WHERE "_id" = 10  ;  -- "Dessin animé"
+UPDATE "Genres" SET "osearchNameSerie" = 'autre'                           WHERE "_id" = 11  ;  -- "Divers"
+UPDATE "Genres" SET "osearchNameSerie" = 'documentaire'                    WHERE "_id" = 12  ;  -- "Documentaire"
+UPDATE "Genres" SET "osearchNameSerie" = 'drame'                           WHERE "_id" = 13  ;  -- "Drame"
+UPDATE "Genres" SET "osearchNameSerie" = 'série horreur'                    WHERE "_id" = 14  ;  -- "Epouvante"
+UPDATE "Genres" SET "osearchNameSerie" = 'série action'                     WHERE "_id" = 15  ;  -- "Espionnage"
+UPDATE "Genres" SET "osearchNameSerie" = 'série'                    WHERE "_id" = 16  ;  -- "Expérimental"
+UPDATE "Genres" SET "osearchNameSerie" = 'série'                 WHERE "_id" = 17  ;  -- "Famille"
+UPDATE "Genres" SET "osearchNameSerie" = 'série fantastique/SF'             WHERE "_id" = 18  ;  -- "Fantastique"
+UPDATE "Genres" SET "osearchNameSerie" = 'série guerre'                  WHERE "_id" = 19  ;  -- "Guerre"
+UPDATE "Genres" SET "osearchNameSerie" = 'doc. histoire'                   WHERE "_id" = 20  ;  -- "Historique"
+UPDATE "Genres" SET "osearchNameSerie" = 'série horreur'                    WHERE "_id" = 21  ;  -- "Horreur"
+UPDATE "Genres" SET "osearchNameSerie" = 'série jeunesse'                   WHERE "_id" = 22  ;  -- "Jeunesse"
+UPDATE "Genres" SET "osearchNameSerie" = 'série suspense'                   WHERE "_id" = 23  ;  -- "Judiciaire"
+UPDATE "Genres" SET "osearchNameSerie" = 'autre'                           WHERE "_id" = 24  ;  -- "LGBT"
+UPDATE "Genres" SET "osearchNameSerie" = 'série'                   WHERE "_id" = 25  ;  -- "Mini-Series"
+UPDATE "Genres" SET "osearchNameSerie" = 'comédie musicale'                WHERE "_id" = 26  ;  -- "Musical"
+UPDATE "Genres" SET "osearchNameSerie" = 'série'                         WHERE "_id" = 27  ;  -- "Péplum"
+UPDATE "Genres" SET "osearchNameSerie" = 'série suspense'                         WHERE "_id" = 28  ;  -- "Policier"
+UPDATE "Genres" SET "osearchNameSerie" = 'comédie romantique'      WHERE "_id" = 29  ;  -- "Romantique"
+UPDATE "Genres" SET "osearchNameSerie" = 'série fantastique/SF'             WHERE "_id" = 30  ;  -- "Science-fiction"
+UPDATE "Genres" SET "osearchNameSerie" = 'doc. sports'                     WHERE "_id" = 31  ;  -- "Sport"
+UPDATE "Genres" SET "osearchNameSerie" = 'événement sports'                WHERE "_id" = 32  ;  -- "Sport event"
+UPDATE "Genres" SET "osearchNameSerie" = 'série suspense'                   WHERE "_id" = 33  ;  -- "Suspense"
+UPDATE "Genres" SET "osearchNameSerie" = 'série suspense'                   WHERE "_id" = 34  ;  -- "Thriller"
+UPDATE "Genres" SET "osearchNameSerie" = 'émission'                         WHERE "_id" = 35  ;  -- "Tv Show"
+UPDATE "Genres" SET "osearchNameSerie" = 'série western'                         WHERE "_id" = 36  ;  -- "Western"

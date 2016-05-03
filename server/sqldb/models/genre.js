@@ -14,6 +14,7 @@ module.exports = function (sequelize, DataTypes) {
     name: DataTypes.STRING(64),
     bouyguesIngridName: DataTypes.STRING(32),
     bouyguesIngridCode: DataTypes.STRING(11),
-    osearchName: DataTypes.STRING(32)
+    osearchNameMovie: DataTypes.STRING(32),
+    osearchNameSerie: DataTypes.STRING(32)
   });
 };
