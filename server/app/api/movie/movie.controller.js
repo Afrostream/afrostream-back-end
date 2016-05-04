@@ -171,11 +171,22 @@ exports.index = function (req, res) {
   utils.mergeReqRange(queryOptions, req);
 
   if (queryName) {
-    queryOptions = _.merge(queryOptions, {
-      where: {
-        title: {$iLike: '%' + queryName + '%'}
-      }
-    })
+    if (queryName.match(/^[\d]+$/)) {
+      queryOptions = _.merge(queryOptions, {
+        where: {
+          $or: [
+            { title: {$iLike: '%' + queryName + '%'} },
+            { _id: queryName }
+          ]
+        }
+      });
+    } else {
+      queryOptions = _.merge(queryOptions, {
+        where: {
+          title: {$iLike: '%' + queryName + '%'}
+        }
+      });
+    }
   }
 
   if (queryType) {
