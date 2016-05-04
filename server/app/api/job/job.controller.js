@@ -8,6 +8,9 @@ var createJobPackCaptions = require('./job.packcaptions.js').create;
 
 var createJobCatchupBet = require('./job.catchup-bet.js').create;
 
+var sqldb = rootRequire('/server/sqldb');
+var Video = sqldb.Video;
+
 // Creates a new video in the DB
 exports.create = function (req, res) {
   return Q()
@@ -56,4 +59,29 @@ exports.catchupBet = function (req, res) {
 
 exports.cacheUsersSubscriptions = function (req, res) {
   // connect to recurly
+};
+
+exports.packCaption = function (req, res) {
+  var p;
+  if (req.query.encodingId) {
+    p = Video.findOne({where: { encodingId: req.query.encodingId }});
+  } else if (req.query.pfMd5Hash) {
+    p = Video.findOne({where: { pfMd5Hash: req.query.pfMd5Hash }});
+  } else if (req.query.videoId) {
+    p = Video.findOne({where: { _id: req.query.videoId }});
+  } else {
+    res.status(500).json({error:'missing encodingId|pfMd5Hash|videoId'});
+  }
+
+  p.then(function (video) {
+    if (!video) {
+      throw new Error('video not found');
+    }
+    return createJobPackCaptions(video._id);
+  }).then(
+    function success(result) { res.json(result); },
+    function error(err) {
+      console.error(err);
+      res.status(500).json({error: err.message});
+    });
 };
