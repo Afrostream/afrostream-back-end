@@ -4,34 +4,38 @@
  * simplified version of images.dialog (single upload)
  */
 angular.module('afrostreamAdminApp')
-  .controller('ImagesCropDialogCtrl', function ($scope, $cookies, $modalInstance, image, ratio) {
+  .controller('ImagesCropDialogCtrl', function ($scope, $cookies, $http, $uibModalInstance, $log, ngToast, image, ratio) {
 
     $scope.image = image;
-
-    var rect = image[ratio] || '{}';
-    if (rect) {
-      rect = JSON.parse(rect);
-    }
-
-    $scope.area = rect;
+    $scope.area = image[ratio] || {};
 
     $scope.crop = function () {
-      image[ratio] = JSON.stringify({
-        x: Math.round($scope.cropject.cropImageLeft),
-        y: Math.round($scope.cropject.cropImageTop),
-        width: Math.round($scope.cropject.cropImageWidth),
-        height: Math.round($scope.cropject.cropImageHeight)
+      var profiles = image.profiles || {};
+      if (profiles) {
+
+        profiles[ratio] = {
+          x: Math.round($scope.cropject.cropImageLeft),
+          y: Math.round($scope.cropject.cropImageTop),
+          width: Math.round($scope.cropject.cropImageWidth),
+          height: Math.round($scope.cropject.cropImageHeight)
+        };
+
+        image.profiles = profiles;
+      }
+
+      $http.put('/api/images/' + image._id, image).then(function (result) {
+        ngToast.create({
+          content: 'Le profile image ' + result.data._id + ' à été mis a jour'
+        });
+        $uibModalInstance.close();
+      }, function (err) {
+        showError();
+        $log.debug(err.statusText);
       });
-      close(true);
-    };
-    $scope.cancel = function () {
-      close(true);
+
     };
 
-    var close = function (cancel) {
-      $modalInstance.close();
-      if (typeof $modalInstance.onClose === 'function') {
-        $modalInstance.onClose(cancel);
-      }
+    $scope.cancel = function () {
+      $uibModalInstance.close();
     };
   });

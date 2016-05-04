@@ -18,15 +18,7 @@ module.exports = function (sequelize, DataTypes) {
     url: DataTypes.STRING,
     imgix: DataTypes.STRING,
     mimetype: DataTypes.STRING,
-    '4:3': {
-      type: DataTypes.JSON,
-      defaultValue: {}
-    },
-    '16:9': {
-      type: DataTypes.JSON,
-      defaultValue: {}
-    },
-    '16:31': {
+    profiles: {
       type: DataTypes.JSON,
       defaultValue: {}
     },

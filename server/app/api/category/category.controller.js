@@ -104,7 +104,7 @@ function responseWithAdSpot(req, res, statusCode) {
                       {model: Caption, as: 'captions', attributes: ['_id'], required: false}
                     ]
                   },
-                  {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+                  {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
                   {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
                 ],
                 attributes: ['_id', 'slug']
@@ -113,7 +113,7 @@ function responseWithAdSpot(req, res, statusCode) {
           },
           {model: Category, as: 'categorys', attributes: ['_id', 'label'], required: false},
           {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},   // load logo image
-          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']}, // load poster image
+          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']}, // load poster image
           {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}   // load thumb image
         ]
       };
@@ -192,7 +192,7 @@ exports.index = function (req, res) {
     moviesIncludes.push({model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
   }
   if (populate.indexOf('movies.poster') !== -1) {
-    moviesIncludes.push({model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
+    moviesIncludes.push({model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']});
   }
   if (populate.indexOf('movies.thumb') !== -1) {
     moviesIncludes.push({model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
@@ -216,7 +216,7 @@ exports.index = function (req, res) {
     adSpotsIncludes.push({model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
   }
   if (populate.indexOf('adSpots.poster') !== -1) {
-    adSpotsIncludes.push({model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
+    adSpotsIncludes.push({model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']});
   }
   if (populate.indexOf('adSpots.thumb') !== -1) {
     adSpotsIncludes.push({model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
@@ -296,7 +296,7 @@ exports.show = function (req, res) {
         include: [
           {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
           {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
-          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
           {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
         ]
       },
@@ -307,7 +307,7 @@ exports.show = function (req, res) {
         include: [
           {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
           {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
-          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
           {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
         ]
       }

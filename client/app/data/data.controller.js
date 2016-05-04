@@ -147,8 +147,8 @@ angular.module('afrostreamAdminApp')
 
     $scope.editIndex = function (item) {
       $scope.currentItem = item;
-      var $modalInstance = $modal.open(modalEditOpts);
-      $modalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
+      var $uibModalInstance = $modal.open(modalEditOpts);
+      $uibModalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
     };
 
     $scope.cloneIndex = function (item) {
@@ -176,8 +176,8 @@ angular.module('afrostreamAdminApp')
       delete newIndex.id;
       delete newIndex._id;
       $scope.currentItem = newIndex;
-      var $modalInstance = $modal.open(modalNewOpts);
-      $modalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
+      var $uibModalInstance = $modal.open(modalNewOpts);
+      $uibModalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
     };
 
     $scope.importAlgolia = function () {

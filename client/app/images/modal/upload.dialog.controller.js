@@ -4,7 +4,7 @@
  * simplified version of images.dialog (single upload)
  */
 angular.module('afrostreamAdminApp')
-  .controller('ImagesUploadDialogCtrl', function ($scope, $cookies, $modalInstance, FileUploader, type) {
+  .controller('ImagesUploadDialogCtrl', function ($scope, $cookies, $uibModalInstance, FileUploader, type) {
     var uploader = $scope.uploader = new FileUploader({
       url: 'api/images/?type='+type,
       queueLimit: 1
@@ -22,9 +22,9 @@ angular.module('afrostreamAdminApp')
     };
 
     var close = function () {
-      $modalInstance.close();
-      if (typeof $modalInstance.onClose === 'function') {
-        $modalInstance.onClose.apply($modalInstance, arguments);
+      $uibModalInstance.close();
+      if (typeof $uibModalInstance.onClose === 'function') {
+        $uibModalInstance.onClose.apply($uibModalInstance, arguments);
       }
     };
   });

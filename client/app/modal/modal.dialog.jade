@@ -69,8 +69,8 @@ script(type='text/ng-template' id='imagesTemplate.html')
           button.btn.btn-s.btn-primary(ng-click='uploadPoster()' style="display:inline")
             | Upload
         div(ng-if='item.poster' class='row fix-height')
-          div(class='img-ratio-adspot')
-            img(ng-src='{{item.poster.imgix}}{{extractRect(item.poster,"16:31")}}' class='img-thumbnail' ng-click='cropImage(item.poster,"16:31")')
+          div(class='img-ratio-adspot col-md-3')
+            img(ng-src='{{item.poster.imgix}}{{extractProfile(item.poster,"16:31")}}' class='img-thumbnail' ng-click='cropImage(item.poster,"16:31")')
 
       .form-group
         label.control-label Dates
