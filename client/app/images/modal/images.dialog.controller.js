@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('ImagesDialogCtrl', function ($scope, $sce, $log, $http, $cookies, $modalInstance, item, list, type, Image, ngToast, FileUploader) {
+  .controller('ImagesDialogCtrl', function ($scope, $sce, $log, $http, $cookies, $uibModalInstance, item, list, type, Image, ngToast, FileUploader) {
 
     $scope.item = item;
 

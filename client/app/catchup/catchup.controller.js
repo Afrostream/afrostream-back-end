@@ -28,8 +28,8 @@ angular.module('afrostreamAdminApp')
           }
         }
       };
-      var $modalInstance = $modal.open(modalOpts);
-      $modalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
+      var $uibModalInstance = $modal.open(modalOpts);
+      $uibModalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
     };
 
     $scope.reload = function () {

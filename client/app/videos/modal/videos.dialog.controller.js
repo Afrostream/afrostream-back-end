@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('VideosDialogCtrl', function ($scope, $sce, $log, $http, $cookies, $modalInstance, item, ngToast, Mam, FileUploader) {
+  .controller('VideosDialogCtrl', function ($scope, $sce, $log, $http, $cookies, $uibModalInstance, item, ngToast, Mam, FileUploader) {
 
     $scope.mamSources = Mam.query();
     $scope.selectedItemId = null;
@@ -19,7 +19,7 @@ angular.module('afrostreamAdminApp')
           ngToast.create({
             content: 'La video' + result.data.name + ' à été ajoutée au catalogue'
           });
-          $modalInstance.close();
+          $uibModalInstance.close();
         }, function (err) {
           $scope.selectedItemId = null;
           $scope.importEnabled = true;
@@ -33,7 +33,7 @@ angular.module('afrostreamAdminApp')
         ngToast.create({
           content: 'Les videos ont été ajoutées au catalogue'
         });
-        $modalInstance.close();
+        $uibModalInstance.close();
       }, function (err) {
         $scope.importEnabled = true;
         $log.debug(err);
@@ -41,6 +41,6 @@ angular.module('afrostreamAdminApp')
     };
 
     $scope.cancel = function () {
-      $modalInstance.close();
+      $uibModalInstance.close();
     };
   });

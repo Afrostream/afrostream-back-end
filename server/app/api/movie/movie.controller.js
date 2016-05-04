@@ -26,7 +26,7 @@ var utils = require('../utils.js');
 
 var getIncludedModel = require('./movie.includedModel').get;
 
-function handleError(res, statusCode) {
+function handleError (res, statusCode) {
   statusCode = statusCode || 500;
   return function (err) {
     console.error('ERROR movie.controller', err);
@@ -34,7 +34,7 @@ function handleError(res, statusCode) {
   };
 }
 
-function responseWithResult(res, statusCode) {
+function responseWithResult (res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
     if (entity) {
@@ -44,7 +44,7 @@ function responseWithResult(res, statusCode) {
 }
 
 
-function responseWithSeasons(req, res, statusCode) {
+function responseWithSeasons (req, res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
     if (entity) {
@@ -57,7 +57,7 @@ function responseWithSeasons(req, res, statusCode) {
   };
 }
 
-function handleEntityNotFound(res) {
+function handleEntityNotFound (res) {
   return function (entity) {
     if (!entity) {
       res.status(404).end();
@@ -67,7 +67,7 @@ function handleEntityNotFound(res) {
   };
 }
 
-function saveUpdates(updates) {
+function saveUpdates (updates) {
   return function (entity) {
     return entity.updateAttributes(updates)
       .then(function (updated) {
@@ -76,7 +76,7 @@ function saveUpdates(updates) {
   };
 }
 
-function addCategorys(updates) {
+function addCategorys (updates) {
   var categorys = Category.build(_.map(updates.categorys || [], _.partialRight(_.pick, '_id')));
   return function (entity) {
     if (!categorys || !categorys.length) {
@@ -89,7 +89,7 @@ function addCategorys(updates) {
   };
 }
 
-function addSeasons(updates) {
+function addSeasons (updates) {
   var seasons = Season.build(_.map(updates.seasons || [], _.partialRight(_.pick, '_id')));
   return function (entity) {
     if (!seasons || !seasons.length) {
@@ -103,7 +103,7 @@ function addSeasons(updates) {
 }
 
 
-function addLicensor(updates) {
+function addLicensor (updates) {
   var licensor = Licensor.build(updates.licensor);
   return function (entity) {
     return entity.setLicensor(licensor)
@@ -113,7 +113,7 @@ function addLicensor(updates) {
   };
 }
 
-function updateVideo(updates) {
+function updateVideo (updates) {
   return function (entity) {
     return entity.setVideo(updates.video && Video.build(updates.video) || null)
       .then(function () {
@@ -122,7 +122,7 @@ function updateVideo(updates) {
   };
 }
 
-function updateImages(updates) {
+function updateImages (updates) {
   return function (entity) {
     var promises = [];
     promises.push(entity.setPoster(updates.poster && Image.build(updates.poster) || null));
@@ -136,7 +136,7 @@ function updateImages(updates) {
   };
 }
 
-function addActors(updates) {
+function addActors (updates) {
   var actors = Actor.build(_.map(updates.actors || [], _.partialRight(_.pick, '_id')));
 
   return function (entity) {
@@ -147,7 +147,7 @@ function addActors(updates) {
   };
 }
 
-function removeEntity(res) {
+function removeEntity (res) {
   return function (entity) {
     if (entity) {
       return entity.destroy()
@@ -200,7 +200,7 @@ exports.index = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
 
   if (req.query.limit) {
-    queryOptions = _.merge(queryOptions, { limit: req.query.limit });
+    queryOptions = _.merge(queryOptions, {limit: req.query.limit});
   }
 
   if (req.query.order) {
@@ -221,7 +221,7 @@ exports.show = function (req, res) {
       _id: req.params.id
     },
     include: [
-      {model: Video, required: false, as: 'video', attributes: ['_id', 'name', 'duration' ]},
+      {model: Video, required: false, as: 'video', attributes: ['_id', 'name', 'duration']},
       {model: Category, required: false, as: 'categorys'},
       {
         model: Season,
@@ -233,8 +233,8 @@ exports.show = function (req, res) {
             as: 'episodes',
             required: false,
             include: [
-              {model: Video, as: 'video', required: false, attributes: ['_id', 'name', 'duration' ]},
-              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+              {model: Video, as: 'video', required: false, attributes: ['_id', 'name', 'duration']},
+              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
               {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
             ],
             attributes: ['_id', 'title', 'episodeNumber', 'slug']
@@ -242,9 +242,9 @@ exports.show = function (req, res) {
         ]
       }, // load all seasons
       {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
-      {model: Image, as: 'poster', required: false,attributes: ['_id', 'name', 'imgix', 'path']},
+      {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
       {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
-      {model: Licensor, as: 'licensor', required: false },
+      {model: Licensor, as: 'licensor', required: false},
       {model: Actor, as: 'actors', required: false, attributes: ['_id', 'firstName', 'lastName']}
     ],
     order: [
@@ -272,9 +272,9 @@ exports.seasons = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
 
   Movie.find(queryOptions)
-  .then(handleEntityNotFound(res))
-  .then(responseWithSeasons(req, res))
-  .catch(handleError(res));
+    .then(handleEntityNotFound(res))
+    .then(responseWithSeasons(req, res))
+    .catch(handleError(res));
 };
 
 // Creates a new movie in the DB
@@ -303,11 +303,11 @@ exports.search = function (req, res) {
 // Updates an existing episode in the DB
 exports.algolia = function (req, res) {
   Movie.findAll({
-    include: getIncludedModel(),
-    where: {
-      active: true
-    }
-  })
+      include: getIncludedModel(),
+      where: {
+        active: true
+      }
+    })
     .then(handleEntityNotFound(res))
     .then(algolia.importAll(res, 'movies'))
     .then(responseWithResult(res))
@@ -319,10 +319,10 @@ exports.update = function (req, res) {
     delete req.body._id;
   }
   Movie.find({
-    where: {
-      _id: req.params.id
-    }, include: getIncludedModel()
-  })
+      where: {
+        _id: req.params.id
+      }, include: getIncludedModel()
+    })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addCategorys(req.body))
@@ -338,10 +338,10 @@ exports.update = function (req, res) {
 // Deletes a movie from the DB
 exports.destroy = function (req, res) {
   Movie.find({
-    where: {
-      _id: req.params.id
-    }
-  })
+      where: {
+        _id: req.params.id
+      }
+    })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(handleError(res));
@@ -361,7 +361,7 @@ exports.destroy = function (req, res) {
  */
 module.exports.getFirstActiveVideo = function (req, res) {
   return Movie.find({
-    where: { _id: req.params.movieId, type: 'serie' },
+    where: {_id: req.params.movieId, type: 'serie'},
     include: [
       {
         model: Season,
@@ -370,18 +370,18 @@ module.exports.getFirstActiveVideo = function (req, res) {
           {
             model: Episode,
             as: 'episodes',
-            include:[
+            include: [
               {
                 model: Video,
                 as: 'video',
                 where: {active: true}
               }
             ],
-            where: { active: true },
+            where: {active: true},
             attributes: ['_id', 'episodeNumber', 'videoId']
           }
         ],
-        where: { active: true },
+        where: {active: true},
         attributes: ['_id', 'seasonNumber']
       }
     ],

@@ -208,7 +208,7 @@ exports.show = function (req, res) {
             as: 'movie',
             include: [
               {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
-              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
               {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
             ]
           },
@@ -216,7 +216,7 @@ exports.show = function (req, res) {
             model: Episode,
             as: 'episode',
             include: [
-              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
               {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
             ]
           },

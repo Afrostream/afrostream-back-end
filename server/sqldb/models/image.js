@@ -18,6 +18,10 @@ module.exports = function (sequelize, DataTypes) {
     url: DataTypes.STRING,
     imgix: DataTypes.STRING,
     mimetype: DataTypes.STRING,
+    profiles: {
+      type: DataTypes.JSON,
+      defaultValue: {}
+    },
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true

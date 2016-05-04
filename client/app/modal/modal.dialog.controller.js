@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('afrostreamAdminApp')
-  .controller('ModalDialogCtrl', function ($scope, $sce, $log, $http, $modalInstance, item, type, Slug, ngToast, Image, $timeout, $modal) {
+  .controller('ModalDialogCtrl', function ($scope, $sce, $log, $http, $uibModalInstance, item, type, Slug, ngToast, Image, $timeout, $modal) {
     // BEGIN temporary fix on dates...
     // should be generic & added to $httpProvider
     function parseItemDates (item) {
@@ -31,6 +31,22 @@ angular.module('afrostreamAdminApp')
 
     $scope.slugify = function (input) {
       $scope.item.slug = Slug.slugify(input);
+    };
+
+    $scope.extractProfile = function (image, ratio) {
+      if (!image) {
+        return;
+      }
+      var rect;
+      var profiles = image.profiles;
+      if (profiles) {
+        try {
+          rect = profiles.hasOwnProperty(ratio) && profiles[ratio];
+        } catch (e) {
+          $log.debug(e);
+        }
+      }
+      return '?crop=faces&fit=facearea&w=240&h=465&q=65&fm=jpg&facepad=1.5' + (rect && '&rect=' + _.values(rect).join());
     };
 
     $scope.typeaheadOpts = {
@@ -130,6 +146,23 @@ angular.module('afrostreamAdminApp')
       };
     };
 
+    $scope.cropImage = function (image, ratio) {
+      var m = $modal.open({
+        templateUrl: 'app/images/modal/crop.html',
+        controller: 'ImagesCropDialogCtrl',
+        size: 'lg',
+        scope: $scope,
+        resolve: {
+          image: function () {
+            return image;
+          },
+          ratio: function () {
+            return ratio;
+          }
+        }
+      });
+    };
+
     $scope.getItem = function () {
       $scope.directiveType = type + 's';
 
@@ -186,9 +219,9 @@ angular.module('afrostreamAdminApp')
     };
 
     var close = function (cancel) {
-      $modalInstance.close();
-      if (typeof $modalInstance.onClose === 'function') {
-        $modalInstance.onClose(cancel);
+      $uibModalInstance.close();
+      if (typeof $uibModalInstance.onClose === 'function') {
+        $uibModalInstance.onClose(cancel);
       }
     };
 
