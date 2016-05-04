@@ -366,7 +366,7 @@ exports.mea = function (req, res) {
         include: [
           {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
           {model: Image, as: 'logo', required: false, attributes: ['imgix', 'path']},
-          {model: Image, as: 'poster', required: false, attributes: ['imgix', 'path']},
+          {model: Image, as: 'poster', required: false, attributes: ['imgix', 'path', 'profiles']},
           {model: Image, as: 'thumb', required: false, attributes: ['imgix', 'path']}
         ]
       }
@@ -395,7 +395,7 @@ exports.allSpots = function (req, res) {
         order: ['sort', 'ASC'],
         include: [
           {model: Image, as: 'logo', required: false, attributes: ['imgix', 'path']},
-          {model: Image, as: 'poster', required: false, attributes: ['imgix', 'path']},
+          {model: Image, as: 'poster', required: false, attributes: ['imgix', 'path', 'profiles']},
           {model: Image, as: 'thumb', required: false, attributes: ['imgix', 'path']}
         ]
       }
