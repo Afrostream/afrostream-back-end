@@ -47,7 +47,7 @@ var router = express.Router();
 var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
 router.use(middlewarePassport({preload: true}));
 
-router.get('/', auth.hasRole('admin'), controller.index);
+router.get('/', auth.isAuthenticated(), controller.index);
 router.get('/:id', controller.show);
 router.get('/:movieId/seasons/first/episodes/first/video', controller.getFirstActiveVideo);
 router.get('/:id/seasons', controller.seasons);
