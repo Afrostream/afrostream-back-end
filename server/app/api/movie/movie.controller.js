@@ -223,7 +223,7 @@ exports.show = function (req, res) {
             required: false,
             include: [
               {model: Video, as: 'video', required: false, attributes: ['_id', 'name', 'duration' ]},
-              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', '16:31']},
               {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
             ],
             attributes: ['_id', 'title', 'episodeNumber', 'slug']
@@ -231,7 +231,7 @@ exports.show = function (req, res) {
         ]
       }, // load all seasons
       {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
-      {model: Image, as: 'poster', required: false,attributes: ['_id', 'name', 'imgix', 'path']},
+      {model: Image, as: 'poster', required: false,attributes: ['_id', 'name', 'imgix', 'path', '16:31']},
       {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
       {model: Licensor, as: 'licensor', required: false },
       {model: Actor, as: 'actors', required: false, attributes: ['_id', 'firstName', 'lastName']}

@@ -17,7 +17,9 @@ angular.module('afrostreamAdminApp', [
     'ui.sortable',
     'mdMarkdownIt',
     'JSONedit',
-    'angularUtils.directives.dirPagination'
+    'angularUtils.directives.dirPagination',
+    //IMAGE cropper
+    'ngImgCrop'
   ])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $urlRouterProvider

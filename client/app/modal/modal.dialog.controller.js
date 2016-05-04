@@ -33,6 +33,18 @@ angular.module('afrostreamAdminApp')
       $scope.item.slug = Slug.slugify(input);
     };
 
+    $scope.extractRect = function (image, key) {
+      if (!image) {
+        return;
+      }
+      var rect = image[key] || '{}';
+      if (rect) {
+        rect = JSON.parse(rect);
+      }
+      console.log(rect);
+      return '?crop=faces&fit=facearea&w=240&h=465&q=65&fm=jpg&facepad=1.5' + (rect && '&rect=' + _.values(rect).join());
+    };
+
     $scope.typeaheadOpts = {
       minLength: 3,
       templateUrl: '/path/to/my/template.html',
@@ -128,6 +140,23 @@ angular.module('afrostreamAdminApp')
           $scope.item.thumb = image;
         }
       };
+    };
+
+    $scope.cropImage = function (image, ratio) {
+      var m = $modal.open({
+        templateUrl: 'app/images/modal/crop.html',
+        controller: 'ImagesCropDialogCtrl',
+        size: 'lg',
+        scope: $scope,
+        resolve: {
+          image: function () {
+            return image;
+          },
+          ratio: function () {
+            return ratio;
+          }
+        }
+      });
     };
 
     $scope.getItem = function () {

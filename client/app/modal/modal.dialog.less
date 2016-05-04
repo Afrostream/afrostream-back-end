@@ -18,3 +18,39 @@
     color: #FFFFFF;
   }
 }
+
+.fill(@spacing: 0) {
+  position: absolute;
+  top: @spacing;
+  bottom: @spacing;
+  left: @spacing;
+  right: @spacing;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.aspect-ratio(@w, @h) {
+  @ratio: (@h / @w);
+  max-width: 100%;
+  max-height: 100%;
+  &:before {
+    content: "";
+    display: block;
+    padding-top: (100% * @ratio);
+  }
+
+  > * {
+    .fill;
+  }
+}
+
+.modal-body {
+  .fix-height {
+    height: 200px;
+    position: relative;
+  }
+
+  .img-ratio-adspot {
+    .aspect-ratio(16, 31);
+  }
+}
