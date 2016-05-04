@@ -232,7 +232,7 @@ describe('User API:', function() {
         .expect(403)
         .expect('Content-Type', /json/)
         .end(function (err, res) {
-          assert(res.body.error_description === 'UNKNOWN_ISE2:PARTNR-200-2Hy2e/PCQ1Y/NPKQPhSeKG3JbZfxQYKk+beCgch2vUQ=')
+          assert(res.body.error_description === 'UNKNOWN_ISE2:PARTNR-200-2Hy2e/PCQ1Y/NPKQPhSeKG3JbZfxQYKk+beCgch2vUQ=');
           done(err);
         });
     });

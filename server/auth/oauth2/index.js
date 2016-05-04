@@ -96,4 +96,9 @@ router.post('/token', oauth2.token);
 router.post('/autorization', oauth2.authorization);
 router.post('/decision', oauth2.decision);
 
+// orange specific..
+router.get('/ise2', function (req, res) {
+  res.json({ise2: req.get('X_WASSUP_ISE2')})
+});
+
 module.exports = router;
