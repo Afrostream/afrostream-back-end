@@ -26,7 +26,7 @@
     "angular-markdown-it": "~0.2.0",
     "JSONedit": "json-edit#~0.2.1",
     "ng-img-crop": "ngImgCrop#~0.3.2",
-    "ng-img-crop-full-extended": "https://github.com/Afrostream/ngImgCrop.git#master"
+    "ng-img-crop-full-extended": "https://github.com/Afrostream/ngImgCropExtended.git#master"
   },
   "resolutions": {
     "angular": "1.4.10",
