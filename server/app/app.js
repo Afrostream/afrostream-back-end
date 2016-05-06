@@ -24,7 +24,7 @@ app.use(require('compression')());
 
 // we should never reach 500kb...
 // FIXME: add an error log entry when this limit is hit
-app.use(require('body-parser').text({type: 'text/html'}));
+app.use(require('body-parser').text({type: 'text/xml'}));
 app.use(require('body-parser').urlencoded({extended: false, limit:'500kb'}));
 app.use(require('body-parser').json({limit:'500kb'}));
 
