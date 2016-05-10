@@ -3,11 +3,14 @@
 angular.module('afrostreamAdminApp')
   .controller('EpisodesCtrl', function ($scope, Season, Video) {
     $scope.vXstYList = [
-      'VO',
+      'auto',
       'VF',
+      'VO',
+      'VF,VO',
       'VOST',
+      'VF,VOST',
       'VOSTFR',
-      'VOSTENG',
+      'VF,VOSTFR',
       'VD'
     ];
 

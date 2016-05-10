@@ -2,6 +2,8 @@
 
 var config = rootRequire('/server/config');
 
+var Q = require('q');
+
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Video', {
     _id: {
@@ -39,6 +41,86 @@ module.exports = function (sequelize, DataTypes) {
     getterMethods   : {
       sharing: function()  {
         return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/sharing/video/' + this._id }
+      }
+    },
+
+    instanceMethods: {
+      /**
+       * null on error
+       */
+      computeVXstY: function () {
+        var c = {
+          pfLanguages: [],        // languages referenced in PF.
+          captionsLanguages: []   // languages referenced in backend database.
+        };
+
+        var that = this;
+
+        Q()
+          .then(function () {
+            // ensure we can request PF
+            if (!that.pfMd5Hash) {
+              throw new Error('cannot determine vXstY without pfMd5Hash');
+            }
+            pf.getAssetsStreamsSafe(that.pfMd5Hash, pf.profiles.VIDEO0ENG_AUDIO0ENG_USP);
+          })
+          .then(function (assets) {
+            if (!Array.isArray(assets)) {
+              throw new Error('malformed assets');
+            }
+            var languages = assets.filter(function (asset) {
+              return asset.type === 'audio';
+            }).map(function (asset) {
+              return asset.language;
+            });
+            if (languages.length === 0) {
+              throw new Error('missing assets');
+            }
+            c.pfLanguages = languages;
+          })
+          .then(function () {
+            // searching for subtitles.
+            return that.getCaptions();
+          })
+          .then(function (captions) {
+            return Q.all(captions.map(function (caption) {
+              return caption.getLang();
+            }));
+          })
+          .then(function (captionsLangs) {
+            c.captionsLanguages = captionsLangs.map(function (lang) {
+              return lang.ISO6392T;
+            })
+          })
+          .then(function () {
+            var vXstYs = [];
+            // ANALYSING THE RESULT
+            if (c.pfLanguages.indexOf('fra') ||
+                c.pfLanguages.indexOf('fre')) {
+              vXstYs.push('VF');
+            }
+            var noFra = c.pfLanguages.filter(function (l) {
+              return l !== 'fra' && l !== 'fre';
+            });
+            if (noFra.length > 0) {
+              // VO, VOST, VOSTFR
+              if (c.captionsLanguages.indexOf('fra') ||
+                  c.captionsLanguages.indexOf('fre')) {
+                vXstYs.push('VOSTFR');
+              } else if (c.captionsLanguages.length > 0) {
+                vXstYs.push('VOST');
+              } else {
+                vXstYs.push('VO');
+              }
+            }
+            return vXstYs.join(',') || null;
+          })
+          .then(function (vXstY) {
+            return vXstY;
+          }, function (err) {
+            console.error('[ERROR]: [vXstY]: '+err.message);
+            return null;
+          });
       }
     }
   });

@@ -313,6 +313,25 @@ exports.algolia = function (req, res) {
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
+
+function parseVXstY(body) {
+  return function (entity) {
+    // auto-determine the VD/VF/VO/VOST/VOSTFR
+    if (!body.vXstY || body.vXstY !== 'auto') {
+      return entity;
+    }
+    // mode auto
+    return entity.getVideo()
+      .then(function (video) {
+        return video && video.computeVXstY() || null;
+      })
+      .then(function (vXstY) {
+        body.vXstY = vXstY;
+        return entity;
+      });
+  }
+}
+
 // Updates an existing movie in the DB
 exports.update = function (req, res) {
   if (req.body._id) {
@@ -324,6 +343,7 @@ exports.update = function (req, res) {
       }, include: getIncludedModel()
     })
     .then(handleEntityNotFound(res))
+    .then(parseVXstY(req.body))
     .then(saveUpdates(req.body))
     .then(addCategorys(req.body))
     .then(addSeasons(req.body))

@@ -68,12 +68,7 @@ module.exports = function (sequelize, DataTypes) {
         return parseFloat(this.getDataValue('rating'));
       }
     },
-    vXstY: {
-      type: DataTypes.STRING(16),
-      get: function () {
-        return this.getDataValue('vXstY') || 'VF';
-      }
-    }
+    vXstY: DataTypes.STRING(16)
   }, {
     getterMethods   : {
       sharing: function()  {

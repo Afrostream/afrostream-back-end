@@ -97,3 +97,9 @@ module.exports.getAssetsStreamsSafe = function (md5Hash, profileName) {
       return [];
     });
 };
+
+module.exports.profiles = {
+  'VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES': 'VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES',
+  'VIDEO0ENG_AUDIO0ENG_USP': 'VIDEO0ENG_AUDIO0ENG_USP',
+  'VIDEO0ENG_AUDIO0FRA_BOUYGUES': 'VIDEO0ENG_AUDIO0FRA_BOUYGUES'
+};
