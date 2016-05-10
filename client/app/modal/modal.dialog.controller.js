@@ -37,6 +37,7 @@ angular.module('afrostreamAdminApp')
       if (!image) {
         return;
       }
+      var base = '?crop=faces&fit=facearea&w=240&h=465&q=65&fm=jpg&facepad=1.5';
       var rect;
       var profiles = image.profiles;
       if (profiles) {
@@ -46,7 +47,10 @@ angular.module('afrostreamAdminApp')
           $log.debug(e);
         }
       }
-      return '?crop=faces&fit=facearea&w=240&h=465&q=65&fm=jpg&facepad=1.5' + (rect && '&rect=' + _.values(rect).join());
+      if (rect) {
+        base = base + (rect && '&rect=' + _.values(rect).join());
+      }
+      return base;
     };
 
     $scope.typeaheadOpts = {
