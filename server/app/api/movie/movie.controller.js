@@ -323,7 +323,7 @@ function parseVXstY(body) {
     // mode auto
     return entity.getVideo()
       .then(function (video) {
-        return video && video.computeVXstY() || null;
+        return video.computeVXstY();
       })
       .then(function (vXstY) {
         body.vXstY = vXstY;

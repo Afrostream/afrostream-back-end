@@ -4,6 +4,8 @@ var config = rootRequire('/server/config');
 
 var Q = require('q');
 
+var pf = rootRequire('/server/pf.js');
+
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Video', {
     _id: {
@@ -54,18 +56,21 @@ module.exports = function (sequelize, DataTypes) {
           captionsLanguages: []   // languages referenced in backend database.
         };
 
+        console.log('[INFO]: [vXstY]: auto on ' + this._id);
+
         var that = this;
 
-        Q()
+        return Q()
           .then(function () {
             // ensure we can request PF
             if (!that.pfMd5Hash) {
               throw new Error('cannot determine vXstY without pfMd5Hash');
             }
-            pf.getAssetsStreamsSafe(that.pfMd5Hash, pf.profiles.VIDEO0ENG_AUDIO0ENG_USP);
+            return pf.getAssetsStreamsSafe(that.pfMd5Hash, pf.profiles.VIDEO0ENG_AUDIO0ENG_USP);
           })
           .then(function (assets) {
             if (!Array.isArray(assets)) {
+              console.log(assets);
               throw new Error('malformed assets');
             }
             var languages = assets.filter(function (asset) {
@@ -116,9 +121,10 @@ module.exports = function (sequelize, DataTypes) {
             return vXstYs.join(',') || null;
           })
           .then(function (vXstY) {
+            console.log('[INFO]: [vXstY]: auto on '+that._id + ' result=' + vXstY);
             return vXstY;
           }, function (err) {
-            console.error('[ERROR]: [vXstY]: '+err.message);
+            console.error('[ERROR]: [vXstY]: auto on '+that._id+' error='+err.message);
             return null;
           });
       }
