@@ -68,6 +68,7 @@ script(type='text/ng-template' id='imagesTemplate.html')
           input.form-control(type='text' ng-model='item.poster' placeholder='Search poster' typeahead='image as image.name for image in loadImages($viewValue,"poster") | limitTo: 5' typeahead-template-url='imagesTemplate.html' style="display:inline;width:80%")
           button.btn.btn-s.btn-primary(ng-click='uploadPoster()' style="display:inline")
             | Upload
+        h6.control-label Poster Profiles (16:31 adSpots)
         div(ng-if='item.poster' class='row fix-height')
           div(class='img-ratio-adspot col-md-3')
             img(ng-src='{{item.poster.imgix}}{{extractProfile(item.poster,"16:31")}}' class='img-thumbnail' ng-click='cropImage(item.poster,"16:31")')

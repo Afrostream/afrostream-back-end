@@ -7,6 +7,7 @@ angular.module('afrostreamAdminApp')
   .controller('ImagesCropDialogCtrl', function ($scope, $cookies, $http, $uibModalInstance, $log, ngToast, image, ratio) {
 
     $scope.image = image;
+    debugger;
     $scope.area = image[ratio] || {};
 
     $scope.crop = function () {
