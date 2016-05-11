@@ -249,6 +249,16 @@ exports.show = function (req, res) {
           !req.user instanceof Client.Instance) {
         throw new Error('missing user/client');
       }
+      // orange client has a full access
+      if (req.passport.client && req.passport.client.isOrange()) {
+        return video;
+      }
+      // FIXME: remove ?bs= query string test
+      if (req.query.bs) {
+        // bypassing security
+        return video;
+      }
+      //
       var disableSources = function (video) {
         video.sources = [];
         video.name = null;
@@ -264,12 +274,8 @@ exports.show = function (req, res) {
             return video;
           });
       } else {
-        // FIXME: remove this query string test
-        if (!req.query.bs) // bypass security
-        {
-          console.error('[WARNING]: client ' + req.user._id + ' request video => disabling sources');
-          disableSources(video);
-        }
+        console.error('[WARNING]: client ' + req.user._id + ' request video => disabling sources');
+        disableSources(video);
         return video;
       }
     })
