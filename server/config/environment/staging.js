@@ -4,11 +4,15 @@
 // =================================
 module.exports = {
   // Server IP
-  ip: process.env.OPENSHIFT_NODEJS_IP || process.env.IP ||
-  undefined,
+  ip: process.env.IP,
 
   // Server port
-  port: process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 8080,
+  port: process.env.PORT || 8080,
+
+  backEnd: {
+    publicProtocol: 'https',
+    publicAuthority: 'afr-back-end-staging.herokuapp.com'
+  },
 
   player: {
     foo: 'bar'

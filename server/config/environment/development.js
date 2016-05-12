@@ -3,6 +3,11 @@
 // Development specific configuration
 // ==================================
 module.exports = {
+  backEnd: {
+    publicProtocol: 'http',
+    publicAuthority: 'localhost:9000'
+  },
+
   // MongoDB connection options
   mongo: {
     uri: 'mongodb://localhost/afrostreamadmin-dev'
