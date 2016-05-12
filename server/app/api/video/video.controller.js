@@ -315,6 +315,15 @@ exports.show = function (req, res) {
               if (source.src.match(/^[^\:]+\:\/\/[^/]+\//)) {
                 source.src = source.src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, infos.scheme + '://' + infos.authority + '/');
               }
+
+              // BEGIN HACK HACK HACK
+              // if smooth streaming & client=orange => cannot use HTTPS :(
+              if (source.type === 'application/vnd.ms-sstr+xml' &&
+                req.passport.client && req.passport.client.isOrange()) {
+                source.src = source.src.replace(/^https:\/\//, 'http://');
+              }
+              // END HACK HACK
+
               // FIXME: remove this
               // BEGIN
               console.log('video: cdnselector: source ' + src + ' => ' + source.src);
