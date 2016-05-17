@@ -2,6 +2,10 @@
 
 angular.module('afrostreamAdminApp')
   .controller('MoviesCtrl', function ($scope, $http, Category, Season, Licensor, Video, Actor) {
+    var addAutocompleteTitle = function (season) {
+      season.autocompleteTitle = 'S'+(season.seasonNumber||'?')+' - '+season.title;
+    };
+
     $scope.vXstYList = [
       'auto',
       'VF',
@@ -20,6 +24,13 @@ angular.module('afrostreamAdminApp')
 
     if ($scope.modalHooks) {
       $scope.modalHooks.hydrateItem = function (item) {
+        if (item.seasons) {
+          item.seasons.forEach(function (season) {
+            if (season) {
+              addAutocompleteTitle(season);
+            }
+          });
+        }
         item.actors.forEach(hydrateActor);
         return item;
       };
@@ -282,7 +293,10 @@ angular.module('afrostreamAdminApp')
       return Category.query({query: query}).$promise;
     };
     $scope.loadSeasons = function (query) {
-      return Season.query({query: query}).$promise;
+      return Season.query({query: query}).$promise.then(function (seasons) {
+        seasons.forEach(addAutocompleteTitle);
+        return seasons;
+      })
     };
     $scope.loadLicensors = function (query) {
       return Licensor.query({query: query}).$promise;

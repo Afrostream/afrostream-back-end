@@ -184,7 +184,7 @@ exports.show = function (req, res) {
     queryOptions.include.push({
       model: Episode, as: 'episodes',
       required: false,
-      attributes: ['_id', 'sort', 'title']
+      attributes: ['_id', 'sort', 'title', 'episodeNumber']
     });
   } else {
     queryOptions.include.push({

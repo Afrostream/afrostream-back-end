@@ -28,14 +28,14 @@
 
 .form-group(ng-if='!autoEpisodes')
   label.control-label Episodes
-  tags-input(ng-model='item.episodes' placeholder='Search episode' add-from-autocomplete-only='true' display-property='title' key-property='_id')
+  tags-input(ng-model='item.episodes' placeholder='Search episode' add-from-autocomplete-only='true' display-property='autocompleteTitle' key-property='_id' replace-spaces-with-dashes='false')
     auto-complete(source='loadEpisodes($query)' template='episode-template' min-length='0'
     load-on-focus='true'
     load-on-empty='true'
     max-results-to-show='32')
   script(type='text/ng-template' id='episode-template')
     .tag-template
-      span {{data.title}}
+      span {{data.autocompleteTitle}}
 
 .form-group(ng-if='autoEpisodes')
   label.control-label Auto generate Episodes
