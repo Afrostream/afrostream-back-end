@@ -41,7 +41,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                       th.text-center(ng-if='hasMail()') Email
                       th.text-center(ng-if="type == 'video'") DRM
                       th.text-center(ng-if="type == 'season'") Season Number
-                      th.text-center(ng-if="type == 'season'") Episode Number
+                      th.text-center(ng-if="type == 'episode'") Episode Number
                       th.text-center In prod
                       th.text-center Actions
                   tbody(ng-model='items' directive-if="{'ui-sortable': 'sortable === true'}" ui-sortable='sortableOptions' )
