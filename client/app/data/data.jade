@@ -31,6 +31,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                     col.col-md-1(ng-if="type == 'video'")
                     col.col-md-1(ng-if="type == 'season'")
                     col.col-md-1(ng-if="type == 'episode'")
+                    col.col-md-1(ng-if="type == 'episode'")
                     col.col-md-1
                     col.col-md-1
                   thead
@@ -41,6 +42,7 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                       th.text-center(ng-if='hasMail()') Email
                       th.text-center(ng-if="type == 'video'") DRM
                       th.text-center(ng-if="type == 'season'") Season Number
+                      th.text-center(ng-if="type == 'episode'") Season Number
                       th.text-center(ng-if="type == 'episode'") Episode Number
                       th.text-center In prod
                       th.text-center Actions
@@ -61,6 +63,8 @@ div(id='page-wrapper' ng-class='{open: toggle}' ng-cloak)
                         div(style="margin:12px 5px 0 5px") {{item.drm?'&#x2713;':'&#x274c;'}}
                       td.text-center(ng-if="type == 'season'")
                         strong {{item.seasonNumber}}
+                      td.text-center(ng-if="type == 'episode'")
+                        strong {{item.season.seasonNumber}}
                       td.text-center(ng-if="type == 'episode'")
                         strong {{item.episodeNumber}}
                       td.text-center
