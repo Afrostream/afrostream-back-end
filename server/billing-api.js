@@ -287,12 +287,12 @@ var subscriptionToPromo = function (subscription) {
     d < new Date(new Date().getTime() - config.billings.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
 };
 
-var getSubscriptionsStatus = function (userId, withSubscriptions) {
+var getSubscriptionsStatus = function (userId) {
   return getSubscriptions(userId)
     .then(function (subscriptions) {
       var lastSubscription = subscriptions[0];
       var subscriptionsStatus = {
-        subscriptions: withSubscriptions ? subscriptions : undefined,
+        subscriptions: subscriptions,
         status: subscriptionToStatus(lastSubscription),
         planCode: subscriptionToPlanCode(lastSubscription),
         promo: subscriptionToPromo(lastSubscription)
