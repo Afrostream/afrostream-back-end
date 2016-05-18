@@ -39,6 +39,10 @@ module.exports = function (sequelize, DataTypes) {
 
       isAfrostreamExportsOsearch: function () {
         return this.getDataValue('type') === 'afrostream-exports-osearch';
+      },
+
+      isFrontApi: function () {
+        return this.getDataValue('type') === 'front-api.front-end';
       }
     }
   });

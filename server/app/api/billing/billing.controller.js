@@ -89,11 +89,8 @@ module.exports.cancelSubscriptions = function (req, res) {
     .then(function () {
       var client = req.passport.client;
       if (!client) throw new Error('unknown client');
-      switch (client.type) {
-        case 'front-api.front-end':
-          break;
-        default:
-          throw new Error('unknown subscriptionUuid for user ' + c.userId + ' client type ' + client.type);
+      if (!client.isFrontApi() && !client.isBouygues()) {
+        throw new Error('unknown subscriptionUuid for user ' + c.userId + ' client type ' + client.type);
       }
     })
     //
