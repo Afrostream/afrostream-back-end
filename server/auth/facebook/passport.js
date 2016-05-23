@@ -38,6 +38,7 @@ exports.setup = function (User, config) {
               throw new Error('Your profile is already linked to another user');
             }
             // user exist => update
+            user.name = user.name || profile.displayName;
             user.facebook = profile._json;
             return user.save();
           } else {
