@@ -23,6 +23,7 @@ module.exports = function (app) {
   app.use('/api/accessTokens', require('./api/accessToken/index'));
   app.use('/api/authCodes', require('./api/authCode/index'));
   app.use('/api/clients', require('./api/client/index'));
+  app.use('/api/policy', require('./api/policy'));
   app.use('/api/cgu', require('./api/cgu'));
   app.use('/api/genres', require('./api/genre/index'));
   app.use('/api/licensors', require('./api/licensor/index'));
