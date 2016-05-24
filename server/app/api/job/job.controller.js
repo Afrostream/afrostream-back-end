@@ -64,20 +64,22 @@ exports.cacheUsersSubscriptions = function (req, res) {
 exports.packCaption = function (req, res) {
   var p;
   if (req.query.encodingId) {
-    p = Video.findOne({where: { encodingId: req.query.encodingId }});
+    p = Video.findAll({where: { encodingId: req.query.encodingId }});
   } else if (req.query.pfMd5Hash) {
-    p = Video.findOne({where: { pfMd5Hash: req.query.pfMd5Hash }});
+    p = Video.findAll({where: { pfMd5Hash: req.query.pfMd5Hash }});
   } else if (req.query.videoId) {
-    p = Video.findOne({where: { _id: req.query.videoId }});
+    p = Video.findAll({where: { _id: req.query.videoId }});
   } else {
     res.status(500).json({error:'missing encodingId|pfMd5Hash|videoId'});
   }
 
-  p.then(function (video) {
-    if (!video) {
-      throw new Error('video not found');
+  p.then(function (videos) {
+    if (!Array.isArray(videos) || videos.length === 0) {
+      throw new Error('videos not found');
     }
-    return createJobPackCaptions(video._id);
+    return Q.all(videos.map(function (video) {
+      return createJobPackCaptions(video._id);
+    }));
   }).then(
     function success(result) { res.json(result); },
     function error(err) {
