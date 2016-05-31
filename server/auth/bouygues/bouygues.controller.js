@@ -12,11 +12,11 @@ var User = sqldb.User;
  * Scope authorizations
  * @type {string[]}
  */
-var scope = ['email', 'identity', 'tel'];
+var scope = [];
 
 var strategyOptions = function (options) {
   return function (req, res, next) {
-    req.passportStrategyFacebookOptions = _.merge(
+    req.passportStrategyBouyguesOptions = _.merge(
       {
         createAccountIfNotFound: false
       }, options || {});
@@ -27,28 +27,24 @@ var strategyOptions = function (options) {
 function validationError (res, statusCode) {
   statusCode = statusCode || 422;
   return function (err) {
-    console.error('/auth/facebook/: error: validationError: ', err);
+    console.error('/auth/bouygues/: error: validationError: ', err);
     res.status(statusCode).json({error: String(err)});
   }
 }
 
 var signin = function (req, res, next) {
   var userId = req.user ? req.user._id : null;
-  passport.authenticate('facebook', {
-    callbackURL: config.facebook.callbackURL + '?status=signin' + (userId ? '&id=' + userId : ''),
-    display: 'popup',
+  passport.authenticate('bouygues', {
+    callbackURL: config.bouygues.callbackURL + '?status=signin' + (userId ? '&id=' + userId : ''),
     scope: scope,
-    session: false
   })(req, res, next);
 };
 
 var signup = function (req, res, next) {
   var userId = req.user ? req.user._id : null;
-  passport.authenticate('facebook', {
-    callbackURL: config.facebook.callbackURL + '?status=signup' + (userId ? '&id=' + userId : ''),
-    display: 'popup',
+  passport.authenticate('bouygues', {
+    callbackURL: config.bouygues.callbackURL + '?status=signup' + (userId ? '&id=' + userId : ''),
     scope: scope,
-    session: false
   })(req, res, next);
 };
 
@@ -63,7 +59,7 @@ var unlink = function (req, res) {
       if (!user) {
         return res.status(422).end();
       }
-      user.facebook = null;
+      user.bouygues = null;
       return user.save()
         .then(function () {
           res.json(user.profile);
@@ -74,11 +70,8 @@ var unlink = function (req, res) {
 var callback = function (req, res, next) {
   var userId = req.query.id;
   var status = req.query.status;
-  passport.authenticate('facebook', {
-    display: 'popup',
-    callbackURL: config.facebook.callbackURL + '?status=' + status + ( userId ? '&id=' + userId : ''),
-    failureRedirect: config.facebook.failureURL,
-    session: false
+  passport.authenticate('bouygues', {
+    callbackURL: config.bouygues.callbackURL + '?status=' + status + ( userId ? '&id=' + userId : '')
   }, function (err, user, info) {
     Q()
       .then(function () {
@@ -108,7 +101,7 @@ var callback = function (req, res, next) {
           res.json(tokens);
         },
         function error (err) {
-          console.error('/auth/facebook/: error: ' + err, err);
+          console.error('/auth/bouygues/: error: ' + err, err);
           return res.status(401).json({message: String(err)});
         });
   })(req, res, next);

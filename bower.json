@@ -29,7 +29,7 @@
     "ng-img-crop-full-extended": "ngImgCropFullExtended#~0.5.5"
   },
   "resolutions": {
-    "angular": "1.4.10",
+    "angular": "1.4.11",
     "angular-ui-sortable": "0.13.4"
   },
   "devDependencies": {
