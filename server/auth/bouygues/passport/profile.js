@@ -13,14 +13,20 @@ exports.parse = function (json) {
   var profile = {};
 
   profile.id = json.cpeid;
-  profile.displayName = json.name + ' ' + json.surname;
 
-  profile.name = {
-    familyName: json.name,
-    givenName: json.surname
-  };
+  if (json.identity) {
+    profile.displayName = json.identity.surname;
+    profile.name = {
+      familyName: json.identity.name,
+      givenName: json.identity.surname
+    };
+    profile.gender = json.identity.title;
+  }
 
-  profile.gender = json.title;
+
+  if (json.adress) {
+    profile.address = json.adress
+  }
 
   if (json.phone) {
     profile.phones = profile.phone;

@@ -48,17 +48,38 @@ function Strategy (options, verify) {
   options.authorizationURL = options.authorizationURL || 'https://idp.bouygtel.fr:3443/oauth/code';
   options.tokenURL = options.tokenURL || 'https://idp.bouygtel.fr:3443/oauth/token';
   options.scopeSeparator = options.scopeSeparator || ',';
-  options.customHeaders = {
-    'Authorization': 'Basic ' + new Buffer(options.clientId + ':' + options.clientSecret).toString('base64'),
-    'User-Agent': options.userAgent || 'passport-bouygues'
-  };
+  options.customHeaders = options.customHeaders || {};
+
+  if (!options.customHeaders['Authorization']) {
+    options.customHeaders['Authorization'] = 'Basic ' + new Buffer(options.clientID + ':' + options.clientSecret).toString('base64')
+  }
+
+  if (!options.customHeaders['User-Agent']) {
+    options.customHeaders['User-Agent'] = options.userAgent || 'passport-github';
+  }
+
 
   OAuth2Strategy.call(this, options, verify);
   this.name = 'bouygues';
-  this._clientSecret = options.clientSecret;
-  this._enableProof = options.enableProof;
-  this._profileURL = options.profileURL || 'https://api.bytel.fr';
-  this._profileFields = options.profileFields || null;
+  this._userProfileURL = options.userProfileURL || 'https://api.bytel.fr:21443/v1/profile';
+  this._oauth2.useAuthorizationHeaderforGET(true);
+
+  // NOTE: Bouygues require 2 authorization mode basic && bearer (non-standard)
+  // so we override get method to add 2 methods
+
+  this._oauth2.get = function (url, access_token, callback) {
+    if (this._useAuthorizationHeaderForGET) {
+      var headers = {
+        'Authorization': this._customHeaders['Authorization'] + ', ' + this.buildAuthHeader(access_token)
+      };
+
+      access_token = null;
+    }
+    else {
+      headers = {};
+    }
+    this._request('GET', url, headers, '', access_token, callback);
+  };
 }
 
 /**
@@ -84,16 +105,6 @@ Strategy.prototype.authenticate = function (req, options) {
 };
 
 /**
- * Return extra Bouygues-specific parameters to be included in the authorization
- * request.
- *
- */
-Strategy.prototype.authorizationParams = function (options) {
-  var params = {};
-  return params;
-};
-
-/**
  * Retrieve user profile from Bouygues.
  *
  * This function constructs a normalized profile, with the following properties:
@@ -110,27 +121,8 @@ Strategy.prototype.authorizationParams = function (options) {
  *   - `emails`           the proxied or contact email address granted by the user
  */
 Strategy.prototype.userProfile = function (accessToken, done) {
-  var url = uri.parse(this._profileURL);
-  if (this._enableProof) {
-    // Secure API call by adding proof of the app secret.  This is required when
-    // the "Require AppSecret Proof for Server API calls" setting has been
-    // enabled.  The proof is a SHA256 hash of the access token, using the app
-    // secret as the key.
-    //
-    // For further details, refer to:
-    // https://developers.Bouygues.com/docs/reference/api/securing-graph-api/
-    var proof = crypto.createHmac('sha256', this._clientSecret).update(accessToken).digest('hex');
-    url.search = (url.search ? url.search + '&' : '') + 'appsecret_proof=' + encodeURIComponent(proof);
-  }
-  if (this._profileFields) {
-    var fields = this._convertProfileFields(this._profileFields);
-    if (fields !== '') {
-      url.search = (url.search ? url.search + '&' : '') + 'fields=' + fields;
-    }
-  }
-  url = uri.format(url);
-
-  this._oauth2.get(url, accessToken, function (err, body, res) {
+  var self = this;
+  this._oauth2.get(this._userProfileURL + '/user', accessToken, function (err, body, res) {
     var json;
 
     if (err) {
@@ -154,7 +146,7 @@ Strategy.prototype.userProfile = function (accessToken, done) {
     }
 
     var profile = Profile.parse(json);
-    profile.provider = 'Bouygues';
+    profile.provider = 'bouygues';
     profile._raw = body;
     profile._json = json;
 
@@ -171,42 +163,6 @@ Strategy.prototype.parseErrorResponse = function (body, status) {
     return new BouyguesTokenError(json.error.message, json.error.type, json.error.code, json.error.error_subcode);
   }
   return OAuth2Strategy.prototype.parseErrorResponse.call(this, body, status);
-};
-
-/**
- * Convert Bouygues profile to a normalized profile.
- */
-Strategy.prototype._convertProfileFields = function (profileFields) {
-  var map = {
-    'id': 'id',
-    'username': 'username',
-    'displayName': 'name',
-    'name': ['last_name', 'first_name', 'middle_name'],
-    'gender': 'gender',
-    'birthday': 'birthday',
-    'profileUrl': 'link',
-    'emails': 'email',
-    'photos': 'picture'
-  };
-
-  var fields = [];
-
-  profileFields.forEach(function (f) {
-    // return raw Bouygues profile field to support the many fields that don't
-    // map cleanly to Portable Contacts
-    if (typeof map[f] === 'undefined') {
-      return fields.push(f);
-    }
-    ;
-
-    if (Array.isArray(map[f])) {
-      Array.prototype.push.apply(fields, map[f]);
-    } else {
-      fields.push(map[f]);
-    }
-  });
-
-  return fields.join(',');
 };
 
 /**

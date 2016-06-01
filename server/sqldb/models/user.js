@@ -73,7 +73,7 @@ module.exports = function (sequelize, DataTypes) {
           'provider': this.provider,
           'facebook': this.facebook,
           'bouygues': this.bouygues,
-          'bouyguesId': this.bouyguesId || this.bouygues.id, // fixme: security: should this id be exported ?
+          'bouyguesId': this.bouyguesId || (this.bouygues ? this.bouygues.id : null), // fixme: security: should this id be exported ?
           'ise2': this.ise2              // fixme: security: should this id be exported ?
         };
       },

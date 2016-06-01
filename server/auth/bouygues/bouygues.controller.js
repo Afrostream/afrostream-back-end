@@ -12,7 +12,7 @@ var User = sqldb.User;
  * Scope authorizations
  * @type {string[]}
  */
-var scope = [];
+var scope = [/*'identity', 'phone', 'email', 'cpeid'*/];
 
 var strategyOptions = function (options) {
   return function (req, res, next) {
@@ -35,18 +35,16 @@ function validationError (res, statusCode) {
 var signin = function (req, res, next) {
   var userId = req.user ? req.user._id : null;
   passport.authenticate('bouygues', {
-    callbackURL: config.bouygues.callbackURL + '?status=signin' + (userId ? '&id=' + userId : ''),
     userAgent: req.userAgent,
     scope: scope,
+    state: 'signin'
   })(req, res, next);
 };
 
 var signup = function (req, res, next) {
-  var userId = req.user ? req.user._id : null;
   passport.authenticate('bouygues', {
-    callbackURL: config.bouygues.callbackURL + '?status=signup' + (userId ? '&id=' + userId : ''),
-    userAgent: req.userAgent,
     scope: scope,
+    state: 'signup'
   })(req, res, next);
 };
 
@@ -70,11 +68,9 @@ var unlink = function (req, res) {
 };
 
 var callback = function (req, res, next) {
-  var userId = req.query.id;
-  var status = req.query.status;
+  var state = req.query.state;
   passport.authenticate('bouygues', {
-    callbackURL: config.bouygues.callbackURL + '?status=' + status + ( userId ? '&id=' + userId : ''),
-    userAgent: req.userAgent
+    state: state
   }, function (err, user, info) {
     Q()
       .then(function () {

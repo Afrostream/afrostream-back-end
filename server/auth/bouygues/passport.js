@@ -7,19 +7,18 @@ exports.setup = function (User, config) {
       clientID: config.bouygues.clientID,
       clientSecret: config.bouygues.clientSecret,
       callbackURL: config.bouygues.callbackURL,
-      //explicit: true,
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function (req, accessToken, refreshToken, profile, done) {
-      var userId = req.query.id;
-      var status = req.query.status;
+      var state = req.query.state;
+
       bluebird.resolve(req.user)
         .then(function (user) {
           // user exist => continue
           if (user) return user;
           // missing in req.user ? => fetching in DB
-          var whereUser = [{'bouygues.id': profile.id}, {'bouyguesId': userId}, {'_id': userId}];
-          if (status !== 'signin') {
+          var whereUser = [{'bouygues.id': profile.id}, {'bouyguesId': profile.id}];
+          if (state !== 'signin') {
             whereUser.push({'email': {$iLike: profile.emails[0].value}});
           }
           return User.find({
@@ -30,7 +29,7 @@ exports.setup = function (User, config) {
         })
         .then(function (user) {
           if (user) {
-            if (userId && userId != user._id) {
+            if (profile.id && profile.id != user.bouyguesId && profile.id != user.bouygues.id) {
               throw new Error('Your profile is already linked to another user');
             }
             // user exist => update
@@ -38,7 +37,7 @@ exports.setup = function (User, config) {
             user.bouygues = profile._json;
             return user.save();
           } else {
-            if (status === 'signin') {
+            if (state === 'signin') {
               throw new Error('No user found, please associate your profile with bouygues after being connected');
             }
 
