@@ -50,7 +50,8 @@ module.exports = function (sequelize, DataTypes) {
     google: DataTypes.JSON,
     github: DataTypes.JSON,
     facebook: DataTypes.JSON,
-    bouyguesId: DataTypes.STRING(128),
+    bouygues: DataTypes.JSON,
+    bouyguesId: DataTypes.STRING(128), // orange ise2 id.
     ise2: DataTypes.STRING(128), // orange ise2 id.
     active: {
       type: DataTypes.BOOLEAN,
@@ -71,7 +72,8 @@ module.exports = function (sequelize, DataTypes) {
           'email': this.email,
           'provider': this.provider,
           'facebook': this.facebook,
-          'bouyguesId': this.bouyguesId, // fixme: security: should this id be exported ?
+          'bouygues': this.bouygues,
+          'bouyguesId': this.bouyguesId || this.bouygues.id, // fixme: security: should this id be exported ?
           'ise2': this.ise2              // fixme: security: should this id be exported ?
         };
       },
@@ -105,10 +107,14 @@ module.exports = function (sequelize, DataTypes) {
       },
       beforeCreate: function (user, fields, fn) {
         user.updatePassword(fn);
+        user.updateBouyguesId(fn);
       },
       beforeUpdate: function (user, fields, fn) {
         if (user.changed('password')) {
           return user.updatePassword(fn);
+        }
+        else if (user.changed('bouyguesId')) {
+          return user.updateBouyguesId(fn);
         }
         fn();
       }
@@ -243,6 +249,13 @@ module.exports = function (sequelize, DataTypes) {
         } else {
           fn(null);
         }
+      },
+
+      updateBouyguesId: function (fn) {
+        // Handle new/update bouygues
+        this.bouygues = this.bouygues || {};
+        this.bouygues.id = this.bouyguesId;
+        fn(null);
       }
     }
   });

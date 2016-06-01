@@ -17,7 +17,7 @@ exports.parse = function (json) {
 
   profile.name = {
     familyName: json.name,
-    middleName: json.surname
+    givenName: json.surname
   };
 
   profile.gender = json.title;

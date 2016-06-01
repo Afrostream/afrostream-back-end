@@ -36,6 +36,7 @@ var signin = function (req, res, next) {
   var userId = req.user ? req.user._id : null;
   passport.authenticate('bouygues', {
     callbackURL: config.bouygues.callbackURL + '?status=signin' + (userId ? '&id=' + userId : ''),
+    userAgent: req.userAgent,
     scope: scope,
   })(req, res, next);
 };
@@ -44,6 +45,7 @@ var signup = function (req, res, next) {
   var userId = req.user ? req.user._id : null;
   passport.authenticate('bouygues', {
     callbackURL: config.bouygues.callbackURL + '?status=signup' + (userId ? '&id=' + userId : ''),
+    userAgent: req.userAgent,
     scope: scope,
   })(req, res, next);
 };
@@ -71,7 +73,8 @@ var callback = function (req, res, next) {
   var userId = req.query.id;
   var status = req.query.status;
   passport.authenticate('bouygues', {
-    callbackURL: config.bouygues.callbackURL + '?status=' + status + ( userId ? '&id=' + userId : '')
+    callbackURL: config.bouygues.callbackURL + '?status=' + status + ( userId ? '&id=' + userId : ''),
+    userAgent: req.userAgent
   }, function (err, user, info) {
     Q()
       .then(function () {

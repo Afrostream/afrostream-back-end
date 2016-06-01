@@ -18,7 +18,7 @@ exports.setup = function (User, config) {
           // user exist => continue
           if (user) return user;
           // missing in req.user ? => fetching in DB
-          var whereUser = [{'bouygues.id': profile.id}, {'_id': userId}];
+          var whereUser = [{'bouygues.id': profile.id}, {'bouyguesId': userId}, {'_id': userId}];
           if (status !== 'signin') {
             whereUser.push({'email': {$iLike: profile.emails[0].value}});
           }
