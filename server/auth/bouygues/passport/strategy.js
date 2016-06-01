@@ -49,10 +49,9 @@ function Strategy (options, verify) {
   options.tokenURL = options.tokenURL || 'https://idp.bouygtel.fr:3443/oauth/token';
   options.scopeSeparator = options.scopeSeparator || ',';
   options.customHeaders = {
-    Authorization: 'Basic ' + new Buffer(options.clientId + ':' + options.clientSecret).toString('base64')
+    'Authorization': 'Basic ' + new Buffer(options.clientId + ':' + options.clientSecret).toString('base64'),
+    'User-Agent': options.userAgent || 'passport-bouygues'
   };
-
-  console.log('customHeaders :' + options.customHeaders);
 
   OAuth2Strategy.call(this, options, verify);
   this.name = 'bouygues';
