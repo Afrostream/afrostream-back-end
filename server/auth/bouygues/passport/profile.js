@@ -29,7 +29,7 @@ exports.parse = function (json) {
   }
 
   if (json.phone) {
-    profile.phones = profile.phone;
+    profile.phones = json.phone;
   }
 
   if (json.email) {

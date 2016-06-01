@@ -11,6 +11,7 @@ exports.setup = function (User, config) {
     },
     function (req, accessToken, refreshToken, profile, done) {
       var state = req.query.state;
+      var email = profile.emails[0].address;
 
       bluebird.resolve(req.user)
         .then(function (user) {
@@ -19,7 +20,7 @@ exports.setup = function (User, config) {
           // missing in req.user ? => fetching in DB
           var whereUser = [{'bouygues.id': profile.id}, {'bouyguesId': profile.id}];
           if (state !== 'signin') {
-            whereUser.push({'email': {$iLike: profile.emails[0].value}});
+            whereUser.push({'email': {$iLike: email}});
           }
           return User.find({
             where: {
@@ -44,7 +45,7 @@ exports.setup = function (User, config) {
             // new user => create
             return User.create({
               name: profile.displayName,
-              email: profile.emails[0].value,
+              email: email,
               first_name: profile.name.givenName,
               last_name: profile.name.familyName,
               role: 'user',

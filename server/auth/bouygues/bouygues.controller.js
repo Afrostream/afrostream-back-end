@@ -72,10 +72,12 @@ var callback = function (req, res, next) {
   passport.authenticate('bouygues', {
     state: state
   }, function (err, user, info) {
+
     Q()
       .then(function () {
         if (err) throw err;
-        if (info) throw info;
+        //if (info) throw info;
+        console.log(info);
         if (!user) throw new Error('Something went wrong, please try again.');
         console.log('authenticate getOauth2UserTokens', user._id);
         return req.getPassport();
@@ -100,7 +102,7 @@ var callback = function (req, res, next) {
           res.json(tokens);
         },
         function error (err) {
-          console.error('/auth/bouygues/: error: ' + err, err);
+          console.error('/auth/bouygues/: error: ' + JSON.stringify(err), err);
           return res.status(401).json({message: String(err)});
         });
   })(req, res, next);

@@ -1,7 +1,7 @@
 'use strict';
 
 var crypto = require('crypto');
-var authTypes = ['github', 'twitter', 'facebook', 'google'];
+var authTypes = ['github', 'twitter', 'facebook', 'google', 'bouygues'];
 
 var validatePresenceOf = function (value) {
   return value && value.length;
@@ -107,15 +107,15 @@ module.exports = function (sequelize, DataTypes) {
       },
       beforeCreate: function (user, fields, fn) {
         user.updatePassword(fn);
-        user.updateBouyguesId(fn);
+        //user.updateBouyguesId(fn);
       },
       beforeUpdate: function (user, fields, fn) {
         if (user.changed('password')) {
           return user.updatePassword(fn);
         }
-        else if (user.changed('bouyguesId')) {
-          return user.updateBouyguesId(fn);
-        }
+        //else if (user.changed('bouyguesId')) {
+        //  return user.updateBouyguesId(fn);
+        //}
         fn();
       }
     },

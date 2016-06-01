@@ -109,19 +109,16 @@ Strategy.prototype.authenticate = function (req, options) {
  *
  * This function constructs a normalized profile, with the following properties:
  *
- *   - `provider`         always set to `Bouygues`
- *   - `id`               the user's Bouygues ID
- *   - `username`         the user's Bouygues username
+ *   - `provider`         always set to `bouygues`
+ *   - `id`               the user's Bouygues ID cpeid
  *   - `displayName`      the user's full name
  *   - `name.familyName`  the user's last name
  *   - `name.givenName`   the user's first name
- *   - `name.middleName`  the user's middle name
  *   - `gender`           the user's gender: `male` or `female`
- *   - `profileUrl`       the URL of the profile for the user on Bouygues
  *   - `emails`           the proxied or contact email address granted by the user
+ *   - `phones`           the proxied or contact phones numbers granted by the user
  */
 Strategy.prototype.userProfile = function (accessToken, done) {
-  var self = this;
   this._oauth2.get(this._userProfileURL + '/user', accessToken, function (err, body, res) {
     var json;
 
