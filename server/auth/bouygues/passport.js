@@ -13,13 +13,13 @@ exports.setup = function (User, config) {
     function (req, accessToken, refreshToken, profile, done) {
       var state = req.query.state;
       var email = profile.emails[0].address;
-
+      var userId = req.user ? req.user._id : null;
       bluebird.resolve(req.user)
         .then(function (user) {
           // user exist => continue
           if (user) return user;
           // missing in req.user ? => fetching in DB
-          var whereUser = [{'bouygues.id': profile.id}, {'bouyguesId': profile.id}];
+          var whereUser = [{'bouygues.id': profile.id}, {'bouyguesId': profile.id}, {'_id': userId}];
           if (state !== 'signin') {
             whereUser.push({'email': {$iLike: email}});
           }
@@ -31,7 +31,7 @@ exports.setup = function (User, config) {
         })
         .then(function (user) {
           if (user) {
-            if (profile.id && profile.id != user.bouyguesId && profile.id != user.bouygues.id) {
+            if (userId && userId != user._id) {
               throw new Error('Your profile is already linked to another user');
             }
             // user exist => update
@@ -43,7 +43,6 @@ exports.setup = function (User, config) {
             if (state === 'signin') {
               throw new Error('No user found, please associate your profile with bouygues after being connected');
             }
-
 
             // new user => create
             return User.create({
@@ -71,9 +70,10 @@ exports.setup = function (User, config) {
               firstName: user.first_name || '',
               lastName: user.last_name || ''
             }
-          }).then(function () {
-            return user;
-          });
+          })
+        })
+        .then(function () {
+          return user;
         })
         .nodeify(done);
     }));

@@ -33,7 +33,6 @@ function validationError (res, statusCode) {
 }
 
 var signin = function (req, res, next) {
-  var userId = req.user ? req.user._id : null;
   passport.authenticate('bouygues', {
     userAgent: req.userAgent,
     scope: scope,
@@ -59,6 +58,7 @@ var unlink = function (req, res) {
       if (!user) {
         return res.status(422).end();
       }
+      user.bouyguesId = null;
       user.bouygues = null;
       return user.save()
         .then(function () {
