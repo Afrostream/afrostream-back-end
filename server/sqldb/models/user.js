@@ -107,15 +107,14 @@ module.exports = function (sequelize, DataTypes) {
       },
       beforeCreate: function (user, fields, fn) {
         user.updatePassword(fn);
-        //user.updateBouyguesId(fn);
       },
       beforeUpdate: function (user, fields, fn) {
         if (user.changed('password')) {
           return user.updatePassword(fn);
         }
-        //else if (user.changed('bouyguesId')) {
-        //  return user.updateBouyguesId(fn);
-        //}
+        else if (user.changed('bouyguesId')) {
+          return user.updateBouyguesId(fn);
+        }
         fn();
       }
     },
@@ -252,9 +251,11 @@ module.exports = function (sequelize, DataTypes) {
       },
 
       updateBouyguesId: function (fn) {
-        // Handle new/update bouygues
-        this.bouygues = this.bouygues || {};
-        this.bouygues.id = this.bouyguesId;
+        if (this.bouyguesId) {
+          // Handle new/update bouygues
+          this.bouygues = this.bouygues || {};
+          this.bouygues.id = this.bouyguesId;
+        }
         fn(null);
       }
     }

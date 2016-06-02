@@ -1,6 +1,7 @@
 var bluebird = require('bluebird');
 var passport = require('passport');
 var BouyguesStrategy = require('./passport/');
+var billingApi = rootRequire('/server/billing-api.js');
 
 exports.setup = function (User, config) {
   passport.use(new BouyguesStrategy({
@@ -35,12 +36,14 @@ exports.setup = function (User, config) {
             }
             // user exist => update
             user.name = user.name || profile.displayName;
+            user.bouyguesId = profile.id;
             user.bouygues = profile._json;
             return user.save();
           } else {
             if (state === 'signin') {
               throw new Error('No user found, please associate your profile with bouygues after being connected');
             }
+
 
             // new user => create
             return User.create({
@@ -50,9 +53,28 @@ exports.setup = function (User, config) {
               last_name: profile.name.familyName,
               role: 'user',
               provider: 'bouygues',
+              bouyguesId: profile.id,
               bouygues: profile._json
             });
           }
-        }).nodeify(done);
+        })
+        //
+        // we create the user in the billing-api if he doesn't exist yet
+        //
+        .then(function (user) {
+          return billingApi.getOrCreateUser({
+            providerName: 'bouygues',
+            userReferenceUuid: user._id,
+            userProviderUuid: user.bouyguesId,
+            userOpts: {
+              email: user.email || '',
+              firstName: user.first_name || '',
+              lastName: user.last_name || ''
+            }
+          }).then(function () {
+            return user;
+          });
+        })
+        .nodeify(done);
     }));
 };
