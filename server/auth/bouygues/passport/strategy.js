@@ -58,6 +58,7 @@ function Strategy (options, verify) {
     options.customHeaders['User-Agent'] = options.userAgent || 'passport-github';
   }
 
+  console.log(verify)
   OAuth2Strategy.call(this, options, verify);
   this.name = 'bouygues';
   this._userProfileURL = options.userProfileURL || 'https://api.bytel.fr:21443/v1/profile';

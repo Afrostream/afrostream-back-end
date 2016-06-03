@@ -71,7 +71,8 @@ var all = {
   bouygues: {
     clientID: process.env.BOUYGUES_ID || '00140041210',
     clientSecret: process.env.BOUYGUES_SECRET || '00140041210:9T?8V97Z7',
-    callbackURL: (process.env.BOUYGUES_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/bouygues/callback'
+    callbackURL: (process.env.BOUYGUES_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/bouygues/callback',
+    failureURL: (process.env.FACEBOOK_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/bouygues/failure'
   },
 
   google: {

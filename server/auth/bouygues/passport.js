@@ -11,9 +11,14 @@ exports.setup = function (User, config) {
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function (req, accessToken, refreshToken, profile, done) {
-      var state = req.query.state;
+      //req don't have user, so we pass it in query
+      var state = new Buffer(req.query.state, 'base64').toString('ascii');
+      state = JSON.parse(state);
+      var status = state.status;
       var email = profile.emails[0].address;
-      var userId = req.user ? req.user._id : null;
+      var userId = req.user ? req.user._id : state.userId;
+      console.log('bouygues user', userId);
+
       var c = {
         user: null
       };
@@ -24,7 +29,7 @@ exports.setup = function (User, config) {
           if (user) return user;
           // missing in req.user ? => fetching in DB
           var whereUser = [{'bouygues.id': profile.id}, {'bouyguesId': profile.id}, {'_id': userId}];
-          if (state !== 'signin') {
+          if (status !== 'signin') {
             whereUser.push({'email': {$iLike: email}});
           }
           return User.find({
@@ -44,8 +49,8 @@ exports.setup = function (User, config) {
             user.bouygues = profile._json;
             return user.save();
           } else {
-            if (state === 'signin') {
-              throw new Error('No user found, please associate your profile with bouygues after being connected');
+            if (status === 'signin') {
+              throw new Error('No user found, please associate your profile after being connected');
             }
 
             // new user => create
@@ -65,7 +70,6 @@ exports.setup = function (User, config) {
         // we create the user in the billing-api if he doesn't exist yet
         //
         .then(function (user) {
-          console.log('create billing user')
           c.user = user;
           return billingApi.getOrCreateUser({
             providerName: 'bouygues',
@@ -79,7 +83,6 @@ exports.setup = function (User, config) {
           })
         })
         .then(function () {
-          console.log(c.user)
           return c.user;
         })
         .nodeify(done);

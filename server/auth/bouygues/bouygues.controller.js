@@ -33,28 +33,32 @@ function validationError (res, statusCode) {
 }
 
 var signin = function (req, res, next) {
+  var userId = req.user ? req.user._id : null;
   passport.authenticate('bouygues', {
     userAgent: req.userAgent,
     scope: scope,
-    state: 'signin'
+    session: false,
+    state: new Buffer(JSON.stringify({status: 'signin', userId: userId})).toString('base64')
   })(req, res, next);
 };
 
 var signup = function (req, res, next) {
   passport.authenticate('bouygues', {
     scope: scope,
-    state: 'signup'
+    state: new Buffer(JSON.stringify({status: 'signup'})).toString('base64')
   })(req, res, next);
 };
 
 var unlink = function (req, res) {
-  var userId = req.user._id;
+  var userId = req.user ? req.user._id : null;
+  console.log('unlink user bouygues : ', userId)
   User.find({
     where: {
       _id: userId
     }
   })
     .then(function (user) {
+      console.log(user._id);
       if (!user) {
         return res.status(422).end();
       }
@@ -70,7 +74,8 @@ var unlink = function (req, res) {
 var callback = function (req, res, next) {
   var state = req.query.state;
   passport.authenticate('bouygues', {
-    state: state
+    state: state,
+    session: false
   }, function (err, user, info) {
 
     Q()

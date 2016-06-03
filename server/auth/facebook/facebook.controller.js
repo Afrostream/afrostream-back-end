@@ -12,7 +12,7 @@ var User = sqldb.User;
  * Scope authorizations
  * @type {string[]}
  */
-var scope = ['email', 'identity', 'tel'];
+var scope = ['email', 'user_about_me'];
 
 var strategyOptions = function (options) {
   return function (req, res, next) {
@@ -35,20 +35,19 @@ function validationError (res, statusCode) {
 var signin = function (req, res, next) {
   var userId = req.user ? req.user._id : null;
   passport.authenticate('facebook', {
-    callbackURL: config.facebook.callbackURL + '?status=signin' + (userId ? '&id=' + userId : ''),
     display: 'popup',
     scope: scope,
-    session: false
+    session: false,
+    state: new Buffer(JSON.stringify({status: 'signin', userId: userId})).toString('base64')
   })(req, res, next);
 };
 
 var signup = function (req, res, next) {
-  var userId = req.user ? req.user._id : null;
   passport.authenticate('facebook', {
-    callbackURL: config.facebook.callbackURL + '?status=signup' + (userId ? '&id=' + userId : ''),
     display: 'popup',
     scope: scope,
-    session: false
+    session: false,
+    state: new Buffer(JSON.stringify({status: 'signup'})).toString('base64')
   })(req, res, next);
 };
 
@@ -72,12 +71,8 @@ var unlink = function (req, res) {
 };
 
 var callback = function (req, res, next) {
-  var userId = req.query.id;
-  var status = req.query.status;
   passport.authenticate('facebook', {
     display: 'popup',
-    callbackURL: config.facebook.callbackURL + '?status=' + status + ( userId ? '&id=' + userId : ''),
-    failureRedirect: config.facebook.failureURL,
     session: false
   }, function (err, user, info) {
     Q()

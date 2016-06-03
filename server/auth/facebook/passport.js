@@ -6,6 +6,7 @@ exports.setup = function (User, config) {
   passport.use(new FacebookStrategy({
       clientID: config.facebook.clientID,
       clientSecret: config.facebook.clientSecret,
+      callbackURL: config.facebook.callbackURL,
       enableProof: true,
       profileFields: [
         'displayName',
@@ -15,8 +16,13 @@ exports.setup = function (User, config) {
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function (req, accessToken, refreshToken, profile, done) {
-      var userId = req.query.id;
-      var status = req.query.status;
+      //req don't have user, so we pass it in query
+      var state = new Buffer(req.query.state, 'base64').toString('ascii');
+      state = JSON.parse(state);
+      var status = state.status;
+      var email = profile.emails[0].value;
+      var userId = req.user ? req.user._id : state.userId;
+      console.log('facebook user', userId);
       bluebird.resolve(req.user)
         .then(function (user) {
           // user exist => continue
@@ -24,7 +30,7 @@ exports.setup = function (User, config) {
           // missing in req.user ? => fetching in DB
           var whereUser = [{'facebook.id': profile.id}, {'_id': userId}];
           if (status !== 'signin') {
-            whereUser.push({'email': {$iLike: profile.emails[0].value}});
+            whereUser.push({'email': {$iLike: email}});
           }
           return User.find({
             where: {
@@ -43,13 +49,13 @@ exports.setup = function (User, config) {
             return user.save();
           } else {
             if (status === 'signin') {
-              throw new Error('No user found, please associate your profile with facebook after being connected');
+              throw new Error('No user found, please associate your profile after being connected');
             }
 
             // new user => create
             return User.create({
               name: profile.displayName,
-              email: profile.emails[0].value,
+              email: email,
               first_name: profile.name.givenName,
               last_name: profile.name.familyName,
               role: 'user',
