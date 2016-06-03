@@ -14,6 +14,10 @@ exports.setup = function (User, config) {
       var state = req.query.state;
       var email = profile.emails[0].address;
       var userId = req.user ? req.user._id : null;
+      var c = {
+        user: null
+      };
+
       bluebird.resolve(req.user)
         .then(function (user) {
           // user exist => continue
@@ -61,6 +65,8 @@ exports.setup = function (User, config) {
         // we create the user in the billing-api if he doesn't exist yet
         //
         .then(function (user) {
+          console.log('create billing user')
+          c.user = user;
           return billingApi.getOrCreateUser({
             providerName: 'bouygues',
             userReferenceUuid: user._id,
@@ -73,7 +79,8 @@ exports.setup = function (User, config) {
           })
         })
         .then(function () {
-          return user;
+          console.log(c.user)
+          return c.user;
         })
         .nodeify(done);
     }));

@@ -112,9 +112,9 @@ module.exports = function (sequelize, DataTypes) {
         if (user.changed('password')) {
           return user.updatePassword(fn);
         }
-        //else if (user.changed('bouyguesId')) {
-        //  return user.updateBouyguesId(fn);
-        //}
+        else if (user.changed('bouyguesId')) {
+          return user.updateBouyguesId(fn);
+        }
         fn();
       }
     },
