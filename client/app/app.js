@@ -16,7 +16,6 @@ angular.module('afrostreamAdminApp', [
     'ui.bootstrap.tabs',
     'ui.sortable',
     'mdMarkdownIt',
-    'JSONedit',
     'angularUtils.directives.dirPagination',
     //IMAGE cropper
     'ngImgCrop'
