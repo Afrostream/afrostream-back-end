@@ -177,6 +177,14 @@ exports.index = function (req, res) {
   // pagination
   utils.mergeReqRange(paramsObj, req);
 
+  if (req.query.pfMd5Hash) {
+    paramsObj = _.merge(paramsObj, {
+      where: {
+        pfMd5Hash: req.query.pfMd5Hash
+      }
+    });
+  }
+
   if (queryName) {
     paramsObj = _.merge(paramsObj, {
       where: {
