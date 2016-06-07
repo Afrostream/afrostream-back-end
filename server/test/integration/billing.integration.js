@@ -14,7 +14,7 @@ var request = require('supertest');
 
 var assert = require('better-assert');
 
-describe('User API:', function () {
+describe('Billings API:', function () {
   before(function () {
     return User.destroy({
       where: {email: 'test.integration+billing@afrostream.tv'}
@@ -35,6 +35,7 @@ describe('User API:', function () {
 
   describe('GET /api/billings/internalplans', function () {
     var bouyguesMiamiClient = null;
+    var frontClient = null;
     before(function () {
       return Client.find({where: {type: 'legacy-api.bouygues-miami'}}).then(function (c) {
         assert(c, 'client bouygues doesnt exist in db, please seed.');
@@ -42,8 +43,16 @@ describe('User API:', function () {
         assert(c.billingProviderName === 'bachat');
       });
     });
+    before(function () {
+      return Client.find({where: {type: 'front-api.front-end'}}).then(function (c) {
+        assert(c, 'client front doesnt exist in db, please seed.');
+        frontClient = c;
+        assert(c.billingProviderName === null);
+      });
+    });
 
     var bouyguesMiamiClientToken = null;
+    var frontClientToken = null;
     before(function () {
       // login client
       return bootstrap.getClientToken(app, bouyguesMiamiClient).then(function (t) {
@@ -51,9 +60,17 @@ describe('User API:', function () {
         bouyguesMiamiClientToken = t;
       });
     });
+    before(function () {
+      // login client
+      return bootstrap.getClientToken(app, frontClient).then(function (t) {
+        assert(t, 'missing client token');
+        frontClientToken = t;
+      });
+    });
+
 
     // log the user using bouygues client
-    var access_token;
+    var bouygues_access_token;
     before(function (done) {
       request(app)
         .post('/auth/oauth2/token')
@@ -71,7 +88,30 @@ describe('User API:', function () {
           assert(typeof res.body.refresh_token === 'string');
           assert(typeof res.body.expires_in === 'number');
           assert(res.body.token_type === 'Bearer');
-          access_token = res.body.access_token;
+          bouygues_access_token = res.body.access_token;
+          done();
+        });
+    });
+
+    var front_access_token;
+    before(function (done) {
+      request(app)
+        .post('/auth/oauth2/token')
+        .send({
+          grant_type: 'password',
+          client_id: frontClient.get('_id'),
+          client_secret: frontClient.get('secret'),
+          username: 'test.integration+billing@afrostream.tv',
+          password: 'password'
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          assert(typeof res.body.access_token === 'string');
+          assert(typeof res.body.refresh_token === 'string');
+          assert(typeof res.body.expires_in === 'number');
+          assert(res.body.token_type === 'Bearer');
+          front_access_token = res.body.access_token;
           done();
         });
     });
@@ -79,7 +119,7 @@ describe('User API:', function () {
     it('calling with bouygues client should call the mock using providerName=bachat', function (done) {
       request(app)
         .get('/api/billings/internalplans')
-        .set('Authorization', 'Bearer ' + access_token)
+        .set('Authorization', 'Bearer ' + bouygues_access_token)
         .expect(200)
         .expect('Content-Type', /json/)
         .end(function (err, res) {
@@ -89,14 +129,29 @@ describe('User API:', function () {
         });
     });
 
-    it('calling with bouygues client should call the mock using providerName=other', function (done) {
+    it('calling internalplans with bouygues client with an unknown providerName should call the mock using providerName=bachat', function (done) {
       request(app)
         .get('/api/billings/internalplans')
         .query({providerName: 'other'})
-        .set('Authorization', 'Bearer ' + access_token)
+        .set('Authorization', 'Bearer ' + bouygues_access_token)
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function (err, res) {
+          if (err) return done(err);
+          assert(res.body[0].calledWithProviderNameBachat === true);
+          done();
+        });
+    });
+
+    it('calling internalplans with front client with an unknown providerName should throw an error', function (done) {
+      request(app)
+        .get('/api/billings/internalplans')
+        .query({providerName: 'other'})
+        .set('Authorization', 'Bearer ' + front_access_token)
         .expect(500)
         .expect('Content-Type', /json/)
         .end(function (err, res) {
+          console.log(res.body);
           if (err) return done(err);
           assert(res.body.error === 'unknown provider named : unknown');
           done();
