@@ -350,10 +350,16 @@ exports.show = function (req, res) {
         console.error('[ERROR]: [API]: '+req.originalUrl+': sources is not an Array');
         return video;
       }
-      if (req.passport && req.passport.client && req.passport.client.isOrangeNewbox()) {
-        video.sources.forEach(function (source) {
-          source.src = source.src.replace('.ism', '-orange.ism');
-        });
+      if (req.passport && req.passport.client) {
+        if (req.passport.client.isOrangeNewbox()) {
+          video.sources.forEach(function (source) {
+            source.src = source.src.replace('.ism', '-orange.ism');
+          });
+        } else if (req.passport.client.isBouygues()) {
+          video.sources.forEach(function (source) {
+            source.src = source.src.replace('.ism', '-bouygues-miami.ism');
+          });
+        }
       }
       return video;
   })
