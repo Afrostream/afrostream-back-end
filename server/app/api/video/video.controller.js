@@ -343,6 +343,21 @@ exports.show = function (req, res) {
       );
     })
     //
+    // BEGIN HACK orange newbox...
+    //
+  .then(function (video) {
+      if (!Array.isArray(video.sources)) {
+        console.error('[ERROR]: [API]: '+req.originalUrl+': sources is not an Array');
+        return video;
+      }
+      if (req.passport && req.passport.client && req.passport.client.isOrangeNewbox()) {
+        video.sources.forEach(function (source) {
+          source.src = source.src.replace('.ism', '-orange.ism');
+        });
+      }
+      return video;
+  })
+    //
     // PF infos
     //  FIXME: PF & CDNSELECTOR should be launched // and not sequential...
     //

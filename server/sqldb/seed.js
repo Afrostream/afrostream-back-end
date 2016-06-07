@@ -413,6 +413,12 @@ promises.push(
       secret: "b0eee6d9-8771-4d93-8407-ee67af60408c",
       type: "legacy-api.orange",
       role: "client"
+    }, {
+      name: 'orange newbox',
+      _id: '6789a4d5-05ec-5555-b9a6-e50a04f7fccc',
+      secret: "6789a6d9-8771-5555-8407-ee67af604ccc",
+      type: "legacy-api.orange-newbox",
+      role: "client"
     }]);
   })
 );

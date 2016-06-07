@@ -33,6 +33,10 @@ module.exports = function (sequelize, DataTypes) {
         return this.getDataValue('type') === 'legacy-api.orange';
       },
 
+      isOrangeNewbox: function () {
+        return this.getDataValue('type') === 'legacy-api.orange-newbox';
+      },
+
       isAfrostreamExportsBouygues: function () {
         return this.getDataValue('type') === 'afrostream-exports-bouygues';
       },
