@@ -1,18 +1,13 @@
 var bluebird = require('bluebird');
 var passport = require('passport');
-var FacebookStrategy = require('passport-facebook');
+var BouyguesStrategy = require('./passport/');
+var billingApi = rootRequire('/server/billing-api.js');
 
 exports.setup = function (User, config) {
-  passport.use(new FacebookStrategy({
-      clientID: config.facebook.clientID,
-      clientSecret: config.facebook.clientSecret,
-      callbackURL: config.facebook.callbackURL,
-      enableProof: true,
-      profileFields: [
-        'displayName',
-        'emails',
-        'name'
-      ],
+  passport.use(new BouyguesStrategy({
+      clientID: config.bouygues.clientID,
+      clientSecret: config.bouygues.clientSecret,
+      callbackURL: config.bouygues.callbackURL,
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function (req, accessToken, refreshToken, profile, done) {
@@ -20,15 +15,20 @@ exports.setup = function (User, config) {
       var state = new Buffer(req.query.state, 'base64').toString('ascii');
       state = JSON.parse(state);
       var status = state.status;
-      var email = profile.emails[0].value;
+      var email = profile.emails[0].address;
       var userId = req.user ? req.user._id : state.userId;
-      console.log('facebook user', userId);
+      console.log('bouygues user', userId);
+
+      var c = {
+        user: null
+      };
+
       bluebird.resolve(req.user)
         .then(function (user) {
           // user exist => continue
           if (user) return user;
           // missing in req.user ? => fetching in DB
-          var whereUser = [{'facebook.id': profile.id}, {'_id': userId}];
+          var whereUser = [{'bouygues.id': profile.id}, {'bouyguesId': profile.id}, {'_id': userId}];
           if (status !== 'signin') {
             whereUser.push({'email': {$iLike: email}});
           }
@@ -45,7 +45,8 @@ exports.setup = function (User, config) {
             }
             // user exist => update
             user.name = user.name || profile.displayName;
-            user.facebook = profile._json;
+            user.bouyguesId = profile.id;
+            user.bouygues = profile._json;
             return user.save();
           } else {
             if (status === 'signin') {
@@ -59,10 +60,31 @@ exports.setup = function (User, config) {
               first_name: profile.name.givenName,
               last_name: profile.name.familyName,
               role: 'user',
-              provider: 'facebook',
-              facebook: profile._json
+              provider: 'bouygues',
+              bouyguesId: profile.id,
+              bouygues: profile._json
             });
           }
-        }).nodeify(done);
+        })
+        //
+        // we create the user in the billing-api if he doesn't exist yet
+        //
+        .then(function (user) {
+          c.user = user;
+          return billingApi.getOrCreateUser({
+            providerName: 'bouygues',
+            userReferenceUuid: user._id,
+            userProviderUuid: user.bouyguesId,
+            userOpts: {
+              email: user.email || '',
+              firstName: user.first_name || '',
+              lastName: user.last_name || ''
+            }
+          })
+        })
+        .then(function () {
+          return c.user;
+        })
+        .nodeify(done);
     }));
 };

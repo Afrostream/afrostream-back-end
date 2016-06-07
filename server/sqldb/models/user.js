@@ -1,7 +1,7 @@
 'use strict';
 
 var crypto = require('crypto');
-var authTypes = ['github', 'twitter', 'facebook', 'google'];
+var authTypes = ['github', 'twitter', 'facebook', 'google', 'bouygues'];
 
 var validatePresenceOf = function (value) {
   return value && value.length;
@@ -50,7 +50,8 @@ module.exports = function (sequelize, DataTypes) {
     google: DataTypes.JSON,
     github: DataTypes.JSON,
     facebook: DataTypes.JSON,
-    bouyguesId: DataTypes.STRING(128),
+    bouygues: DataTypes.JSON,
+    bouyguesId: DataTypes.STRING(128), // orange ise2 id.
     ise2: DataTypes.STRING(128), // orange ise2 id.
     active: {
       type: DataTypes.BOOLEAN,
@@ -71,7 +72,8 @@ module.exports = function (sequelize, DataTypes) {
           'email': this.email,
           'provider': this.provider,
           'facebook': this.facebook,
-          'bouyguesId': this.bouyguesId, // fixme: security: should this id be exported ?
+          'bouygues': this.bouygues,
+          'bouyguesId': this.bouyguesId || (this.bouygues ? this.bouygues.id : null), // fixme: security: should this id be exported ?
           'ise2': this.ise2              // fixme: security: should this id be exported ?
         };
       },
@@ -109,6 +111,9 @@ module.exports = function (sequelize, DataTypes) {
       beforeUpdate: function (user, fields, fn) {
         if (user.changed('password')) {
           return user.updatePassword(fn);
+        }
+        else if (user.changed('bouyguesId')) {
+          return user.updateBouyguesId(fn);
         }
         fn();
       }
@@ -243,6 +248,15 @@ module.exports = function (sequelize, DataTypes) {
         } else {
           fn(null);
         }
+      },
+
+      updateBouyguesId: function (fn) {
+        if (this.bouyguesId) {
+          // Handle new/update bouygues
+          this.bouygues = this.bouygues || {};
+          this.bouygues.id = this.bouyguesId;
+        }
+        fn(null);
       }
     }
   });

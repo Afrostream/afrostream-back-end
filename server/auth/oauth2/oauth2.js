@@ -24,10 +24,10 @@ server.serializeClient(function (client, done) {
 
 server.deserializeClient(function (id, done) {
   Client.find({
-      where: {
-        _id: id
-      }
-    })
+    where: {
+      _id: id
+    }
+  })
     .then(function (client) {
       return done(null, client);
     })
@@ -89,25 +89,28 @@ var generateToken = function (client, user, code, userIp, userAgent, done) {
       userIp: userIp || null,
       userAgent: userAgent
     }
-  }).then(function () { }, function (err) { console.error(err); }); // can finish
+  }).then(function () {
+  }, function (err) {
+    console.error(err);
+  }); // can finish
   //
   AccessToken.create({
-      token: tokenData.token,
-      clientId: tokenData.clientId,
-      userId: tokenData.userId,
-      expirationDate: tokenData.expirationDate,
-      expirationTimespan: tokenData.expirationTimespan
-    })
+    token: tokenData.token,
+    clientId: tokenData.clientId,
+    userId: tokenData.userId,
+    expirationDate: tokenData.expirationDate,
+    expirationTimespan: tokenData.expirationTimespan
+  })
     .then(function (tokenEntity) {
       if (client === null) {
         return done(null, tokenEntity.token, null, {expires_in: tokenEntity.expirationTimespan});
       }
 
       RefreshToken.create({
-          token: tokenData.refresh,
-          clientId: tokenData.clientId,
-          userId: tokenData.userId
-        })
+        token: tokenData.refresh,
+        clientId: tokenData.clientId,
+        userId: tokenData.userId
+      })
         .then(function (refreshTokenEntity) {
           return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
         }).catch(function (err) {
@@ -126,11 +129,11 @@ var refreshAccessToken = function (client, userId) {
   var tokenData = generateTokenData(client, user, null);
 
   return AccessToken.find({
-      where: {
-        clientId: client._id,
-        userId: userId
-      }
-    })
+    where: {
+      clientId: client._id,
+      userId: userId
+    }
+  })
     .then(function (accessToken) {
       if (!accessToken) throw "missing access token";
       return accessToken.updateAttributes({
@@ -142,54 +145,54 @@ var refreshAccessToken = function (client, userId) {
 };
 
 /*
-server.grant(oauth2orize.grant.code(function (client, redirectURI, user, ares, done) {
-  AuthCode.create({clientId: client._id, redirectURI: redirectURI, userId: user._id})
-    .then(function (entity) {
-      done(null, entity.code);
-    }).catch(function (err) {
-    return done(err);
-  });
-}));
+ server.grant(oauth2orize.grant.code(function (client, redirectURI, user, ares, done) {
+ AuthCode.create({clientId: client._id, redirectURI: redirectURI, userId: user._id})
+ .then(function (entity) {
+ done(null, entity.code);
+ }).catch(function (err) {
+ return done(err);
+ });
+ }));
 
-server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
-  return generateToken(client, user, null, done);
-}));
+ server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
+ return generateToken(client, user, null, done);
+ }));
 
-server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, done) {
-  AuthCode.find({
-    where: {
-      _id: code
-    }
-  }).then(function (entity) {
-    if (!entity) {
-      return done(404);
-    }
-    if (entity.code === undefined) {
-      return done(null, false);
-    }
-    if (client._id !== entity.clientID) {
-      return done(null, false);
-    }
-    if (redirectURI !== entity.redirectURI) {
-      return done(null, false);
-    }
+ server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, done) {
+ AuthCode.find({
+ where: {
+ _id: code
+ }
+ }).then(function (entity) {
+ if (!entity) {
+ return done(404);
+ }
+ if (entity.code === undefined) {
+ return done(null, false);
+ }
+ if (client._id !== entity.clientID) {
+ return done(null, false);
+ }
+ if (redirectURI !== entity.redirectURI) {
+ return done(null, false);
+ }
 
-    entity.destroy().then(function () {
-        return generateToken(null, null, entity, done);
-      })
-      .catch(function (err) {
-        return done(err);
-      });
-  });
-}));
-*/
+ entity.destroy().then(function () {
+ return generateToken(null, null, entity, done);
+ })
+ .catch(function (err) {
+ return done(err);
+ });
+ });
+ }));
+ */
 
 server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, reqBody, done) {
   Client.find({
-      where: {
-        _id: client._id
-      }
-    })
+    where: {
+      _id: client._id
+    }
+  })
     .then(function (entity) {
       if (entity === null) {
         return done(new TokenError('unknown client', 'invalid_grant'), false);
@@ -198,18 +201,18 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
         return done(new TokenError('wrong secret', 'invalid_grant'), false);
       }
       return User.find({
-          where: {
-            email: {
-              $iLike: username
-            }
+        where: {
+          email: {
+            $iLike: username
           }
-        })
+        }
+      })
         .then(function (user) {
           if (user === null) {
             return done(new TokenError('unknown user', 'invalid_grant'), false);
           }
           if (entity.type === 'legacy-api.bouygues-miami' &&
-              user.email.match(/@bbox\.fr$/i)) {
+            user.email.match(/@bbox\.fr$/i)) {
             return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
           }
           user.authenticate(password, function (authError, authenticated) {
@@ -293,10 +296,10 @@ server.exchange(exchangeIse2(function (client, id, scope, reqBody, done) {
 
 server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, reqBody, done) {
   Client.find({
-      where: {
-        _id: client._id
-      }
-    })
+    where: {
+      _id: client._id
+    }
+  })
     .then(function (entity) {
       if (entity === null) {
         return done(null, false);
@@ -313,10 +316,10 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
 
 server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshTokenToken, scope, done) {
   RefreshToken.find({
-      where: {
-        token: refreshTokenToken
-      }
-    })
+    where: {
+      token: refreshTokenToken
+    }
+  })
     .then(function (refreshToken) {
       if (!refreshToken) {
         throw new Error("missing refresh token");
@@ -333,10 +336,10 @@ server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken
 exports.authorization = [
   server.authorization(function (clientID, redirectURI, done) {
     Client.find({
-        where: {
-          _id: clientID
-        }
-      })
+      where: {
+        _id: clientID
+      }
+    })
       .then(function (client) {
         return done(null, client, redirectURI);
       })
