@@ -3,6 +3,14 @@ var passport = require('passport');
 var OrangeStrategy = require('./passport/');
 var billingApi = rootRequire('/server/billing-api.js');
 
+/**
+ * - si personne d’a de orangeId , je crée un user from scratch et je lui assigne le bouygueId
+ * - si lors du signin je trouve deja queql’un qui a un orangeId je fail
+ * - si je suis loggué (_id) et que je veux lier mon compte orange je trouve deja queql’un qui a un orangeId je fail
+ * - sinon je link
+ **/
+
+
 exports.setup = function (User, config) {
   passport.use(new OrangeStrategy({
       clientID: config.orange.clientID,
@@ -12,12 +20,13 @@ exports.setup = function (User, config) {
     },
     function (req, profile, done) {
       //req don't have user, so we pass it in query
-      var state = req.query.state ? new Buffer(req.query.state || '', 'base64').toString('ascii') : '{}';
+      var state = req.body.RelayState ? new Buffer(req.body.RelayState || '', 'base64').toString('ascii') : '{}';
       state = JSON.parse(state);
       var status = state.status || 'signup';
       var userId = req.user ? req.user._id : state.userId;
 
       console.log('orange user', userId);
+      console.log('orange profile', profile);
 
       var c = {
         user: null,
@@ -29,13 +38,22 @@ exports.setup = function (User, config) {
           // user exist => continue
           if (user) return user;
           // missing in req.user ? => fetching in DB
-          var whereUser = [{'orange.id': profile.id}, {'orangeId': profile.id}, {'_id': userId}];
+          var whereUser = [{'orange.id': profile.id}, {'orangeId': profile.id}];
 
           return User.find({
             where: {
               $or: whereUser
             }
           });
+        })
+        .then(function (user) {
+          if (!user && userId) {
+            return User.find({
+              where: {'_id': userId}
+            });
+          } else {
+            return user;
+          }
         })
         .then(function (user) {
           if (user) {
@@ -73,7 +91,7 @@ exports.setup = function (User, config) {
               email: user.email || '',
               firstName: user.first_name || '',
               lastName: user.last_name || '',
-              OrangeAPIToken: c.orangeAPIToken
+              OrangeApiToken: c.orangeAPIToken
             }
           })
         })

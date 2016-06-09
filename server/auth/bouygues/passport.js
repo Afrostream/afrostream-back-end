@@ -3,6 +3,13 @@ var passport = require('passport');
 var BouyguesStrategy = require('./passport/');
 var billingApi = rootRequire('/server/billing-api.js');
 
+/**
+ * - si personne d’a de bouyguesId , je crée un user from scratch et je lui assigne le bouygueId
+ * - si lors du signin je trouve deja queql’un qui a un bouyguesId je fail
+ * - si je suis loggué (_id) et que je veux lier mon compte bouygues je trouve deja queql’un qui a un bouyguesId je fail
+ * - sinon je link
+ **/
+
 exports.setup = function (User, config) {
   passport.use(new BouyguesStrategy({
       clientID: config.bouygues.clientID,
@@ -12,12 +19,13 @@ exports.setup = function (User, config) {
     },
     function (req, accessToken, refreshToken, profile, done) {
       //req don't have user, so we pass it in query
-      var state = new Buffer(req.query.state, 'base64').toString('ascii');
+      var state = req.query.state ? new Buffer(req.query.state, 'base64').toString('ascii') : '{}';
       state = JSON.parse(state);
       var status = state.status;
-      var email = profile.emails[0].address;
+      var email = profile.emails && profile.emails[0] && profile.emails[0].address;
       var userId = req.user ? req.user._id : state.userId;
       console.log('bouygues user', userId);
+      console.log('bouygues profile id', profile.id);
 
       var c = {
         user: null
@@ -28,7 +36,7 @@ exports.setup = function (User, config) {
           // user exist => continue
           if (user) return user;
           // missing in req.user ? => fetching in DB
-          var whereUser = [{'bouygues.id': profile.id}, {'bouyguesId': profile.id}, {'_id': userId}];
+          var whereUser = [{'bouygues.id': profile.id}, {'bouyguesId': profile.id}];
           if (status !== 'signin') {
             whereUser.push({'email': {$iLike: email}});
           }
@@ -37,6 +45,15 @@ exports.setup = function (User, config) {
               $or: whereUser
             }
           });
+        })
+        .then(function (user) {
+          if (!user && userId) {
+            return User.find({
+              where: {'_id': userId}
+            });
+          } else {
+            return user;
+          }
         })
         .then(function (user) {
           if (user) {

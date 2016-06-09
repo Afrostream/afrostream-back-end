@@ -20,11 +20,9 @@ exports.parse = function (json) {
   profile.id = json.nameID;
   profile.orangeAPIToken = json.OrangeAPIToken;
   //todo get expire value from token ted=1468156418
-  var expiresIn = 87600; //2 month
+  var expiresIn = 5256000; //2 month
   var regex = /ted=([0-9].*)(\|tcd)/g;
   var match = regex.exec(profile.orangeAPIToken);
-  var now = new Date().getTime();
-
   if (match && match.length) {
     var timestamp = match[1];
     expiresIn = ((timestamp * 1000) - Date.now()) / 1000;

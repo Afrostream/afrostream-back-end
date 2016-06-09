@@ -8,12 +8,6 @@ var config = require('../../config');
 var sqldb = rootRequire('/server/sqldb');
 var User = sqldb.User;
 
-/**
- * Scope authorizations
- * @type {string[]}
- */
-var scope = [];
-
 var strategyOptions = function (options) {
   return function (req, res, next) {
     req.passportStrategyOrangeOptions = _.merge(
@@ -34,24 +28,23 @@ function validationError (res, statusCode) {
 
 var signin = function (req, res, next) {
   var userId = req.user ? req.user._id : null;
+  var state = new Buffer(JSON.stringify({status: 'signin', userId: userId})).toString('base64');
   passport.authenticate('orange', {
-    userAgent: req.userAgent,
-    scope: scope,
     session: false,
-    state: new Buffer(JSON.stringify({status: 'signin', userId: userId})).toString('base64')
+    additionalParams: {'RelayState': state}
   })(req, res, next);
 };
 
 var signup = function (req, res, next) {
+  var state = new Buffer(JSON.stringify({status: 'signup'})).toString('base64');
   passport.authenticate('orange', {
-    scope: scope,
-    state: new Buffer(JSON.stringify({status: 'signup'})).toString('base64')
+    additionalParams: {'RelayState': state}
   })(req, res, next);
 };
 
 var unlink = function (req, res) {
   var userId = req.user ? req.user._id : null;
-  console.log('unlink user orange : ', userId)
+  console.log('unlink user orange : ', userId);
   User.find({
     where: {
       _id: userId
@@ -72,10 +65,8 @@ var unlink = function (req, res) {
 };
 
 var callback = function (req, res, next) {
-  var state = req.query.state;
-  var expireIn = null
+  var expireIn = null;
   passport.authenticate('orange', {
-    state: state,
     session: false
   }, function (err, user, info) {
 
@@ -84,7 +75,7 @@ var callback = function (req, res, next) {
         if (err) throw err;
         //if (info) throw info;
         if (info) {
-          console.log(info);
+          console.log('info', info);
           expireIn = info.expireIn
         }
         if (!user) throw new Error('Something went wrong, please try again.');
