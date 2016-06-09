@@ -102,7 +102,10 @@
     "slugify": "^0.1.1",
     "time-grunt": "~0.3.1",
     "urlsafe-base64": "^1.0.0",
-    "xml2js": "^0.4.15"
+    "xml-crypto": "https://registry.npmjs.org/xml-crypto/-/xml-crypto-0.8.4.tgz",
+    "xml2js": "https://registry.npmjs.org/xml2js/-/xml2js-0.4.15.tgz",
+    "xmlbuilder": "https://registry.npmjs.org/xmlbuilder/-/xmlbuilder-2.5.2.tgz",
+    "xmldom": "https://registry.npmjs.org/xmldom/-/xmldom-0.1.22.tgz"
   },
   "devDependencies": {
     "connect-livereload": "^0.5.3",

@@ -1,9 +1,12 @@
 /**
  * Module dependencies.
  */
-var uri = require('url')
-  , crypto = require('crypto')
+var Q = require('q')
   , util = require('util')
+  , xmldom = require('xmldom')
+  , xmlCrypto = require('xml-crypto')
+  , xml2js = require('xml2js')
+  , xmlbuilder = require('xmlbuilder')
   , SAML2Strategy = require('passport-saml').Strategy
   , Profile = require('./profile')
   , InternalOAuthError = require('passport-oauth2').InternalOAuthError
@@ -11,7 +14,7 @@ var uri = require('url')
   , OrangeTokenError = require('./errors/orangetokenerror')
   , OrangeGraphAPIError = require('./errors/orangegraphapierror');
 
-
+var xpath = xmlCrypto.xpath;
 /**
  * `Strategy` constructor.
  *
@@ -50,11 +53,127 @@ function Strategy (options, verify) {
   options.scopeSeparator = options.scopeSeparator || ',';
   options.customHeaders = options.customHeaders || {};
   options.issuer = options.clientID;
+  options.attributeConsumingServiceIndex = 32768;
   options.identifierFormat = options.identifierFormat || 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent';
 
   SAML2Strategy.call(this, options, verify);
   this.name = 'orange';
   this._userProfileURL = options.userProfileURL || (process.env.NODE_ENV === 'production' ? 'https://iosw-ba- rest.orange.com:443/OTP/API_OTVP_Partners-1/user/v1/' : 'https://iosw3sn-ba- rest.orange.com:8443/OTP/API_OTVP_Partners-1/user/v1/');
+
+  //override method samld to add HTTP-POST-SimpleSign vs HTTP-POST
+  this._saml.generateAuthorizeRequest = function (req, isPassive, callback) {
+    var self = this;
+    var id = "_" + self.generateUniqueID();
+    var instant = self.generateInstant();
+    var forceAuthn = self.options.forceAuthn || false;
+
+    Q.fcall(function () {
+      if (self.options.validateInResponseTo) {
+        return Q.ninvoke(self.cacheProvider, 'save', id, instant);
+      } else {
+        return Q();
+      }
+    })
+      .then(function () {
+        var request = {
+          'samlp:AuthnRequest': {
+            '@xmlns:samlp': 'urn:oasis:names:tc:SAML:2.0:protocol',
+            '@ID': id,
+            '@Version': '2.0',
+            '@IssueInstant': instant,
+            '@ProtocolBinding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign',
+            '@AssertionConsumerServiceURL': self.getCallbackUrl(req),
+            '@Destination': self.options.entryPoint,
+            'saml:Issuer': {
+              '@xmlns:saml': 'urn:oasis:names:tc:SAML:2.0:assertion',
+              '#text': self.options.issuer
+            }
+          }
+        };
+
+        if (isPassive)
+          request['samlp:AuthnRequest']['@IsPassive'] = true;
+
+        if (forceAuthn) {
+          request['samlp:AuthnRequest']['@ForceAuthn'] = true;
+        }
+
+        if (self.options.identifierFormat) {
+          request['samlp:AuthnRequest']['samlp:NameIDPolicy'] = {
+            '@xmlns:samlp': 'urn:oasis:names:tc:SAML:2.0:protocol',
+            '@Format': self.options.identifierFormat,
+            '@AllowCreate': 'true'
+          };
+        }
+
+        if (!self.options.disableRequestedAuthnContext) {
+          request['samlp:AuthnRequest']['samlp:RequestedAuthnContext'] = {
+            '@xmlns:samlp': 'urn:oasis:names:tc:SAML:2.0:protocol',
+            '@Comparison': 'exact',
+            'saml:AuthnContextClassRef': {
+              '@xmlns:saml': 'urn:oasis:names:tc:SAML:2.0:assertion',
+              '#text': self.options.authnContext
+            }
+          };
+        }
+
+        if (self.options.attributeConsumingServiceIndex) {
+          request['samlp:AuthnRequest']['@AttributeConsumingServiceIndex'] = self.options.attributeConsumingServiceIndex;
+        }
+
+        callback(null, xmlbuilder.create(request).end());
+      })
+      .fail(function (err) {
+        callback(err);
+      })
+      .done();
+  };
+
+  this._saml.validateSignature = function (fullXml, currentNode, cert) {
+    var self = this;
+    var xpathSigQuery = ".//*[local-name(.)='Signature' and " +
+      "namespace-uri(.)='http://www.w3.org/2000/09/xmldsig#']";
+    var signatures = xpath(currentNode, xpathSigQuery);
+    // This function is expecting to validate exactly one signature, so if we find more or fewer
+    //   than that, reject.
+    console.log('signatures', signatures.length)
+    if (signatures.length != 1)
+      return false;
+    var signature = signatures[0];
+    var sig = new xmlCrypto.SignedXml();
+    sig.keyInfoProvider = {
+      getKeyInfo: function (key) {
+        return "<X509Data></X509Data>";
+      },
+      getKey: function (keyInfo) {
+        return self.certToPEM(cert);
+      }
+    };
+
+    console.log('signatures', signature)
+
+    sig.loadSignature(signature);
+    // We expect each signature to contain exactly one reference to the top level of the xml we
+    //   are validating, so if we see anything else, reject.
+    console.log('sig.references', sig.references.length)
+    if (sig.references.length != 1)
+      return false;
+    var refUri = sig.references[0].uri;
+    var refId = (refUri[0] === '#') ? refUri.substring(1) : refUri;
+    // If we can't find the reference at the top level, reject
+    var idAttribute = currentNode.getAttribute('ID') ? 'ID' : 'Id';
+    console.log('idAttribute', idAttribute)
+    if (currentNode.getAttribute(idAttribute) != refId)
+      return false;
+    // If we find any extra referenced nodes, reject.  (xml-crypto only verifies one digest, so
+    //   multiple candidate references is bad news)
+    var totalReferencedNodes = xpath(currentNode.ownerDocument,
+      "//*[@" + idAttribute + "='" + refId + "']");
+    console.log('totalReferencedNodes', totalReferencedNodes)
+    if (totalReferencedNodes.length > 1)
+      return false;
+    return sig.checkSignature(fullXml);
+  };
 }
 
 /**

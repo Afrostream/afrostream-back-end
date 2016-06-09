@@ -7,7 +7,7 @@ var router = express.Router();
 
 router.get('/signin', orange.signin);
 router.get('/signup', orange.signup);
-router.get('/callback', orange.callback);
+router.post('/callback', orange.callback);
 router.get('/link', auth.isAuthenticated(), orange.signin);
 router.get('/unlink', auth.isAuthenticated(), orange.unlink);
 
