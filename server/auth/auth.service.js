@@ -22,7 +22,7 @@ var Q = require('q');
  * Attaches the user object to the request if authenticated
  * Otherwise returns 403
  */
-function isAuthenticated() {
+function isAuthenticated () {
   return function (req, res, next) {
     if (~'development,test'.indexOf(process.env.NODE_ENV) && req.get('bypass-auth')) {
       //
@@ -39,8 +39,8 @@ function isAuthenticated() {
         }
         req.user = user;
       }).then(function () {
-          next();
-        })
+        next();
+      })
         .catch(next);
     } else {
       //
@@ -51,7 +51,7 @@ function isAuthenticated() {
   }
 }
 
-function validRole(req, roleRequired) {
+function validRole (req, roleRequired) {
   return req.user && config.userRoles.indexOf(req.user.role) >=
     config.userRoles.indexOf(roleRequired);
 }
@@ -59,14 +59,14 @@ function validRole(req, roleRequired) {
 /**
  * Checks if the user role meets the minimum requirements of the route
  */
-function hasRole(roleRequired) {
+function hasRole (roleRequired) {
   if (!roleRequired) {
     throw new Error('Required role needs to be set');
   }
 
   return compose()
     .use(isAuthenticated())
-    .use(function meetsRequirements(req, res, next) {
+    .use(function meetsRequirements (req, res, next) {
       if (validRole(req, roleRequired)) {
         next();
       }
@@ -81,7 +81,7 @@ function hasRole(roleRequired) {
  * @param req
  * @returns {*}
  */
-function reqUserIsAdmin(req) {
+function reqUserIsAdmin (req) {
   var roleRequired = 'admin';
 
   return validRole(req, roleRequired);
@@ -92,25 +92,25 @@ function reqUserIsAdmin(req) {
  * @param req
  * @returns {*}
  */
-function reqUserIsBacko(req) {
+function reqUserIsBacko (req) {
   return req.query.backo;
 }
 
 /**
  * OAuth2 user token
  */
-function getOauth2UserTokens(user, userIp, userAgent) {
+function getOauth2UserTokens (user, userIp, userAgent) {
   var deferred = Q.defer();
   if (!user) {
     deferred.reject(new Error("no user"));
   } else {
-    oauth2.generateToken(null, user, null, userIp, userAgent, function (err, accessToken, refreshToken, info) {
+    oauth2.generateToken(null, user, null, userIp, userAgent, null, function (err, accessToken, refreshToken, info) {
       if (err)  return deferred.reject(err);
       return deferred.resolve({
         token: accessToken, // backward compatibility
-        access_token:accessToken,
-        refresh_token:refreshToken,
-        expires_in:info.expires_in
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        expires_in: info.expires_in
       });
     });
   }
@@ -120,7 +120,7 @@ function getOauth2UserTokens(user, userIp, userAgent) {
 /**
  * respond oauth2 user token.
  */
-function respondOauth2UserTokens(req, res) {
+function respondOauth2UserTokens (req, res) {
   getOauth2UserTokens(req.user, req.clientIp, req.userAgent)
     .then(function (tokens) {
       res.json(tokens);
@@ -175,7 +175,7 @@ var filterQueryOptions = function (req, options, rootModel) {
   var isAfrostreamExportsBouygues = req.passport && req.passport.client && req.passport.client.isAfrostreamExportsBouygues();
   var isAfrostreamExportsOsearch = req.passport && req.passport.client && req.passport.client.isAfrostreamExportsOsearch();
 
-  return sqldb.filterOptions(options, function filter(options, root) {
+  return sqldb.filterOptions(options, function filter (options, root) {
     var model = root ? rootModel : options.model;
 
     if (isBacko || isAfrostreamExportsBouygues || isAfrostreamExportsOsearch) {

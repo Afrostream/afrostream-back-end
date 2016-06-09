@@ -13,7 +13,7 @@ exports.setup = function (User, config) {
     function (req, profile, done) {
       console.log('orange profile : ', profile);
       //req don't have user, so we pass it in query
-      var state = new Buffer(req.query.state, 'base64').toString('ascii');
+      var state = new Buffer(req.query.state || '', 'base64').toString('ascii');
       state = JSON.parse(state);
       var status = state.status;
       var userId = req.user ? req.user._id : state.userId;

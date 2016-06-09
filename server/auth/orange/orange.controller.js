@@ -73,6 +73,7 @@ var unlink = function (req, res) {
 
 var callback = function (req, res, next) {
   var state = req.query.state;
+  var expireIn = null
   passport.authenticate('orange', {
     state: state,
     session: false
@@ -82,7 +83,10 @@ var callback = function (req, res, next) {
       .then(function () {
         if (err) throw err;
         //if (info) throw info;
-        console.log(info);
+        if (info) {
+          console.log(info);
+          expireIn = info.expireIn
+        }
         if (!user) throw new Error('Something went wrong, please try again.');
         console.log('authenticate getOauth2UserTokens', user._id);
         return req.getPassport();
@@ -90,7 +94,7 @@ var callback = function (req, res, next) {
       .then(function (passport) {
         console.log('generate token with client', passport.client._id, user._id);
         var deferred = Q.defer();
-        oauth2.generateToken(passport.client, user, null, req.clientIp, req.userAgent, function (err, accessToken, refreshToken, info) {
+        oauth2.generateToken(passport.client, user, null, req.clientIp, req.userAgent, expireIn, function (err, accessToken, refreshToken, info) {
           if (err)  return deferred.reject(err);
           return deferred.resolve({
             token: accessToken,

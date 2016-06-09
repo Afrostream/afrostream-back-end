@@ -101,7 +101,8 @@ exports.create = function (req, res, next) {
         user,
         null, // code
         req.clientIp,
-        req.userAgent
+        req.userAgent,
+        null
       ).then(function (data) {
           var accessToken = data[0]
             , refreshToken = data[1]

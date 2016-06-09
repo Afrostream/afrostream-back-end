@@ -5,8 +5,7 @@ var Q = require('q')
   , util = require('util')
   , xmlbuilder = require('xmlbuilder')
   , SAML2Strategy = require('passport-saml').Strategy
-  , Profile = require('./profile')
-  , OrangeAuthorizationError = require('./errors/orangeauthorizationerror');
+  , Profile = require('./profile');
 
 /**
  * `Strategy` constructor.
@@ -47,6 +46,7 @@ function Strategy (options, verify) {
   options.customHeaders = options.customHeaders || {};
   options.issuer = options.clientID;
   options.attributeConsumingServiceIndex = 32768;
+  options.callbackURL = options.callbackURL + (options.state ? options.state : '');
   options.identifierFormat = options.identifierFormat || 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent';
 
   SAML2Strategy.call(this, options, verify);
@@ -125,12 +125,6 @@ function Strategy (options, verify) {
   this._saml.validateSignature = function () {
     return true;
   };
-
-  var self = this;
-  var _saml__validatePostResponse = this._saml.validatePostResponse;
-  this._saml.validatePostResponse = function (container) {
-    _saml__validatePostResponse.call(self._saml, container, self._parseUserProfile)
-  };
 }
 
 /**
@@ -142,52 +136,87 @@ util.inherits(Strategy, SAML2Strategy);
  * Authenticate request by delegating to Orange using OAuth 2.0.
  *
  */
+
 Strategy.prototype.authenticate = function (req, options) {
-  // Orange doesn't conform to the OAuth 2.0 specification, with respect to
-  // redirecting with error codes.
-  //
-  //   FIX: https://github.com/jaredhanson/passport-oauth/issues/16
-  if (req.query && req.query.error_code && !req.query.error) {
-    return this.error(new OrangeAuthorizationError(req.query.error_message, parseInt(req.query.error_code, 10)));
-  }
+  var self = this;
 
-  SAML2Strategy.prototype.authenticate.call(this, req, options);
-};
+  options.samlFallback = options.samlFallback || 'login-request';
 
-Strategy.prototype._parseUserProfile = function (err, profile, loggedOut) {
-  if (err) {
-    return self.error(err);
-  }
-
-  if (loggedOut) {
-    req.logout();
-    if (profile) {
-      req.samlLogoutRequest = profile;
-      return self._saml.getLogoutResponseUrl(req, redirectIfSuccess);
-    }
-    return self.pass();
-  }
-
-  var parsedProfile = Profile.parse(profile);
-  parsedProfile.provider = 'orange';
-  parsedProfile._json = profile;
-
-  var verified = function (err, user, info) {
+  function validateCallback (err, profile, loggedOut) {
     if (err) {
       return self.error(err);
     }
 
-    if (!user) {
-      return self.fail(info);
+    if (loggedOut) {
+      req.logout();
+      if (profile) {
+        req.samlLogoutRequest = profile;
+        return self._saml.getLogoutResponseUrl(req, redirectIfSuccess);
+      }
+      return self.pass();
     }
 
-    self.success(user, info);
-  };
+    var verified = function (err, user, info) {
+      if (err) {
+        return self.error(err);
+      }
 
-  if (self._passReqToCallback) {
-    self._verify(req, parsedProfile, verified);
+      if (!user) {
+        return self.fail(info);
+      }
+
+      info.expiresIn = profile.expiresIn;
+
+      self.success(user, info);
+    };
+
+    var parsedProfile = Profile.parse(profile);
+
+    if (self._passReqToCallback) {
+      self._verify(req, parsedProfile, verified);
+    } else {
+      self._verify(parsedProfile, verified);
+    }
+  }
+
+  function redirectIfSuccess (err, url) {
+    if (err) {
+      self.error(err);
+    } else {
+      self.redirect(url);
+    }
+  }
+
+  if (req.body && req.body.SAMLResponse) {
+    this._saml.validatePostResponse(req.body, validateCallback);
+  } else if (req.body && req.body.SAMLRequest) {
+    this._saml.validatePostRequest(req.body, validateCallback);
   } else {
-    self._verify(parsedProfile, verified);
+    var requestHandler = {
+      'login-request': function () {
+        if (self._authnRequestBinding === 'HTTP-POST') {
+          this._saml.getAuthorizeForm(req, function (err, data) {
+            if (err) {
+              self.error(err);
+            } else {
+              var res = req.res;
+              res.send(data);
+            }
+          });
+        } else { // Defaults to HTTP-Redirect
+          this._saml.getAuthorizeUrl(req, redirectIfSuccess);
+        }
+      }.bind(self),
+      'logout-request': function () {
+        this._saml.getLogoutUrl(req, redirectIfSuccess);
+      }.bind(self)
+    }[options.samlFallback];
+
+    if (typeof requestHandler !== 'function') {
+      return self.fail();
+    }
+
+    requestHandler();
   }
 };
 

@@ -73,6 +73,7 @@ module.exports = function (sequelize, DataTypes) {
           'email': this.email,
           'provider': this.provider,
           'facebook': this.facebook,
+          'orangeId': this.orangeId || (this.orange ? this.orange.id : null),// fixme: security: should this id be exported ?
           'orange': this.orange,
           'bouygues': this.bouygues,
           'bouyguesId': this.bouyguesId || (this.bouygues ? this.bouygues.id : null), // fixme: security: should this id be exported ?
@@ -116,6 +117,9 @@ module.exports = function (sequelize, DataTypes) {
         }
         else if (user.changed('bouyguesId')) {
           return user.updateBouyguesId(fn);
+        }
+        else if (user.changed('orangeId')) {
+          return user.updateOrangeId(fn);
         }
         fn();
       }
@@ -257,6 +261,15 @@ module.exports = function (sequelize, DataTypes) {
           // Handle new/update bouygues
           this.bouygues = this.bouygues || {};
           this.bouygues.id = this.bouyguesId;
+        }
+        fn(null);
+      },
+
+      updateOrangeId: function (fn) {
+        if (this.orangeId) {
+          // Handle new/update bouygues
+          this.orange = this.orange || {};
+          this.orange.id = this.orangeId;
         }
         fn(null);
       }

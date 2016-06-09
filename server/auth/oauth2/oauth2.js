@@ -37,12 +37,12 @@ server.deserializeClient(function (id, done) {
 });
 
 
-var generateTokenData = function (client, user, code) {
+var generateTokenData = function (client, user, code, expiresIn) {
   var token = utils.uid(256);
   var refreshToken = utils.uid(256);
   var tokenHash = crypto.createHash('sha1', config.secrets.session).update(token).digest('hex');
   var refreshTokenHash = crypto.createHash('sha1', config.secrets.session).update(refreshToken).digest('hex');
-  var expiresIn = config.secrets.expire;
+  expiresIn = expiresIn || config.secrets.expire;
   var expirationDate = new Date(new Date().getTime() + (expiresIn * 1000));
   var clientId = null;
   var userId = null;
@@ -68,8 +68,8 @@ var generateTokenData = function (client, user, code) {
   }
 };
 
-var generateToken = function (client, user, code, userIp, userAgent, done) {
-  var tokenData = generateTokenData(client, user, code);
+var generateToken = function (client, user, code, userIp, userAgent, expireIn, done) {
+  var tokenData = generateTokenData(client, user, code, expireIn);
 
   // log accessToken (duplicate with db)
   console.log('[AUTH]: ' +
@@ -213,7 +213,7 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
           }
           if (entity.type === 'legacy-api.bouygues-miami' &&
             user.email.match(/@bbox\.fr$/i)) {
-            return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
+            return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, null, done);
           }
           user.authenticate(password, function (authError, authenticated) {
             if (authError) {
@@ -222,7 +222,7 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
             if (!authenticated) {
               return done(new TokenError('wrong password', 'invalid_grant'), false);
             } else {
-              return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
+              return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, null, done);
             }
           });
         });
@@ -252,7 +252,7 @@ server.exchange(exchangeBouygues(function (client, id, scope, reqBody, done) {
           if (user === null) {
             return done(new TokenError('unknown bouyguesId', 'invalid_grant'), false);
           }
-          return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
+          return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, null, done);
         })
         .catch(function (err) {
           return done(err);
@@ -283,7 +283,7 @@ server.exchange(exchangeIse2(function (client, id, scope, reqBody, done) {
           if (user === null) {
             return done(new TokenError('UNKNOWN_ISE2:' + id, 'invalid_grant'), false);
           }
-          return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, done);
+          return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, null, done);
         })
         .catch(function (err) {
           return done(err);
@@ -307,7 +307,7 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
       if (entity.secret !== client.secret) {
         return done(null, false);
       }
-      return generateToken(entity, null, null, reqBody.userIp, reqBody.userAgent, done);
+      return generateToken(entity, null, null, reqBody.userIp, reqBody.userAgent, null, done);
     })
     .catch(function (err) {
       return done(err);

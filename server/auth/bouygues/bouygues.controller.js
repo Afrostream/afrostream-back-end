@@ -90,7 +90,7 @@ var callback = function (req, res, next) {
       .then(function (passport) {
         console.log('generate token with client', passport.client._id, user._id);
         var deferred = Q.defer();
-        oauth2.generateToken(passport.client, user, null, req.clientIp, req.userAgent, function (err, accessToken, refreshToken, info) {
+        oauth2.generateToken(passport.client, user, null, req.clientIp, req.userAgent, null, function (err, accessToken, refreshToken, info) {
           if (err)  return deferred.reject(err);
           return deferred.resolve({
             token: accessToken,
