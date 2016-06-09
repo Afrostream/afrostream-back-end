@@ -3,18 +3,11 @@
  */
 var Q = require('q')
   , util = require('util')
-  , xmldom = require('xmldom')
-  , xmlCrypto = require('xml-crypto')
-  , xml2js = require('xml2js')
   , xmlbuilder = require('xmlbuilder')
   , SAML2Strategy = require('passport-saml').Strategy
   , Profile = require('./profile')
-  , InternalOAuthError = require('passport-oauth2').InternalOAuthError
-  , OrangeAuthorizationError = require('./errors/orangeauthorizationerror')
-  , OrangeTokenError = require('./errors/orangetokenerror')
-  , OrangeGraphAPIError = require('./errors/orangegraphapierror');
+  , OrangeAuthorizationError = require('./errors/orangeauthorizationerror');
 
-var xpath = xmlCrypto.xpath;
 /**
  * `Strategy` constructor.
  *
@@ -58,7 +51,6 @@ function Strategy (options, verify) {
 
   SAML2Strategy.call(this, options, verify);
   this.name = 'orange';
-  this._userProfileURL = options.userProfileURL || (process.env.NODE_ENV === 'production' ? 'https://iosw-ba- rest.orange.com:443/OTP/API_OTVP_Partners-1/user/v1/' : 'https://iosw3sn-ba- rest.orange.com:8443/OTP/API_OTVP_Partners-1/user/v1/');
 
   //override method samld to add HTTP-POST-SimpleSign vs HTTP-POST
   this._saml.generateAuthorizeRequest = function (req, isPassive, callback) {
@@ -128,9 +120,16 @@ function Strategy (options, verify) {
       })
       .done();
   };
+
   // Orange Use of plain text signature instead of XML-Signature for easier integration at partner's site
   this._saml.validateSignature = function () {
     return true;
+  };
+
+  var self = this;
+  var _saml__validatePostResponse = this._saml.validatePostResponse;
+  this._saml.validatePostResponse = function (container) {
+    _saml__validatePostResponse.call(self._saml, container, self._parseUserProfile)
   };
 }
 
@@ -138,7 +137,6 @@ function Strategy (options, verify) {
  * Inherit from `SAML2Strategy`.
  */
 util.inherits(Strategy, SAML2Strategy);
-
 
 /**
  * Authenticate request by delegating to Orange using OAuth 2.0.
@@ -154,107 +152,43 @@ Strategy.prototype.authenticate = function (req, options) {
   }
 
   SAML2Strategy.prototype.authenticate.call(this, req, options);
-
-  //var self = this;
-  //
-  //self._loadUserProfile(accessToken, function (err, profile) {
-  //  if (err) {
-  //    return self.error(err);
-  //  }
-  //
-  //  function verified (err, user, info) {
-  //    if (err) {
-  //      return self.error(err);
-  //    }
-  //    if (!user) {
-  //      return self.fail(info);
-  //    }
-  //
-  //    info = info || {};
-  //    if (state) {
-  //      info.state = state;
-  //    }
-  //    self.success(user, info);
-  //  }
-  //
-  //  try {
-  //    if (self._passReqToCallback) {
-  //      var arity = self._verify.length;
-  //      if (arity == 6) {
-  //        self._verify(req, accessToken, refreshToken, params, profile, verified);
-  //      } else { // arity == 5
-  //        self._verify(req, accessToken, refreshToken, profile, verified);
-  //      }
-  //    } else {
-  //      var arity = self._verify.length;
-  //      if (arity == 5) {
-  //        self._verify(accessToken, refreshToken, params, profile, verified);
-  //      } else { // arity == 4
-  //        self._verify(accessToken, refreshToken, profile, verified);
-  //      }
-  //    }
-  //  } catch (ex) {
-  //    return self.error(ex);
-  //  }
-  //});
 };
 
-/**
- * Retrieve user profile from Orange.
- *
- * This function constructs a normalized profile, with the following properties:
- *
- *   - `provider`         always set to `orange`
- *   - `id`               the user's Orange ID cpeid
- *   - `displayName`      the user's full name
- *   - `name.familyName`  the user's last name
- *   - `name.givenName`   the user's first name
- *   - `gender`           the user's gender: `male` or `female`
- *   - `emails`           the proxied or contact email address granted by the user
- *   - `phones`           the proxied or contact phones numbers granted by the user
- */
-Strategy.prototype.userProfile = function (accessToken, done) {
-  this._oauth2.get(this._userProfileURL + '/user', accessToken, function (err, body, res) {
-    var json;
-
-    if (err) {
-      if (err.data) {
-        try {
-          json = JSON.parse(err.data);
-        } catch (_) {
-        }
-      }
-
-      if (json && json.error && typeof json.error == 'object') {
-        return done(new OrangeGraphAPIError(json.error.message, json.error.type, json.error.code, json.error.error_subcode));
-      }
-      return done(new InternalOAuthError('Failed to fetch user profile', err));
-    }
-
-    try {
-      json = JSON.parse(body);
-    } catch (ex) {
-      return done(new Error('Failed to parse user profile'));
-    }
-
-    var profile = Profile.parse(json);
-    profile.provider = 'orange';
-    profile._raw = body;
-    profile._json = json;
-
-    done(null, profile);
-  });
-};
-
-/**
- * Parse error response from Orange OAuth 2.0 token endpoint.
- */
-Strategy.prototype.parseErrorResponse = function (body, status) {
-  var json = JSON.parse(body);
-  if (json.error && typeof json.error == 'object') {
-    return new OrangeTokenError(json.error.message, json.error.type, json.error.code, json.error.error_subcode);
+Strategy.prototype._parseUserProfile = function (err, profile, loggedOut) {
+  if (err) {
+    return self.error(err);
   }
-  return SAML2Strategy.prototype.parseErrorResponse.call(this, body, status);
+
+  if (loggedOut) {
+    req.logout();
+    if (profile) {
+      req.samlLogoutRequest = profile;
+      return self._saml.getLogoutResponseUrl(req, redirectIfSuccess);
+    }
+    return self.pass();
+  }
+
+  var parsedProfile = Profile.parse(profile);
+  parsedProfile.provider = 'orange';
+  parsedProfile._json = profile;
+
+  var verified = function (err, user, info) {
+    if (err) {
+      return self.error(err);
+    }
+
+    if (!user) {
+      return self.fail(info);
+    }
+
+    self.success(user, info);
+  };
+
+  if (self._passReqToCallback) {
+    self._verify(req, parsedProfile, verified);
+  } else {
+    self._verify(parsedProfile, verified);
+  }
 };
 
 /**

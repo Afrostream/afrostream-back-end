@@ -12,29 +12,8 @@ exports.parse = function (json) {
 
   var profile = {};
 
-  profile.id = json.cpeid;
-
-  if (json.identity) {
-    profile.displayName = json.identity.surname;
-    profile.name = {
-      familyName: json.identity.name,
-      givenName: json.identity.surname
-    };
-    profile.gender = json.identity.title;
-  }
-
-
-  if (json.adress) {
-    profile.address = json.adress
-  }
-
-  if (json.phone) {
-    profile.phones = json.phone;
-  }
-
-  if (json.email) {
-    profile.emails = json.email;
-  }
+  profile.id = json.nameID;
+  profile.collectiveidentifier = json.collectiveidentifier;
 
   return profile;
 };
