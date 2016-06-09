@@ -128,51 +128,9 @@ function Strategy (options, verify) {
       })
       .done();
   };
-
-  this._saml.validateSignature = function (fullXml, currentNode, cert) {
-    var self = this;
-    var xpathSigQuery = ".//*[local-name(.)='Signature' and " +
-      "namespace-uri(.)='http://www.w3.org/2000/09/xmldsig#']";
-    var signatures = xpath(currentNode, xpathSigQuery);
-    // This function is expecting to validate exactly one signature, so if we find more or fewer
-    //   than that, reject.
-    console.log('signatures', signatures.length)
-    if (signatures.length != 1)
-      return false;
-    var signature = signatures[0];
-    var sig = new xmlCrypto.SignedXml();
-    sig.keyInfoProvider = {
-      getKeyInfo: function (key) {
-        return "<X509Data></X509Data>";
-      },
-      getKey: function (keyInfo) {
-        return self.certToPEM(cert);
-      }
-    };
-
-    console.log('signatures', signature)
-
-    sig.loadSignature(signature);
-    // We expect each signature to contain exactly one reference to the top level of the xml we
-    //   are validating, so if we see anything else, reject.
-    console.log('sig.references', sig.references.length)
-    if (sig.references.length != 1)
-      return false;
-    var refUri = sig.references[0].uri;
-    var refId = (refUri[0] === '#') ? refUri.substring(1) : refUri;
-    // If we can't find the reference at the top level, reject
-    var idAttribute = currentNode.getAttribute('ID') ? 'ID' : 'Id';
-    console.log('idAttribute', idAttribute)
-    if (currentNode.getAttribute(idAttribute) != refId)
-      return false;
-    // If we find any extra referenced nodes, reject.  (xml-crypto only verifies one digest, so
-    //   multiple candidate references is bad news)
-    var totalReferencedNodes = xpath(currentNode.ownerDocument,
-      "//*[@" + idAttribute + "='" + refId + "']");
-    console.log('totalReferencedNodes', totalReferencedNodes)
-    if (totalReferencedNodes.length > 1)
-      return false;
-    return sig.checkSignature(fullXml);
+  // Orange Use of plain text signature instead of XML-Signature for easier integration at partner's site
+  this._saml.validateSignature = function () {
+    return true;
   };
 }
 
