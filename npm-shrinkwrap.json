@@ -2982,6 +2982,11 @@
       "from": "https://registry.npmjs.org/crypto/-/crypto-0.0.3.tgz",
       "resolved": "https://registry.npmjs.org/crypto/-/crypto-0.0.3.tgz"
     },
+    "ejs": {
+      "version": "0.8.8",
+      "from": "ejs@>=0.8.3 <0.9.0",
+      "resolved": "https://registry.npmjs.org/ejs/-/ejs-0.8.8.tgz"
+    },
     "errorhandler": {
       "version": "1.0.2",
       "from": "https://registry.npmjs.org/errorhandler/-/errorhandler-1.0.2.tgz",
@@ -11353,6 +11358,11 @@
         }
       }
     },
+    "node-forge": {
+      "version": "0.2.24",
+      "from": "node-forge@0.2.24",
+      "resolved": "https://registry.npmjs.org/node-forge/-/node-forge-0.2.24.tgz"
+    },
     "node-uuid": {
       "version": "1.4.3",
       "from": "https://registry.npmjs.org/node-uuid/-/node-uuid-1.4.3.tgz",
@@ -11611,6 +11621,18 @@
           "version": "1.0.0",
           "from": "https://registry.npmjs.org/passport-strategy/-/passport-strategy-1.0.0.tgz",
           "resolved": "https://registry.npmjs.org/passport-strategy/-/passport-strategy-1.0.0.tgz"
+        }
+      }
+    },
+    "passport-saml": {
+      "version": "0.15.0",
+      "from": "passport-saml@latest",
+      "resolved": "https://registry.npmjs.org/passport-saml/-/passport-saml-0.15.0.tgz",
+      "dependencies": {
+        "q": {
+          "version": "1.1.2",
+          "from": "q@>=1.1.0 <1.2.0",
+          "resolved": "https://registry.npmjs.org/q/-/q-1.1.2.tgz"
         }
       }
     },
@@ -12547,6 +12569,30 @@
       "from": "https://registry.npmjs.org/urlsafe-base64/-/urlsafe-base64-1.0.0.tgz",
       "resolved": "https://registry.npmjs.org/urlsafe-base64/-/urlsafe-base64-1.0.0.tgz"
     },
+    "xml-crypto": {
+      "version": "0.8.4",
+      "from": "xml-crypto@>=0.8.0 <0.9.0",
+      "resolved": "https://registry.npmjs.org/xml-crypto/-/xml-crypto-0.8.4.tgz",
+      "dependencies": {
+        "xmldom": {
+          "version": "0.1.19",
+          "from": "xmldom@0.1.19",
+          "resolved": "https://registry.npmjs.org/xmldom/-/xmldom-0.1.19.tgz"
+        }
+      }
+    },
+    "xml-encryption": {
+      "version": "0.7.4",
+      "from": "xml-encryption@>=0.7.0 <0.8.0",
+      "resolved": "https://registry.npmjs.org/xml-encryption/-/xml-encryption-0.7.4.tgz",
+      "dependencies": {
+        "async": {
+          "version": "0.2.10",
+          "from": "async@>=0.2.7 <0.3.0",
+          "resolved": "https://registry.npmjs.org/async/-/async-0.2.10.tgz"
+        }
+      }
+    },
     "xml2js": {
       "version": "0.4.15",
       "from": "https://registry.npmjs.org/xml2js/-/xml2js-0.4.15.tgz",
@@ -12570,6 +12616,33 @@
           }
         }
       }
+    },
+    "xmlbuilder": {
+      "version": "2.5.2",
+      "from": "xmlbuilder@>=2.5.0 <2.6.0",
+      "resolved": "https://registry.npmjs.org/xmlbuilder/-/xmlbuilder-2.5.2.tgz",
+      "dependencies": {
+        "lodash": {
+          "version": "3.2.0",
+          "from": "lodash@>=3.2.0 <3.3.0",
+          "resolved": "https://registry.npmjs.org/lodash/-/lodash-3.2.0.tgz"
+        }
+      }
+    },
+    "xmldom": {
+      "version": "0.1.22",
+      "from": "xmldom@>=0.1.0 <0.2.0",
+      "resolved": "https://registry.npmjs.org/xmldom/-/xmldom-0.1.22.tgz"
+    },
+    "xpath": {
+      "version": "0.0.5",
+      "from": "xpath@0.0.5",
+      "resolved": "https://registry.npmjs.org/xpath/-/xpath-0.0.5.tgz"
+    },
+    "xpath.js": {
+      "version": "1.0.6",
+      "from": "xpath.js@>=0.0.3",
+      "resolved": "https://registry.npmjs.org/xpath.js/-/xpath.js-1.0.6.tgz"
     }
   }
 }

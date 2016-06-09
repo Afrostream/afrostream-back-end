@@ -1,7 +1,7 @@
 'use strict';
 
 var crypto = require('crypto');
-var authTypes = ['github', 'twitter', 'facebook', 'google', 'bouygues'];
+var authTypes = ['github', 'twitter', 'facebook', 'google', 'bouygues', 'orange'];
 
 var validatePresenceOf = function (value) {
   return value && value.length;
@@ -51,6 +51,7 @@ module.exports = function (sequelize, DataTypes) {
     github: DataTypes.JSON,
     facebook: DataTypes.JSON,
     bouygues: DataTypes.JSON,
+    orange: DataTypes.JSON,
     bouyguesId: DataTypes.STRING(128), // orange ise2 id.
     ise2: DataTypes.STRING(128), // orange ise2 id.
     active: {
@@ -72,6 +73,7 @@ module.exports = function (sequelize, DataTypes) {
           'email': this.email,
           'provider': this.provider,
           'facebook': this.facebook,
+          'orange': this.orange,
           'bouygues': this.bouygues,
           'bouyguesId': this.bouyguesId || (this.bouygues ? this.bouygues.id : null), // fixme: security: should this id be exported ?
           'ise2': this.ise2              // fixme: security: should this id be exported ?

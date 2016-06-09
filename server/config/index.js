@@ -61,6 +61,7 @@ var all = {
     useToken: process.env.DIGIBOS_TOKEN || process.env.MAM_TOKEN || true
   },
 
+  //===FIXME merge orange/bouygues/facebook config
   facebook: {
     clientID: process.env.FACEBOOK_ID || '828887693868980',
     clientSecret: process.env.FACEBOOK_SECRET || '25130290468ec21fbefd1604218cc57c',
@@ -72,9 +73,16 @@ var all = {
     clientID: process.env.BOUYGUES_ID || '00140041210',
     clientSecret: process.env.BOUYGUES_SECRET || '00140041210:9T?8V97Z7',
     callbackURL: (process.env.BOUYGUES_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/bouygues/callback',
-    failureURL: (process.env.FACEBOOK_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/bouygues/failure'
+    failureURL: (process.env.BOUYGUES_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/bouygues/failure'
   },
 
+  orange: {
+    clientID: process.env.ORANGE_ID || 'SVOAFRA19A33F788FCE4',
+    clientSecret: process.env.ORANGE_SECRET || '-- -- -BEGIN CERTIFICATE-- -- -MIIDKTCCApKgAwIBAgIGAR9x+wRQMA0GCSqGSIb3DQEBBQUAMGAxFzAVBgNVBAoTDkZyYW5jZSBUZWxlY29tMRMwEQYDVQQDEwpUZXN0U2l0ZUlEMTAwLgYJKoZIhvcNAQkBFiFnYWVsLmdvdXJtZWxlbkBvcmFuZ2UtZnRncm91cC5jb20wHhcNMDcxMDA0MTQ0NzUzWhcNMTcxMDAxMTQ0NzUzWjBgMRcwFQYDVQQKEw5GcmFuY2UgVGVsZWNvbTETMBEGA1UEAxMKVGVzdFNpdGVJRDEwMC4GCSqGSIb3DQEJARYhZ2FlbC5nb3VybWVsZW5Ab3JhbmdlLWZ0Z3JvdXAuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUcgjaY7tqLy+dNQJMUVChHrMjzOpWEi370gOXB2Cy/xiPpSGhfDLbs9sKSn9Cpw93mublOhvwQlEWS2SwYpSfqpARiqOyFAoeclyoxCz8JTsjbZD/NsqW4gCwJfcY3t7buEaO8rwTj2DDuIadbFMZOLr7KmMezHqwd6CNiXXCeQIDAQABo4HtMIHqMBYGCWCGSAGG+EIBDQQJFgdbR0ddIENBMB0GA1UdDgQWBBT9bZlATmC57VbMjxrl2hfbna82UDCBjwYDVR0jBIGHMIGEgBT9bZlATmC57VbMjxrl2hfbna82UKFkpGIwYDEXMBUGA1UEChMORnJhbmNlIFRlbGVjb20xEzARBgNVBAMTClRlc3RTaXRlSUQxMDAuBgkqhkiG9w0BCQEWIWdhZWwuZ291cm1lbGVuQG9yYW5nZS1mdGdyb3VwLmNvbYIGAR9x+wRQMBIGA1UdEwEB/wQIMAYBAf8CAQAwCwYDVR0PBAQDAgEGMA0GCSqGSIb3DQEBBQUAA4GBAAEKb9PQR9IdSM8XRR9jaZF/FWjY7WDX17TUaehHl8JcfuNAwmoBDCiUmcc2rutw/bRKUSxGvx4UUSYzVBIONjUzJU8LHVIDotzJxOnIXG7ZQz8ymv9b9Ywhr7NGRQ8MYy6BIztlniPOr/P7VE0C0azHe+er5slu+FYtJ0qyumT3-- -- -END CERTIFICATE-- -- -',
+    callbackURL: (process.env.ORANGE_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/orange/callback',
+    failureURL: (process.env.ORANGE_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/orange/failure'
+  },
+  //===
   google: {
     clientID: process.env.GOOGLE_ID || 'id',
     clientSecret: process.env.GOOGLE_SECRET || 'secret',
