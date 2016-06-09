@@ -50,9 +50,10 @@ module.exports = function (sequelize, DataTypes) {
     google: DataTypes.JSON,
     github: DataTypes.JSON,
     facebook: DataTypes.JSON,
-    bouygues: DataTypes.JSON,
     orange: DataTypes.JSON,
-    bouyguesId: DataTypes.STRING(128), // orange ise2 id.
+    orangeId: DataTypes.STRING(128), // orange ise2 id. // FIXME it's ise2 ?
+    bouygues: DataTypes.JSON,
+    bouyguesId: DataTypes.STRING(128), // bouygues ise2 id.
     ise2: DataTypes.STRING(128), // orange ise2 id.
     active: {
       type: DataTypes.BOOLEAN,
@@ -73,8 +74,8 @@ module.exports = function (sequelize, DataTypes) {
           'email': this.email,
           'provider': this.provider,
           'facebook': this.facebook,
-          'orangeId': this.orangeId || (this.orange ? this.orange.id : null),// fixme: security: should this id be exported ?
           'orange': this.orange,
+          'orangeId': this.orangeId || (this.orange ? this.orange.id : null),// fixme: security: should this id be exported ?
           'bouygues': this.bouygues,
           'bouyguesId': this.bouyguesId || (this.bouygues ? this.bouygues.id : null), // fixme: security: should this id be exported ?
           'ise2': this.ise2              // fixme: security: should this id be exported ?

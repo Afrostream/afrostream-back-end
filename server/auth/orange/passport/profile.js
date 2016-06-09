@@ -24,7 +24,7 @@ exports.parse = function (json) {
     var timestamp = match[1];
     expiresIn = ((timestamp * 1000) - Date.now()) / 1000;
   }
-  profile.expiresIn = new Date(now + (expiresIn * 1000));
+  profile.expiresIn = expiresIn;
   profile.collectiveidentifier = json.collectiveidentifier;
 
   if (json.getAssertionXml) {
