@@ -11,11 +11,10 @@ exports.setup = function (User, config) {
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function (req, profile, done) {
-      console.log('orange profile : ', profile);
       //req don't have user, so we pass it in query
-      var state = new Buffer(req.query.state || '', 'base64').toString('ascii');
+      var state = req.query.state ? new Buffer(req.query.state || '', 'base64').toString('ascii') : '{}';
       state = JSON.parse(state);
-      var status = state.status;
+      var status = state.status || 'signup';
       var userId = req.user ? req.user._id : state.userId;
 
       console.log('orange user', userId);

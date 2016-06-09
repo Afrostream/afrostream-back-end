@@ -1,3 +1,4 @@
+var _ = require('lodash');
 /**
  * Parse profile.
  *
@@ -9,6 +10,10 @@ exports.parse = function (json) {
   if ('string' == typeof json) {
     json = JSON.parse(json);
   }
+
+  json = _.omit(json, _.filter(_.keys(json), function (key) {
+    return _.isUndefined(json[key])
+  }));
 
   var profile = {};
 

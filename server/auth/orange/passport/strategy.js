@@ -3,7 +3,10 @@
  */
 var Q = require('q')
   , util = require('util')
+  , url = require('url')
   , xmlbuilder = require('xmlbuilder')
+  , NullStateStore = require('passport-oauth2/lib/state/null')
+  , SessionStateStore = require('passport-oauth2/lib/state/session')
   , SAML2Strategy = require('passport-saml').Strategy
   , Profile = require('./profile');
 
@@ -48,6 +51,13 @@ function Strategy (options, verify) {
   options.attributeConsumingServiceIndex = 32768;
   options.callbackURL = options.callbackURL + (options.state ? options.state : '');
   options.identifierFormat = options.identifierFormat || 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent';
+
+  this._key = options.sessionKey || ('oauth2:' + url.parse(options.entryPoint).hostname);
+  if (options.state) {
+    this._stateStore = new SessionStateStore({key: this._key});
+  } else {
+    this._stateStore = new NullStateStore();
+  }
 
   SAML2Strategy.call(this, options, verify);
   this.name = 'orange';
@@ -156,27 +166,46 @@ Strategy.prototype.authenticate = function (req, options) {
       return self.pass();
     }
 
-    var verified = function (err, user, info) {
+    function loaded (err, ok, state) {
       if (err) {
         return self.error(err);
       }
-
-      if (!user) {
-        return self.fail(info);
+      if (!ok) {
+        return self.fail(state, 403);
       }
 
-      info.expiresIn = profile.expiresIn;
+      var verified = function (err, user, info) {
+        if (err) {
+          return self.error(err);
+        }
 
-      self.success(user, info);
+        if (!user) {
+          return self.fail(info);
+        }
+
+        info.expiresIn = profile.expiresIn;
+
+        self.success(user, info);
+      };
+
+      var parsedProfile = Profile.parse(profile);
+
+      if (self._passReqToCallback) {
+        self._verify(req, parsedProfile, verified);
+      } else {
+        self._verify(parsedProfile, verified);
+      }
+
     };
 
-    var parsedProfile = Profile.parse(profile);
-
-    if (self._passReqToCallback) {
-      self._verify(req, parsedProfile, verified);
-    } else {
-      self._verify(parsedProfile, verified);
+    var state = req.query.state;
+    try {
+      var arity = this._stateStore.verify.length;
+      this._stateStore.verify(req, state, loaded);
+    } catch (ex) {
+      return this.error(ex);
     }
+
   }
 
   function redirectIfSuccess (err, url) {
