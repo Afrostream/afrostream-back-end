@@ -61,25 +61,27 @@ var all = {
     useToken: process.env.DIGIBOS_TOKEN || process.env.MAM_TOKEN || true
   },
 
-  facebook: {
-    clientID: process.env.FACEBOOK_ID || '828887693868980',
-    clientSecret: process.env.FACEBOOK_SECRET || '25130290468ec21fbefd1604218cc57c',
-    callbackURL: (process.env.FACEBOOK_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/facebook/callback',
-    failureURL: (process.env.FACEBOOK_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/facebook/failure'
-  },
 
   bouygues: {
-    clientID: process.env.BOUYGUES_ID || '00140041210',
-    clientSecret: process.env.BOUYGUES_SECRET || '00140041210:9T?8V97Z7',
-    callbackURL: (process.env.BOUYGUES_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/bouygues/callback',
-    failureURL: (process.env.FACEBOOK_CALLBACK_DOMAIN || 'http://localhost:3000') + '/auth/bouygues/failure'
+    clientID: '',
+    clientSecret: ''
+  },
+
+  orange: {
+    clientID: '',
+    clientSecret: ''
+  },
+
+  facebook: {
+    clientID: process.env.FACEBOOK_ID || '828887693868980',
+    clientSecret: process.env.FACEBOOK_SECRET || '25130290468ec21fbefd1604218cc57c'
   },
 
   google: {
     clientID: process.env.GOOGLE_ID || 'id',
-    clientSecret: process.env.GOOGLE_SECRET || 'secret',
-    callbackURL: (process.env.DOMAIN || '') + '/auth/google/callback'
+    clientSecret: process.env.GOOGLE_SECRET || 'secret'
   },
+
   pagination: {
     total: 10000,
     max: 10000

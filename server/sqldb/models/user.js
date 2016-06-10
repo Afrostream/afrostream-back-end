@@ -1,7 +1,7 @@
 'use strict';
 
 var crypto = require('crypto');
-var authTypes = ['github', 'twitter', 'facebook', 'google', 'bouygues'];
+var authTypes = ['github', 'twitter', 'facebook', 'google', 'bouygues', 'orange'];
 
 var validatePresenceOf = function (value) {
   return value && value.length;
@@ -50,8 +50,10 @@ module.exports = function (sequelize, DataTypes) {
     google: DataTypes.JSON,
     github: DataTypes.JSON,
     facebook: DataTypes.JSON,
+    orange: DataTypes.JSON,
+    orangeId: DataTypes.STRING(128), // orange ise2 id. // FIXME it's ise2 ?
     bouygues: DataTypes.JSON,
-    bouyguesId: DataTypes.STRING(128), // orange ise2 id.
+    bouyguesId: DataTypes.STRING(128), // bouygues ise2 id.
     ise2: DataTypes.STRING(128), // orange ise2 id.
     active: {
       type: DataTypes.BOOLEAN,
@@ -72,6 +74,8 @@ module.exports = function (sequelize, DataTypes) {
           'email': this.email,
           'provider': this.provider,
           'facebook': this.facebook,
+          'orange': this.orange,
+          'orangeId': this.orangeId || (this.orange ? this.orange.id : null),// fixme: security: should this id be exported ?
           'bouygues': this.bouygues,
           'bouyguesId': this.bouyguesId || (this.bouygues ? this.bouygues.id : null), // fixme: security: should this id be exported ?
           'ise2': this.ise2              // fixme: security: should this id be exported ?
@@ -114,6 +118,9 @@ module.exports = function (sequelize, DataTypes) {
         }
         else if (user.changed('bouyguesId')) {
           return user.updateBouyguesId(fn);
+        }
+        else if (user.changed('orangeId')) {
+          return user.updateOrangeId(fn);
         }
         fn();
       }
@@ -255,6 +262,15 @@ module.exports = function (sequelize, DataTypes) {
           // Handle new/update bouygues
           this.bouygues = this.bouygues || {};
           this.bouygues.id = this.bouyguesId;
+        }
+        fn(null);
+      },
+
+      updateOrangeId: function (fn) {
+        if (this.orangeId) {
+          // Handle new/update bouygues
+          this.orange = this.orange || {};
+          this.orange.id = this.orangeId;
         }
         fn(null);
       }

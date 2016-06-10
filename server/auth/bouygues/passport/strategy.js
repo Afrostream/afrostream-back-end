@@ -55,14 +55,15 @@ function Strategy (options, verify) {
   }
 
   if (!options.customHeaders['User-Agent']) {
-    options.customHeaders['User-Agent'] = options.userAgent || 'passport-github';
+    options.customHeaders['User-Agent'] = options.userAgent || 'passport-bouygues';
   }
 
-  console.log(verify)
   OAuth2Strategy.call(this, options, verify);
   this.name = 'bouygues';
   this._userProfileURL = options.userProfileURL || 'https://api.bytel.fr:21443/v1/profile';
   this._oauth2.useAuthorizationHeaderforGET(true);
+  this._verify = verify;
+  this._passReqToCallback = options.passReqToCallback;
 
   // NOTE: Bouygues require 2 authorization mode basic && bearer (non-standard)
   // so we override get method to add 2 methods

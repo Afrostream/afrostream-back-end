@@ -1,34 +1,36 @@
 var bluebird = require('bluebird');
 var passport = require('passport');
-var BouyguesStrategy = require('./passport/');
+var OrangeStrategy = require('./passport/');
 var billingApi = rootRequire('/server/billing-api.js');
 
 /**
- * - si personne d’a de bouyguesId , je crée un user from scratch et je lui assigne le bouygueId
- * - si lors du signin je trouve deja queql’un qui a un bouyguesId je fail
- * - si je suis loggué (_id) et que je veux lier mon compte bouygues je trouve deja queql’un qui a un bouyguesId je fail
+ * - si personne d’a de orangeId , je crée un user from scratch et je lui assigne le bouygueId
+ * - si lors du signin je trouve deja queql’un qui a un orangeId je fail
+ * - si je suis loggué (_id) et que je veux lier mon compte orange je trouve deja queql’un qui a un orangeId je fail
  * - sinon je link
  **/
 
+
 exports.setup = function (User, config) {
-  passport.use(new BouyguesStrategy({
-      clientID: config.bouygues.clientID,
-      clientSecret: config.bouygues.clientSecret,
-      callbackURL: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/auth/bouygues/callback',
+  passport.use(new OrangeStrategy({
+      clientID: config.orange.clientID,
+      clientSecret: config.orange.clientSecret,
+      callbackURL: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/auth/orange/callback',
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
-    function (req, accessToken, refreshToken, profile, done) {
+    function (req, profile, done) {
       //req don't have user, so we pass it in query
-      var state = req.query.state ? new Buffer(req.query.state, 'base64').toString('ascii') : '{}';
+      var state = req.body.RelayState ? new Buffer(req.body.RelayState || '', 'base64').toString('ascii') : '{}';
       state = JSON.parse(state);
-      var status = state.status;
-      var email = profile.emails && profile.emails[0] && profile.emails[0].address;
+      var status = state.status || 'signup';
       var userId = req.user ? req.user._id : state.userId;
-      console.log('bouygues user', userId);
-      console.log('bouygues profile id', profile.id);
+
+      console.log('orange user', userId);
+      console.log('orange profile', profile);
 
       var c = {
-        user: null
+        user: null,
+        orangeAPIToken: profile.orangeAPIToken
       };
 
       bluebird.resolve(req.user)
@@ -36,10 +38,8 @@ exports.setup = function (User, config) {
           // user exist => continue
           if (user) return user;
           // missing in req.user ? => fetching in DB
-          var whereUser = [{'bouygues.id': profile.id}, {'bouyguesId': profile.id}];
-          if (status !== 'signin') {
-            whereUser.push({'email': {$iLike: email}});
-          }
+          var whereUser = [{'orange.id': profile.id}, {'orangeId': profile.id}];
+
           return User.find({
             where: {
               $or: whereUser
@@ -61,9 +61,8 @@ exports.setup = function (User, config) {
               throw new Error('Your profile is already linked to another user');
             }
             // user exist => update
-            user.name = user.name || profile.displayName;
-            user.bouyguesId = profile.id;
-            user.bouygues = profile._json;
+            user.orangeId = profile.id;
+            user.orange = profile._json;
             return user.save();
           } else {
             if (status === 'signin') {
@@ -72,14 +71,10 @@ exports.setup = function (User, config) {
 
             // new user => create
             return User.create({
-              name: profile.displayName,
-              email: email,
-              first_name: profile.name.givenName,
-              last_name: profile.name.familyName,
               role: 'user',
-              provider: 'bouygues',
-              bouyguesId: profile.id,
-              bouygues: profile._json
+              provider: 'orange',
+              orangeId: profile.id,
+              orange: profile._json
             });
           }
         })
@@ -89,13 +84,14 @@ exports.setup = function (User, config) {
         .then(function (user) {
           c.user = user;
           return billingApi.getOrCreateUser({
-            providerName: 'bouygues',
+            providerName: 'orange',
             userReferenceUuid: user._id,
-            userProviderUuid: user.bouyguesId,
+            userProviderUuid: user.orangeId,
             userOpts: {
               email: user.email || '',
               firstName: user.first_name || '',
-              lastName: user.last_name || ''
+              lastName: user.last_name || '',
+              OrangeApiToken: c.orangeAPIToken
             }
           })
         })

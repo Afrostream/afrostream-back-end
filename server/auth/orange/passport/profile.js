@@ -1,0 +1,41 @@
+var _ = require('lodash');
+/**
+ * Parse profile.
+ *
+ * @param {Object|String} json
+ * @return {Object}
+ * @api private
+ */
+exports.parse = function (json) {
+  if ('string' == typeof json) {
+    json = JSON.parse(json);
+  }
+
+  json = _.omit(json, _.filter(_.keys(json), function (key) {
+    return _.isUndefined(json[key])
+  }));
+
+  var profile = {};
+
+  profile.id = json.nameID;
+  profile.orangeAPIToken = json.OrangeAPIToken;
+  //todo get expire value from token ted=1468156418
+  var expiresIn = 5256000; //2 month
+  var regex = /ted=([0-9].*)(\|tcd)/g;
+  var match = regex.exec(profile.orangeAPIToken);
+  if (match && match.length) {
+    var timestamp = match[1];
+    expiresIn = ((timestamp * 1000) - Date.now()) / 1000;
+  }
+  profile.expiresIn = expiresIn;
+  profile.collectiveidentifier = json.collectiveidentifier;
+
+  if (json.getAssertionXml) {
+    delete json.getAssertionXml;
+  }
+
+  profile.provider = 'orange';
+  profile._json = json;
+
+  return profile;
+};

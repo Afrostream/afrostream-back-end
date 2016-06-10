@@ -2,11 +2,17 @@ var bluebird = require('bluebird');
 var passport = require('passport');
 var FacebookStrategy = require('passport-facebook');
 
+/**
+ * - si personne d’a de facebookId , je crée un user from scratch et je lui assigne le bouygueId
+ * - si lors du signin je trouve deja queql’un qui a un facebookId je fail
+ * - si je suis loggué (_id) et que je veux lier mon compte facebook je trouve deja queql’un qui a un facebookId je fail
+ * - sinon je link
+ **/
 exports.setup = function (User, config) {
   passport.use(new FacebookStrategy({
       clientID: config.facebook.clientID,
       clientSecret: config.facebook.clientSecret,
-      callbackURL: config.facebook.callbackURL,
+      callbackURL: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/auth/facebook/callback',
       enableProof: true,
       profileFields: [
         'displayName',
@@ -28,7 +34,7 @@ exports.setup = function (User, config) {
           // user exist => continue
           if (user) return user;
           // missing in req.user ? => fetching in DB
-          var whereUser = [{'facebook.id': profile.id}, {'_id': userId}];
+          var whereUser = [{'facebook.id': profile.id}];
           if (status !== 'signin') {
             whereUser.push({'email': {$iLike: email}});
           }
@@ -37,6 +43,15 @@ exports.setup = function (User, config) {
               $or: whereUser
             }
           });
+        })
+        .then(function (user) {
+          if (!user && userId) {
+            return User.find({
+              where: {'_id': userId}
+            });
+          } else {
+            return user;
+          }
         })
         .then(function (user) {
           if (user) {
