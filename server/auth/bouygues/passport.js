@@ -14,7 +14,7 @@ exports.setup = function (User, config) {
   passport.use(new BouyguesStrategy({
       clientID: config.bouygues.clientID,
       clientSecret: config.bouygues.clientSecret,
-      callbackURL: config.bouygues.callbackURL,
+      callbackURL: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/auth/bouygues/callback',
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function (req, accessToken, refreshToken, profile, done) {
