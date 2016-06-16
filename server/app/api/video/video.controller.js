@@ -355,11 +355,11 @@ exports.show = function (req, res) {
           video.sources.forEach(function (source) {
             source.src = source.src.replace('.ism', '-orange.ism');
           });
-        }/* else if (req.passport.client.isBouygues()) {
+        } else if (req.passport.client.isBouygues()) {
           video.sources.forEach(function (source) {
             source.src = source.src.replace('.ism', '-bouygues-miami.ism');
           });
-        }*/
+        }
       }
       return video;
   })
