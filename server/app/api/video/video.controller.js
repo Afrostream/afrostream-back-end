@@ -257,8 +257,8 @@ exports.show = function (req, res) {
           !req.user instanceof Client.Instance) {
         throw new Error('missing user/client');
       }
-      // orange client has a full access
-      if (req.passport.client && req.passport.client.isOrange()) {
+      // orange clients old & newbox have a full access
+      if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
         return video;
       }
       // FIXME: remove ?bs= query string test
@@ -327,7 +327,7 @@ exports.show = function (req, res) {
               // BEGIN HACK HACK HACK
               // if smooth streaming & client=orange => cannot use HTTPS :(
               if (source.type === 'application/vnd.ms-sstr+xml' &&
-                req.passport.client && req.passport.client.isOrange()) {
+                req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
                 source.src = source.src.replace(/^https:\/\//, 'http://');
               }
               // END HACK HACK

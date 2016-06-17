@@ -31,7 +31,7 @@ module.exports.validateCreateBody = function (req, res, next) {
   var schema;
   if (req.passport.client && req.passport.client.isBouygues()) {
     schema = createBodyBouygues;
-  } else if (req.passport.client && req.passport.client.isOrange()) {
+  } else if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
     schema = createBodyOrange;
   } else {
     schema = createBody;
