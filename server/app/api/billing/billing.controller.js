@@ -97,7 +97,7 @@ module.exports.cancelSubscriptions = function (req, res) {
     // we create the user in the billing-api if he doesn't exist yet
     //
     .then(function () {
-      return billingApi.cancelSubscription(c.subscriptionUuid)
+      return billingApi.updateSubscription(c.subscriptionUuid, 'cancel')
     })
     .then(
       function success (subscription) {
@@ -106,6 +106,50 @@ module.exports.cancelSubscriptions = function (req, res) {
       function error (err) {
         var message = (err instanceof Error) ? err.message : String(err);
         console.error('ERROR: /api/billing/cancelSubscriptions', message);
+        res.status(500).send({error: message});
+      }
+    );
+};
+
+/**
+ * PUT
+ * @param req :{
+ * params :{
+ *      id : subscriptionUuid
+ *    }
+ * }
+ * @param res
+ */
+module.exports.reactivateSubscriptions = function (req, res) {
+  var c = {
+    userId: req.user._id,
+    subscriptionUuid: req.params.subscriptionUuid
+  }; // closure
+
+  Q()
+  //
+  // grab client billingProviderName ex: recurly, bachat
+  //
+    .then(function () {
+      var client = req.passport.client;
+      if (!client) throw new Error('unknown client');
+      if (!client.isFrontApi() && !client.isBouygues()) {
+        throw new Error('unknown subscriptionUuid for user ' + c.userId + ' client type ' + client.type);
+      }
+    })
+    //
+    // we create the user in the billing-api if he doesn't exist yet
+    //
+    .then(function () {
+      return billingApi.updateSubscription(c.subscriptionUuid, 'reactivate')
+    })
+    .then(
+      function success (subscription) {
+        res.json(subscription);
+      },
+      function error (err) {
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/reactivateSubscriptions', message);
         res.status(500).send({error: message});
       }
     );

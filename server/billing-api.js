@@ -128,15 +128,16 @@ var createSubscription = function (subscriptionBillingData) {
 };
 
 /**
- * cancel a subscription in the billing-api
+ * cancel/reactivate a subscription in the billing-api
  *
  * @param subscriptionBillingUuid  string
  * @return FIXME
  */
-var cancelSubscription = function (subscriptionBillingUuid) {
+var updateSubscription = function (subscriptionBillingUuid, status) {
+  assert(typeof status === 'string' && status);
   return requestBilling({
     method: 'PUT'
-    , url: config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/cancel'
+    , url: config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/' + status
   })
     .then(function (body) {
       return body && body.response && body.response.subscription || {};
@@ -349,7 +350,7 @@ module.exports.someSubscriptionActive = someSubscriptionActive;
 module.exports.someSubscriptionActiveSafe = someSubscriptionActiveSafe;
 module.exports.someSubscriptionActiveSafeTrue = someSubscriptionActiveSafeTrue;
 module.exports.createSubscription = createSubscription;
-module.exports.cancelSubscription = cancelSubscription;
+module.exports.updateSubscription = updateSubscription;
 // user manipulation
 module.exports.getUser = getUser;
 module.exports.createUser = createUser;
