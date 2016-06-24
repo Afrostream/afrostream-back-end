@@ -374,11 +374,13 @@ exports.show = function (req, res) {
         if (req.passport.client && req.passport.client.isAfrostreamExportsBouygues()) {
           profileName = 'VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES';
         }
+        // pour l'instant on hardcode certaines infos
+        video.pf = { definition: 'HD' }; // SD, HD, 4K
         if (!video.pfMd5Hash) {
           return video;
         }
         return pf.getAssetsStreamsSafe(video.pfMd5Hash, profileName).then(function (assetsStreams) {
-          video.pf = { assetsStreams: assetsStreams };
+          video.pf.assetsStreams = assetsStreams;
           return video;
         });
       } catch (e) {
