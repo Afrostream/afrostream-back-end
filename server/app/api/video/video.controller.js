@@ -351,11 +351,13 @@ exports.show = function (req, res) {
         return video;
       }
       if (req.passport && req.passport.client) {
-        if (req.passport.client.isOrangeNewbox()) {
+        if (req.passport.client.isOrangeNewbox() && !video.catchupProviderId) {
+          // FIXME: pour l'instant, on évite d'utiliser l'ISM orange pour la catchup
           video.sources.forEach(function (source) {
             source.src = source.src.replace('.ism', '-orange.ism');
           });
-        } else if (req.passport.client.isBouygues()) {
+        } else if (req.passport.client.isBouygues() && !video.catchupProviderId) {
+          // FIXME: pour l'instant, on évite d'utiliser l'ISM miami pour la catchup
           video.sources.forEach(function (source) {
             source.src = source.src.replace('.ism', '-bouygues-miami.ism');
           });
