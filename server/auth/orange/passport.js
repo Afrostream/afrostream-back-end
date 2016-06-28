@@ -92,7 +92,7 @@ exports.setup = function (User, config) {
               email: user.email || '',
               firstName: user.first_name || '',
               lastName: user.last_name || '',
-              OrangeApiToken: orange.identity.orangeAPIToken
+              OrangeApiToken: orange.identity.OrangeAPIToken
             }
           });
         })
