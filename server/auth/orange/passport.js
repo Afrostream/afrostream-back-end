@@ -35,7 +35,10 @@ exports.setup = function (User, config) {
       bluebird.resolve(req.user)
         .then(function (user) {
           // user exist => continue
-          if (user) return user;
+          if (user) {
+            console.log('[INFO]: [ORANGE]: req.user exist');
+            return user;
+          }
           // missing in req.user ? => fetching in DB
           var whereUser = [{'orange.identity.collectiveidentifier': orange.identity.collectiveidentifier}, {'ise2': orange.identity.collectiveidentifier}];
 
@@ -47,7 +50,10 @@ exports.setup = function (User, config) {
         })
         .then(function (user) {
           // user exist => continue
-          if (user) return user;
+          if (user) {
+            console.log('[INFO]: [ORANGE]: user found in database using ise2');
+            return user;
+          }
           // missing => searching using userId
           if (userId) {
             return User.find({
@@ -59,6 +65,7 @@ exports.setup = function (User, config) {
         })
         .then(function (user) {
           if (user) {
+            console.log('[INFO]: [ORANGE]: user found in database using userId');
             if (userId && !Object.is(parseInt(userId), parseInt(user._id))) {
               throw new Error('Your orange is already linked to another user');
             }
@@ -72,6 +79,7 @@ exports.setup = function (User, config) {
             throw new Error('No user found, please associate your orange after being connected');
           }
           // create
+          console.log('[INFO]: [ORANGE]: creating user with ise2 = ' + orange.identity.collectiveidentifier);
           return User.create({
             role: 'user',
             provider: 'orange',
@@ -83,6 +91,9 @@ exports.setup = function (User, config) {
         // we create the user in the billing-api if he doesn't exist yet
         //
         .then(function (user) {
+          console.log('[INFO]: [ORANGE]: userReferenceUuid = ' + user._id);
+          console.log('[INFO]: [ORANGE]: userProviderUuid = ' + user.ise2);
+          console.log('[INFO]: [ORANGE]: OrangeApiToken = ' + orange.identity.OrangeAPIToken);
           c.user = user;
           return billingApi.getOrCreateUser({
             providerName: 'orange',
