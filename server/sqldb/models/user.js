@@ -1,5 +1,7 @@
 'use strict';
 
+var _ = require('lodash');
+
 var crypto = require('crypto');
 var authTypes = ['github', 'twitter', 'facebook', 'google', 'bouygues', 'orange'];
 
@@ -51,7 +53,6 @@ module.exports = function (sequelize, DataTypes) {
     github: DataTypes.JSON,
     facebook: DataTypes.JSON,
     orange: DataTypes.JSON,
-    orangeId: DataTypes.STRING(128), // orange ise2 id. // FIXME it's ise2 ?
     bouygues: DataTypes.JSON,
     bouyguesId: DataTypes.STRING(128), // bouygues ise2 id.
     ise2: DataTypes.STRING(128), // orange ise2 id.
@@ -75,10 +76,9 @@ module.exports = function (sequelize, DataTypes) {
           'provider': this.provider,
           'facebook': this.facebook,
           'orange': this.orange,
-          'orangeId': this.orangeId || (this.orange ? this.orange.id : null),// fixme: security: should this id be exported ?
+          'ise2': this.ise2 || this.orange && this.orange.identify && this.orange.identify.collectiveidentifier || null,  // fixme: security: should this id be exported ?
           'bouygues': this.bouygues,
-          'bouyguesId': this.bouyguesId || (this.bouygues ? this.bouygues.id : null), // fixme: security: should this id be exported ?
-          'ise2': this.ise2              // fixme: security: should this id be exported ?
+          'bouyguesId': this.bouyguesId || this.bouygues && this.bouygues.id || null // fixme: security: should this id be exported ?
         };
       },
 
@@ -116,11 +116,15 @@ module.exports = function (sequelize, DataTypes) {
         if (user.changed('password')) {
           return user.updatePassword(fn);
         }
-        else if (user.changed('bouyguesId')) {
-          return user.updateBouyguesId(fn);
+        // ensure bouyguesId & user.bouygues.id are synced
+        if (user.changed('bouyguesId')) {
+          user.bouygues = _.merge(user.bouygues, { id: user.bouyguesId });
+          return fn();
         }
-        else if (user.changed('orangeId')) {
-          return user.updateOrangeId(fn);
+        // ensure orangeId & user.orange.identity.collectiveidentifier are synced
+        if (user.changed('ise2')) {
+          user.orange = _.merge(user.orange, { identity : { collectiveidentifier: user.ise2 }});
+          return fn();
         }
         fn();
       }
@@ -257,22 +261,8 @@ module.exports = function (sequelize, DataTypes) {
         }
       },
 
-      updateBouyguesId: function (fn) {
-        if (this.bouyguesId) {
-          // Handle new/update bouygues
-          this.bouygues = this.bouygues || {};
-          this.bouygues.id = this.bouyguesId;
-        }
-        fn(null);
-      },
-
-      updateOrangeId: function (fn) {
-        if (this.orangeId) {
-          // Handle new/update bouygues
-          this.orange = this.orange || {};
-          this.orange.id = this.orangeId;
-        }
-        fn(null);
+      getIse2FromOrangeIdentity: function () {
+        return this.orange && this.orange.identity && this.orange.identity.collectiveidentifier;
       }
     }
   });

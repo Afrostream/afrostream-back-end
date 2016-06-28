@@ -22,7 +22,7 @@ function validationError (res, statusCode) {
   statusCode = statusCode || 422;
   return function (err) {
     console.error('/auth/orange/: error: validationError: ', err);
-    res.status(statusCode).json({error: String(err)});
+    res.status(err.statusCode || statusCode).json({error: String(err)});
   }
 }
 
@@ -53,23 +53,26 @@ var unlink = function (req, res) {
     .then(function (user) {
       console.log(user._id);
       if (!user) {
-        return res.status(422).end();
+        throw new Error('unknown user');
       }
-      user.orangeId = null;
+      user.ise2 = null;
       user.orange = null;
-      return user.save()
-        .then(function () {
-          res.json(user.profile);
-        }).catch(validationError(res));
-    });
+      return user.save();
+    })
+    .then(
+      function (user) {
+        res.json(user.profile);
+      },
+      validationError(res)
+    );
 };
 
 var callback = function (req, res, next) {
   var expireIn = null;
+
   passport.authenticate('orange', {
     session: false
   }, function (err, user, info) {
-
     Q()
       .then(function () {
         if (err) throw err;
@@ -84,18 +87,15 @@ var callback = function (req, res, next) {
       })
       .then(function (passport) {
         console.log('generate token with client', passport.client._id, user._id);
-        var deferred = Q.defer();
-        oauth2.generateToken(passport.client, user, null, req.clientIp, req.userAgent, expireIn, function (err, accessToken, refreshToken, info) {
-          if (err)  return deferred.reject(err);
-          return deferred.resolve({
-            token: accessToken,
-            access_token: accessToken,
-            refresh_token: refreshToken,
-            expires_in: info.expires_in
-          });
-        });
-        return deferred.promise;
-
+        return Q.nfcall(oauth2.generateToken, passport.client, user, null, req.clientIp, req.userAgent, expireIn);
+      })
+      .then(function (tokenInfos) {
+        return {
+          token: tokenInfos[0],
+          access_token: tokenInfos[0],
+          refresh_token: tokenInfos[1],
+          expires_in: tokenInfos[2].expires_in
+        };
       })
       .then(
         function success (tokens) {
@@ -116,5 +116,3 @@ module.exports.signin = signin;
 module.exports.signup = signup;
 module.exports.unlink = unlink;
 module.exports.callback = callback;
-
-
