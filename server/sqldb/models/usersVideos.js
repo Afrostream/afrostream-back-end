@@ -31,5 +31,14 @@ module.exports = function (sequelize, DataTypes) {
     playerAudio: DataTypes.STRING(3),
     playerCaption: DataTypes.STRING(3),
     rating: DataTypes.INTEGER
+  }, {
+    hooks: {
+      beforeUpdate: function (userVideo, fields, fn) {
+        if (userVideo.changed('playerPosition')) {
+          userVideo.dateLastRead = new Date();
+        }
+        fn();
+      }
+    }
   });
 };
