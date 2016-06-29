@@ -30,9 +30,9 @@ module.exports.update = function (req, res) {
       if (typeof data.playerAudio !== 'undefined' && data.playerAudio.length !== 3) {
         throw new Error('playerAudio format should be ISO6392T');
       }
-      if (typeof data.playerCaption !== 'undefined' && data.playerCaption.length !== 3) {
-        throw new Error('playerAudio format should be ISO6392T');
-      }
+      //if (typeof data.playerCaption !== 'undefined' && data.playerCaption.length !== 3) {
+      //  throw new Error('playerCaption format should be ISO6392T');
+      //}
     })
     .then(function () {
       return UsersVideos.findOne({where: userVideoKey});
