@@ -282,7 +282,7 @@ module.exports.createGift = function (req, res) {
     userId: req.user._id,
     userEmail: req.user.email,
     userProviderUuid: null,
-    billingProviderName: req.body.billingProvider,
+    billingProviderName: req.body.billingProviderName || req.body.billingProvider,
     bodyFirstName: req.body.firstName,
     bodyLastName: req.body.lastName,
     bodyInternalPlanUuid: req.body.internalPlanUuid,
@@ -400,7 +400,7 @@ module.exports.validateCoupons = function (req, res) {
   Q()
     .then(function () {
       var client = req.passport.client;
-      var billingProviderName = req.query.providerName;
+      var billingProviderName = req.query.billingProviderName || req.query.providerName;
       var couponCode = req.query.coupon;
       return billingApi.validateCoupons(billingProviderName, couponCode);
     })
@@ -423,7 +423,7 @@ module.exports.createCoupons = function (req, res) {
     userEmail: req.user.email,
     userProviderUuid: null,
     userBillingUuid: null,
-    billingProviderName: req.body.billingProvider,
+    billingProviderName: req.body.billingProviderName || req.body.billingProvider,
     bodyFirstName: req.body.firstName,
     bodyLastName: req.body.lastName,
     couponsCampaignBillingUuid: req.body.couponsCampaignBillingUuid
@@ -469,7 +469,7 @@ module.exports.createCoupons = function (req, res) {
 module.exports.getCouponCampains = function (req, res) {
   Q()
     .then(function () {
-      var billingProviderName = req.query.billingProvider;
+      var billingProviderName = req.query.billingProviderName || req.query.billingProvider;
       return billingApi.getCouponCampains(billingProviderName);
     })
     .then(
