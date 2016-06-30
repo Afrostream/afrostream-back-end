@@ -30,6 +30,12 @@ module.exports.update = function (req, res) {
       if (data.playerAudio && data.playerAudio.length !== 3) {
         throw new Error('playerAudio format should be ISO6392T');
       }
+      // temp fix: translating the data.
+      var translationTable = { 'fr': 'fra', 'en': 'eng' };
+      if (data.playerCaption && typeof translationTable[data.playerCaption] !== 'undefined') {
+        console.log('[WARNING]: [API]: ' + req.originalUrl + ' playerCaption was translated from '+data.playerCaption+ ' to ' + translationTable[data.playerCaption]);
+        data.playerCaption = translationTable[data.playerCaption];
+      }
       //if (data.playerCaption && data.playerCaption.length !== 3) {
       //  throw new Error('playerCaption format should be ISO6392T');
       //}
