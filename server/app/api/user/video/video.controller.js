@@ -21,13 +21,13 @@ module.exports.update = function (req, res) {
       if (typeof data.playerPosition !== 'undefined' && data.playerPosition < 0) {
         throw new Error('playerPosition should be postive');
       }
-      if (typeof data.playerAudio !== 'undefined' && typeof data.playerAudio !== 'string') {
+      if (typeof data.playerAudio !== 'undefined' && typeof data.playerAudio !== 'string' && data.playerAudio !== null) {
         throw new Error('playerAudio must be a string');
       }
-      if (typeof data.playerCaption !== 'undefined' && typeof data.playerCaption !== 'string') {
+      if (typeof data.playerCaption !== 'undefined' && typeof data.playerCaption !== 'string' && data.playerCaption !== null) {
         throw new Error('playerCaption must be a string');
       }
-      if (data.playerAudio && data.playerAudio.length !== 3) {
+      if (typeof data.playerAudio !== 'string' && data.playerAudio.length !== 3) {
         throw new Error('playerAudio format should be ISO6392T');
       }
       // temp fix: translating the data.
