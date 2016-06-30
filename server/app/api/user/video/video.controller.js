@@ -27,7 +27,7 @@ module.exports.update = function (req, res) {
       if (typeof data.playerCaption !== 'undefined' && typeof data.playerCaption !== 'string' && data.playerCaption !== null) {
         throw new Error('playerCaption must be a string');
       }
-      if (typeof data.playerAudio !== 'string' && data.playerAudio.length !== 3) {
+      if (typeof data.playerAudio === 'string' && data.playerAudio.length !== 3) {
         throw new Error('playerAudio format should be ISO6392T');
       }
       // temp fix: translating the data.
@@ -36,9 +36,9 @@ module.exports.update = function (req, res) {
         console.log('[WARNING]: [API]: ' + req.originalUrl + ' playerCaption was translated from '+data.playerCaption+ ' to ' + translationTable[data.playerCaption]);
         data.playerCaption = translationTable[data.playerCaption];
       }
-      //if (data.playerCaption && data.playerCaption.length !== 3) {
-      //  throw new Error('playerCaption format should be ISO6392T');
-      //}
+      if (typeof data.playerCaption === 'string' && data.playerCaption.length !== 3) {
+        throw new Error('playerCaption format should be ISO6392T');
+      }
     })
     .then(function () {
       return UsersVideos.findOne({where: userVideoKey});
