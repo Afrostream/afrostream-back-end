@@ -181,7 +181,7 @@ module.exports.createSubscriptions = function (req, res) {
     userId: req.user._id,
     userEmail: req.user.email,
     userProviderUuid: null,
-    billingProviderName: req.body.billingProviderName,
+    billingProviderName: req.body.billingProviderName || req.body.billingProvider,
     bodyFirstName: req.body.firstName,
     bodyLastName: req.body.lastName,
     bodyInternalPlanUuid: req.body.internalPlanUuid,
