@@ -76,7 +76,7 @@ exports.setup = function (User, config) {
           }
           // new user
           if (status === 'signin') {
-            throw new Error('No user found, please associate your orange after being connected');
+            throw new Error('No user found, please associate your profile after being connected');
           }
           // create
           console.log('[INFO]: [ORANGE]: creating user with ise2 = ' + orange.identity.collectiveidentifier);
