@@ -4,6 +4,7 @@
  * @api {put} /api/users/:userId/videos/:videoId Update User-Video Association
  * @apiName putUsersVideos
  * @apiDescription this api call create/update the association data between a user and a video (audio language, caption language, rating, player position)
+ * this api is called on video start/end/seek, or every 60sec during play
  * @apiGroup User-Videos
  *
  * @apiParam (putData) {String} playerAudio (optionnal, ISO6392T 3 letters lowercase)
