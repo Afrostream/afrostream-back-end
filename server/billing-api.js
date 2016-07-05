@@ -318,22 +318,23 @@ var validateCoupons = function (providerName, couponCode) {
   });
 };
 
-var createCoupons = function (userBillingUuid, couponsCampaignBillingUuid) {
+var createCoupons = function (userBillingUuid, couponsCampaignBillingUuid, couponsOpts) {
   return requestBilling({
     method: 'POST',
     url: config.billings.url + '/billings/api/coupons/',
     body: {
       userBillingUuid: userBillingUuid,
-      couponsCampaignBillingUuid: couponsCampaignBillingUuid
+      couponsCampaignBillingUuid: couponsCampaignBillingUuid,
+      couponsOpts: couponsOpts
     }
   }).then(function (body) {
     return body && body.response && body.response || {};
   });
 };
 
-var getCouponCampains = function (providerName) {
+var getCouponCampains = function (providerName, couponsCampaignBillingUuid) {
   return requestBilling({
-    url: config.billings.url + '/billings/api/couponscampaigns/',
+    url: config.billings.url + '/billings/api/couponscampaigns/' + couponsCampaignBillingUuid,
     qs: {
       providerName: providerName
     }

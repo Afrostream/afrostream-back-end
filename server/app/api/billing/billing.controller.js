@@ -422,11 +422,12 @@ module.exports.createCoupons = function (req, res) {
     userId: req.user._id,
     userEmail: req.user.email,
     userProviderUuid: null,
-    userBillingUuid: null,
+    userBillingUuid: req.body.userBillingUuid,
     billingProviderName: req.body.billingProviderName || req.body.billingProvider,
     bodyFirstName: req.body.firstName,
     bodyLastName: req.body.lastName,
-    couponsCampaignBillingUuid: req.body.couponsCampaignBillingUuid
+    couponsCampaignBillingUuid: req.body.couponsCampaignBillingUuid,
+    couponsOpts: req.body.couponsOpts
   }; // closure
 
   Q()
@@ -434,6 +435,9 @@ module.exports.createCoupons = function (req, res) {
   // we create the user in the billing-api if he doesn't exist yet
   //
     .then(function () {
+      if (c.userBillingUuid) {
+        return;
+      }
       return billingApi.getOrCreateUser({
         providerName: c.billingProviderName,
         userReferenceUuid: c.userId,
@@ -445,14 +449,14 @@ module.exports.createCoupons = function (req, res) {
         }
       }).then(function (billingsResponse) {
         c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
-        c.userProviderUuid = billingsResponse.response.user.userProviderUuid;
       });
     })
 
     .then(function () {
       var couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
       var userBillingUuid = c.userBillingUuid;
-      return billingApi.createCoupons(userBillingUuid, couponsCampaignBillingUuid);
+      var couponsOpts = c.couponsOpts;
+      return billingApi.createCoupons(userBillingUuid, couponsCampaignBillingUuid, couponsOpts);
     })
     .then(
       function (couponStatus) {
@@ -470,7 +474,8 @@ module.exports.getCouponCampains = function (req, res) {
   Q()
     .then(function () {
       var billingProviderName = req.query.billingProviderName || req.query.billingProvider;
-      return billingApi.getCouponCampains(billingProviderName);
+      var couponsCampaignBillingUuid = req.params.couponsCampaignBillingUuid || req.query.couponsCampaignBillingUuid || '';
+      return billingApi.getCouponCampains(billingProviderName, couponsCampaignBillingUuid);
     })
     .then(
       function (couponStatus) {
