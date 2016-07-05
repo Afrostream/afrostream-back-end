@@ -2,11 +2,13 @@
 
 var Q = require('q');
 var _ = require('lodash');
+var btoa = require('btoa');
 var passport = require('passport');
 var oauth2 = require('../oauth2/oauth2');
 var config = require('../../config');
 var sqldb = rootRequire('/server/sqldb');
 var User = sqldb.User;
+var Client = sqldb.Client;
 
 var strategyOptions = function (options) {
   return function (req, res, next) {
@@ -27,8 +29,13 @@ function validationError (res, statusCode) {
 }
 
 var signin = function (req, res, next) {
-  var userId = req.user ? req.user._id : null;
-  var state = new Buffer(JSON.stringify({status: 'signin', userId: userId})).toString('base64');
+  var userId = req.user && req.user._id || null;
+  var clientType = req.query.clientType || null;
+  var state = btoa(JSON.stringify({
+    status: 'signin',
+    userId: userId,
+    clientType: clientType
+  }));
   passport.authenticate('orange', {
     session: false,
     additionalParams: {'RelayState': state}
@@ -36,7 +43,11 @@ var signin = function (req, res, next) {
 };
 
 var signup = function (req, res, next) {
-  var state = new Buffer(JSON.stringify({status: 'signup'})).toString('base64');
+  var clientType = req.query.clientType || null;
+  var state = btoa(JSON.stringify({
+    status: 'signup',
+    clientType: clientType
+  }));
   passport.authenticate('orange', {
     additionalParams: {'RelayState': state}
   })(req, res, next);
@@ -76,7 +87,6 @@ var callback = function (req, res, next) {
     Q()
       .then(function () {
         if (err) throw err;
-        //if (info) throw info;
         if (info) {
           console.log('info', info);
           expireIn = info.expireIn
@@ -86,8 +96,19 @@ var callback = function (req, res, next) {
         return req.getPassport();
       })
       .then(function (passport) {
-        console.log('generate token with client', passport.client._id, user._id);
-        return Q.nfcall(oauth2.generateToken, passport.client, user, null, req.clientIp, req.userAgent, expireIn);
+        if (req.clientType) {
+          if (req.clientType !== "legacy-api.tapptic") {
+            throw 'wrong clientType';
+          }
+          return Client.findOne({where:{type:req.clientType}}).then(function (c) {
+            return c || passport.client;
+          })
+        }
+        return passport.client;
+      })
+      .then(function (client) {
+        console.log('generate token with client', client._id, user._id);
+        return Q.nfcall(oauth2.generateToken, client, user, null, req.clientIp, req.userAgent, expireIn);
       })
       .then(function (tokenInfos) {
         return {

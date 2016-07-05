@@ -23,6 +23,7 @@ exports.setup = function (User, config) {
       var state = req.body.RelayState ? new Buffer(req.body.RelayState || '', 'base64').toString('ascii') : '{}';
       state = JSON.parse(state);
       var status = state.status || 'signup';
+      req.clientType = state.clientType || null;
       var userId = req.user ? req.user._id : state.userId;
 
       console.log('[INFO]: [ORANGE]: userId ', userId);
