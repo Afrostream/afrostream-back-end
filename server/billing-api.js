@@ -331,9 +331,9 @@ var createCoupons = function (userBillingUuid, couponsCampaignBillingUuid) {
   });
 };
 
-var getCouponCampains = function (providerName) {
+var getCouponCampains = function (providerName, couponsCampaignBillingUuid) {
   return requestBilling({
-    url: config.billings.url + '/billings/api/couponscampaigns/',
+    url: config.billings.url + '/billings/api/couponscampaigns/' + couponsCampaignBillingUuid,
     qs: {
       providerName: providerName
     }

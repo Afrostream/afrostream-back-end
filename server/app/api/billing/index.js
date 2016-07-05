@@ -196,6 +196,7 @@ router.post('/gifts', auth.isAuthenticated(), controller.createGift);
 router.get('/coupons', auth.isAuthenticated(), controller.validateCoupons);
 router.post('/coupons', auth.isAuthenticated(), controller.createCoupons);
 router.get('/couponscampaigns', auth.isAuthenticated(), controller.getCouponCampains);
+router.get('/couponscampaigns/:couponsCampaignBillingUuid', auth.isAuthenticated(), controller.getCouponCampains);
 router.put('/subscriptions/:subscriptionUuid/cancel', auth.isAuthenticated(), controller.cancelSubscriptions);
 router.put('/subscriptions/:subscriptionUuid/reactivate', auth.isAuthenticated(), controller.reactivateSubscriptions);
 

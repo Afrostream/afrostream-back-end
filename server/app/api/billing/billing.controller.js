@@ -426,7 +426,8 @@ module.exports.createCoupons = function (req, res) {
     billingProviderName: req.body.billingProviderName || req.body.billingProvider,
     bodyFirstName: req.body.firstName,
     bodyLastName: req.body.lastName,
-    couponsCampaignBillingUuid: req.body.couponsCampaignBillingUuid
+    couponsCampaignBillingUuid: req.body.couponsCampaignBillingUuid,
+    couponsOpts: req.body.couponsOpts
   }; // closure
 
   Q()
@@ -452,7 +453,8 @@ module.exports.createCoupons = function (req, res) {
     .then(function () {
       var couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
       var userBillingUuid = c.userBillingUuid;
-      return billingApi.createCoupons(userBillingUuid, couponsCampaignBillingUuid);
+      var couponsOpts = c.couponsOpts;
+      return billingApi.createCoupons(userBillingUuid, couponsCampaignBillingUuid, couponsOpts);
     })
     .then(
       function (couponStatus) {
@@ -470,7 +472,8 @@ module.exports.getCouponCampains = function (req, res) {
   Q()
     .then(function () {
       var billingProviderName = req.query.billingProviderName || req.query.billingProvider;
-      return billingApi.getCouponCampains(billingProviderName);
+      var couponsCampaignBillingUuid = req.params.couponsCampaignBillingUuid || req.query.couponsCampaignBillingUuid || '';
+      return billingApi.getCouponCampains(billingProviderName, couponsCampaignBillingUuid);
     })
     .then(
       function (couponStatus) {
