@@ -22,8 +22,10 @@ exports.setup = function (User, config) {
       var state = req.query.state ? new Buffer(req.query.state, 'base64').toString('ascii') : '{}';
       state = JSON.parse(state);
       var status = state.status;
+      req.clientType = state.clientType || null;
       var email = profile.emails && profile.emails[0] && profile.emails[0].address;
       var userId = req.user ? req.user._id : state.userId;
+      
       console.log('bouygues user', userId);
       console.log('bouygues profile id', profile.id);
 

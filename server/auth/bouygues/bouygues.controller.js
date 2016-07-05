@@ -2,6 +2,7 @@
 
 var Q = require('q');
 var _ = require('lodash');
+var btoa = require('btoa');
 var passport = require('passport');
 var oauth2 = require('../oauth2/oauth2');
 var config = require('../../config');
@@ -34,18 +35,25 @@ function validationError (res, statusCode) {
 
 var signin = function (req, res, next) {
   var userId = req.user ? req.user._id : null;
+  var clientType = req.query.clientType || null;
+  var state = btoa(JSON.stringify({status: 'signin', userId: userId, clientType: clientType}));
   passport.authenticate('bouygues', {
     userAgent: req.userAgent,
     scope: scope,
     session: false,
-    state: new Buffer(JSON.stringify({status: 'signin', userId: userId})).toString('base64')
+    state: state
   })(req, res, next);
 };
 
 var signup = function (req, res, next) {
+  var clientType = req.query.clientType || null;
+  var state = btoa(JSON.stringify({
+    status: 'signup',
+    clientType: clientType
+  }));
   passport.authenticate('bouygues', {
     scope: scope,
-    state: new Buffer(JSON.stringify({status: 'signup'})).toString('base64')
+    state: state
   })(req, res, next);
 };
 
@@ -88,19 +96,27 @@ var callback = function (req, res, next) {
         return req.getPassport();
       })
       .then(function (passport) {
-        console.log('generate token with client', passport.client._id, user._id);
-        var deferred = Q.defer();
-        oauth2.generateToken(passport.client, user, null, req.clientIp, req.userAgent, null, function (err, accessToken, refreshToken, info) {
-          if (err)  return deferred.reject(err);
-          return deferred.resolve({
-            token: accessToken,
-            access_token: accessToken,
-            refresh_token: refreshToken,
-            expires_in: info.expires_in
-          });
-        });
-        return deferred.promise;
-
+        if (req.clientType) {
+          if (req.clientType !== "legacy-api.tapptic") {
+            throw 'wrong clientType';
+          }
+          return Client.findOne({where:{type:req.clientType}}).then(function (c) {
+            return c || passport.client;
+          })
+        }
+        return passport.client;
+      })
+      .then(function (client) {
+        console.log('generate token with client', client._id, user._id);
+        return Q.nfcall(oauth2.generateToken, client, user, null, req.clientIp, req.userAgent, null);
+      })
+      .then(function (tokenInfos) {
+        return {
+          token: tokenInfos[0],
+          access_token: tokenInfos[0],
+          refresh_token: tokenInfos[1],
+          expires_in: tokenInfos[2].expires_in
+        };
       })
       .then(
         function success (tokens) {
@@ -121,5 +137,3 @@ module.exports.signin = signin;
 module.exports.signup = signup;
 module.exports.unlink = unlink;
 module.exports.callback = callback;
-
-
