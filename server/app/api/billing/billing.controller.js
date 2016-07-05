@@ -435,9 +435,12 @@ module.exports.createCoupons = function (req, res) {
   // we create the user in the billing-api if he doesn't exist yet
   //
     .then(function () {
+      if (c.userBillingUuid && c.userProviderUuid) {
+        return;
+      }
       return billingApi.getOrCreateUser({
         providerName: c.billingProviderName,
-        userReferenceUuid: c.userId || c.userBillingUuid,
+        userReferenceUuid: c.userId,
         userProviderUuid: c.userProviderUuid,
         userOpts: {
           email: c.userEmail,
