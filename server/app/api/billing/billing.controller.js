@@ -435,7 +435,7 @@ module.exports.createCoupons = function (req, res) {
   // we create the user in the billing-api if he doesn't exist yet
   //
     .then(function () {
-      if (c.userBillingUuid && c.userProviderUuid) {
+      if (c.userBillingUuid) {
         return;
       }
       return billingApi.getOrCreateUser({
@@ -449,7 +449,6 @@ module.exports.createCoupons = function (req, res) {
         }
       }).then(function (billingsResponse) {
         c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
-        c.userProviderUuid = billingsResponse.response.user.userProviderUuid;
       });
     })
 
