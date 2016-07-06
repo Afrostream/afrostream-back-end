@@ -356,7 +356,7 @@ exports.show = function (req, res) {
           video.sources.forEach(function (source) {
             source.src = source.src.replace('.ism', '-orange.ism');
           });
-        } else if (req.passport.client.isBouygues() && !video.catchupProviderId) {
+        } else if (req.passport.client.isBouyguesMiami() && !video.catchupProviderId) {
           // FIXME: pour l'instant, on évite d'utiliser l'ISM miami pour la catchup
           video.sources.forEach(function (source) {
             source.src = source.src.replace('.ism', '-bouygues-miami.ism');

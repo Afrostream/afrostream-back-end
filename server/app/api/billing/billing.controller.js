@@ -89,7 +89,7 @@ module.exports.cancelSubscriptions = function (req, res) {
     .then(function () {
       var client = req.passport.client;
       if (!client) throw new Error('unknown client');
-      if (!client.isFrontApi() && !client.isBouygues()) {
+      if (!client.isFrontApi() && !client.isBouyguesMiami()) {
         throw new Error('unknown subscriptionUuid for user ' + c.userId + ' client type ' + client.type);
       }
     })
@@ -133,7 +133,7 @@ module.exports.reactivateSubscriptions = function (req, res) {
     .then(function () {
       var client = req.passport.client;
       if (!client) throw new Error('unknown client');
-      if (!client.isFrontApi() && !client.isBouygues()) {
+      if (!client.isFrontApi() && !client.isBouyguesMiami()) {
         throw new Error('unknown subscriptionUuid for user ' + c.userId + ' client type ' + client.type);
       }
     })

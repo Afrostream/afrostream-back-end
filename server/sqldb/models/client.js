@@ -25,7 +25,7 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     // fixme: we should use classMethods to define the constants.
     instanceMethods: {
-      isBouygues: function () {
+      isBouyguesMiami: function () {
         return this.getDataValue('type') === 'legacy-api.bouygues-miami';
       },
 

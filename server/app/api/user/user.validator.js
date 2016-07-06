@@ -29,7 +29,7 @@ module.exports.validateCreateBody = function (req, res, next) {
   assert(req.passport);
 
   var schema;
-  if (req.passport.client && req.passport.client.isBouygues()) {
+  if (req.passport.client && req.passport.client.isBouyguesMiami()) {
     schema = createBodyBouygues;
   } else if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
     schema = createBodyOrange;
