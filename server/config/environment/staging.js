@@ -20,7 +20,7 @@ module.exports = {
 
   frontEnd: {
     protocol: 'https',
-    authority: 'afrostream-staging.herokuapp.com'
+    authority: 'staging.afrostream.tv'
   },
 
   sendGrid: {
