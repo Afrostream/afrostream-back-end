@@ -12,12 +12,14 @@ router.use(function (req, res, next) {
   next();
 });
 
+router.use(auth.middleware.restrictRoutesToAuthentified());
+
 // disabling this route
 //  recurring is using RAM cache (leaking memory)
 //router.get('/', auth.hasRole('admin'), controller.index);
-router.get('/cancel', auth.isAuthenticated(), controller.cancel);
-router.get('/status', auth.isAuthenticated(), controller.status);
-router.post('/', auth.isAuthenticated(), controller.create);
-router.post('/gift', auth.isAuthenticated(), controller.gift);
+router.get('/cancel', controller.cancel);
+router.get('/status', controller.status);
+router.post('/', controller.create);
+router.post('/gift', controller.gift);
 
 module.exports = router;

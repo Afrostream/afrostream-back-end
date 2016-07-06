@@ -97,8 +97,6 @@ var auth = rootRequire('/server/auth/auth.service');
 
 var router = express.Router();
 
-var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
-
 var validator = require('./user.validator.js');
 
 // all user routes cannot be cached.
@@ -106,6 +104,9 @@ router.use(function (req, res, next) {
   res.noCache();
   next();
 });
+
+//
+router.use(auth.middleware.restrictRoutesToAuthentified());
 
 // cross domain access to our api, staging only for tests
 if (process.env.NODE_ENV === 'staging') {
@@ -143,19 +144,19 @@ router.use('/:userId/favoritesSeasons', require('./favoriteSeason/index'));
 
 router.get('/', auth.hasRole('admin'), controller.index);
 router.delete('/:id', auth.hasRole('client'), controller.destroy);
-router.get('/me', auth.isAuthenticated(), controller.me);
-router.put('/verify', auth.isAuthenticated(), controller.verify);
-router.put('/password', auth.isAuthenticated(), controller.auth0ChangePassword);
+router.get('/me', controller.me);
+router.put('/verify', controller.verify);
+router.put('/password', controller.auth0ChangePassword);
 //
 // FIXME: we should check that :id correspond to req.user._id
 //
 router.put('/:id/password', auth.hasRole('admin'), controller.changePassword);
 router.put('/:id/role', auth.hasRole('admin'), controller.changeRole);
 router.get('/:id', auth.hasRole('admin'), controller.show);
-router.post('/', auth.isAuthenticated(), middlewarePassport({preload: true}), validator.validateCreateBody, controller.create);
-router.put('/:userId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, validator.validateUpdateBody, controller.update);
+router.post('/', validator.validateCreateBody, controller.create);
+router.put('/:userId', convertUserIdMeToUserId, tokenUserMatchParamUser, validator.validateUpdateBody, controller.update);
 
 router.use('/:userId/videos', require('./video'));
-router.get('/:userId/history', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.history);
+router.get('/:userId/history', convertUserIdMeToUserId, tokenUserMatchParamUser, controller.history);
 
-  module.exports = router;
+module.exports = router;

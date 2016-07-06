@@ -27,6 +27,8 @@ var controller = require('./actor.controller.js');
 var auth = rootRequire('/server/auth/auth.service');
 var router = express.Router();
 
+router.use(auth.middleware.restrictRoutesToAuthentified());
+
 router.get('/', auth.hasRole('admin'), controller.index);
 router.get('/:id', controller.show);
 router.post('/', auth.hasRole('admin'), controller.create);
