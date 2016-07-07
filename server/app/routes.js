@@ -46,6 +46,7 @@ module.exports = function (app) {
   app.use('/api/mam', require('./api/mam/index'));
   app.use('/api/dashboard', require('./api/dashboard/index'));
   app.use('/api/waitingUsers', require('./api/waitingUser/index'));
+  app.use('/api/widgets', require('./api/widget/index'));
   app.use('/api/stats', require('./api/stat/index'));
 
   app.use('/api/player', require('./api/player/index'));
@@ -68,7 +69,7 @@ module.exports = function (app) {
     });
 
   // All other routes should redirect to the index.html
-  app.route(/^\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|users|subscriptions|clients|actors|settings|login|logout|jobs|posts|catchup|users\-logs|imports|configs)/)
+  app.route(/^\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|users|subscriptions|clients|actors|settings|login|logout|jobs|posts|catchup|users\-logs|imports|configs|widgets)/)
     .get(function (req, res) {
       res.set('Cache-Control', 'public, max-age=0');
       res.sendFile(path.resolve(app.get('appPath') + '/index.html'));

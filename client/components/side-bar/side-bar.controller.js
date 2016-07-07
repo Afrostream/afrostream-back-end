@@ -74,6 +74,10 @@ angular.module('afrostreamAdminApp')
       'title': 'Configs',
       'state': 'configs',
       'icon': 'fa-cogs'
+    }, {
+      'title': 'Widgets',
+      'state': 'widgets',
+      'icon': 'fa-code'
     }];
 
     $scope.isCollapsed = true;

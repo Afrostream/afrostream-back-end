@@ -5,15 +5,15 @@ angular.module('afrostreamAdminApp')
     return function (items) {
       items.forEach(function (item) {
         item.genericTitle = item.title
-         || item.label
-         || item.name
-         || item.target
-         || ((item.firstName || item.lastName) ? item.firstName + ' ' + item.lastName : '' );
+          || item.label
+          || item.name
+          || item.target
+          || ((item.firstName || item.lastName) ? item.firstName + ' ' + item.lastName : '' );
         item.genericThumb = (item.imgix) ? item : item.thumb || item.picture;
       });
       return items;
     };
- })
+  })
   .controller('DataCtrl', function ($scope, $log, $http, $modal, ngToast, $state, Modal, genres) {
     var defaultPerPage = 30;
 
@@ -28,7 +28,7 @@ angular.module('afrostreamAdminApp')
     $scope.apiParamsUrl = {
       query: $scope.searchField
     };
-    $scope.pagination = { current: 1 };
+    $scope.pagination = {current: 1};
     $scope.genres = genres;
 
     $scope.reload = function () {
@@ -42,7 +42,7 @@ angular.module('afrostreamAdminApp')
       loadItems(page, $scope.searchField)
     };
 
-    function loadItems(pageNumber, query) {
+    function loadItems (pageNumber, query) {
       // this is just an example, in reality this stuff should be in a service
       $http.get($scope.apiRessourceUrl, {
         params: {query: query},
@@ -51,7 +51,7 @@ angular.module('afrostreamAdminApp')
           $scope.headers,
           {
             // @see https://www.npmjs.com/package/range-parser
-            Range: 'items='+((pageNumber - 1) * $scope.itemsPerPage) + '-' + ((pageNumber) * $scope.itemsPerPage)
+            Range: 'items=' + ((pageNumber - 1) * $scope.itemsPerPage) + '-' + ((pageNumber) * $scope.itemsPerPage)
           }
         )
       })
@@ -138,7 +138,9 @@ angular.module('afrostreamAdminApp')
 
     $scope.deleteIndex = Modal.confirm.delete(function (item) {
       $http.delete($scope.apiRessourceUrl + '/' + item._id)
-        .then(function () { $scope.reload(); });
+        .then(function () {
+          $scope.reload();
+        });
     });
 
     $scope.$on('$destroy', function () {
@@ -148,7 +150,9 @@ angular.module('afrostreamAdminApp')
     $scope.editIndex = function (item) {
       $scope.currentItem = item;
       var $uibModalInstance = $modal.open(modalEditOpts);
-      $uibModalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
+      $uibModalInstance.onClose = function (cancel) {
+        if (!cancel) $scope.reload();
+      };
     };
 
     $scope.cloneIndex = function (item) {
@@ -177,7 +181,9 @@ angular.module('afrostreamAdminApp')
       delete newIndex._id;
       $scope.currentItem = newIndex;
       var $uibModalInstance = $modal.open(modalNewOpts);
-      $uibModalInstance.onClose = function (cancel) { if (!cancel) $scope.reload(); };
+      $uibModalInstance.onClose = function (cancel) {
+        if (!cancel) $scope.reload();
+      };
     };
 
     $scope.importAlgolia = function () {
