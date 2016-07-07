@@ -22,14 +22,6 @@ var utils = require('../utils.js');
 
 var getIncludedModel = require('./episode.includedModel.js').get;
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    console.error(err);
-    res.status(statusCode).send(err);
-  };
-}
-
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
@@ -139,7 +131,7 @@ exports.index = function (req, res) {
   Episode.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Gets a single episode from the DB
@@ -156,7 +148,7 @@ exports.show = function (req, res) {
   Episode.find(queryOptions)
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Creates a new episode in the DB
@@ -166,7 +158,7 @@ exports.create = function (req, res) {
     .then(updateVideo(req.body))
     .then(updateImages(req.body))
     .then(responseWithResult(res, 201))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 exports.search = function (req, res) {
@@ -176,7 +168,7 @@ exports.search = function (req, res) {
     .then(function (movies) {
       res.json(movies);
     })
-    .catch(handleError(res))
+    .catch(req.handleError(res))
 };
 
 function parseVXstY(body) {
@@ -215,7 +207,7 @@ exports.update = function (req, res) {
     .then(updateVideo(req.body))
     .then(updateImages(req.body))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 // Updates an existing episode in the DB
 exports.algolia = function (req, res) {
@@ -228,7 +220,7 @@ exports.algolia = function (req, res) {
     .then(handleEntityNotFound(res))
     .then(algolia.importAll(res, 'episodes'))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Deletes a episode from the DB
@@ -240,5 +232,5 @@ exports.destroy = function (req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };

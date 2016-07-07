@@ -14,12 +14,6 @@ var path = require('path');
 var sqldb = rootRequire('/server/sqldb');
 var config = rootRequire('/server/config');
 var Promise = sqldb.Sequelize.Promise;
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -38,8 +32,5 @@ exports.index = function (req, res) {
     });
   }).then(function (importeds) {
     return res.json(importeds);
-  }).catch(SyntaxError, function (err) {
-    console.log(err);
-  });
-
+  }).catch(req.handleError(res));
 };

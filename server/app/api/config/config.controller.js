@@ -15,14 +15,6 @@ function handleEntityNotFound (res) {
   };
 }
 
-function handleError (res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    console.error('error', err);
-    res.status(statusCode).send(err);
-  };
-}
-
 function mapEntitys () {
   return function (entity) {
     //Map values
@@ -77,7 +69,7 @@ exports.index = function (req, res) {
   Config.findAll(paramsObj)
     .then(mapEntitys())
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 
 };
 
@@ -94,14 +86,14 @@ exports.target = function (req, res) {
     })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Creates a new client in the DB
 exports.create = function (req, res) {
   Config.create(req.body)
     .then(responseWithResult(res, 201))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Deletes a client from the DB
@@ -113,5 +105,5 @@ exports.destroy = function (req, res) {
     })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };

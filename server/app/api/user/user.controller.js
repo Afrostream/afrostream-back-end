@@ -35,14 +35,6 @@ function validationError(res, statusCode) {
   }
 }
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    console.error('/api/users/: error: handleError: ', err);
-    res.status(statusCode).send({error: String(err)});
-  };
-}
-
 function respondWith(res, statusCode) {
   statusCode = statusCode || 200;
   return function () {
@@ -80,7 +72,7 @@ exports.index = function (req, res) {
 
   User.findAndCountAll(paramsObj)
     .then(utils.responseWithResultAndTotal(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 /**
@@ -254,7 +246,7 @@ exports.destroy = function (req, res) {
     .then(function () {
       res.status(204).end();
     })
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 /**
  * Change a users password

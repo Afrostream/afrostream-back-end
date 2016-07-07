@@ -29,13 +29,6 @@ var proxy = httpProxy.createProxyServer({
 
 Asset.belongsTo(Episode, {foreignKey: 'episode'}); // Adds episodeId to Asset
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
-
 function responseWithTokenResult(req, res) {
   return function (entity) {
     if (entity) {
@@ -90,7 +83,7 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   Asset.findAll()
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Gets a single asset from the DB
@@ -102,7 +95,7 @@ exports.show = function (req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 //get single Asset but validate jwt tokenized
@@ -120,9 +113,9 @@ exports.proxify = function (req, res) {
     });
     proxy.on('error', function (e) {
       console.log('error');
-      handleError(res)(e);
+      req.handleError(res)(e);
     });
-  }).catch(handleError(res));
+  }).catch(req.handleError(res));
 };
 
 //get single Asset but validate jwt tokenized
@@ -134,14 +127,14 @@ exports.showToken = function (req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(responseWithTokenResult(req, res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Creates a new asset in the DB
 exports.create = function (req, res) {
   Asset.create(req.body)
     .then(responseWithResult(res, 201))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Updates an existing asset in the DB
@@ -157,7 +150,7 @@ exports.update = function (req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Deletes a asset from the DB
@@ -169,5 +162,5 @@ exports.destroy = function (req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };

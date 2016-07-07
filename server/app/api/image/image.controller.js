@@ -18,13 +18,6 @@ var aws = rootRequire('/server/aws');
 
 var utils = require('../utils.js');
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
-
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
@@ -59,10 +52,10 @@ function removeEntity(res) {
       var filesName = [entity.path];
       Knox.aws.deleteMultiple(filesName, {}, function (err, response) {
         if (err) {
-          return handleError(res)(err);
+          return req.handleError(res)(err);
         }
         if (response.statusCode !== 200) {
-          return handleError(res, response.statusCode)('statusCode not 200 OK');
+          return req.handleError(res, response.statusCode)('statusCode not 200 OK');
         }
         return entity.destroy()
           .then(function () {
@@ -99,7 +92,7 @@ exports.index = function (req, res) {
 
   Image.findAndCountAll(paramsObj)
     .then(utils.responseWithResultAndTotal(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Gets a single image from the DB
@@ -111,7 +104,7 @@ exports.show = function (req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Creates a new image in the DB
@@ -135,7 +128,7 @@ exports.create = function (req, res) {
         });
     })
     .then(responseWithResult(res, 201))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Updates an existing image in the DB
@@ -151,7 +144,7 @@ exports.update = function (req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Deletes a image from the DB
@@ -164,5 +157,5 @@ exports.destroy = function (req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };

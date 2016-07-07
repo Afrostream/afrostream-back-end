@@ -13,14 +13,6 @@ function handleEntityNotFound (res) {
   };
 }
 
-function handleError (res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    console.error('error', err);
-    res.status(statusCode).send(err);
-  };
-}
-
 function responseWithResult (res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
@@ -44,6 +36,6 @@ exports.showConfig = function (req, res) {
     })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 
 };

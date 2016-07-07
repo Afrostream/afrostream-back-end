@@ -20,9 +20,6 @@ exports.getList = function (req, res) {
       function success(data) {
        res.json(data);
       },
-      function error(e) {
-        console.error(e);
-        res.status(500).send('cdn selector error');
-      }
+      req.handleError(res)
     );
 };

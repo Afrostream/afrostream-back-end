@@ -7,14 +7,6 @@ var auth = rootRequire('/server/auth/auth.service');
 
 var utils = require('../utils.js');
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    console.error(err);
-    res.status(statusCode).send(err);
-  };
-}
-
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
@@ -56,7 +48,7 @@ exports.index = function (req, res) {
   Genre.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Gets a single episode from the DB
@@ -72,5 +64,5 @@ exports.show = function (req, res) {
   Genre.find(queryOptions)
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };

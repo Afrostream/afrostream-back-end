@@ -13,13 +13,6 @@ var _ = require('lodash');
 var sqldb = rootRequire('/server/sqldb');
 var AccessToken = sqldb.AccessToken;
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function(err) {
-    res.status(statusCode).send(err);
-  };
-}
-
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
   return function(entity) {
@@ -63,7 +56,7 @@ function removeEntity(res) {
 exports.index = function(req, res) {
   AccessToken.findAll()
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Gets a single accessToken from the DB
@@ -75,7 +68,7 @@ exports.show = function(req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Creates a new accessToken in the DB
@@ -83,7 +76,7 @@ exports.create = function(req, res) {
   var data = _.merge({}, req.body, { userIp: req.clientIp });
   AccessToken.create(data)
     .then(responseWithResult(res, 201))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Updates an existing accessToken in the DB
@@ -99,7 +92,7 @@ exports.update = function(req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Deletes a accessToken from the DB
@@ -111,5 +104,5 @@ exports.destroy = function(req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };

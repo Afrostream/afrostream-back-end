@@ -22,13 +22,6 @@ recurly.setAPIKey(config.recurly.apiKey);
 
 var billingApi = rootRequire('/server/billing-api');
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
-
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
@@ -101,7 +94,7 @@ exports.cancel = function (req, res, next) {
         return res.status(401).end();
       }
       if (user.account_code === null) {
-        return handleError(res)('missing account code');
+        return req.handleError(res)('missing account code');
       }
       var account = new recurly.Account();
       account.id = user.account_code;
@@ -124,7 +117,7 @@ exports.cancel = function (req, res, next) {
     .then(function (canceled) {
       res.json({canceled: ((canceled && canceled.length) ? true : false)});
     })
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 /**

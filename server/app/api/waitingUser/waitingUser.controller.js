@@ -10,8 +10,5 @@ exports.create = function (req, res, next) {
     .then(function (waitingUser) {
       res.json(waitingUser);
     })
-    .catch(function (err) {
-      console.error('error creating waiting user ', err);
-      res.status(500).send();
-    });
+    .catch(req.handleError(res));
 };

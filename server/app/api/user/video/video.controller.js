@@ -54,7 +54,7 @@ module.exports.update = function (req, res) {
     })
     .then(
       function () { res.json({}); },
-      function (err) { res.status(err.statusCode || 500).json({error: err.message || String(err)}); }
+      req.handleError(res)
     );
 };
 
@@ -73,7 +73,7 @@ module.exports.show = function (req, res) {
     )
     .then(
       function (userVideo) { res.json(userVideo); },
-      function (err) { res.status(err.statusCode || 500).json({error: err.message || String(err)}); }
+      req.handleError(res)
     );
 };
 
@@ -81,6 +81,6 @@ module.exports.index = function (req, res) {
   UsersVideos.findAll({ where: { userId: req.user._id }, order: [ ['dateLastRead', 'desc'] ] })
     .then(
       function (e) { res.json(e || []); },
-      function (err) { res.status(err.statusCode || 500).json({error: err.message || String(err)}); }
+      req.handleError(res)
     );
 };

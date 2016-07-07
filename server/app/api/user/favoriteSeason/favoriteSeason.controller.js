@@ -37,12 +37,12 @@ var index = function (req, res) {
         res.json(user.favoritesSeasons);
       }
     })
-    .catch(handleError(res, 500));
+    .catch(req.handleError(res, 500));
 };
 
 var add = function (req, res) {
   if (!req.body._id) {
-    return handleError(res, 500)('missing season _id');
+    return req.handleError(res, 500)('missing season _id');
   }
   // FIXME: find by id.
   bluebird.props({
@@ -54,7 +54,7 @@ var add = function (req, res) {
         return res.status(401).end();
       }
       if (!results.season) {
-        return handleError(res)('unknown season ' + req.body._id);
+        return req.handleError(res)('unknown season ' + req.body._id);
       }
       return results.user.addFavoritesSeasons(results.season).then(function () {
         return Season.findOne({where: {_id: results.season._id}, include: getIncludedModel()});
@@ -62,7 +62,7 @@ var add = function (req, res) {
         res.json(result);
       });
     })
-    .catch(handleError(res, 500));
+    .catch(req.handleError(res, 500));
 };
 
 var remove = function (req, res) {
@@ -85,16 +85,8 @@ var remove = function (req, res) {
         res.json({});
       });
     })
-    .catch(handleError(res, 500));
+    .catch(req.handleError(res, 500));
 };
-
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    console.error('error', err);
-    res.status(statusCode).send(err);
-  };
-}
 
 module.exports.index = index;
 module.exports.add = add;

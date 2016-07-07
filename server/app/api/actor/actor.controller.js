@@ -23,13 +23,6 @@ function getIncludedModel() {
   ];
 }
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
-
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
@@ -109,7 +102,7 @@ exports.index = function (req, res) {
   Actor.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Gets a single actor from the DB
@@ -126,7 +119,7 @@ exports.show = function (req, res) {
   Actor.find(queryOptions)
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Creates a new actor in the DB
@@ -134,7 +127,7 @@ exports.create = function (req, res) {
   Actor.create(req.body)
     .then(updateImages(req.body))
     .then(responseWithResult(res, 201))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Updates an existing actor in the DB
@@ -152,7 +145,7 @@ exports.update = function (req, res) {
     .then(saveUpdates(req.body))
     .then(updateImages(req.body))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Deletes a actor from the DB
@@ -164,5 +157,5 @@ exports.destroy = function (req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };

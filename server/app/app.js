@@ -51,6 +51,11 @@ if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging'
 app.use(middlewareAllowCrossDomain());
 app.use(middlewareAllowPreflight());
 
+// hotfix: creating a "error middleware"
+//  to present req.handleError()
+var middlewareError = require('./middlewares/middleware-error.js');
+app.use(middlewareError());
+
 if (config.dumpPostData) {
   app.use(dumpPostData());
 }

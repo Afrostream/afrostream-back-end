@@ -15,13 +15,6 @@ var Client = sqldb.Client;
 
 var utils = require('../utils.js');
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function(err) {
-    res.status(statusCode).send(err);
-  };
-}
-
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
   return function(entity) {
@@ -69,7 +62,7 @@ exports.index = function(req, res) {
 
   Client.findAndCountAll(paramsObj)
     .then(utils.responseWithResultAndTotal(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Gets a single client from the DB
@@ -81,14 +74,14 @@ exports.show = function(req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Creates a new client in the DB
 exports.create = function(req, res) {
   Client.create(req.body)
     .then(responseWithResult(res, 201))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Updates an existing client in the DB
@@ -104,7 +97,7 @@ exports.update = function(req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };
 
 // Deletes a client from the DB
@@ -116,5 +109,5 @@ exports.destroy = function(req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(req.handleError(res));
 };

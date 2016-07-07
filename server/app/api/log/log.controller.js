@@ -41,5 +41,6 @@ exports.index = function (req, res) {
     ]
   }).then(
     function (result) { res.json(result); },
-    function (err) { res.status(500).json({message:String(err)})});
+    req.handleError(res)
+  );
 };
