@@ -15,7 +15,7 @@ angular.module('afrostreamAdminApp')
 
     $scope.loadCoupons({
       billingProviderName: 'afr',
-      couponCampaignType: 'standard'
+      couponCampaignsType: 'standard'
     }).then(function (response) {
       $scope.coupons = response.couponsCampaigns;
     })
