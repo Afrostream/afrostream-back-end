@@ -7,8 +7,8 @@ script(type='text/ng-template' id='couponsTemplate.html')
   input.form-control(id='name' type='text' ng-model='item.data.name'  placeholder='Widget name')
 .form-group
   label(for='coupon').control-label Coupon
-    div
-      input.form-control(id='coupon' type='text' ng-model='item.data.coupon'  placeholder='Search Coupon' typeahead='coupon as coupon.name for coupon in coupons' typeahead-template-url='couponsTemplate.html' style="display:inline;width:80%")
+  div
+    input.form-control(id='coupon' type='text' ng-model='item.data.coupon'  placeholder='Search Coupon' typeahead='coupon as coupon.name for coupon in coupons' typeahead-template-url='couponsTemplate.html' style="display:inline;width:80%")
 .form-group(ng-if="hasCoupon()")
   .form-group
     label(for='class').control-label Class
