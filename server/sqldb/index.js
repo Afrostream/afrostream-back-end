@@ -48,6 +48,7 @@ db.Tag = db.sequelize.import('models/tag');
 db.User = db.sequelize.import('models/user');
 db.Video = db.sequelize.import('models/video');
 db.Config = db.sequelize.import('models/config');
+db.Widget = db.sequelize.import('models/widget');
 db.WaitingUser = db.sequelize.import('models/waitingUser');
 
 db.CategoryMovies = db.sequelize.import('models/categoryMovies');
@@ -131,7 +132,7 @@ db.AccessToken.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', targe
 db.Log.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false});
 db.Log.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', targetKey: '_id', constraints: false});
 
-
+db.Widget.belongsTo(db.Image, {as: 'image', constraints: false});
 
 ///// HELPERS FUNCTIONS /////
 var _ = require('lodash');

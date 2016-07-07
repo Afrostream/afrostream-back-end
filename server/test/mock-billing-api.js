@@ -259,6 +259,314 @@ nock(config.billings.url)
     }
   });
 
+
+nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
+  .get('/billings/api/couponscampaigns/')
+  .query({providerName: 'afr'}) // , userReferenceUuid: /.*/
+  .reply(200, {
+    "status": "done",
+    "statusMessage": "success",
+    "statusCode": 0,
+    "response": {
+      "couponsCampaigns": [
+        {
+          "couponsCampaignBillingUuid": "4aef0220-5a52-4781-bd4b-0283a277cfe8",
+          "creationDate": "2016-03-07 10:57:12.412057+00",
+          "name": "campaign-test-2months",
+          "description": "campaign-test-2months",
+          "provider": {
+            "providerName": "afr"
+          },
+          "internalPlan": {
+            "internalPlanUuid": "afr-2months",
+            "name": "Coupon 2 mois",
+            "description": "Coupon 2 mois",
+            "amountInCents": "1000",
+            "amount": "10,00",
+            "amountInCentsExclTax": "833",
+            "amountExclTax": "8,33333",
+            "vatRate": "20,00",
+            "currency": "EUR",
+            "cycle": "once",
+            "periodUnit": "month",
+            "periodLength": "2",
+            "internalPlanOpts": {
+              "internalMaxScreens": "1",
+              "internalVip": "false",
+              "_internalFreePeriod": "false"
+            },
+            "thumb": null,
+            "trialEnabled": false,
+            "trialPeriodUnit": null,
+            "trialPeriodLength": null,
+            "isVisible": true,
+            "countries": [
+              {
+                "country": "FR"
+              }
+            ]
+          }
+        },
+        {
+          "couponsCampaignBillingUuid": "81f1c4ce-c191-4142-8b8a-0b8dab78d970",
+          "creationDate": "2016-03-07 10:58:24.396526+00",
+          "name": "campaign-test-oneyear",
+          "description": "campaign-test-oneyear",
+          "provider": {
+            "providerName": "afr"
+          },
+          "internalPlan": {
+            "internalPlanUuid": "afr-oneyear",
+            "name": "Coupon Sérénité",
+            "description": "Coupon Sérénité",
+            "amountInCents": "4000",
+            "amount": "40,00",
+            "amountInCentsExclTax": "3333",
+            "amountExclTax": "33,33333",
+            "vatRate": "20,00",
+            "currency": "EUR",
+            "cycle": "once",
+            "periodUnit": "year",
+            "periodLength": "1",
+            "internalPlanOpts": {
+              "internalMaxScreens": "2",
+              "internalVip": "true",
+              "_internalFreePeriod": "false"
+            },
+            "thumb": null,
+            "trialEnabled": false,
+            "trialPeriodUnit": null,
+            "trialPeriodLength": null,
+            "isVisible": true,
+            "countries": [
+              {
+                "country": "FR"
+              }
+            ]
+          }
+        },
+        {
+          "couponsCampaignBillingUuid": "22f57b23-7541-49e5-8e06-593a2f75135e",
+          "creationDate": "2016-04-18 14:34:27.039008+00",
+          "name": "campaign-test-oneday",
+          "description": "campaign-test-oneday",
+          "provider": {
+            "providerName": "afr"
+          },
+          "internalPlan": {
+            "internalPlanUuid": "afr-oneday",
+            "name": "Coupon 1 jour",
+            "description": "afr-oneday",
+            "amountInCents": "10",
+            "amount": "0,10",
+            "amountInCentsExclTax": "8",
+            "amountExclTax": "0,08333",
+            "vatRate": "20,00",
+            "currency": "EUR",
+            "cycle": "once",
+            "periodUnit": "day",
+            "periodLength": "1",
+            "internalPlanOpts": {
+              "internalMaxScreens": "1",
+              "internalVip": "false"
+            },
+            "thumb": null,
+            "trialEnabled": false,
+            "trialPeriodUnit": null,
+            "trialPeriodLength": null,
+            "isVisible": true,
+            "countries": [
+              {
+                "country": "FR"
+              }
+            ]
+          }
+        },
+        {
+          "couponsCampaignBillingUuid": "0a41e057-12d4-4ee2-b559-c3b0c7b15b91",
+          "creationDate": "2016-05-10 08:45:16.082581+00",
+          "name": "campaign-afr-cfa-7days",
+          "description": "campaign-afr-cfa-7days",
+          "provider": {
+            "providerName": "afr"
+          },
+          "internalPlan": {
+            "internalPlanUuid": "afr-cfa-7days",
+            "name": "Coupon 7 jours",
+            "description": "Coupon 7 jours",
+            "amountInCents": "100000",
+            "amount": "1000,00",
+            "amountInCentsExclTax": "84746",
+            "amountExclTax": "847,45763",
+            "vatRate": "18,00",
+            "currency": "XOF",
+            "cycle": "once",
+            "periodUnit": "day",
+            "periodLength": "7",
+            "internalPlanOpts": {
+              "internalMaxScreens": "1",
+              "internalVip": "false"
+            },
+            "thumb": null,
+            "trialEnabled": false,
+            "trialPeriodUnit": null,
+            "trialPeriodLength": null,
+            "isVisible": true,
+            "countries": [
+              {
+                "country": "CI"
+              },
+              {
+                "country": "SN"
+              }
+            ]
+          }
+        },
+        {
+          "couponsCampaignBillingUuid": "789b58ba-5c90-4e1a-8171-2bc064fe46b3",
+          "creationDate": "2016-05-10 08:44:35.08463+00",
+          "name": "campaign-afr-cfa-2days",
+          "description": "campaign-afr-cfa-2days",
+          "provider": {
+            "providerName": "afr"
+          },
+          "internalPlan": {
+            "internalPlanUuid": "afr-cfa-2days",
+            "name": "Coupon 2 jours",
+            "description": "Coupon 2 jours",
+            "amountInCents": "50000",
+            "amount": "500,00",
+            "amountInCentsExclTax": "42373",
+            "amountExclTax": "423,72881",
+            "vatRate": "18,00",
+            "currency": "XOF",
+            "cycle": "once",
+            "periodUnit": "day",
+            "periodLength": "2",
+            "internalPlanOpts": {
+              "internalMaxScreens": "1",
+              "internalVip": "false"
+            },
+            "thumb": null,
+            "trialEnabled": false,
+            "trialPeriodUnit": null,
+            "trialPeriodLength": null,
+            "isVisible": true,
+            "countries": [
+              {
+                "country": "CI"
+              },
+              {
+                "country": "SN"
+              }
+            ]
+          }
+        },
+        {
+          "couponsCampaignBillingUuid": "b611b334-9f01-4ca6-b6ce-2eaa8633d856",
+          "creationDate": "2016-05-10 08:46:48.553998+00",
+          "name": "campaign-afr-cfa-1month",
+          "description": "campaign-afr-cfa-1month",
+          "provider": {
+            "providerName": "afr"
+          },
+          "internalPlan": {
+            "internalPlanUuid": "afr-cfa-1month",
+            "name": "Coupon 1 mois",
+            "description": "Coupon 1 mois",
+            "amountInCents": "300000",
+            "amount": "3000,00",
+            "amountInCentsExclTax": "254237",
+            "amountExclTax": "2542,37288",
+            "vatRate": "18,00",
+            "currency": "XOF",
+            "cycle": "once",
+            "periodUnit": "month",
+            "periodLength": "1",
+            "internalPlanOpts": {
+              "internalMaxScreens": "1",
+              "internalVip": "false"
+            },
+            "thumb": null,
+            "trialEnabled": false,
+            "trialPeriodUnit": null,
+            "trialPeriodLength": null,
+            "isVisible": true,
+            "countries": [
+              {
+                "country": "CI"
+              },
+              {
+                "country": "SN"
+              }
+            ]
+          }
+        },
+        {
+          "couponsCampaignBillingUuid": "ed2e3cf1-7fc5-4160-bf99-e6effd344c88",
+          "creationDate": "2016-06-27 12:01:45.366499+00",
+          "name": "campaign-afr-oneyear-gift",
+          "description": "campaign-afr-oneyear-gift",
+          "provider": {
+            "providerName": "afr"
+          },
+          "internalPlan": {
+            "internalPlanUuid": "afr-oneyear-gift",
+            "name": "1 annéee as a gift",
+            "description": "1 annéee as a gift",
+            "amountInCents": "5999",
+            "amount": "59,99",
+            "amountInCentsExclTax": "4999",
+            "amountExclTax": "49,99167",
+            "vatRate": "20,00",
+            "currency": "EUR",
+            "cycle": "once",
+            "periodUnit": "year",
+            "periodLength": "1",
+            "internalPlanOpts": [],
+            "thumb": null,
+            "trialEnabled": false,
+            "trialPeriodUnit": null,
+            "trialPeriodLength": null,
+            "isVisible": true,
+            "countries": []
+          }
+        },
+        {
+          "couponsCampaignBillingUuid": "a94bb541-090d-44b2-b9d2-6e557c212566",
+          "creationDate": "2016-07-05 08:21:36.661731+00",
+          "name": "campaign-oneweekforfree",
+          "description": "campaign-oneweekfrofree",
+          "provider": {
+            "providerName": "afr"
+          },
+          "internalPlan": {
+            "internalPlanUuid": "afroneweekforfree",
+            "name": "7 jours offerts",
+            "description": "7 jours offerts",
+            "amountInCents": "0",
+            "amount": "0,00",
+            "amountInCentsExclTax": "0",
+            "amountExclTax": "0,00000",
+            "vatRate": null,
+            "currency": "EUR",
+            "cycle": "once",
+            "periodUnit": "day",
+            "periodLength": "7",
+            "internalPlanOpts": [],
+            "thumb": null,
+            "trialEnabled": false,
+            "trialPeriodUnit": null,
+            "trialPeriodLength": null,
+            "isVisible": true,
+            "countries": []
+          }
+        }
+      ]
+    }
+  });
+
 nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
   .get('/billings/api/internalplans/')
