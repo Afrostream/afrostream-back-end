@@ -5,7 +5,7 @@ var sqldb = rootRequire('/server/sqldb');
 var Genre = sqldb.Genre;
 var auth = rootRequire('/server/auth/auth.service');
 
-var utils = require('../utils.js');
+var utils = rootRequire('/server/app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -13,16 +13,6 @@ function responseWithResult(res, statusCode) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
   };
 }
 
@@ -46,7 +36,7 @@ exports.index = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Genre);
 
   Genre.findAndCountAll(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
     .catch(req.handleError(res));
 };
@@ -62,7 +52,7 @@ exports.show = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Genre);
 
   Genre.find(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
 };

@@ -12,6 +12,7 @@
 var _ = require('lodash');
 var sqldb = rootRequire('/server/sqldb');
 var AccessToken = sqldb.AccessToken;
+var utils = rootRequire('/server/app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -19,16 +20,6 @@ function responseWithResult(res, statusCode) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function(entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
   };
 }
 
@@ -66,7 +57,7 @@ exports.show = function(req, res) {
       _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
 };
@@ -89,7 +80,7 @@ exports.update = function(req, res) {
       _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
@@ -102,7 +93,7 @@ exports.destroy = function(req, res) {
       _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(req.handleError(res));
 };

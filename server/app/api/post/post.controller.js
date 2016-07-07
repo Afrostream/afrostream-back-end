@@ -14,7 +14,7 @@ var sqldb = rootRequire('/server/sqldb');
 var Post = sqldb.Post;
 var Image = sqldb.Image;
 var auth = rootRequire('/server/auth/auth.service');
-var utils = require('../utils.js');
+var utils = rootRequire('/server/app/api/utils.js');
 
 var getIncludedModel = function () {
   return [
@@ -28,16 +28,6 @@ function responseWithResult(res, statusCode) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
   };
 }
 
@@ -106,7 +96,7 @@ exports.index = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Post);
 
   Post.findAndCountAll(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
     .catch(req.handleError(res));
 };
@@ -123,7 +113,7 @@ exports.show = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Post);
 
   Post.find(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
 };
@@ -146,7 +136,7 @@ exports.update = function (req, res) {
         _id: req.params.id
       }
     })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(updateImages(req.body))
     .then(responseWithResult(res))
@@ -160,7 +150,7 @@ exports.destroy = function (req, res) {
         _id: req.params.id
       }
     })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(req.handleError(res));
 };

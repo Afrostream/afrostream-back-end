@@ -20,7 +20,7 @@ var Promise = sqldb.Sequelize.Promise;
 var slugify = require('slugify');
 var auth = rootRequire('/server/auth/auth.service');
 
-var utils = require('../utils.js');
+var utils = rootRequire('/server/app/api/utils.js');
 
 var getIncludedModel = require('./season.includedModel').get;
 
@@ -30,16 +30,6 @@ function responseWithResult(res, statusCode) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
   };
 }
 
@@ -151,7 +141,7 @@ exports.index = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Season);
 
   Season.findAndCountAll(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
     .catch(req.handleError(res));
 };
@@ -193,7 +183,7 @@ exports.show = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Season);
 
   Season.find(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
 };
@@ -226,7 +216,7 @@ exports.algolia = function (req, res) {
       active: true
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(algolia.importAll(res, 'seasons'))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
@@ -243,7 +233,7 @@ exports.update = function (req, res) {
     },
     include: getIncludedModel()
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addEpisodes(req.body))
     .then(addMovie(req.body))
@@ -259,7 +249,7 @@ exports.destroy = function (req, res) {
       _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(req.handleError(res));
 };

@@ -3,15 +3,7 @@
 var sqldb = rootRequire('/server/sqldb');
 var Config = sqldb.Config;
 
-function handleEntityNotFound (res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
+var utils = rootRequire('/server/app/api/utils.js');
 
 function responseWithResult (res, statusCode) {
   statusCode = statusCode || 200;
@@ -34,7 +26,7 @@ exports.showConfig = function (req, res) {
         ['_id', 'DESC']
       ]
     })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
 

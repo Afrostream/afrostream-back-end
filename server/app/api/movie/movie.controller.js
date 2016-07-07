@@ -22,7 +22,7 @@ var Video = sqldb.Video;
 var Actor = sqldb.Actor;
 var auth = rootRequire('/server/auth/auth.service');
 
-var utils = require('../utils.js');
+var utils = rootRequire('/server/app/api/utils.js');
 
 var getIncludedModel = require('./movie.includedModel').get;
 
@@ -45,16 +45,6 @@ function responseWithSeasons (req, res, statusCode) {
         res.status(statusCode).json(seasons);
       })
     }
-  };
-}
-
-function handleEntityNotFound (res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
   };
 }
 
@@ -199,7 +189,7 @@ exports.index = function (req, res) {
   }
 
   Movie.findAndCountAll(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
     .catch(req.handleError(res));
 };
@@ -247,7 +237,7 @@ exports.show = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
   //
   Movie.find(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
 };
@@ -263,7 +253,7 @@ exports.seasons = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
 
   Movie.find(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithSeasons(req, res))
     .catch(req.handleError(res));
 };
@@ -299,7 +289,7 @@ exports.algolia = function (req, res) {
         active: true
       }
     })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(algolia.importAll(res, 'movies'))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
@@ -333,7 +323,7 @@ exports.update = function (req, res) {
         _id: req.params.id
       }, include: getIncludedModel()
     })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(parseVXstY(req.body))
     .then(saveUpdates(req.body))
     .then(addCategorys(req.body))
@@ -353,7 +343,7 @@ exports.destroy = function (req, res) {
         _id: req.params.id
       }
     })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(req.handleError(res));
 };

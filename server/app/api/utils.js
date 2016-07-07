@@ -45,6 +45,18 @@ var responseWithResultAndTotal = function (res, statusCode) {
   };
 };
 
+function handleEntityNotFound(res) {
+  return function (entity) {
+    if (!entity) {
+      var error = new Error("entity not found");
+      error.statusCode = 404;
+      throw error;
+    }
+    return entity;
+  };
+}
+
 module.exports.reqRangeToSequelizeLimit = reqRangeToSequelizeLimit;
 module.exports.mergeReqRange = mergeReqRange;
 module.exports.responseWithResultAndTotal = responseWithResultAndTotal;
+module.exports.handleEntityNotFound = handleEntityNotFound;

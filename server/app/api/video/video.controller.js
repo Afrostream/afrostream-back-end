@@ -27,7 +27,7 @@ var auth = rootRequire('/server/auth/auth.service');
 
 var Q = require('q');
 
-var utils = require('../utils.js');
+var utils = rootRequire('/server/app/api/utils.js');
 
 var billingApi = rootRequire('/server/billing-api.js');
 
@@ -81,16 +81,6 @@ function tokenizeResult(req, res) {
       });
       res.status(200).json(entity);
     }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
   };
 }
 
@@ -186,7 +176,7 @@ exports.index = function (req, res) {
   }
 
   Video.findAndCountAll(paramsObj)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
     .catch(req.handleError(res));
 };
@@ -223,7 +213,7 @@ exports.show = function (req, res) {
           {model: Asset, as: 'sources'},
           {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]}
         ]
-      }).then(handleEntityNotFound(res));
+      }).then(utils.handleEntityNotFound(res));
     })
     //
     // fixme
@@ -405,7 +395,7 @@ exports.update = function (req, res) {
       _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addAssets(req.body))
     .then(addCaptions(req.body))
@@ -420,7 +410,7 @@ exports.destroy = function (req, res) {
       _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(req.handleError(res));
 };

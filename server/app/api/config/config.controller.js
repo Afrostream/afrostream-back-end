@@ -1,19 +1,8 @@
 'use strict';
 var sqldb = rootRequire('/server/sqldb');
 var config = rootRequire('/server/config');
-var utils = require('../utils.js');
+var utils = rootRequire('/server/app/api/utils.js');
 var Config = sqldb.Config;
-
-
-function handleEntityNotFound (res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
 
 function mapEntitys () {
   return function (entity) {
@@ -84,7 +73,7 @@ exports.target = function (req, res) {
         ['_id', 'DESC']
       ]
     })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
 };
@@ -103,7 +92,7 @@ exports.destroy = function (req, res) {
         _id: req.params.id
       }
     })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(req.handleError(res));
 };

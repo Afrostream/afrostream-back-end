@@ -27,6 +27,8 @@ var proxy = httpProxy.createProxyServer({
   changeOrigin: true
 });
 
+var utils = rootRequire('/server/app/api/utils.js');
+
 Asset.belongsTo(Episode, {foreignKey: 'episode'}); // Adds episodeId to Asset
 
 function responseWithTokenResult(req, res) {
@@ -46,16 +48,6 @@ function responseWithResult(res, statusCode) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
   };
 }
 
@@ -93,7 +85,7 @@ exports.show = function (req, res) {
       _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
 };
@@ -125,7 +117,7 @@ exports.showToken = function (req, res) {
       _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithTokenResult(req, res))
     .catch(req.handleError(res));
 };
@@ -147,7 +139,7 @@ exports.update = function (req, res) {
       _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
@@ -160,7 +152,7 @@ exports.destroy = function (req, res) {
       _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(req.handleError(res));
 };

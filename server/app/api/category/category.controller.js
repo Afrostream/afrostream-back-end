@@ -19,8 +19,7 @@ var Episode = sqldb.Episode;
 var Caption = sqldb.Caption;
 var Image = sqldb.Image;
 var auth = rootRequire('/server/auth/auth.service');
-
-var utils = require('../utils.js');
+var utils = rootRequire('/server/app/api/utils.js');
 
 var getIncludedModel = function () {
   return [
@@ -117,16 +116,6 @@ function responseWithAdSpot(req, res, statusCode) {
         res.status(statusCode).json(adSpots);
       })
     }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
   };
 }
 
@@ -249,7 +238,7 @@ exports.index = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
 
   Category.findAndCountAll(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(function (entity) {
       // limiting movies in categories...
       // HACKY, cannot do this with sequelize yet
@@ -310,7 +299,7 @@ exports.show = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
 
   Category.find(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
 };
@@ -326,7 +315,7 @@ exports.adSpot = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
 
   Category.find(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithAdSpot(req, res))
     .catch(req.handleError(res));
 };
@@ -340,7 +329,7 @@ exports.menu = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
 
   Category.findAll(queryOptions)
-  .then(handleEntityNotFound(res))
+  .then(utils.handleEntityNotFound(res))
   .then(responseWithResult(res))
   .catch(req.handleError(res));
 };
@@ -369,7 +358,7 @@ exports.mea = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
 
   Category.findAll(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(limitResult(res, 'movies', 30))
     .catch(req.handleError(res));
 };
@@ -398,7 +387,7 @@ exports.allSpots = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
 
   Category.findAll(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(limitResult(res, 'movies', 30))
     .catch(req.handleError(res));
 };
@@ -426,7 +415,7 @@ exports.update = function (req, res) {
       },
       include: getIncludedModel()
     })
-      .then(handleEntityNotFound(res))
+      .then(utils.handleEntityNotFound(res))
       // le READ ONLY ne peut pas s'appliquer ni a active / inactive
       // aussi, on doit ajouter une exception pour le champ sort...
       //  alors que normalement le sort devrait être dans une liaison entre "Home" et "Categories".
@@ -447,7 +436,7 @@ exports.update = function (req, res) {
       },
       include: getIncludedModel()
     })
-      .then(handleEntityNotFound(res))
+      .then(utils.handleEntityNotFound(res))
       .then(saveUpdates(req.body))
       .then(addMovies(req.body))
       .then(addAdSpots(req.body))
@@ -463,7 +452,7 @@ exports.destroy = function (req, res) {
       _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(req.handleError(res));
 };

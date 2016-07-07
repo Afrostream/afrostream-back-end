@@ -28,10 +28,8 @@ exports.create = function (req, res) {
       })
     .then(
       function success (result) { res.status(200).json(result); },
-      function error(err) {
-        console.error(err);
-        res.status(500).send(err);
-      });
+      req.handleError(res)
+    );
 };
 
 exports.catchupBet = function (req, res) {
@@ -51,10 +49,8 @@ exports.catchupBet = function (req, res) {
     })
     .then(
       function success(result) { res.status(200).json(result); },
-      function error(err) {
-        console.error(err);
-        res.status(500).send(err);
-      });
+      req.handleError(res)
+    );
 };
 
 exports.cacheUsersSubscriptions = function (req, res) {
@@ -82,8 +78,6 @@ exports.packCaption = function (req, res) {
     }));
   }).then(
     function success(result) { res.json(result); },
-    function error(err) {
-      console.error(err);
-      res.status(500).json({error: err.message});
-    });
+    req.handleError(res)
+  );
 };

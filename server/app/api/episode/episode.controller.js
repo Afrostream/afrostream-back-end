@@ -18,7 +18,7 @@ var Video = sqldb.Video;
 var Image = sqldb.Image;
 var auth = rootRequire('/server/auth/auth.service');
 
-var utils = require('../utils.js');
+var utils = rootRequire('/server/app/api/utils.js');
 
 var getIncludedModel = require('./episode.includedModel.js').get;
 
@@ -28,16 +28,6 @@ function responseWithResult(res, statusCode) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
   };
 }
 
@@ -129,7 +119,7 @@ exports.index = function (req, res) {
   }
 
   Episode.findAndCountAll(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
     .catch(req.handleError(res));
 };
@@ -146,7 +136,7 @@ exports.show = function (req, res) {
   queryOptions = auth.filterQueryOptions(req, queryOptions, Episode);
 
   Episode.find(queryOptions)
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
 };
@@ -200,7 +190,7 @@ exports.update = function (req, res) {
     },
     include: getIncludedModel()
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(parseVXstY(req.body))
     .then(saveUpdates(req.body))
     .then(addSeason(req.body))
@@ -217,7 +207,7 @@ exports.algolia = function (req, res) {
       active: true
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(algolia.importAll(res, 'episodes'))
     .then(responseWithResult(res))
     .catch(req.handleError(res));
@@ -230,7 +220,7 @@ exports.destroy = function (req, res) {
       _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
+    .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(req.handleError(res));
 };
