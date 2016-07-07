@@ -18,6 +18,8 @@ var sqldb = require('../sqldb');
 
 var Q = require('q');
 
+var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
+
 /**
  * Attaches the user object to the request if authenticated
  * Otherwise returns 403
@@ -172,8 +174,12 @@ var filterQueryOptions = function (req, options, rootModel) {
   var isBacko = reqUserIsBacko(req);
 
   // opportunistic guess... (req.passport might not be loaded)
-  var isAfrostreamExportsBouygues = req.passport && req.passport.client && req.passport.client.isAfrostreamExportsBouygues();
-  var isAfrostreamExportsOsearch = req.passport && req.passport.client && req.passport.client.isAfrostreamExportsOsearch();
+  var client = req.passport && req.passport.client;
+  var isAfrostreamExportsBouygues = client && client.isAfrostreamExportsBouygues();
+  var isAfrostreamExportsOsearch = client && client.isAfrostreamExportsOsearch();
+  var isBouyguesMiami = client && client.isBouyguesMiami();
+  var isOrange = client && client.isOrange();
+  var isOrangeNewbox = client && client.isOrangeNewbox();
 
   return sqldb.filterOptions(options, function filter (options, root) {
     var model = root ? rootModel : options.model;
@@ -229,6 +235,14 @@ var filterQueryOptions = function (req, options, rootModel) {
       }
     }
     //
+    if (isBouyguesMiami || isOrange || isOrangeNewbox) {
+      if (model &&
+        model.attributes &&
+        model.attributes.live) {
+        options = _.merge(options, {where: {live: { $ne: true }}});
+      }
+    }
+    //
     if (root && !options.order) {
       options.order = [['_id', 'ASC']];
     }
@@ -242,5 +256,21 @@ exports.hasRole = hasRole;
 exports.validRole = validRole;
 exports.getOauth2UserTokens = getOauth2UserTokens;
 exports.respondOauth2UserTokens = respondOauth2UserTokens;
+
+exports.middleware = {
+  /*
+   * Will ensure the route can only be access by an authentified client / user
+   * Will pre-load the passport
+   */
+  restrictRoutesToAuthentified: function (options) {
+    options = options || {};
+    options.middlewarePassport = options.middlewarePassport || { preload: true };
+
+    return compose()
+      .use(isAuthenticated())
+      .use(middlewarePassport(options.middlewarePassport));
+  }
+}
+
 //
 exports.filterQueryOptions = filterQueryOptions;

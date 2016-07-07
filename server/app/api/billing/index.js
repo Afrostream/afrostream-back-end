@@ -187,17 +187,16 @@ router.use(function (req, res, next) {
   next();
 });
 
-var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
-router.use(middlewarePassport({preload: true}));
+router.use(auth.middleware.restrictRoutesToAuthentified());
 
-router.get('/internalplans', auth.isAuthenticated(), controller.showInternalplans);
-router.post('/subscriptions', auth.isAuthenticated(), controller.createSubscriptions);
-router.post('/gifts', auth.isAuthenticated(), controller.createGift);
-router.get('/coupons', auth.isAuthenticated(), controller.validateCoupons);
-router.post('/coupons', auth.isAuthenticated(), controller.createCoupons);
-router.get('/couponscampaigns', auth.isAuthenticated(), controller.getCouponCampains);
-router.get('/couponscampaigns/:couponsCampaignBillingUuid', auth.isAuthenticated(), controller.getCouponCampains);
-router.put('/subscriptions/:subscriptionUuid/cancel', auth.isAuthenticated(), controller.cancelSubscriptions);
-router.put('/subscriptions/:subscriptionUuid/reactivate', auth.isAuthenticated(), controller.reactivateSubscriptions);
+router.get('/internalplans', controller.showInternalplans);
+router.post('/subscriptions', controller.createSubscriptions);
+router.post('/gifts', controller.createGift);
+router.get('/coupons', controller.validateCoupons);
+router.post('/coupons', controller.createCoupons);
+router.get('/couponscampaigns', controller.getCouponCampains);
+router.get('/couponscampaigns/:couponsCampaignBillingUuid', controller.getCouponCampains);
+router.put('/subscriptions/:subscriptionUuid/cancel', controller.cancelSubscriptions);
+router.put('/subscriptions/:subscriptionUuid/reactivate', controller.reactivateSubscriptions);
 
 module.exports = router;

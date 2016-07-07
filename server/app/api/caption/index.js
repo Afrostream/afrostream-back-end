@@ -8,6 +8,8 @@ var middlewareReadFile = rootRequire('/server/app/middlewares/middleware-readfil
 
 var router = express.Router();
 
+router.use(auth.middleware.restrictRoutesToAuthentified());
+
 router.get('/', controller.index);
 router.get('/:id', controller.show);
 router.post('/', auth.hasRole('admin'), middlewareReadFile(), controller.create);

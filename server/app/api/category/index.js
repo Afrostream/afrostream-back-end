@@ -8,7 +8,7 @@
  *  ?populate=adSpots
  *  ?populate=movies,adSpots (default)
  *  ?populate=movies.poster,movies.thumb,adSpots
- *  
+ *
  *  list of associations:
  *    movies,movies.categorys,movies.logo,movies.poster,movies.thumb,
  *    adSpots,adSpots.categorys,adSpots.logo,adSpots.poster,adSpots.thumb
@@ -138,6 +138,8 @@ var express = require('express');
 var controller = require('./category.controller.js');
 var auth = rootRequire('/server/auth/auth.service');
 var router = express.Router();
+
+router.use(auth.middleware.restrictRoutesToAuthentified());
 
 router.get('/', controller.index);
 router.get('/menu', controller.menu);

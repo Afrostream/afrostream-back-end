@@ -36,12 +36,11 @@ router.use(function (req, res, next) {
   next();
 });
 
-var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
-router.use(middlewarePassport({preload: true}));
+router.use(auth.middleware.restrictRoutesToAuthentified());
 
 // video manipulation.
 router.get('/', auth.hasRole('admin'), controller.index);
-router.get('/:id', auth.isAuthenticated(), controller.show);
+router.get('/:id', controller.show);
 router.post('/', auth.hasRole('admin'), controller.create);
 router.put('/:id', auth.hasRole('admin'), controller.update);
 router.patch('/:id', auth.hasRole('admin'), controller.update);

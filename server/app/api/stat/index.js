@@ -12,6 +12,8 @@ router.use(function (req, res, next) {
   next();
 });
 
+router.use(auth.middleware.restrictRoutesToAuthentified());
+
 router.get('/count-users', controller.countUsers);
 router.get('/count-signin', controller.countSignin);
 //router.get('/count-signup', controller.countSignup);
