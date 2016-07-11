@@ -58,6 +58,8 @@ function isAuthenticated () {
           error.statusCode = err && err.statusCode || 401;
           console.error('[ERROR]: [AUTH]:', error);
           return req.handleError(res)(error);
+        } else {
+          req.user = authentified; /// <= le fameux code ... horrible.
         }
         next();
       })(req, res, next);
