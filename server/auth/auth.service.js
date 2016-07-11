@@ -48,7 +48,19 @@ function isAuthenticated () {
       //
       // PRODUCTION CODE HERE.
       //
-      return passport.authenticate('bearer', {session: false})(req, res, next);
+
+      // FIXME: we should backup cache & trigger no-cache HERE
+      // FIXME: we should restore cache functionnality after...
+
+      return passport.authenticate('bearer', {session: false}, function (err, authentified, challenge, status) {
+        if (err || !authentified){
+          var error = new Error(err && err.message || 'unauthorized');
+          error.statusCode = err && err.statusCode || 401;
+          console.error('[ERROR]: [AUTH]:', error);
+          return req.handleError(res)(error);
+        }
+        next();
+      })(req, res, next);
     }
   }
 }
