@@ -318,6 +318,18 @@ var validateCoupons = function (providerName, couponCode) {
   });
 };
 
+var listCoupons = function (userBillingUuid, couponsCampaignBillingUuid) {
+  return requestBilling({
+    url: config.billings.url + '/billings/api/coupons/list',
+    qs: {
+      userBillingUuid: userBillingUuid,
+      couponsCampaignBillingUuid: couponsCampaignBillingUuid
+    }
+  }).then(function (body) {
+    return body && body.response && body.response || {};
+  });
+};
+
 var createCoupons = function (userBillingUuid, couponsCampaignBillingUuid, couponsOpts) {
   return requestBilling({
     method: 'POST',
@@ -367,3 +379,4 @@ module.exports.subscriptionToPromo = subscriptionToPromo;
 module.exports.validateCoupons = validateCoupons;
 module.exports.createCoupons = createCoupons;
 module.exports.getCouponCampains = getCouponCampains;
+module.exports.listCoupons = listCoupons;

@@ -1136,6 +1136,57 @@ nock(config.billings.url)
 
 nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
+  .get('/billings/api/coupons/list')
+  .query({userBillingUuid: 'mock-billing-api', couponsCampaignBillingUuid: 'mock-billing-api'})
+  .reply(200, {
+      "status": "done",
+      "statusMessage": "success",
+      "statusCode": 0,
+      "response": [
+        {
+          "couponsCampaignBillingUuid": "4aef0220-5a52-4781-bd4b-0283a277cfe8",
+          "creationDate": "2016-03-07 10:57:12.412057+00",
+          "name": "campaign-test-2months",
+          "description": "campaign-test-2months",
+          "provider": {
+            "providerName": "afr"
+          },
+          "internalPlan": {
+            "internalPlanUuid": "afr-2months",
+            "name": "Coupon 2 mois",
+            "description": "Coupon 2 mois",
+            "amountInCents": "1000",
+            "amount": "10,00",
+            "amountInCentsExclTax": "833",
+            "amountExclTax": "8,33333",
+            "vatRate": "20,00",
+            "currency": "EUR",
+            "cycle": "once",
+            "periodUnit": "month",
+            "periodLength": "2",
+            "internalPlanOpts": {
+              "internalMaxScreens": "1",
+              "internalVip": "false",
+              "_internalFreePeriod": "false"
+            },
+            "thumb": null,
+            "trialEnabled": false,
+            "trialPeriodUnit": null,
+            "trialPeriodLength": null,
+            "isVisible": true,
+            "countries": [
+              {
+                "country": "FR"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  );
+
+nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
   .get('/billings/api/coupons/')
   .query({providerName: 'afr', couponCode: 'test-error'})
   .reply(404, {

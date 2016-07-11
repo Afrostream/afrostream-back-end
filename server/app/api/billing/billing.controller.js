@@ -399,7 +399,6 @@ module.exports.createGift = function (req, res) {
 module.exports.validateCoupons = function (req, res) {
   Q()
     .then(function () {
-      var client = req.passport.client;
       var billingProviderName = req.query.billingProviderName || req.query.providerName;
       var couponCode = req.query.coupon;
       return billingApi.validateCoupons(billingProviderName, couponCode);
@@ -411,6 +410,43 @@ module.exports.validateCoupons = function (req, res) {
       function (err) {
         var message = (err instanceof Error) ? err.message : String(err);
         console.error('ERROR: /api/billing/coupons', message);
+        res.status(500).send({error: message});
+      }
+    );
+};
+
+module.exports.listCoupons = function (req, res) {
+  var c = {
+    userId: req.user._id,
+    userBillingUuid: req.body.userBillingUuid,
+    billingProviderName: req.body.billingProviderName || req.body.billingProvider,
+    couponsCampaignBillingUuid: req.body.couponsCampaignBillingUuid,
+  }; // closure
+
+  Q()
+    .then(function () {
+      if (c.userBillingUuid) {
+        return;
+      }
+      return billingApi.getUser({
+        providerName: c.billingProviderName,
+        userReferenceUuid: c.userId
+      }).then(function (billingsResponse) {
+        c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
+      });
+    })
+    .then(function () {
+      var userBillingUuid = c.userBillingUuid;
+      var couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
+      return billingApi.listCoupons(userBillingUuid, couponsCampaignBillingUuid);
+    })
+    .then(
+      function (couponsList) {
+        res.json(couponsList);
+      },
+      function (err) {
+        var message = (err instanceof Error) ? err.message : String(err);
+        console.error('ERROR: /api/billing/coupons/list', message);
         res.status(500).send({error: message});
       }
     );
