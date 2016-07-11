@@ -428,10 +428,7 @@ module.exports.listCoupons = function (req, res) {
       if (c.userBillingUuid) {
         return;
       }
-      return billingApi.getUser({
-        providerName: c.billingProviderName,
-        userReferenceUuid: c.userId
-      }).then(function (billingsResponse) {
+      return billingApi.getUser(c.userId, c.billingProviderName).then(function (billingsResponse) {
         c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
       });
     })
