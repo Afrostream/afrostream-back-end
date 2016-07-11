@@ -420,7 +420,7 @@ module.exports.listCoupons = function (req, res) {
     userId: req.user._id,
     userBillingUuid: req.body.userBillingUuid,
     billingProviderName: req.body.billingProviderName || req.body.billingProvider,
-    couponsCampaignBillingUuid: req.body.couponsCampaignBillingUuid,
+    couponsCampaignBillingUuid: req.body.couponsCampaignBillingUuid
   }; // closure
 
   Q()

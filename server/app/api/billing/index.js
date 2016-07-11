@@ -194,6 +194,7 @@ router.post('/subscriptions', controller.createSubscriptions);
 router.post('/gifts', controller.createGift);
 router.get('/coupons', controller.validateCoupons);
 router.post('/coupons', controller.createCoupons);
+router.get('/coupons/list', controller.listCoupons);
 router.get('/couponscampaigns', controller.getCouponCampains);
 router.get('/couponscampaigns/:couponsCampaignBillingUuid', controller.getCouponCampains);
 router.put('/subscriptions/:subscriptionUuid/cancel', controller.cancelSubscriptions);
