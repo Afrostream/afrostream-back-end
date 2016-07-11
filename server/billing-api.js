@@ -320,7 +320,7 @@ var validateCoupons = function (providerName, couponCode) {
 
 var listCoupons = function (userBillingUuid, couponsCampaignBillingUuid) {
   return requestBilling({
-    url: config.billings.url + '/billings/api/coupons/list',
+    url: config.billings.url + '/billings/api/coupons/list/',
     qs: {
       userBillingUuid: userBillingUuid,
       couponsCampaignBillingUuid: couponsCampaignBillingUuid
