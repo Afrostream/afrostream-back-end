@@ -418,9 +418,9 @@ module.exports.validateCoupons = function (req, res) {
 module.exports.listCoupons = function (req, res) {
   var c = {
     userId: req.user._id,
-    userBillingUuid: req.body.userBillingUuid,
-    billingProviderName: req.body.billingProviderName || req.body.billingProvider,
-    couponsCampaignBillingUuid: req.body.couponsCampaignBillingUuid
+    userBillingUuid: req.query.userBillingUuid,
+    billingProviderName: req.query.billingProviderName || req.query.billingProvider,
+    couponsCampaignBillingUuid: req.query.couponsCampaignBillingUuid
   }; // closure
 
   Q()
