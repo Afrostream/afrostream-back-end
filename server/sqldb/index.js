@@ -41,6 +41,8 @@ db.Language = db.sequelize.import('models/language');
 db.Licensor = db.sequelize.import('models/licensor');
 db.Log = db.sequelize.import('models/logs');
 db.Movie = db.sequelize.import('models/movie');
+db.PFGroup = db.sequelize.import('models/pfGroup');
+db.PFProfile = db.sequelize.import('models/pfProfile');
 db.Post = db.sequelize.import('models/post');
 db.RefreshToken = db.sequelize.import('models/refreshToken');
 db.Season = db.sequelize.import('models/season');
@@ -50,6 +52,8 @@ db.Video = db.sequelize.import('models/video');
 db.Config = db.sequelize.import('models/config');
 db.Widget = db.sequelize.import('models/widget');
 db.WaitingUser = db.sequelize.import('models/waitingUser');
+
+db.Client.belongsTo(db.PFGroup, {as: 'pfGroup', constraints: false});
 
 db.CategoryMovies = db.sequelize.import('models/categoryMovies');
 db.CategoryAdSpots = db.sequelize.import('models/categoryAdSpots');
@@ -103,6 +107,10 @@ db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints
 
 db.UsersVideos.belongsTo(db.Video, {as: 'video', foreignKey: 'videoId', targetKey: '_id'});
 db.UsersVideos.belongsTo(db.User, {as: 'user', foreignKey: 'userId', targetKey: '_id'});
+
+db.PFGroupsProfiles = db.sequelize.import('models/pfGroupsProfiles');
+db.PFProfile.belongsToMany(db.PFGroup, {through: db.PFGroupsProfiles, as: 'pfGroups', foreignKey: 'pfProfileId'});
+db.PFGroup.belongsToMany(db.PFProfile, {through: db.PFGroupsProfiles, as: 'pfProfiles', foreignKey: 'pfGroupId'});
 
 db.UsersFavoritesEpisodes = db.sequelize.import('models/usersFavoritesEpisodes');
 db.Episode.belongsToMany(db.User, {through: db.UsersFavoritesEpisodes, as: 'users', foreignKey: 'episodeId'});
