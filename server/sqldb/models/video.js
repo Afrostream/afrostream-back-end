@@ -50,7 +50,9 @@ module.exports = function (sequelize, DataTypes) {
       /**
        * null on error
        */
-      computeVXstY: function () {
+      computeVXstY: function () { // disabled
+        return Q(null);
+        /*
         var c = {
           pfLanguages: [],        // languages referenced in PF.
           captionsLanguages: []   // languages referenced in backend database.
@@ -127,6 +129,7 @@ module.exports = function (sequelize, DataTypes) {
             console.error('[ERROR]: [vXstY]: auto on '+that._id+' error='+err.message);
             return null;
           });
+          */
       }
     }
   });
