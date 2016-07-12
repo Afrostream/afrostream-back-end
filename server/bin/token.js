@@ -39,6 +39,8 @@ console.log('using client ' + client);
 var env = program.env || "staging";
 
 var envsConf = {
+  localhost: { baseUrl: "http://localhost:9000" },
+  cdnOrangeStaging: { baseUrl : "https://legacy-api-orange-staging.afrostream.tv" },
   staging: { baseUrl : "https://afr-back-end-staging.herokuapp.com" },
   prod: { baseUrl : "https://afrostream-backend.herokuapp.com" }
 }
@@ -86,6 +88,9 @@ request(options, function (error, response, body) {
         console.error(error, response, body);
         process.exit(1);
       }
+      console.log("===================RESPONSE====================");
+      console.log(response.headers);
+      console.log("===================BODY====================");
       console.log(body);
       process.exit(0);
     });
