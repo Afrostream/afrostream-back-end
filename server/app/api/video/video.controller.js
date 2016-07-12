@@ -333,7 +333,7 @@ exports.show = function (req, res) {
         return video;
       }
       if (req.passport && req.passport.client) {
-        if (req.passport.client.isOrangeNewbox() && !video.catchupProviderId) {
+        if ((req.passport.client.isOrangeNewbox() || req.passport.client.isOrange()) && !video.catchupProviderId) {
           // FIXME: pour l'instant, on évite d'utiliser l'ISM orange pour la catchup
           video.sources.forEach(function (source) {
             source.src = source.src.replace('.ism', '-orange.ism');
