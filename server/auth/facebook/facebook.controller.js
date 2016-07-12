@@ -12,7 +12,7 @@ var User = sqldb.User;
  * Scope authorizations
  * @type {string[]}
  */
-var scope = ['email', 'user_about_me'];
+var scope = ['email', 'public_profile', 'user_friends'];
 
 var strategyOptions = function (options) {
   return function (req, res, next) {
