@@ -29,7 +29,7 @@ module.exports = function (sequelize, DataTypes) {
         return this.getDataValue('type') === 'legacy-api.bouygues-miami';
       },
 
-      isOrange: function () {
+      isOrange: function () { // mib4
         return this.getDataValue('type') === 'legacy-api.orange';
       },
 

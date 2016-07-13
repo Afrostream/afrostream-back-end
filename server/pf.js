@@ -1,8 +1,5 @@
 'use strict';
 
-// high level funcs to access new video plateform aka "PF"
-
-
 var assert = require('better-assert');
 
 var _ = require('lodash');
@@ -12,12 +9,6 @@ var Q = require('q')
 
 var sqldb = rootRequire('/server/sqldb')
   , config = rootRequire('/server/config');
-
-if (process.env.NODE_ENV === 'development' ||
-  process.env.NODE_ENV === 'test') {
-  // MOCKING PF API
-  rootRequire('/server/test/mock-billing-api.js');
-}
 
 var requestPF = function (options) {
   var defaultOptions = {
@@ -51,23 +42,36 @@ var requestPF = function (options) {
     });
 };
 
-/**
- * if PF is on error, or without content => return an empty object
- * @param id
- * @returns {*}
- */
-module.exports.getContentSafe = function (id) {
+var getContentByMd5Hash = function (md5Hash) {
+  return requestPF({
+    url: config.pf.url + '/api/contents',
+    qs: {
+      md5Hash: md5Hash
+    }
+  }).then(function (content) {
+    // postprocessing, this api return an array of result
+    if (!content) {
+      throw new Error('[PF]: no content associated to hash ' + md5Hash);
+    }
+    if (!Array.isArray(content)) {
+      throw new Error('[PF]: malformed content result');
+    }
+    if (content.length === 0) {
+      throw new Error('[PF]: no content found');
+    }
+    if (content.length > 1) {
+      console.log('[WARNING]: [PF]: multiple content (' + content.length + ') found');
+    }
+    // returning first content.
+    return content[0];
+  });
+};
+
+var getContent = function (id) {
   return requestPF({
     url: config.pf.url + '/api/contents/' + id
-  }).then(
-    function success(data) {
-      return data;
-    },
-    function error(e) {
-      return null;
-    }
-  );
-};
+  });
+}
 
 /**
  * if PF is on error, or without content => return an empty object
@@ -75,11 +79,8 @@ module.exports.getContentSafe = function (id) {
  * @param profilName  VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES | VIDEO0ENG_AUDIO0ENG_USP | VIDEO0ENG_AUDIO0FRA_BOUYGUES
  * @returns {*}
  */
-module.exports.getAssetsStreamsSafe = function (md5Hash, profileName) {
+var getAssetsStreamsSafe = function (md5Hash, profileName) {
   assert(md5Hash);
-  assert(profileName === 'VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES' ||
-         profileName === 'VIDEO0ENG_AUDIO0ENG_USP' ||
-         profileName === 'VIDEO0ENG_AUDIO0FRA_BOUYGUES');
 
   return requestPF({
     url: config.pf.url + '/api/assetsStreams',
@@ -98,8 +99,10 @@ module.exports.getAssetsStreamsSafe = function (md5Hash, profileName) {
     });
 };
 
-module.exports.profiles = {
-  'VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES': 'VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES',
-  'VIDEO0ENG_AUDIO0ENG_USP': 'VIDEO0ENG_AUDIO0ENG_USP',
-  'VIDEO0ENG_AUDIO0FRA_BOUYGUES': 'VIDEO0ENG_AUDIO0FRA_BOUYGUES'
-};
+var pf = {
+  getContent: getContent,
+  getAssetsStreamsSafe: getAssetsStreamsSafe,
+  getContentByMd5Hash: getContentByMd5Hash
+}
+
+module.exports = pf;

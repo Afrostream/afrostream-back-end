@@ -277,7 +277,7 @@ exports.show = function (req, res) {
         return video;
       }
       if (!config.cdnselector.enabled) {
-        console.log('video: cdnselector: is disabled'); // warning.
+        console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: is disabled'); // warning.
         return video;
       }
 
@@ -290,7 +290,7 @@ exports.show = function (req, res) {
           if (source.src.match(/^[^\:]+\:\/\/[^/]+\//)) {
             source.src = source.src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'https://orange-labs.cdn.afrostream.net/');
           }
-          console.log('video: cdnselector: cdn-orange: source ' + src + ' => ' + source.src);
+          console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: cdn-orange: source ' + src + ' => ' + source.src);
         });
         return video;
       }
@@ -316,7 +316,7 @@ exports.show = function (req, res) {
 
               // FIXME: remove this
               // BEGIN
-              console.log('video: cdnselector: source ' + src + ' => ' + source.src);
+              console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: source ' + src + ' => ' + source.src);
               // END
             });
             return video;
@@ -352,25 +352,105 @@ exports.show = function (req, res) {
     //  FIXME: PF & CDNSELECTOR should be launched // and not sequential...
     //
   .then(function (video) {
-      try {
-        var profileName = 'VIDEO0ENG_AUDIO0ENG_USP';
-        // le profileName depend du client, exportsBouygues
-        if (req.passport.client && req.passport.client.isAfrostreamExportsBouygues()) {
-          profileName = 'VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES';
-        }
         // pour l'instant on hardcode certaines infos
         video.pf = { definition: 'HD' }; // SD, HD, 4K
-        if (!video.pfMd5Hash) {
-          return video;
-        }
-        return pf.getAssetsStreamsSafe(video.pfMd5Hash, profileName).then(function (assetsStreams) {
+
+        var c = {
+          videoPfMd5Hash: null,
+          client: null,
+          clientGroup: null,
+          clientGroupProfiles: null
+        };
+
+        return Q()
+        .then(function check() {
+          if (!video.pfMd5Hash) {
+            throw new Error('missing pfMd5Hash');
+          }
+          if (!req.passport || !req.passport.client) {
+            throw new Error('missing passport.client');
+          }
+          c.videoPfMd5Hash = video.pfMd5Hash;
+          c.client = req.passport.client;
+          console.log('[INFO]: [VIDEO]: pfMd5Hash='+c.videoPfMd5Hash);
+          console.log('[INFO]: [VIDEO]: clienType='+c.client.type);
+        })
+        .then(function getClientGroup() {
+          return req.passport.client.getPfGroup();
+        })
+        .then(function (clientGroup) {
+          if (!clientGroup) {
+            throw new Error('no group attached to client');
+          }
+          c.clientGroup = clientGroup;
+          console.log('[INFO]: [VIDEO]: clientGroupName='+c.clientGroup.name);
+          return clientGroup.getPfProfiles();
+        })
+        .then(function getClientGroupProfiles(clientGroupProfiles) {
+          if (!clientGroupProfiles) {
+            throw new Error('no group profiles');
+          }
+          if (!clientGroupProfiles.length) {
+            throw new Error('no profiles in group');
+          }
+          c.clientGroupProfiles = clientGroupProfiles;
+          console.log('[INFO]: [VIDEO]: clientGroupProfiles='+
+          JSON.stringify(c.clientGroupProfiles.map(function (p) { return p.pfId; })));
+        })
+        .then(function readPFContent() {
+          return pf.getContentByMd5Hash(c.videoPfMd5Hash);
+        })
+        .then(function intersect(pfContent) {
+          //
+          // normaly, a profile should be associated with the video for the clientGroup
+          //  but currently, the backend doesn't know the profile, so we list the
+          //  content profiles & try to find one intersecting with clientGroupProfiles
+          //
+          if (!pfContent) {
+            throw new Error('[PF]: no content associated to hash');
+          }
+          if (!Array.isArray(pfContent.profilesIds)) {
+            throw new Error('[PF]: pfContent.profilesIds is not an array');
+          }
+          if (!pfContent.profilesIds.length) {
+            throw new Error('[PF]: no profiles in pfContent.profilesIds');
+          }
+          // intersecting groupProfiles & contentProfiles, pick a random profile (first one)
+          return c.clientGroupProfiles.filter(function (p) {
+            return pfContent.profilesIds.indexOf(p.pfId) !== -1;
+          })[0];
+        })
+        .then(function getAssetsStreams(profile) {
+          if (!profile) {
+            throw new Error('[PF]: no intersecting profile found');
+          }
+          c.videoProfile = profile;
+          console.log('[INFO]: [VIDEO]: profile='+c.videoProfile.name);
+          return pf.getAssetsStreamsSafe(c.videoPfMd5Hash, c.videoProfile.name);
+        })
+        .then(function (assetsStreams) {
           video.pf.assetsStreams = assetsStreams;
-          return video;
-        });
-      } catch (e) {
-        console.error('[ERROR]: getAudioStreamsSafe from PF ', e);
-        return video;
-      }
+        })
+        .then(function filterCaptions() {
+          //
+          // specificité des sous titres brulés, on supprime les captions inutilisés...
+          // ce code est ultra spécifique, il se base sur le fait que les captions brulés
+          // sont FR
+          //
+          if (c.videoProfile.burnedCaptions) {
+            console.log('[INFO]: [VIDEO]: burnedCaptions, filtering on fra');
+            video.captions = (video.captions || []).filter(function (caption) {
+              return caption.lang.ISO6392T === 'fra';
+            });
+          }
+        })
+        .then(
+          function success() { return video; },
+          function error(err) {
+            console.log('[ERROR]: [pf-infos]: pfMd5Hash=' + c.videoPfMd5Hash + ' ' + err.message, err.stack);
+            return video;
+          }
+        );
     })
      .then(responseWithResult(res))
      .catch(req.handleError(res));
