@@ -86,14 +86,23 @@ request(options, function (error, response, body) {
   }
   console.log(body);
   if (program.request) {
-    request({
+    var options = {
       uri: envsConf[env].baseUrl + program.request,
       method: 'GET',
       headers: {
         Authorization: 'Bearer '+body.access_token
       },
       json: true
-    }, function (error, response, body) {
+    };
+
+    if (envsConf[env].host) {
+      options.headers = (options.headers || {});
+      options.headers.Host = envsConf[env].host;
+    }
+
+    console.log('[REQUEST]: ' + JSON.stringify(options));
+
+    request(options, function (error, response, body) {
       if (error) {
         console.error(error, response, body);
         process.exit(1);
@@ -101,7 +110,7 @@ request(options, function (error, response, body) {
       console.log("===================RESPONSE====================");
       console.log(response.headers);
       console.log("===================BODY====================");
-      console.log(body);
+      console.log(require('util').inspect(body, { depth: 10 }));
       process.exit(0);
     });
   } else {
