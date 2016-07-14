@@ -4,7 +4,7 @@ var express = require('express');
 var controller = require('./waitingUser.controller.js');
 var auth = rootRequire('/server/auth/auth.service');
 var geo = rootRequire('/server/auth/geo');
-
+var utils = rootRequire('/server/app/api/utils.js');
 var router = express.Router();
 
 // routes cannot be cached

@@ -94,7 +94,7 @@
 var express = require('express');
 var controller = require('./user.controller.js');
 var auth = rootRequire('/server/auth/auth.service');
-
+var utils = rootRequire('/server/app/api/utils.js');
 var router = express.Router();
 
 var validator = require('./user.validator.js');
@@ -142,7 +142,7 @@ router.use('/:userId/favoritesEpisodes', require('./favoriteEpisode/index'));
 router.use('/:userId/favoritesMovies', require('./favoriteMovie/index'));
 router.use('/:userId/favoritesSeasons', require('./favoriteSeason/index'));
 
-router.get('/', auth.hasRole('admin'), controller.index);
+router.get('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.index);
 router.delete('/:id', auth.hasRole('client'), controller.destroy);
 router.get('/me', controller.me);
 router.put('/verify', controller.verify);
@@ -150,9 +150,9 @@ router.put('/password', controller.auth0ChangePassword);
 //
 // FIXME: we should check that :id correspond to req.user._id
 //
-router.put('/:id/password', auth.hasRole('admin'), controller.changePassword);
-router.put('/:id/role', auth.hasRole('admin'), controller.changeRole);
-router.get('/:id', auth.hasRole('admin'), controller.show);
+router.put('/:id/password', utils.middlewareNoCache, auth.hasRole('admin'), controller.changePassword);
+router.put('/:id/role', utils.middlewareNoCache, auth.hasRole('admin'), controller.changeRole);
+router.get('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.show);
 router.post('/', validator.validateCreateBody, controller.create);
 router.put('/:userId', convertUserIdMeToUserId, tokenUserMatchParamUser, validator.validateUpdateBody, controller.update);
 

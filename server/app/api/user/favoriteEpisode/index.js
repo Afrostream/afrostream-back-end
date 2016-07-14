@@ -37,7 +37,7 @@
 var express = require('express');
 var controller = require('./favoriteEpisode.controller.js');
 var auth = rootRequire('/server/auth/auth.service');
-
+var utils = rootRequire('/server/app/api/utils.js');
 var router = express.Router({mergeParams:true});
 
 var convertUserIdMeToUserId = function (req, res, next) {

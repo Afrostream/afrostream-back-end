@@ -1,14 +1,15 @@
 var express = require('express');
 var controller = require('./config.controller.js');
 var auth = rootRequire('/server/auth/auth.service');
+var utils = rootRequire('/server/app/api/utils.js');
 var router = express.Router();
 
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
-router.get('/', auth.hasRole('admin'), controller.index);
-router.post('/', auth.hasRole('admin'), controller.create);
-router.get('/client', auth.hasRole('admin'), controller.client);
+router.get('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.index);
+router.post('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.create);
+router.get('/client', utils.middlewareNoCache, auth.hasRole('admin'), controller.client);
 router.get('/:target', controller.target);
-router.delete('/:id', auth.hasRole('admin'), controller.destroy);
+router.delete('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.destroy);
 
 module.exports = router;

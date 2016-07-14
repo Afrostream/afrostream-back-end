@@ -27,7 +27,7 @@
 var express = require('express');
 var controller = require('./video.controller.js');
 var auth = rootRequire('/server/auth/auth.service');
-
+var utils = rootRequire('/server/app/api/utils.js');
 var router = express.Router();
 
 // all video routes cannot be cached.
@@ -39,11 +39,11 @@ router.use(function (req, res, next) {
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
 // video manipulation.
-router.get('/', auth.hasRole('admin'), controller.index);
+router.get('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.index);
 router.get('/:id', controller.show);
-router.post('/', auth.hasRole('admin'), controller.create);
-router.put('/:id', auth.hasRole('admin'), controller.update);
-router.patch('/:id', auth.hasRole('admin'), controller.update);
-router.delete('/:id', auth.hasRole('admin'), controller.destroy);
+router.post('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.create);
+router.put('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
+router.patch('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
+router.delete('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.destroy);
 
 module.exports = router;

@@ -3,7 +3,7 @@
 var express = require('express');
 var controller = require('./stats.controller.js');
 var auth = rootRequire('/server/auth/auth.service');
-
+var utils = rootRequire('/server/app/api/utils.js');
 var router = express.Router();
 
 // all user routes cannot be cached.

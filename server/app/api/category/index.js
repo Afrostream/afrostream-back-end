@@ -137,6 +137,7 @@
 var express = require('express');
 var controller = require('./category.controller.js');
 var auth = rootRequire('/server/auth/auth.service');
+var utils = rootRequire('/server/app/api/utils.js');
 var router = express.Router();
 
 router.use(auth.middleware.restrictRoutesToAuthentified());
@@ -147,9 +148,9 @@ router.get('/meas', controller.mea);
 router.get('/spots', controller.allSpots);
 router.get('/:id', controller.show);
 router.get('/:id/spots', controller.adSpot);
-router.post('/', auth.hasRole('admin'), controller.create);
-router.put('/:id', auth.hasRole('admin'), controller.update);
-router.patch('/:id', auth.hasRole('admin'), controller.update);
-router.delete('/:id', auth.hasRole('admin'), controller.destroy);
+router.post('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.create);
+router.put('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
+router.patch('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
+router.delete('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.destroy);
 
 module.exports = router;
