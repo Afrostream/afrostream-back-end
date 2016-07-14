@@ -8,12 +8,12 @@ var router = express.Router();
 
 // these route create jobs : browser/client => afrostream-backend => afrostream-jobs => execute job somewhere else.
 router.post('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.create);
-router.post('/catchup-bet', controller.catchupBet);
+router.post('/catchup-bet', utils.middlewareNoCache, controller.catchupBet);
 
 // used for manual trigger
 // https://admin.afrostream.tv/api/jobs/pack-caption?encodingId=...
 // https://admin.afrostream.tv/api/jobs/pack-caption?videoId=...
 // https://admin.afrostream.tv/api/jobs/pack-caption?pfMd5Sum=...
-router.get('/pack-caption', controller.packCaption);
+router.get('/pack-caption', utils.middlewareNoCache, controller.packCaption);
 
 module.exports = router;

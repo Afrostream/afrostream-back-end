@@ -142,12 +142,12 @@ var router = express.Router();
 
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
-router.get('/', controller.index);
-router.get('/menu', controller.menu);
-router.get('/meas', controller.mea);
-router.get('/spots', controller.allSpots);
-router.get('/:id', controller.show);
-router.get('/:id/spots', controller.adSpot);
+router.get('/', utils.middlewareCache, controller.index);
+router.get('/menu', utils.middlewareCache, controller.menu);
+router.get('/meas', utils.middlewareCache, controller.mea);
+router.get('/spots', utils.middlewareCache, controller.allSpots);
+router.get('/:id', utils.middlewareCache, controller.show);
+router.get('/:id/spots', utils.middlewareCache, controller.adSpot);
 router.post('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.create);
 router.put('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
 router.patch('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);

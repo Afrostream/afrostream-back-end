@@ -8,6 +8,6 @@ var router = express.Router();
 
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
-router.get('/', controller.index);
+router.get('/', utils.middlewareCache, controller.index);
 
 module.exports = router;

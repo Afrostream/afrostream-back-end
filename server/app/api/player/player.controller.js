@@ -5,18 +5,7 @@ var Config = sqldb.Config;
 
 var utils = rootRequire('/server/app/api/utils.js');
 
-function responseWithResult (res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (entity) {
-    if (entity) {
-      res.status(statusCode).json(entity.data);
-    }
-  };
-}
-
 exports.showConfig = function (req, res) {
-  res.set('Cache-Control', 'public, max-age=60');
-
   Config.find({
       where: {
         target: 'player'
@@ -27,7 +16,8 @@ exports.showConfig = function (req, res) {
       ]
     })
     .then(utils.handleEntityNotFound(res))
-    .then(responseWithResult(res))
-    .catch(req.handleError(res));
-
+    .then(
+      function (entity) { res.json(entity.data); },
+      req.handleError(res)
+    );
 };
