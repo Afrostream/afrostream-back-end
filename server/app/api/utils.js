@@ -56,6 +56,19 @@ function handleEntityNotFound(res) {
   };
 }
 
+var middlewareCache = function (req, res, next) {
+   res.cache();
+   next();
+};
+
+var middlewareNoCache = function (req, res, next) {
+  res.noCache();
+  next();
+};
+
+// middlewares
+module.exports.middlewareCache = middlewareCache;
+module.exports.middlewareNoCache = middlewareNoCache;
 module.exports.reqRangeToSequelizeLimit = reqRangeToSequelizeLimit;
 module.exports.mergeReqRange = mergeReqRange;
 module.exports.responseWithResultAndTotal = responseWithResultAndTotal;
