@@ -70,6 +70,7 @@ function extractAccessTokenToken(req) {
  */
 function getAccessToken(req) {
   var token = extractAccessTokenToken(req);
+  console.log('[DEBUG]: token string = ' + token);
   return token ? AccessToken.find({where: {token: token}}) : null;
 }
 
@@ -100,12 +101,15 @@ function getPassport(req) {
     userAgent: null,
     accessToken: null
   };
+  console.log('[DEBUG]: req.headers ' + JSON.stringify(req.headers));
+
   // searching token
   return Q()
     .then(function () {
       return getAccessToken(req)
     })
     .then(function (accessToken) {
+      console.log('[DEBUG]: accessToken._id = ', accessToken._id);
       // debug
       // console.log('[INFO]: [middleware-passport]: accessToken=' + accessToken);
       if (accessToken) {
@@ -124,10 +128,10 @@ function getPassport(req) {
     .then(
     function success() {
       // debug
-      //console.log('[INFO]: [middleware-passport]: client =',
-      //  JSON.stringify(passport.client && passport.client.toJSON()));
-      //console.log('[INFO]: [middleware-passport]: user =',
-      //  JSON.stringify(passport.user && passport.user.toJSON()));
+      console.log('[DEBUG]: [middleware-passport]: client =',
+        JSON.stringify(passport.client && passport.client.toJSON()));
+      console.log('[DEBUG]: [middleware-passport]: user =',
+        JSON.stringify(passport.user && passport.user.toJSON()));
       return passport;
     },
     function failure(err) {
@@ -148,6 +152,7 @@ function getPassport(req) {
 module.exports = function (options) {
   options = options || {};
   return function (req, res, next) {
+    console.log('[DEBUG]: getPassport with options ' + JSON.stringify(options));
     req.getPassport = req.getPassport || getPassport.bind(null, req);
     if (options.preload) {
       req.getPassport().then(function (passport) {
