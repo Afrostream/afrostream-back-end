@@ -3,6 +3,8 @@
 var request = require('request');
 var program = require('commander');
 
+var _ = require('lodash');
+
 program
   .version('0.0.1')
   .option('-c, --client [clientName]', 'client name', 'front')
@@ -40,7 +42,10 @@ var env = program.env || "staging";
 
 var envsConf = {
   localhost: { baseUrl: "http://localhost:9000" },
-  cdnOrangeStaging: { baseUrl : "https://legacy-api-orange-staging.afrostream.tv" },
+  cdnOrangeStaging: {
+    baseUrl : "https://legacy-api-orange-staging.afrostream.tv",
+    host: "legacy-api-orange-staging.afrostream.tv"
+  },
   staging: { baseUrl : "https://afr-back-end-staging.herokuapp.com" },
   prod: { baseUrl : "https://afrostream-backend.herokuapp.com" }
 }
@@ -66,6 +71,11 @@ var options = {
     client_secret: clientsConf[client].secret
   }
 };
+
+if (envsConf[env].host) {
+  options.headers = (options.headers || {});
+  options.headers.Host = envsConf[env].host;
+}
 
 console.log('[REQUEST]: ' + JSON.stringify(options));
 
