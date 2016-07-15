@@ -442,7 +442,8 @@ encodingIdList.reduce(function (p, c, i) {
       //console.log('"'+c+'";"error"');
     } else if (body.length) {
       if (body[0].md5Hash) {
-      console.log('"'+c+'";"'+body[0].md5Hash+'"');
+        //console.log('"'+c+'";"'+body[0].md5Hash+'"');
+        console.log('UPDATE "Videos" SET "pfMd5Hash" = \'' + body[0].md5Hash + '\' WHERE "encodingId" = \'' + c + '\';');
       }
     } else {
       //console.log('"'+c+'";"unknown encodingId"');
