@@ -2,11 +2,17 @@
 
 var fs = require('fs');
 var cgu = fs.readFileSync(__dirname + '/cgu.html').toString();
+var cguOrange = fs.readFileSync(__dirname + '/cgu-orange.html').toString();
 
 module.exports.index = function (req, res) {
+  var client = req.passport.client;
+  var clientCgu = cgu;
+  if (client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
+    clientCgu = cguOrange;
+  }
   // hack hack hack: preprocessing for wiztivi: removing tabs & \n
-  cgu = cgu.replace(/\r?\n|\t/gm, '').replace(/ +/gm, ' ');
-  cgu = cgu.replace(/>\s+</mg, '><');
+  clientCgu = clientCgu.replace(/\r?\n|\t/gm, '').replace(/ +/gm, ' ');
+  clientCgu = clientCgu.replace(/>\s+</mg, '><');
   //
-  res.json({html:cgu});
+  res.json({html: clientCgu});
 };
