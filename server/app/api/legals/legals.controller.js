@@ -2,11 +2,17 @@
 
 var fs = require('fs');
 var legals = fs.readFileSync(__dirname + '/legals.html').toString();
+var legalsOrange = fs.readFileSync(__dirname + '/legals-orange.html').toString();
 
 module.exports.index = function (req, res) {
-  // hack hack hack : preprocessing for wiztivi: removing tabs & \n
-  legals = legals.replace(/\r?\n|\t/gm, '').replace(/ +/gm, ' ');
-  legals = legals.replace(/>\s+</mg, '><');
+  var client = req.passport.client;
+  var clientLegals = legals;
+  if (client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
+    clientLegals = legalsOrange;
+  }
+  // hack hack hack: preprocessing for wiztivi: removing tabs & \n
+  clientLegals = clientLegals.replace(/\r?\n|\t/gm, '').replace(/ +/gm, ' ');
+  clientLegals = clientLegals.replace(/>\s+</mg, '><');
   //
-  res.json({html:legals});
+  res.json({html: clientLegals});
 };
