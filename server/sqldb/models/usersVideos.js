@@ -32,6 +32,7 @@ module.exports = function (sequelize, DataTypes) {
     playerCaption: DataTypes.STRING(3),
     rating: DataTypes.INTEGER,
     lastUpdateClientType: DataTypes.STRING(32),
+    lastUpdateDeviceType: DataTypes.STRING(16),
     lastUpdateUserUA: DataTypes.STRING(128)
   }, {
     hooks: {
