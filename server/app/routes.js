@@ -45,6 +45,7 @@ module.exports = function (app) {
   app.use('/api/users', require('./api/user/index'));
   app.use('/api/mam', require('./api/mam/index'));
   app.use('/api/dashboard', require('./api/dashboard/index'));
+  app.use('/api/usersvideos', require('./api/usersvideos/index'));
   app.use('/api/waitingUsers', require('./api/waitingUser/index'));
   app.use('/api/widgets', require('./api/widget/index'));
   app.use('/api/stats', require('./api/stat/index'));
