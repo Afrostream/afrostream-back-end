@@ -460,7 +460,7 @@ module.exports.createCoupons = function (req, res) {
     bodyFirstName: req.body.firstName,
     bodyLastName: req.body.lastName,
     couponsCampaignBillingUuid: req.body.couponsCampaignBillingUuid,
-    couponsOpts: req.body.couponsOpts
+    couponOpts: req.body.couponOpts
   }; // closure
 
   Q()
@@ -488,8 +488,8 @@ module.exports.createCoupons = function (req, res) {
     .then(function () {
       var couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
       var userBillingUuid = c.userBillingUuid;
-      var couponsOpts = c.couponsOpts;
-      return billingApi.createCoupons(userBillingUuid, couponsCampaignBillingUuid, couponsOpts);
+      var couponOpts = c.couponOpts;
+      return billingApi.createCoupons(userBillingUuid, couponsCampaignBillingUuid, couponOpts);
     })
     .then(
       function (couponStatus) {

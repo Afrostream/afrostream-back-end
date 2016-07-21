@@ -330,14 +330,14 @@ var listCoupons = function (userBillingUuid, couponsCampaignBillingUuid) {
   });
 };
 
-var createCoupons = function (userBillingUuid, couponsCampaignBillingUuid, couponsOpts) {
+var createCoupons = function (userBillingUuid, couponsCampaignBillingUuid, couponOpts) {
   return requestBilling({
     method: 'POST',
     url: config.billings.url + '/billings/api/coupons/',
     body: {
       userBillingUuid: userBillingUuid,
       couponsCampaignBillingUuid: couponsCampaignBillingUuid,
-      couponsOpts: couponsOpts
+      couponOpts: couponOpts
     }
   }).then(function (body) {
     return body && body.response && body.response || {};
