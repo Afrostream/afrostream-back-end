@@ -14,7 +14,7 @@ module.exports.update = function (req, res) {
 
   data.lastUpdateClientType = req.passport && req.passport.client && req.passport.client.type || 'unknown';
   data.lastUpdateUserUA = String(req.userAgent || 'unknown').substr(0, 128);
-  data.lastUpdateDeviceType = String(req.headers.get('X-Device-Type') || '').substr(0, 16); // tapptic additionnal info.
+  data.lastUpdateDeviceType = String(req.get('X-Device-Type') || '').substr(0, 16); // tapptic additionnal info.
 
   Q()
     .then(function () {
