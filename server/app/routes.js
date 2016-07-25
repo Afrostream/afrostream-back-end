@@ -10,8 +10,11 @@ var path = require('path');
 var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
 
 module.exports = function (app) {
-  app.use('/api/*', middlewarePassport());
+  app.use('/api/auth', require('../auth/index'));
+  app.use('/auth', require('../auth/index'));
 
+  app.use('/api/*', middlewarePassport());
+  
   // Insert routes below
   app.use('/api/posts', require('./api/post/index'));
   app.use('/api/actors', require('./api/actor/index'));
@@ -55,7 +58,7 @@ module.exports = function (app) {
 
   app.use('/api/exchanges', require('./api/exchange'));
 
-  app.use('/auth', require('../auth/index'));
+
 
   app.use('/right', require('../right/index'));
 
