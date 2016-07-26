@@ -271,9 +271,11 @@ server.exchange(exchangeIse2(function (client, id, scope, reqBody, done) {
   })
     .then(function (entity) {
       if (entity === null) {
+        console.error('[ERROR]: [AUTH]: [ISE2]: unknown client');
         return done(new TokenError('unknown client', 'invalid_grant'), false);
       }
       if (entity.secret !== client.secret) {
+        console.error('[ERROR]: [AUTH]: [ISE2]: wrong secret');
         return done(new TokenError('wrong secret', 'invalid_grant'), false);
       }
       User.find({
@@ -281,6 +283,7 @@ server.exchange(exchangeIse2(function (client, id, scope, reqBody, done) {
       })
         .then(function (user) {
           if (user === null) {
+            console.error('[ERROR]: [AUTH]: [ISE2]: UNKNOWN_ISE2 ' + id + ' => invalid_grant');
             return done(new TokenError('UNKNOWN_ISE2:' + id, 'invalid_grant'), false);
           }
           return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, null, done);

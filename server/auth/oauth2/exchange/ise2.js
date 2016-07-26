@@ -81,7 +81,12 @@ module.exports = function (options, issue) {
       , id = req.get('X_WASSUP_ISE2')
       , scope = req.body.scope;
 
-    if (!id) { return next(new TokenError('Missing required parameter: id', 'invalid_request')); }
+    if (!id) {
+      console.error('[ERROR]: [AUTH]: [EXCHANGE-ISE2]: missing X_WASSUP_ISE2 ', req.headers);
+      return next(new TokenError('Missing required parameter: id', 'invalid_request'));
+    } else {
+      console.info('[INFO]: [AUTH]: [EXCHANGE-ISE2]: X_WASSUP_ISE2='+id);
+    }
 
     if (scope) {
       for (var i = 0, len = separators.length; i < len; i++) {
