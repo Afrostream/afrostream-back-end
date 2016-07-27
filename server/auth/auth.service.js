@@ -14,7 +14,7 @@ var User = require('../sqldb').User;
 var validateJwt = expressJwt({
   secret: config.secrets.session
 });
-var sqldb = require('../sqldb');
+var sqldb = rootRequire('/server/sqldb');
 
 var Q = require('q');
 
@@ -254,6 +254,17 @@ var filterQueryOptions = function (req, options, rootModel) {
         model.attributes &&
         model.attributes.live) {
         options = _.merge(options, {where: {live: { $ne: true }}});
+      }
+    }
+    // tempfix: desactivation des contenus BET sur orange
+    if (isOrange || isOrangeNewbox) {
+      if (model && model.name === 'Category') {
+        options = _.merge(options, {where: {label: { $ne: 'BET' }}});
+      }
+      if (model &&
+        model.attributes &&
+        model.attributes.genre) {
+        options = _.merge(options, {where: {genre: { $ne: 'BET' }}});
       }
     }
     //

@@ -7,8 +7,8 @@ var _ = require('lodash');
 
 program
   .version('0.0.1')
-  .option('-c, --client [clientName]', 'client name', 'front')
-  .option('-e, --env [env]', 'env', 'staging')
+  .option('-c, --client [clientName]', 'client name: front, tapptic, bouygues-miami, orange-newbox ; default=front')
+  .option('-e, --env [env]', 'env: localhost, cdnOrangeStaging, staging, prod; default=staging')
   .option('-u, --username [username]', 'username, default=tech@afrostream.tv')
   .option('-p, --password [password]', 'password')
   .option('-r, --request [request]', 'path to request')
