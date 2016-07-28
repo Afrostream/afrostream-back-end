@@ -19,7 +19,7 @@ module.exports = function (sequelize, DataTypes) {
     importId: DataTypes.INTEGER,
     encodingId: {
       type: DataTypes.STRING,
-      length: 16
+      length: 36
     },
     active: {
       type: DataTypes.BOOLEAN,
