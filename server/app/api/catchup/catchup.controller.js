@@ -59,7 +59,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
       }),
       Movie.findOrCreate({
         where: { catchupProviderId: catchupProviderInfos._id, title: seriesTitle},
-        defaults: { synopsis: seriesResume, dateFrom: dateFrom, active: true }
+        defaults: { synopsis: seriesResume, dateFrom: dateFrom, active: true, genre: 'BET' } // FIXME: should not be hardcoded...
       })
     ]).spread(function (episodeInfos, seasonInfos, movieInfos) {
       var episode = episodeInfos[0]
@@ -132,7 +132,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
   } else {
     return Movie.findOrCreate({
       where: { catchupProviderId: catchupProviderInfos._id, title: seriesTitle},
-      defaults: { synopsis: seriesResume, active: true }
+      defaults: { synopsis: seriesResume, active: true, genre: 'BET' }
     }).then(function (movieInfos) {
       var movie = movieInfos[0];
       console.log('catchup: database: movie ' + movie._id + ' video ' + video._id + ' ' +
