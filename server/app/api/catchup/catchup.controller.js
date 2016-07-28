@@ -67,10 +67,58 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
         , movie = movieInfos[0];
 
       return Q.all([
-        episode.update({  slug: episodeSlug, dateTo: dateTo }),
+        episode.update({  slug: episodeSlug, dateTo: dateTo, dateFrom: dateFrom }), // dateFrom of episode is "simple"
         season.update({ slug: seriesSlug, dateTo: dateTo }),
         movie.update({ slug: seriesSlug, type: 'serie', dateTo: dateTo })
-      ]);
+      ]).then(function (data) {
+        console.log('[INFO]: [CATCHUP]: begin smart dateFrom');
+        // try to update "smart" date from for season & movie.
+        var season = data[1];
+        var movie = data[2];
+
+        //
+        // searching for the first episode, with dateFrom > now - 8 days (7days + 1 day to be sure)
+        // if 1 episode found, assign the episode dateFrom to the season & movie.
+        // it's not a perfect algorithm... but it should work.
+        //
+        var oneWeekAgo = new Date(new Date().getTime() - 1000 * 3600 * 24 * 8);
+        return Episode.findAll({
+          attributes: ['_id', 'dateFrom'],
+          where: { seasonId: season._id, $and: [ { dateFrom: { $gt: oneWeekAgo} }, { dateFrom: { $ne: null } } ] },
+          order: [ [ 'dateFrom' , 'ASC' ]],
+          limit: 1
+        })
+        .then(function (episodes) {
+          if (episodes && episodes.length && episodes[0]) {
+            var nextEpisode = episodes[0];
+            console.log('[INFO]: [CATCHUP]: SMART DATE FROM : season(' + season._id + ').dateFrom = ' + nextEpisode.dateFrom);
+            return season.update({ dateFrom: nextEpisode.dateFrom });
+          }
+        })
+        .then(function () {
+          // same thing for the movie object, we search all the seasons with dateFrom > now - 8 days
+          //  and assign the first one to movie
+          return Seasons.findAll({
+            attributes: ['dateFrom'],
+            where: { movieId: movie._id, $and: [ { dateFrom: { $gt: oneWeekAgo} }, { dateFrom: { $ne: null } } ] },
+            order: [ [ 'dateFrom', 'ASC' ]],
+            limit: 1
+          })
+        })
+        .then(function (seasons) {
+          if (seasons && seasons.length && seasons[0]) {
+            var nextSeason = seasons[0];
+            console.log('[INFO]: [CATCHUP]: SMART DATE FROM : movie(' + movie._id + ').dateFrom = ' + nextSeason.dateFrom);
+            return movie.update({ dateFrom: nextSeason.dateFrom });
+          }
+        })
+        .then(function () {
+          return data;
+        }, function (err) {
+          console.error('[ERROR]: [CATCHUP]: error setting dateFrom ' + err.message)
+          return data;
+        });
+      })
     }).spread(function (episode, season, movie) {
       console.log('catchup: database: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id + ' video ' + video._id + ' ' +
                   'episode '+episodeNumber+' [' + episodeTitle + '] season '+seasonNumber+' [' + seriesTitle + '] #content');
