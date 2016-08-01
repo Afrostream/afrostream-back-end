@@ -9,6 +9,7 @@ angular.module('afrostreamAdminApp')
         controller: 'DataCtrl',
         type: 'movie',
         resolve: {
+          countries: 'DataCountries',
           genres: 'DataGenres'
         }
       });

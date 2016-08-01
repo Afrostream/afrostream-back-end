@@ -9,6 +9,7 @@ angular.module('afrostreamAdminApp')
         controller: 'DataCtrl',
         type: 'image',
         resolve: {
+          countries: 'DataEmpty',
           genres: 'DataEmpty' // unused
         }
       });

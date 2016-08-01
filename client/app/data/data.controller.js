@@ -14,7 +14,7 @@ angular.module('afrostreamAdminApp')
       return items;
     };
   })
-  .controller('DataCtrl', function ($scope, $log, $http, $modal, ngToast, $state, Modal, genres) {
+  .controller('DataCtrl', function ($scope, $log, $http, $modal, ngToast, $state, Modal, genres, countries) {
     var defaultPerPage = 30;
 
     $scope.type = $state.current.type || 'movie';
@@ -29,6 +29,7 @@ angular.module('afrostreamAdminApp')
       query: $scope.searchField
     };
     $scope.pagination = {current: 1};
+    $scope.countries = countries;
     $scope.genres = genres;
 
     $scope.reload = function () {
