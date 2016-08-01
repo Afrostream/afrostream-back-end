@@ -444,6 +444,18 @@ exports.show = function (req, res) {
               return caption.lang.ISO6392T === 'fra';
             });
           }
+          //
+          // spécificité orange, on supprime le sous titre fra, si 1 audio fra unique
+          //
+          if (String(c.videoProfile.name).match(/_ORANGE$/)) {
+            var audios = (video.pf.assetsStreams||[])
+              .filter(function (asset) { return asset.type === 'audio'; })
+              .map(function (asset) { return asset.language });
+            if (audios.length === 1 && audios[0] === 'fra') {
+              console.log('[INFO]: [VIDEO]: hack profile _ORANGE: 1 audio language=fra => no captions');
+              video.captions = [];
+            }
+          }
         })
         .then(
           function () {
