@@ -427,32 +427,7 @@ exports.show = function (req, res) {
           }
           c.videoProfile = profile;
           console.log('[INFO]: [VIDEO]: profileName='+c.videoProfile.name);
-
-          // 2016/07/18: HACK
-          // certains profils ne sont pour l'instant qu'un assemblage de presets
-          // de packaging, et ne contiennent pas en sortie d'assetsStreams
-          // en attendant que chaque profil = taches d'encodages associées
-          //  (necessite de relancer un transcode sur les profils 19, 29, 21)
-          // on fait un alias entre
-          //  VIDEO0ENG_AUDIO0FRA_ORANGE           => VIDEO0ENG_AUDIO0FRA_USP
-          //  VIDEO0ENG_AUDIO0FRA_AUDIO1ENG_ORANGE => VIDEO0ENG_AUDIO0FRA_AUDIO1ENG_USP
-          //  VIDEO0ENG_AUDIO0FRA_AUDIO2ENG_ORANGE => VIDEO0ENG_AUDIO0FRA_AUDIO2ENG_USP
-          var profileName = c.videoProfile.name;
-          switch (c.videoProfile.name) {
-            case 'VIDEO0ENG_AUDIO0FRA_ORANGE':
-              console.log('[INFO]: [VIDEO]: HACK ORANGE: new profileName=VIDEO0ENG_AUDIO0FRA_USP');
-              profileName = 'VIDEO0ENG_AUDIO0FRA_USP';
-              break;
-            case 'VIDEO0ENG_AUDIO0FRA_AUDIO1ENG_ORANGE':
-              console.log('[INFO]: [VIDEO]: HACK ORANGE: new profileName=VIDEO0ENG_AUDIO0FRA_AUDIO1ENG_USP');
-              profileName = 'VIDEO0ENG_AUDIO0FRA_AUDIO1ENG_USP';
-              break;
-            case 'VIDEO0ENG_AUDIO0FRA_AUDIO2ENG_ORANGE':
-              console.log('[INFO]: [VIDEO]: HACK ORANGE: new profileName=VIDEO0ENG_AUDIO0FRA_AUDIO2ENG_USP');
-              profileName = 'VIDEO0ENG_AUDIO0FRA_AUDIO2ENG_USP';
-              break;
-          }
-          return pf.getAssetsStreamsSafe(c.videoPfMd5Hash, profileName);
+          return pf.getAssetsStreamsSafe(c.videoPfMd5Hash, c.videoProfile.name);
         })
         .then(function (assetsStreams) {
           video.pf.assetsStreams = assetsStreams;
