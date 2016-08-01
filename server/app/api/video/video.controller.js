@@ -21,6 +21,7 @@ var Episode = sqldb.Episode;
 var Caption = sqldb.Caption;
 var Language = sqldb.Language;
 var Image = sqldb.Image;
+var Log = sqldb.Log;
 var Promise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
 var auth = rootRequire('/server/auth/auth.service');
@@ -469,6 +470,27 @@ exports.show = function (req, res) {
             });
           }
         })
+        .then(
+          function () {
+            // logs
+            return Log.create({
+              type: 'read-video',
+              clientId: req.passport && req.passport.client && req.passport && req.passport.client._id || null,
+              userId: req.passport && req.passport.user && req.passport.user._id || req.user && req.user._id || null,
+              data: {
+                videoId: video._id,
+                userIp: req.clientIp || undefined,
+                userAgent: req.userAgent || undefined,
+                userDeviceType: req.get('X-Device-Type') || undefined
+              }
+            }).then(
+              function noop() { },
+              function (err) {
+                console.error('[ERROR]: [VIDEO]: [LOG]: '+err.message);
+              }
+            );
+          }
+        )
         .then(
           function success() { return video; },
           function error(err) {
