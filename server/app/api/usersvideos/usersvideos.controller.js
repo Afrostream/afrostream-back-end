@@ -5,7 +5,9 @@ var path = require('path');
 var moment = require('moment');
 var sqldb = rootRequire('/server/sqldb');
 var UsersVideos = sqldb.UsersVideos;
+var Log = sqldb.Log;
 var User = sqldb.User;
+var Client = sqldb.Client;
 
 // Gets a list of captions
 exports.orange = function (req, res) {
@@ -14,10 +16,14 @@ exports.orange = function (req, res) {
    *
    */
   var queryOptions = {
-    attributes: ['videoId', 'userId', 'dateLastRead', 'dateStartRead', 'playerPosition', 'lastUpdateClientType', 'lastUpdateUserUA', 'lastUpdateDeviceType'],
-    include: { model: User, as: 'user', required: true, where: { ise2: { $ne: null } }, attributes: [ 'ise2'] },
+    attributes: ['createdAt', 'userId', 'clientId', 'data'],
+    include: [
+      { model: User, as: 'user', required: true, where: { ise2: { $ne: null } }, attributes: [ 'ise2'] },
+      { model: Client, as: 'client', required: true, attributes: [ 'type' ]}
+    ],
     where: {
-      dateLastRead : {
+      type: 'read-video',
+      createdAt : {
         $and: [
           { $gt : moment().subtract(1, 'days').startOf('day').toDate() },
           { $lt : moment().subtract(1, 'days').endOf('day').toDate() }
@@ -26,12 +32,14 @@ exports.orange = function (req, res) {
     }
   };
 
-  UsersVideos.findAll(queryOptions)
+  Log.findAll(queryOptions)
     .then(function flattenDataResult(data) {
       data = data.map(function flatten(entry) {
         entry = entry.toJSON();
         entry.ise2 = entry.user.ise2;
+        entry.clientType = entry.client.type;
         delete entry.user;
+        delete entry.client;
         return entry;
       });
       res.json(data);
