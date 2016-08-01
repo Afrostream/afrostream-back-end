@@ -28,6 +28,7 @@ module.exports = function (app) {
   app.use('/api/clients', require('./api/client/index'));
   app.use('/api/policy', require('./api/policy'));
   app.use('/api/cgu', require('./api/cgu'));
+  app.use('/api/countries', require('./api/country/index'));
   app.use('/api/genres', require('./api/genre/index'));
   app.use('/api/licensors', require('./api/licensor/index'));
   app.use('/api/languages', require('./api/language/index'));
