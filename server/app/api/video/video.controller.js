@@ -297,6 +297,19 @@ exports.show = function (req, res) {
       }
       // END REMOVE
 
+      // BEGIN TEMPFIX: 2016/08/02: on bascule l'intégralité du trafic orange sur l'origine en http simple, sans passer par le cdnselector
+      if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
+        video.sources.forEach(function (source, i) {
+          var src = source.src;
+          if (source.src.match(/^[^\:]+\:\/\/[^/]+\//)) {
+            source.src = source.src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'http://origin.cdn.afrostream.net/');
+          }
+          console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: tempfix orange: source ' + src + ' => ' + source.src);
+        });
+        return video;
+      }
+      // END TEMPFIX
+
       // frontend (api-v1) or mobile: we try to use cdnselector.
       return cdnselector.getFirstSafe(req.clientIp)
         .then(
