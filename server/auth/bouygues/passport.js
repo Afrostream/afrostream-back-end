@@ -18,78 +18,116 @@ exports.setup = function (User, config) {
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function (req, accessToken, refreshToken, profile, done) {
-      //req don't have user, so we pass it in query
-      var state = req.query.state ? new Buffer(req.query.state, 'base64').toString('ascii') : '{}';
-      state = JSON.parse(state);
-      var status = state.status;
-      req.clientType = state.clientType || null;
       var email = profile.emails && profile.emails[0] && profile.emails[0].address;
-      var userId = req.user ? req.user._id : state.userId;
-      
-      console.log('bouygues user', userId);
-      console.log('bouygues profile id', profile.id);
+      var bouyguesUser, state; // closures.
 
-      var c = {
-        user: null
-      };
-
-      bluebird.resolve(req.user)
-        .then(function (user) {
-          // user exist => continue
-          if (user) return user;
-          // missing in req.user ? => fetching in DB
-          var whereUser = [{'bouygues.id': profile.id}, {'bouyguesId': profile.id}];
-          if (status !== 'signin') {
-            whereUser.push({'email': {$iLike: email}});
-          }
+      bluebird.resolve(42)
+        .then(function () {
+          // parsing state
+          state = JSON.parse(req.query.state ? new Buffer(req.query.state, 'base64').toString('ascii') : '{}');
+          // setting signup client type
+          req.signupClientType = state.clientType || null;
+          // logs
+          console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: state = ' + JSON.stringify(state));
+          console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: signupClientType = ' + req.signupClientType);
+        })
+        .then(function () {
+          console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: search bouygues user in DB using profile id = ' + profile.id);
+          // search bouygues corresponding user in database
           return User.find({
             where: {
-              $or: whereUser
+              $or: [{'bouygues.id': profile.id}, {'bouyguesId': profile.id}]
             }
           });
         })
-        .then(function (user) {
-          if (!user && userId) {
-            return User.find({
-              where: {'_id': userId}
-            });
-          } else {
-            return user;
-          }
-        })
-        .then(function (user) {
-          if (user) {
-            if (userId && userId != user._id) {
-              throw new Error('Your profile is already linked to another user');
-            }
-            // user exist => update
-            user.name = user.name || profile.displayName;
-            user.bouyguesId = profile.id;
-            user.bouygues = profile._json;
-            return user.save();
-          } else {
-            if (status === 'signin') {
-              throw new Error('No user found, please associate your profile after being connected');
-            }
+        .then(function (bu) {
+          bouyguesUser = bu || null;
 
-            // new user => create
-            return User.create({
-              name: profile.displayName,
-              email: email,
-              first_name: profile.name.givenName,
-              last_name: profile.name.familyName,
-              role: 'user',
-              provider: 'bouygues',
-              bouyguesId: profile.id,
-              bouygues: profile._json
-            });
+          // logs
+          if (bouyguesUser) {
+            console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: bouyguesUser found');
+          } else {
+            console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: bouyguesUser not found');
+          }
+
+          // 3 CAS
+          switch (state.status) {
+            /*
+             * LINK
+             * On lie un compte bouygues a un utilisateur si
+             *  - ce compte n'est pas utilisé
+             *  - ou ce compte existe mais déjà utilisé par ce même utilisateur
+             */
+            case 'link':
+              if (!req.user) {
+                throw new Error("link: missing req.user");
+              }
+              if (req.user._id !== state.userId) {
+                throw new Error("link: req.user._id !== state.userId " + req.user._id + " " + state.userId);
+              }
+              if (bouyguesUser && bouyguesUser._id !== req.user._id) {
+                throw new Error('link: Your profile is already linked to another user');
+              }
+              // on update les infos de compte
+              req.user.name = req.user.name || profile.displayName;
+              req.user.bouyguesId = profile.id;
+              req.user.bouygues = profile._json;
+              return req.user.save();
+            /*
+             * SIGNIN
+             * On logue l'utilisateur, uniquement si il existe en base
+             */
+            case 'signin':
+              if (!bouyguesUser) {
+                throw new Error("signin: No user found, please associate your profile after being connected'");
+              }
+              console.log('[WARNING]: [AUTH]: [BOUYGUES]: passport: signin: bouygues user exist => SIGNIN');
+              return bouyguesUser;
+            /*
+             * SIGNUP
+             * On regarde si l'utilisateur existe déjà en base, si c'est le cas, on signin
+             *  sinon on le crée, pour cela on le recherche avec son email (pour éviter de créer un doublon)
+             *
+             */
+            case 'signup':
+              if (bouyguesUser) {
+                console.log('[WARNING]: [AUTH]: [BOUYGUES]: passport: signup: bouygues user already exist => SIGNIN');
+                return bouyguesUser;
+              }
+              // on le cherche en base, il existe chez nous
+              User.find({
+                where: {
+                  'email': {$iLike: email}
+                }
+              }).then(function (user) {
+                if (user) {
+                  console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: signup: user found using email ' + email + ' => UPDATE => SIGNUP');
+                  user.name = user.name || profile.displayName;
+                  user.bouyguesId = profile.id;
+                  user.bouygues = profile._json;
+                  return user.save();
+                } else {
+                  console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: signup: user not found using email ' + email + ' => CREATE => SIGNUP');
+                  return User.create({
+                    name: profile.displayName,
+                    email: email,
+                    first_name: profile.name.givenName,
+                    last_name: profile.name.familyName,
+                    role: 'user',
+                    provider: 'bouygues',
+                    bouyguesId: profile.id,
+                    bouygues: profile._json
+                  });
+                }
+              });
+            default:
+              throw new Error('unknown status ' + state.status);
           }
         })
         //
         // we create the user in the billing-api if he doesn't exist yet
         //
         .then(function (user) {
-          c.user = user;
           return billingApi.getOrCreateUser({
             providerName: 'bouygues',
             userReferenceUuid: user._id,
@@ -99,11 +137,15 @@ exports.setup = function (User, config) {
               firstName: user.first_name || '',
               lastName: user.last_name || ''
             }
-          })
+          }).then(function () { return user; });
         })
-        .then(function () {
-          return c.user;
-        })
+        .then(
+          function success(user) { return user; },
+          function error(err) {
+            console.error('[ERROR]: [AUTH]: [BOUYGUES]: passport: '+err.message, err);
+            throw err; // forwarding the error.
+          }
+        )
         .nodeify(done);
     }));
 };

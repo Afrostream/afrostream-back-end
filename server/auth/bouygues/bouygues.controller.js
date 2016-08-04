@@ -14,7 +14,7 @@ var Client = sqldb.Client;
  * Scope authorizations
  * @type {string[]}
  */
-var scope = [/*'identity', 'phone', 'email', 'cpeid'*/];
+// var scope = [/*'identity', 'phone', 'email', 'cpeid'*/];
 
 var strategyOptions = function (options) {
   return function (req, res, next) {
@@ -35,26 +35,40 @@ function validationError (res, statusCode) {
 }
 
 var signin = function (req, res, next) {
-  var userId = req.user ? req.user._id : null;
-  var clientType = req.query.clientType || null;
-  var state = btoa(JSON.stringify({status: 'signin', userId: userId, clientType: clientType}));
   passport.authenticate('bouygues', {
-    userAgent: req.userAgent,
-    scope: scope,
+    // userAgent: req.userAgent, // usefull ?
+    scope: [],
     session: false,
-    state: state
+    state: btoa(JSON.stringify({
+      status: 'signin'
+    }))
   })(req, res, next);
 };
 
 var signup = function (req, res, next) {
-  var clientType = req.query.clientType || null;
-  var state = btoa(JSON.stringify({
-    status: 'signup',
-    clientType: clientType
-  }));
   passport.authenticate('bouygues', {
-    scope: scope,
-    state: state
+    // userAgent: req.userAgent, // usefull ?
+    scope: [],
+    session: false,
+    state: btoa(JSON.stringify({
+      status: 'signup',
+      clientType: req.query.clientType || null // forward caller type
+    }))
+  })(req, res, next);
+};
+
+var link = function (req, res, next) {
+  if (!req.user) {
+    return req.handleError(res, new Error('missing user'));
+  }
+  passport.authenticate('bouygues', {
+    // userAgent: req.userAgent, // usefull ?
+    scope: [],
+    session: false,
+    state: btoa(JSON.stringify({
+      status: 'link',
+      userId: req.user._id
+    }))
   })(req, res, next);
 };
 
@@ -97,11 +111,12 @@ var callback = function (req, res, next) {
         return req.getPassport();
       })
       .then(function (passport) {
-        if (req.clientType) {
-          if (req.clientType !== "legacy-api.tapptic") {
-            throw 'wrong clientType';
+        if (req.signupClientType) {
+          // whitelisting client types
+          if (req.signupClientType !== "legacy-api.tapptic") {
+            throw 'unallowed signupClientType';
           }
-          return Client.findOne({where:{type:req.clientType}}).then(function (c) {
+          return Client.findOne({where:{type:req.signupClientType}}).then(function (c) {
             return c || passport.client;
           })
         }
@@ -136,5 +151,6 @@ module.exports.middlewares = {
 
 module.exports.signin = signin;
 module.exports.signup = signup;
+module.exports.link = link;
 module.exports.unlink = unlink;
 module.exports.callback = callback;
