@@ -28,28 +28,56 @@ function validationError (res, statusCode) {
   }
 }
 
+/**
+ *
+ * WORKFLOW
+ *
+ *  browser: popup https://afrostream.tv/auth/orange/{signin,signup,link}
+ *   front => fwd api-v1 => fwd backend
+ *
+ *  le backend répond un 302 avec l'url orange
+ *    backend => api-v1 => front => browser redirigé vers ce 302
+ *
+ *  suivant si l'user arrive à s'authentifier (ou non),
+ *    orange redirige l'utilisateur vers
+ *    https://afrostream.tv/auth/orange/callback/
+ *
+ *  on part ensuite dans le code de passport.js
+ */
 var signin = function (req, res, next) {
-  var userId = req.user && req.user._id || null;
-  var clientType = req.query.clientType || null;
-  var state = btoa(JSON.stringify({
-    status: 'signin',
-    userId: userId,
-    clientType: clientType
-  }));
   passport.authenticate('orange', {
     session: false,
-    additionalParams: {'RelayState': state}
+    additionalParams: {
+      RelayState: btoa(JSON.stringify({
+        status: 'signin'
+      }))
+    }
   })(req, res, next);
 };
 
 var signup = function (req, res, next) {
-  var clientType = req.query.clientType || null;
-  var state = btoa(JSON.stringify({
-    status: 'signup',
-    clientType: clientType
-  }));
   passport.authenticate('orange', {
-    additionalParams: {'RelayState': state}
+    additionalParams: {
+      RelayState: btoa(JSON.stringify({
+        status: 'signup',
+        signupClientType: req.query.clientType || null // forward caller type
+      }))
+    }
+  })(req, res, next);
+};
+
+var link = function (req, res, next) {
+  if (!req.user) {
+    return req.handleError(res, new Error('missing user'));
+  }
+  passport.authenticate('orange', {
+    session: false,
+    additionalParams: {
+      RelayState: btoa(JSON.stringify({
+        status: 'signin',
+        userId: userId
+      }))
+    }
   })(req, res, next);
 };
 
@@ -96,11 +124,11 @@ var callback = function (req, res, next) {
         return req.getPassport();
       })
       .then(function (passport) {
-        if (req.clientType) {
-          if (req.clientType !== "legacy-api.tapptic") {
+        if (req.signupClientType) {
+          if (req.signupClientType !== "legacy-api.tapptic") {
             throw 'wrong clientType';
           }
-          return Client.findOne({where:{type:req.clientType}}).then(function (c) {
+          return Client.findOne({where:{type:req.signupClientType}}).then(function (c) {
             return c || passport.client;
           })
         }
@@ -135,5 +163,6 @@ module.exports.middlewares = {
 
 module.exports.signin = signin;
 module.exports.signup = signup;
+module.exports.link = link;
 module.exports.unlink = unlink;
 module.exports.callback = callback;

@@ -19,83 +19,99 @@ exports.setup = function (User, config) {
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function (req, orange, done) {
-      //req don't have user, so we pass it in query
-      var state = req.body.RelayState ? new Buffer(req.body.RelayState || '', 'base64').toString('ascii') : '{}';
-      state = JSON.parse(state);
-      var status = state.status || 'signup';
-      req.clientType = state.clientType || null;
-      var userId = req.user ? req.user._id : state.userId;
+      console.log('[INFO]: [AUTH]: [ORANGE]: orange ', orange);
 
-      console.log('[INFO]: [ORANGE]: userId ', userId);
-      console.log('[INFO]: [ORANGE]: orange ', orange);
+      var orangeUser, state;
 
-      var c = {
-        user: null
-      };
-
-      bluebird.resolve(req.user)
-        .then(function (user) {
-          // user exist => continue
-          if (user) {
-            console.log('[INFO]: [ORANGE]: req.user exist');
-            return user;
-          }
-          // missing in req.user ? => fetching in DB
-          var whereUser = [{'orange.identity.collectiveidentifier': orange.identity.collectiveidentifier}, {'ise2': orange.identity.collectiveidentifier}];
-
+      bluebird.resolve(42)
+        .then(function () {
+          // parsing state
+          state = JSON.parse(req.body.RelayState ? new Buffer(req.body.RelayState || '', 'base64').toString('ascii') : '{}');
+          // setting signup client type
+          req.signupClientType = state.signupClientType || null;
+          // logs
+          console.log('[INFO]: [AUTH]: [ORANGE]: passport: state = ' + JSON.stringify(state));
+          console.log('[INFO]: [AUTH]: [ORANGE]: passport: signupClientType = ' + req.signupClientType);
+        })
+        .then(function () {
+          console.log('[INFO]: [AUTH]: [ORANGE]: passport: search orange user in DB using profile id = ' + profile.id);
+          // search orange corresponding user in database
           return User.find({
             where: {
-              $or: whereUser
+              $or: [{'orange.identity.collectiveidentifier': orange.identity.collectiveidentifier}, {'ise2': orange.identity.collectiveidentifier}]
             }
           });
         })
-        .then(function (user) {
-          // user exist => continue
-          if (user) {
-            console.log('[INFO]: [ORANGE]: user found in database using ise2');
-            return user;
+        .then(function (ou) {
+          orangeUser = ou || null;
+
+          // logs
+          if (orangeUser) {
+            console.log('[INFO]: [AUTH]: [ORANGE]: passport: orangeUser found: ' + orangeUser._id);
+          } else {
+            console.log('[INFO]: [AUTH]: [ORANGE]: passport: orangeUser not found');
           }
-          // missing => searching using userId
-          if (userId) {
-            return User.find({
-              where: {'_id': userId}
-            });
-          }
-          // no user
-          return null;
-        })
-        .then(function (user) {
-          if (user) {
-            console.log('[INFO]: [ORANGE]: user found in database using userId');
-            if (userId && !Object.is(parseInt(userId), parseInt(user._id))) {
-              throw new Error('Your orange is already linked to another user');
-            }
-            // user exist => update
-            user.ise2 = orange.identity.collectiveidentifier;
-            user.orange = orange;
-            return user.save();
-          }
-          // new user
-          if (status === 'signin') {
-            throw new Error('No user found, please associate your profile after being connected');
-          }
-          // create
-          console.log('[INFO]: [ORANGE]: creating user with ise2 = ' + orange.identity.collectiveidentifier);
-          return User.create({
-            role: 'user',
-            provider: 'orange',
-            ise2: orange.identity.collectiveidentifier,
-            orange: orange
-          });
+
+          // 3 cas
+          switch (state.status) {
+            /*
+             * LINK
+             * On lie un compte orange a un utilisateur si
+             *  - ce compte n'est pas utilisé
+             *  - ou ce compte existe mais déjà utilisé par ce même utilisateur
+             */
+            case 'link':
+              if (!req.user) {
+                throw new Error("link: missing req.user");
+              }
+              if (req.user._id !== state.userId) {
+                throw new Error("link: req.user._id !== state.userId " + req.user._id + " " + state.userId);
+              }
+              if (orangeUser && orangeUser._id !== req.user._id) {
+                throw new Error('link: Your profile is already linked to another user');
+              }
+              // on update les infos de compte
+              req.user.ise2 = orange.identity.collectiveidentifier;
+              req.user.orange = orange;
+              return req.user.save();
+              /*
+               * SIGNIN
+               * On logue l'utilisateur, uniquement si il existe en base
+               */
+              case 'signin':
+                if (!orangeUser) {
+                  throw new Error("signin: No user found, please associate your profile after being connected'");
+                }
+                console.log('[WARNING]: [AUTH]: [ORANGE]: passport: signin: orange user exist => SIGNIN');
+                return orangeUser;
+                /*
+                 * SIGNUP
+                 * On regarde si l'utilisateur existe déjà en base, si c'est le cas, on signin
+                 *  sinon on le crée, pour cela on le recherche avec son email (pour éviter de créer un doublon)
+                 *
+                 */
+                case 'signup':
+                  if (orangeUser) {
+                    console.log('[WARNING]: [AUTH]: [ORANGE]: passport: signup: orange user already exist => SIGNIN');
+                    return orangeUser;
+                  }
+                  return User.create({
+                    role: 'user',
+                    provider: 'orange',
+                    ise2: orange.identity.collectiveidentifier,
+                    orange: orange
+                  });
+                default:
+                  throw new Error('unknown status ' + state.status);
+              }
         })
         //
         // we create the user in the billing-api if he doesn't exist yet
         //
         .then(function (user) {
-          console.log('[INFO]: [ORANGE]: userReferenceUuid = ' + user._id);
-          console.log('[INFO]: [ORANGE]: userProviderUuid = ' + user.ise2);
-          console.log('[INFO]: [ORANGE]: OrangeApiToken = ' + orange.identity.OrangeAPIToken);
-          c.user = user;
+          console.log('[INFO]: [AUTH]: [ORANGE]: userReferenceUuid = ' + user._id);
+          console.log('[INFO]: [AUTH]: [ORANGE]: userProviderUuid = ' + user.ise2);
+          console.log('[INFO]: [AUTH]: [ORANGE]: OrangeApiToken = ' + orange.identity.OrangeAPIToken);
           return billingApi.getOrCreateUser({
             providerName: 'orange',
             userReferenceUuid: user._id,
@@ -106,11 +122,15 @@ exports.setup = function (User, config) {
               lastName: user.last_name || '',
               OrangeApiToken: orange.identity.OrangeAPIToken
             }
-          });
+          }).then(function () { return user; });
         })
-        .then(function () {
-          return c.user;
-        })
+        .then(
+          function success(user) { return user; },
+          function error(err) {
+            console.error('[ERROR]: [AUTH]: [ORANGE]: passport: '+err.message, err);
+            throw err; // forwarding the error.
+          }
+        )
         .nodeify(done);
     }));
 };

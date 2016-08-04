@@ -34,6 +34,22 @@ function validationError (res, statusCode) {
   }
 }
 
+/**
+ *
+ * WORKFLOW
+ *
+ *  browser: popup https://afrostream.tv/auth/bouygues/{signin,signup,link}
+ *   front => fwd api-v1 => fwd backend
+ *
+ *  le backend répond un 302 avec l'url bouygues
+ *    backend => api-v1 => front => browser redirigé vers ce 302
+ *
+ *  suivant si l'user arrive à s'authentifier (ou non),
+ *    bouygues redirige l'utilisateur vers
+ *    https://afrostream.tv/auth/bouygues/callback/
+ *
+ *  on part ensuite dans le code de passport.js
+ */
 var signin = function (req, res, next) {
   passport.authenticate('bouygues', {
     // userAgent: req.userAgent, // usefull ?
@@ -52,7 +68,7 @@ var signup = function (req, res, next) {
     session: false,
     state: btoa(JSON.stringify({
       status: 'signup',
-      clientType: req.query.clientType || null // forward caller type
+      signupClientType: req.query.clientType || null // forward caller type
     }))
   })(req, res, next);
 };

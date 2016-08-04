@@ -26,7 +26,7 @@ exports.setup = function (User, config) {
           // parsing state
           state = JSON.parse(req.query.state ? new Buffer(req.query.state, 'base64').toString('ascii') : '{}');
           // setting signup client type
-          req.signupClientType = state.clientType || null;
+          req.signupClientType = state.signupClientType || null;
           // logs
           console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: state = ' + JSON.stringify(state));
           console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: signupClientType = ' + req.signupClientType);
@@ -45,7 +45,7 @@ exports.setup = function (User, config) {
 
           // logs
           if (bouyguesUser) {
-            console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: bouyguesUser found');
+            console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: bouyguesUser found:' + bouyguesUser._id);
           } else {
             console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: bouyguesUser not found');
           }
@@ -128,6 +128,8 @@ exports.setup = function (User, config) {
         // we create the user in the billing-api if he doesn't exist yet
         //
         .then(function (user) {
+          console.log('[INFO]: [AUTH]: [ORANGE]: update billingApi userReferenceUuid=' + user._id);
+          console.log('[INFO]: [AUTH]: [ORANGE]: update billingApi userProviderUuid=' + user.bouyguesId);
           return billingApi.getOrCreateUser({
             providerName: 'bouygues',
             userReferenceUuid: user._id,
