@@ -75,7 +75,7 @@ var signup = function (req, res, next) {
 
 var link = function (req, res, next) {
   if (!req.user) {
-    return req.handleError(res, new Error('missing user'));
+    return req.handleError(res)(new Error('missing user'));
   }
   passport.authenticate('bouygues', {
     // userAgent: req.userAgent, // usefull ?
@@ -112,25 +112,28 @@ var unlink = function (req, res) {
 
 var callback = function (req, res, next) {
   var state = req.query.state;
+  // logs
+  console.log('[INFO]: [AUTH]: [BOUYGUES]: callback: START');
+  console.log('[INFO]: [AUTH]: [BOUYGUES]: callback: state='+state);
+  //
   passport.authenticate('bouygues', {
     state: state,
     session: false
   }, function (err, user, info) {
-
     Q()
       .then(function () {
         if (err) throw err;
         //if (info) throw info;
-        console.log(info);
+        console.log('[INFO]: [AUTH]: [BOUYGUES]: callback: info=', info);
         if (!user) throw new Error('Something went wrong, please try again.');
-        console.log('authenticate getOauth2UserTokens', user._id);
+        console.log('[INFO]: [AUTH]: [BOUYGUES]: callback: userId=', user._id);
         return req.getPassport();
       })
       .then(function (passport) {
         if (req.signupClientType) {
           // whitelisting client types
           if (req.signupClientType !== "legacy-api.tapptic") {
-            throw 'unallowed signupClientType';
+            throw new Error('unallowed signupClientType');
           }
           return Client.findOne({where:{type:req.signupClientType}}).then(function (c) {
             return c || passport.client;
@@ -139,7 +142,7 @@ var callback = function (req, res, next) {
         return passport.client;
       })
       .then(function (client) {
-        console.log('generate token with client', client._id, user._id);
+        console.log('[INFO]: [AUTH]: [BOUYGUES]: generate Token for client=' + client._id + ' & user=' + user._id);
         return Q.nfcall(oauth2.generateToken, client, user, null, req.clientIp, req.userAgent, null);
       })
       .then(function (tokenInfos) {
@@ -152,11 +155,12 @@ var callback = function (req, res, next) {
       })
       .then(
         function success (tokens) {
+          console.log('[INFO]: [AUTH]: [BOUYGUES]: sending tokens ' + JSON.stringify(tokens));
           res.json(tokens);
         },
         function error (err) {
-          console.error('/auth/bouygues/: error: ' + JSON.stringify(err), err);
-          return res.status(401).json({message: String(err)});
+          console.error('[ERROR]: [AUTH]: [BOUYGUES]: callback: error=' + err.message, err);
+          req.handleError(res)(err);
         });
   })(req, res, next);
 };

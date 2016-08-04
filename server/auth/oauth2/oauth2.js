@@ -114,12 +114,12 @@ var generateToken = function (client, user, code, userIp, userAgent, expireIn, d
         .then(function (refreshTokenEntity) {
           return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
         }).catch(function (err) {
-        console.log('RefreshToken', err);
+        console.error('RefreshToken', err);
         return done(err)
       });
 
     }).catch(function (err) {
-    console.log('AccessToken', err);
+    console.error('AccessToken', err);
     return done(err)
   });
 };

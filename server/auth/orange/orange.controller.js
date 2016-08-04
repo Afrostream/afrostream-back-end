@@ -68,7 +68,7 @@ var signup = function (req, res, next) {
 
 var link = function (req, res, next) {
   if (!req.user) {
-    return req.handleError(res, new Error('missing user'));
+    return req.handleError(res)(new Error('missing user'));
   }
   passport.authenticate('orange', {
     session: false,
@@ -108,25 +108,28 @@ var unlink = function (req, res) {
 
 var callback = function (req, res, next) {
   var expireIn = null;
-
+  // logs
+  console.log('[INFO]: [AUTH]: [ORANGE]: callback: START');
+  //
   passport.authenticate('orange', {
     session: false
   }, function (err, user, info) {
     Q()
       .then(function () {
         if (err) throw err;
+        console.log('[INFO]: [AUTH]: [ORANGE]: callback: info=', info);
         if (info) {
-          console.log('info', info);
-          expireIn = info.expireIn
+          expireIn = info.expireIn // Wat for ??
         }
         if (!user) throw new Error('Something went wrong, please try again.');
-        console.log('authenticate getOauth2UserTokens', user._id);
+        console.log('[INFO]: [AUTH]: [ORANGE]: callback: userId=', user._id);
         return req.getPassport();
       })
       .then(function (passport) {
         if (req.signupClientType) {
+          // whitelisting client types
           if (req.signupClientType !== "legacy-api.tapptic") {
-            throw 'wrong clientType';
+            throw new Error('unallowed signupClientType');
           }
           return Client.findOne({where:{type:req.signupClientType}}).then(function (c) {
             return c || passport.client;
@@ -135,7 +138,7 @@ var callback = function (req, res, next) {
         return passport.client;
       })
       .then(function (client) {
-        console.log('generate token with client', client._id, user._id);
+        console.log('[INFO]: [AUTH]: [ORANGE]: generate Token for client=' + client._id + ' & user=' + user._id);
         return Q.nfcall(oauth2.generateToken, client, user, null, req.clientIp, req.userAgent, expireIn);
       })
       .then(function (tokenInfos) {
@@ -148,11 +151,12 @@ var callback = function (req, res, next) {
       })
       .then(
         function success (tokens) {
+          console.log('[INFO]: [AUTH]: [ORANGE]: sending tokens ' + JSON.stringify(tokens));
           res.json(tokens);
         },
         function error (err) {
-          console.error('/auth/orange/: error: ' + JSON.stringify(err), err);
-          return res.status(401).json({message: String(err)});
+          console.error('[ERROR]: [AUTH]: [ORANGE]: callback: error=' + err.message, err);
+          req.handleError(res)(err);
         });
   })(req, res, next);
 };
