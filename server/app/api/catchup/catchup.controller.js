@@ -98,7 +98,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
         .then(function () {
           // same thing for the movie object, we search all the seasons with dateFrom > now - 8 days
           //  and assign the first one to movie
-          return Seasons.findAll({
+          return Season.findAll({
             attributes: ['dateFrom'],
             where: { movieId: movie._id, $and: [ { dateFrom: { $gt: oneWeekAgo} }, { dateFrom: { $ne: null } } ] },
             order: [ [ 'dateFrom', 'ASC' ]],
