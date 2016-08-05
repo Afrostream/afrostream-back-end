@@ -9,8 +9,6 @@ var billingApi = rootRequire('/server/billing-api.js');
  * - si je suis loggué (_id) et que je veux lier mon compte orange je trouve deja queql’un qui a un ise2 je fail
  * - sinon je link
  **/
-
-
 exports.setup = function (User, config) {
   passport.use(new OrangeStrategy({
       clientID: config.orange.clientID,
@@ -53,6 +51,7 @@ exports.setup = function (User, config) {
           }
 
           // 3 cas
+          console.log('[INFO]: [AUTH]: [ORANGE]: passport: status='+state.status);
           switch (state.status) {
             /*
              * LINK
@@ -82,7 +81,7 @@ exports.setup = function (User, config) {
                 if (!orangeUser) {
                   throw new Error("signin: No user found, please associate your profile after being connected'");
                 }
-                console.log('[WARNING]: [AUTH]: [ORANGE]: passport: signin: orange user exist => SIGNIN');
+                console.log('[WARNING]: [AUTH]: [ORANGE]: passport: signin: orange user exist (' + orangeUser._id + ') => SIGNIN');
                 return orangeUser;
                 /*
                  * SIGNUP

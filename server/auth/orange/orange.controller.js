@@ -43,6 +43,7 @@ function validationError (res, statusCode) {
  *    https://afrostream.tv/auth/orange/callback/
  *
  *  on part ensuite dans le code de passport.js
+ *    et on revient dans le code de la callback
  */
 var signin = function (req, res, next) {
   passport.authenticate('orange', {

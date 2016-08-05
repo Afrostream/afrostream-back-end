@@ -51,6 +51,7 @@ exports.setup = function (User, config) {
           }
 
           // 3 CAS
+          console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: status='+state.status);
           switch (state.status) {
             /*
              * LINK
@@ -81,7 +82,7 @@ exports.setup = function (User, config) {
               if (!bouyguesUser) {
                 throw new Error("signin: No user found, please associate your profile after being connected'");
               }
-              console.log('[WARNING]: [AUTH]: [BOUYGUES]: passport: signin: bouygues user exist => SIGNIN');
+              console.log('[WARNING]: [AUTH]: [BOUYGUES]: passport: signin: bouygues user exist (' + bouyguesUser._id + ') => SIGNIN');
               return bouyguesUser;
             /*
              * SIGNUP
@@ -128,8 +129,8 @@ exports.setup = function (User, config) {
         // we create the user in the billing-api if he doesn't exist yet
         //
         .then(function (user) {
-          console.log('[INFO]: [AUTH]: [ORANGE]: update billingApi userReferenceUuid=' + user._id);
-          console.log('[INFO]: [AUTH]: [ORANGE]: update billingApi userProviderUuid=' + user.bouyguesId);
+          console.log('[INFO]: [AUTH]: [BOUYGUES]: update billingApi userReferenceUuid=' + user._id);
+          console.log('[INFO]: [AUTH]: [BOUYGUES]: update billingApi userProviderUuid=' + user.bouyguesId);
           return billingApi.getOrCreateUser({
             providerName: 'bouygues',
             userReferenceUuid: user._id,
