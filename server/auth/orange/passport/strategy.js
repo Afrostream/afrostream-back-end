@@ -21,14 +21,14 @@ var Q = require('q')
  * Options:
  *   - `clientID`      your Orange application's App ID
  *   - `clientSecret`  your Orange application's App Secret
- *   - `callbackURL`   URL to which Orange will redirect the user after granting authorization
+ *   - `callbackUrl`   URL to which Orange will redirect the user after granting authorization
  *
  * Examples:
  *
  *     passport.use(new OrangeStrategy({
  *         clientID: '123-456-789',
  *         clientSecret: 'shhh-its-a-secret'
- *         callbackURL: 'https://www.example.net/auth/Orange/callback'
+ *         callbackUrl: 'https://www.example.net/auth/Orange/callback'
  *       },
  *       function(accessToken, refreshToken, profile, done) {
  *         User.findOrCreate(..., function (err, user) {

@@ -13,7 +13,7 @@ exports.setup = function (User, config) {
   passport.use(new OrangeStrategy({
       clientID: config.orange.clientID,
       clientSecret: config.orange.clientSecret,
-      callbackURL: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/auth/orange/callback',
+      callbackUrl: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/auth/orange/callback',
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function (req, orange, done) {
