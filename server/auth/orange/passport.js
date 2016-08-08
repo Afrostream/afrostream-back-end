@@ -32,7 +32,7 @@ exports.setup = function (User, config) {
           console.log('[INFO]: [AUTH]: [ORANGE]: passport: signupClientType = ' + req.signupClientType);
         })
         .then(function () {
-          console.log('[INFO]: [AUTH]: [ORANGE]: passport: search orange user in DB using profile id = ' + profile.id);
+          console.log('[INFO]: [AUTH]: [ORANGE]: passport: search orange user in DB using orange.identity.collectiveidentifier= ' + orange.identity.collectiveidentifier);
           // search orange corresponding user in database
           return User.find({
             where: {
