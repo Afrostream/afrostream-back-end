@@ -107,7 +107,7 @@ function getPassport(req) {
     })
     .then(function (accessToken) {
       // debug
-      // console.log('[INFO]: [middleware-passport]: accessToken=' + accessToken);
+      console.log('[INFO]: [middleware-passport]: accessToken=' + accessToken);
       if (accessToken) {
         // saving the accessToken.
         passport.accessToken = accessToken;
@@ -124,10 +124,10 @@ function getPassport(req) {
     .then(
     function success() {
       // debug
-      //console.log('[INFO]: [middleware-passport]: client =',
-      //  JSON.stringify(passport.client && passport.client.toJSON()));
-      //console.log('[INFO]: [middleware-passport]: user =',
-      //  JSON.stringify(passport.user && passport.user.toJSON()));
+      console.log('[INFO]: [middleware-passport]: client =',
+        JSON.stringify(passport.client && passport.client.toJSON()));
+      console.log('[INFO]: [middleware-passport]: user =',
+        JSON.stringify(passport.user && passport.user.toJSON()));
       return passport;
     },
     function failure(err) {
