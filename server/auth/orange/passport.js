@@ -3,6 +3,8 @@ var passport = require('passport');
 var OrangeStrategy = require('./passport/');
 var billingApi = rootRequire('/server/billing-api.js');
 
+var auth = require('../auth.service');
+
 /**
  * - si personne d’a de ise2 , je crée un user from scratch et je lui assigne le ise2
  * - si lors du signin je trouve deja queql’un qui a un ise2 je fail
@@ -60,19 +62,20 @@ exports.setup = function (User, config) {
              *  - ou ce compte existe mais déjà utilisé par ce même utilisateur
              */
             case 'link':
-              if (!req.user) {
-                throw new Error("link: missing req.user");
+              var user = req.passport.user;
+              if (!user) {
+                throw new Error("link: missing user");
               }
-              if (req.user._id !== state.userId) {
-                throw new Error("link: req.user._id !== state.userId " + req.user._id + " " + state.userId);
+              if (user._id !== state.userId) {
+                throw new Error("link: user._id !== state.userId " + user._id + " " + state.userId);
               }
-              if (orangeUser && orangeUser._id !== req.user._id) {
+              if (orangeUser && orangeUser._id !== user._id) {
                 throw new Error('link: Your profile is already linked to another user');
               }
               // on update les infos de compte
-              req.user.ise2 = orange.identity.collectiveidentifier;
-              req.user.orange = orange;
-              return req.user.save();
+              user.ise2 = orange.identity.collectiveidentifier;
+              user.orange = orange;
+              return user.save();
               /*
                * SIGNIN
                * On logue l'utilisateur, uniquement si il existe en base
