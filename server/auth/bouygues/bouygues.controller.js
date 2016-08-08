@@ -89,11 +89,10 @@ var link = function (req, res, next) {
 };
 
 var unlink = function (req, res) {
-  var userId = req.user ? req.user._id : null;
-  console.log('unlink user bouygues : ', userId)
+  console.log('unlink user bouygues : ', req.user._id);
   User.find({
     where: {
-      _id: userId
+      _id: req.user._id
     }
   })
     .then(function (user) {
