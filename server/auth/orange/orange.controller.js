@@ -75,7 +75,7 @@ var link = function (req, res, next) {
     session: false,
     additionalParams: {
       RelayState: btoa(JSON.stringify({
-        status: 'signin',
+        status: 'link',
         userId: req.user._id
       }))
     }
