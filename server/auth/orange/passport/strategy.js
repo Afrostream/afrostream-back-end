@@ -45,7 +45,6 @@ function Strategy (options, verify) {
   options.scopeSeparator = options.scopeSeparator || ',';
   options.customHeaders = options.customHeaders || {};
   options.issuer = options.clientID;
-  options.validateInResponseTo = true;
   options.attributeConsumingServiceIndex = 32768;
   options.identifierFormat = options.identifierFormat || 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent';
 

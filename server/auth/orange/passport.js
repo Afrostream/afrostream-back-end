@@ -17,6 +17,8 @@ exports.setup = function (User, config) {
       clientID: config.orange.clientID,
       clientSecret: config.orange.clientSecret,
       callbackUrl: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/auth/orange/callback',
+      validateInResponseTo: false, // le module SAML stocke le InResponseTo InMemory
+                                   //  <=> disfonctionnement en PROD en mode cluster.
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     function (req, orange, done) {
