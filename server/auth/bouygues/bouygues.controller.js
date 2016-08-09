@@ -83,7 +83,7 @@ var link = function (req, res, next) {
     session: false,
     state: btoa(JSON.stringify({
       status: 'link',
-      userId: req.user._id
+      accessToken: req.passport && req.passport.accessToken && req.passport.accessToken.get('token')
     }))
   })(req, res, next);
 };
