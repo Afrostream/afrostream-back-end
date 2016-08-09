@@ -3,6 +3,9 @@ var passport = require('passport');
 var OrangeStrategy = require('./passport/');
 var billingApi = rootRequire('/server/billing-api.js');
 
+var sqldb = rootRequire('/server/sqldb');
+var AccessToken = sqldb.AccessToken;
+
 /**
  * - si personne d’a de ise2 , je crée un user from scratch et je lui assigne le ise2
  * - si lors du signin je trouve deja queql’un qui a un ise2 je fail
