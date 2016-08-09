@@ -132,7 +132,8 @@ exports.update = function (req, res) {
   //
   var updateableFields = [
     /* 'name', 'first_name', 'last_name', 'email', */ // FIXME_023 Please read the comment above before changing this.
-    'bouyguesId'
+    'bouyguesId',
+    'splashList'
   ];
   updateableFields.forEach(function (field) {
     if (typeof req.body[field] !== 'undefined') {

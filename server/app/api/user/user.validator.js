@@ -22,7 +22,12 @@ var updateBody = Joi.object().keys({
   first_name: Joi.string().max(255),
   last_name: Joi.string().max(255),
   bouyguesId: Joi.string().max(128),
-  ise2: Joi.string().max(128)
+  ise2: Joi.string().max(128),
+  splashList: Joi.array().items(Joi.object(
+    {
+      _id: Joi.string().required()
+    }
+  ))
 });
 
 module.exports.validateCreateBody = function (req, res, next) {
@@ -36,7 +41,7 @@ module.exports.validateCreateBody = function (req, res, next) {
   } else {
     schema = createBody;
   }
-  Joi.validate(req.body, schema, { allowUnknown: true }, function (err) {
+  Joi.validate(req.body, schema, {allowUnknown: true}, function (err) {
     if (err) {
       console.error('ERROR: POST /api/users: ' + String(err));
       return res.status(422).send({error: String(err)});
@@ -46,7 +51,7 @@ module.exports.validateCreateBody = function (req, res, next) {
 };
 
 module.exports.validateUpdateBody = function (req, res, next) {
-  Joi.validate(req.body, updateBody, { allowUnknown: true }, function (err) {
+  Joi.validate(req.body, updateBody, {allowUnknown: true}, function (err) {
     if (err) {
       console.error('ERROR: PUT /api/users/me: ' + String(err));
       return res.status(422).send({error: String(err)});
