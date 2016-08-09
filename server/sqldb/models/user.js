@@ -56,6 +56,7 @@ module.exports = function (sequelize, DataTypes) {
     bouygues: DataTypes.JSON,
     bouyguesId: DataTypes.STRING(128), // bouygues ise2 id.
     ise2: DataTypes.STRING(128), // orange ise2 id.
+    splashList: DataTypes.JSON,
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
@@ -78,7 +79,8 @@ module.exports = function (sequelize, DataTypes) {
           'orange': this.orange,
           'ise2': this.ise2 || this.orange && this.orange.identify && this.orange.identify.collectiveidentifier || null,  // fixme: security: should this id be exported ?
           'bouygues': this.bouygues,
-          'bouyguesId': this.bouyguesId || this.bouygues && this.bouygues.id || null // fixme: security: should this id be exported ?
+          'bouyguesId': this.bouyguesId || this.bouygues && this.bouygues.id || null, // fixme: security: should this id be exported ?
+          'splashList': this.splashList
         };
       },
 
@@ -118,12 +120,12 @@ module.exports = function (sequelize, DataTypes) {
         }
         // ensure bouyguesId & user.bouygues.id are synced
         if (user.changed('bouyguesId')) {
-          user.bouygues = _.merge(user.bouygues, { id: user.bouyguesId });
+          user.bouygues = _.merge(user.bouygues, {id: user.bouyguesId});
           return fn();
         }
         // ensure orangeId & user.orange.identity.collectiveidentifier are synced
         if (user.changed('ise2')) {
-          user.orange = _.merge(user.orange, { identity : { collectiveidentifier: user.ise2 }});
+          user.orange = _.merge(user.orange, {identity: {collectiveidentifier: user.ise2}});
           return fn();
         }
         fn();
