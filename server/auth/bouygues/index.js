@@ -8,7 +8,7 @@ var router = express.Router();
 router.get('/signin', bouygues.signin);
 router.get('/signup', bouygues.signup);
 router.get('/callback', bouygues.callback);
-router.get('/link', auth.isAuthenticated(), bouygues.link);
-router.get('/unlink', auth.isAuthenticated(), bouygues.unlink);
+router.get('/link', auth.middleware.restrictRoutesToAuthentified(), bouygues.link);
+router.get('/unlink', auth.middleware.restrictRoutesToAuthentified(), bouygues.unlink);
 
 module.exports = router;

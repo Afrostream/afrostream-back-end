@@ -10,7 +10,7 @@ var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passpor
 router.get('/signin', orange.signin);
 router.get('/signup', orange.signup);
 router.post('/callback', orange.callback);
-router.get('/link', auth.isAuthenticated(), orange.link);
-router.get('/unlink', auth.isAuthenticated(), orange.unlink);
+router.get('/link', auth.middleware.restrictRoutesToAuthentified(), orange.link);
+router.get('/unlink', auth.middleware.restrictRoutesToAuthentified(), orange.unlink);
 
 module.exports = router;
