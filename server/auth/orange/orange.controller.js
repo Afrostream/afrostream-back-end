@@ -76,7 +76,7 @@ var link = function (req, res, next) {
     additionalParams: {
       RelayState: btoa(JSON.stringify({
         status: 'link',
-        userId: req.user._id
+        accessToken: req.passport && req.passport.accessToken && req.passport.accessToken.get('token')
       }))
     }
   })(req, res, next);

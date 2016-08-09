@@ -60,20 +60,35 @@ exports.setup = function (User, config) {
              *  - ou ce compte existe mais déjà utilisé par ce même utilisateur
              */
             case 'link':
-              if (!req.user) {
-                throw new Error("link: missing req.user");
+              // l'appel à /auth/bouygues/link a généré un state contenant accessToken=...
+              // on se sert de cet accessToken récupéré dans /auth/bouygues/callback
+              // pour re-authentifier l'utilisateur
+              var token = state.accessToken;
+              if (!token) {
+                throw new Error("link: missing accessToken");
               }
-              if (req.user._id !== state.userId) {
-                throw new Error("link: req.user._id !== state.userId " + req.user._id + " " + state.userId);
-              }
-              if (bouyguesUser && bouyguesUser._id !== req.user._id) {
-                throw new Error('link: Your profile is already linked to another user');
-              }
-              // on update les infos de compte
-              req.user.name = req.user.name || profile.displayName;
-              req.user.bouyguesId = profile.id;
-              req.user.bouygues = profile._json;
-              return req.user.save();
+              return AccessToken.find({where: {token: token}})
+                .then(function (accessToken) {
+                  if (!accessToken) {
+                    throw new Error("link: cannot find accessToken " + token);
+                  }
+                  // l'access-token existe, on cherche l'utilisateur lié
+                  return accessToken.getUser();
+                })
+                .then(function (user) {
+                  if (!user) {
+                    throw new Error("link: missing user");
+                  }
+                  if (bouyguesUser && bouyguesUser._id !== user._id) {
+                    throw new Error('link: Your profile is already linked to another user');
+                  }
+                  // l'utilisateur de cet accessToken existe,
+                  // on update les infos de compte
+                  user.name = user.name || profile.displayName;
+                  user.bouyguesId = profile.id;
+                  user.bouygues = profile._json;
+                  return user.save();
+                });
             /*
              * SIGNIN
              * On logue l'utilisateur, uniquement si il existe en base
