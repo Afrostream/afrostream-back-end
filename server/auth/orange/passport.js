@@ -38,6 +38,9 @@ exports.setup = function (User, config) {
         })
         .then(function () {
           console.log('[INFO]: [AUTH]: [ORANGE]: passport: search orange user in DB using orange.identity.collectiveidentifier= ' + orange.identity.collectiveidentifier);
+          if (!orange.identity.collectiveidentifier) {
+            throw new Error('missing orange.identity.collectiveidentifier in response orange=', orange);
+          }
           // search orange corresponding user in database
           return User.find({
             where: {
