@@ -72,6 +72,7 @@ exports.setup = function (User, config) {
               // on se sert de cet accessToken récupéré dans /auth/orange/callback
               // pour re-authentifier l'utilisateur
               var token = state.accessToken;
+              console.log('[INFO]: [AUTH]: [ORANGE]: passport: link: accessToken='+token);
               if (!token) {
                 throw new Error("link: missing accessToken");
               }
@@ -80,6 +81,7 @@ exports.setup = function (User, config) {
                   if (!accessToken) {
                     throw new Error("link: cannot find accessToken " + token);
                   }
+                  console.log('[INFO]: [AUTH]: [ORANGE]: passport: link: accessToken found, searching user');
                   // l'access-token existe, on cherche l'utilisateur lié
                   return accessToken.getUser();
                 })
@@ -90,11 +92,8 @@ exports.setup = function (User, config) {
                   if (orangeUser && orangeUser._id !== user._id) {
                     throw new Error('link: Your profile is already linked to another user');
                   }
-                  // l'utilisateur de cet accessToken existe,
-                  // on update les infos de compte
-                  user.ise2 = orange.identity.collectiveidentifier;
-                  user.orange = orange;
-                  return user.save();
+                  console.log('[INFO]: [AUTH]: [ORANGE]: passport: link: user ' + user._id + ' found, asking the billing');
+                  return user;
                 });
               /*
                * SIGNIN
@@ -117,11 +116,10 @@ exports.setup = function (User, config) {
                     console.log('[WARNING]: [AUTH]: [ORANGE]: passport: signup: orange user already exist => SIGNIN');
                     return orangeUser;
                   }
+                  console.log('[INFO]: [AUTH]: [ORANGE]: passport: signup: creating orange user');
                   return User.create({
                     role: 'user',
-                    provider: 'orange',
-                    ise2: orange.identity.collectiveidentifier,
-                    orange: orange
+                    provider: 'orange'
                   });
                 default:
                   throw new Error('unknown status ' + state.status);
@@ -134,10 +132,11 @@ exports.setup = function (User, config) {
           console.log('[INFO]: [AUTH]: [ORANGE]: userReferenceUuid = ' + user._id);
           console.log('[INFO]: [AUTH]: [ORANGE]: userProviderUuid = ' + user.ise2);
           console.log('[INFO]: [AUTH]: [ORANGE]: OrangeApiToken = ' + orange.identity.OrangeAPIToken);
+
           return billingApi.getOrCreateUser({
             providerName: 'orange',
             userReferenceUuid: user._id,
-            userProviderUuid: user.ise2,
+            userProviderUuid: orange.identity.OrangeAPIToken,
             userOpts: {
               email: user.email || '',
               firstName: user.first_name || '',
@@ -145,6 +144,22 @@ exports.setup = function (User, config) {
               OrangeApiToken: orange.identity.OrangeAPIToken
             }
           }).then(function () { return user; });
+        })
+        .then(function (user) {
+          // mise a jour des infos utilisateur
+          // on ne peut faire le lien entre un user et un ise2 que si le billing est ok !
+          switch (state.status) {
+            case 'link':
+            case 'signup':
+              console.log('[INFO]: [AUTH]: [ORANGE]: saving ise2 & orange info into user');
+              // l'utilisateur de cet accessToken existe,
+              // on update les infos de compte
+              user.ise2 = orange.identity.collectiveidentifier;
+              user.orange = orange;
+              return user.save();
+            default:
+              return user;
+          }
         })
         .then(
           function success(user) { return user; },

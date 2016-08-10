@@ -64,6 +64,7 @@ exports.setup = function (User, config) {
               // on se sert de cet accessToken récupéré dans /auth/bouygues/callback
               // pour re-authentifier l'utilisateur
               var token = state.accessToken;
+              console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: link: accessToken='+token);
               if (!token) {
                 throw new Error("link: missing accessToken");
               }
@@ -72,6 +73,7 @@ exports.setup = function (User, config) {
                   if (!accessToken) {
                     throw new Error("link: cannot find accessToken " + token);
                   }
+                  console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: link: accessToken found, searching user');
                   // l'access-token existe, on cherche l'utilisateur lié
                   return accessToken.getUser();
                 })
@@ -82,12 +84,8 @@ exports.setup = function (User, config) {
                   if (bouyguesUser && bouyguesUser._id !== user._id) {
                     throw new Error('link: Your profile is already linked to another user');
                   }
-                  // l'utilisateur de cet accessToken existe,
-                  // on update les infos de compte
-                  user.name = user.name || profile.displayName;
-                  user.bouyguesId = profile.id;
-                  user.bouygues = profile._json;
-                  return user.save();
+                  console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: link: user ' + user._id + ' found, asking the billing');
+                  return user;
                 });
             /*
              * SIGNIN
@@ -118,10 +116,7 @@ exports.setup = function (User, config) {
               }).then(function (user) {
                 if (user) {
                   console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: signup: user found using email ' + email + ' => UPDATE => SIGNUP');
-                  user.name = user.name || profile.displayName;
-                  user.bouyguesId = profile.id;
-                  user.bouygues = profile._json;
-                  return user.save();
+                  return user;
                 } else {
                   console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: signup: user not found using email ' + email + ' => CREATE => SIGNUP');
                   return User.create({
@@ -130,9 +125,7 @@ exports.setup = function (User, config) {
                     first_name: profile.name.givenName,
                     last_name: profile.name.familyName,
                     role: 'user',
-                    provider: 'bouygues',
-                    bouyguesId: profile.id,
-                    bouygues: profile._json
+                    provider: 'bouygues'
                   });
                 }
               });
@@ -156,6 +149,23 @@ exports.setup = function (User, config) {
               lastName: user.last_name || ''
             }
           }).then(function () { return user; });
+        })
+        .then(function (user) {
+          // mise a jour des infos utilisateur
+          // on ne peut faire le lien entre un user et un cpeid que si le billing est ok !
+          switch (state.status) {
+            case 'link':
+            case 'signup':
+            console.log('[INFO]: [AUTH]: [BOUYGUES]: link|signup: saving cpeid, bouygues, name into user');
+              // l'utilisateur de cet accessToken existe,
+              // on update les infos de compte
+              user.name = user.name || profile.displayName;
+              user.bouyguesId = profile.id;
+              user.bouygues = profile._json;
+              return user.save();
+            default:
+              return user;
+          }
         })
         .then(
           function success(user) { return user; },
