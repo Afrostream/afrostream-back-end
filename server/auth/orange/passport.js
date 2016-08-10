@@ -143,7 +143,21 @@ exports.setup = function (User, config) {
               lastName: user.last_name || '',
               OrangeApiToken: orange.identity.OrangeAPIToken
             }
-          }).then(function () { return user; });
+          })
+          .then(function (data) {
+            var userBillingUuid = data.response.user.userBillingUuid;
+            var orangeApiToken = orange.identity.OrangeAPIToken;
+            console.log('[INFO]: [AUTH]: [ORANGE]: updating billing user ' + userBillingUuid + ' with orangeApiToken ' + orangeApiToken);
+            return billingApi.updateUser(
+              userBillingUuid,
+              {
+                userOpts: {
+                  OrangeApiToken: orangeApiToken
+                }
+              }
+            );
+          })
+          .then(function () { return user; });
         })
         .then(function (user) {
           // mise a jour des infos utilisateur
