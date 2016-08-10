@@ -163,6 +163,23 @@ var getUser = function (userReferenceUuid, providerName) {
 };
 
 /**
+ * update a billing user
+ *
+ * @param userBillingUuid    string  billing user id
+ * @param data               object
+ */
+var updateUser = function (userBillingUuid, data) {
+  assert(userBillingUuid);
+  assert(data && typeof data === 'object');
+
+  return requestBilling({
+    method: 'PUT'
+  , url: config.billings.url + '/billings/api/users/' + userBillingUuid
+  , body: data
+  });
+};
+
+/**
  * create a user in the billing api
  *
  * @param billingsData  object
@@ -367,6 +384,7 @@ module.exports.updateSubscription = updateSubscription;
 // user manipulation
 module.exports.getUser = getUser;
 module.exports.createUser = createUser;
+module.exports.updateUser = updateUser;
 //module.exports.updateUser = updateUser;
 module.exports.getOrCreateUser = getOrCreateUser;
 // fetching internal infos
