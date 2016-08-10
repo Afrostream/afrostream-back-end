@@ -3,9 +3,10 @@ module.exports = function (options) {
     req.handleError = function (res, defaultStatusCode) {
       defaultStatusCode = defaultStatusCode || 500;
       return function (err) {
-        var message = err && err.message || err;
+        var message = err && err.message || err || 'unknown';
         var statusCode = err && err.statusCode || defaultStatusCode;
-        console.error('[ERROR] ' + message, err);
+        var stack = err && err.stack || 'no stack trace';
+        console.error('[ERROR] ' + message, stack, err);
         // all errors are "no-cache", prevent HW CDN cache on error
         res.noCache();
         //
