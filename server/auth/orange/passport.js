@@ -136,7 +136,7 @@ exports.setup = function (User, config) {
           return billingApi.getOrCreateUser({
             providerName: 'orange',
             userReferenceUuid: user._id,
-            userProviderUuid: orange.identity.OrangeAPIToken,
+            userProviderUuid: orange.identity.collectiveidentifier,
             userOpts: {
               email: user.email || '',
               firstName: user.first_name || '',
@@ -151,7 +151,7 @@ exports.setup = function (User, config) {
           switch (state.status) {
             case 'link':
             case 'signup':
-              console.log('[INFO]: [AUTH]: [ORANGE]: saving ise2 & orange info into user');
+              console.log('[INFO]: [AUTH]: [ORANGE]: link|signup: saving ise2 & orange info into user');
               // l'utilisateur de cet accessToken existe,
               // on update les infos de compte
               user.ise2 = orange.identity.collectiveidentifier;

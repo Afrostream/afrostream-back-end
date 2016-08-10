@@ -142,7 +142,7 @@ exports.setup = function (User, config) {
           return billingApi.getOrCreateUser({
             providerName: 'bouygues',
             userReferenceUuid: user._id,
-            userProviderUuid: user.bouyguesId,
+            userProviderUuid: profile.id,
             userOpts: {
               email: user.email || '',
               firstName: user.first_name || '',
