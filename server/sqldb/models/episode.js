@@ -57,7 +57,9 @@ module.exports = function (sequelize, DataTypes) {
       get: function () {
         return this.getDataValue('vXstY') || 'VF';
       }
-    }
+    },
+    countries: DataTypes.ARRAY(DataTypes.STRING(2)),
+    broadcasters: DataTypes.ARRAY(DataTypes.INTEGER)
   }, {
     getterMethods   : {
       sharing: function()  {

@@ -20,6 +20,8 @@ module.exports = function (sequelize, DataTypes) {
     ro: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
-    }
+    },
+    countries: DataTypes.ARRAY(DataTypes.STRING(2)),
+    broadcasters: DataTypes.ARRAY(DataTypes.INTEGER)
   });
 };

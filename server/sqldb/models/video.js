@@ -38,7 +38,9 @@ module.exports = function (sequelize, DataTypes) {
         return parseFloat(this.getDataValue('duration'));
       }
     },
-    pfMd5Hash: DataTypes.STRING(32)
+    pfMd5Hash: DataTypes.STRING(32),
+    countries: DataTypes.ARRAY(DataTypes.STRING(2)),
+    broadcasters: DataTypes.ARRAY(DataTypes.INTEGER)
   }, {
     getterMethods   : {
       sharing: function()  {
