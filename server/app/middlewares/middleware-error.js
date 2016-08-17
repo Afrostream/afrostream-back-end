@@ -3,7 +3,7 @@ module.exports = function (options) {
     req.handleError = function (res, defaultStatusCode) {
       defaultStatusCode = defaultStatusCode || 500;
       return function (err) {
-        var message = err && err.message || err || 'unknown';
+        var message = String(err && err.message || err || 'unknown');
         var statusCode = err && err.statusCode || defaultStatusCode;
         var stack = err && err.stack || 'no stack trace';
         console.error('[ERROR] ' + message, stack, err);
