@@ -112,7 +112,7 @@ exports.setup = function (User, config) {
                 return bouyguesUser;
               }
               // on le cherche en base, il existe chez nous
-              User.find({
+              return User.find({
                 where: {
                   'email': {$iLike: email}
                 }
