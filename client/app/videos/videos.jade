@@ -58,3 +58,8 @@
       div(ng-if='item && item.captions.length && item._id')
         label(class='btn btn-primary' ng-click='packCaptions()' )
           | Pack captions
+
+
+.form-group
+  label.control-label Countries
+  countries(props="countriesProps")

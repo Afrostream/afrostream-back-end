@@ -50,4 +50,16 @@ angular.module('afrostreamAdminApp')
         $scope.mpd = null;
       }
     }, true);
+
+    //// COUNTRIES ////
+    var updateScopeCountriesProps = function () {
+      $scope.countriesProps = {
+        countries : $scope.item && $scope.item.countries || [],
+        onChange: function (countries) {
+          $scope.item.countries = countries;
+        }
+      };
+    }
+    updateScopeCountriesProps();
+    $scope.$watch('item', updateScopeCountriesProps);
   });

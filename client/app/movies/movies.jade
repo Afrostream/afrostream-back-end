@@ -99,3 +99,9 @@
   script(type='text/ng-template' id='actor-template')
     .tag-template
       span {{data.firstName + ' ' + data.lastName}}
+
+      span {{data.title}}
+
+.form-group
+  label.control-label Countries
+  countries(props="countriesProps")

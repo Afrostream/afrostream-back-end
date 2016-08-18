@@ -41,3 +41,7 @@
   input.form-control(type='text' ng-model='item.video' placeholder='Search video' typeahead='video as video.name for video in loadVideo($viewValue) | limitTo: 5' typeahead-template-url='imagesTemplate.html')
   a(ng-if="mpd" target="_backoplayer" href="https://afrostream-player.herokuapp.com/?url={{mpd}}")
     | https://afrostream-player.herokuapp.com/?url={{mpd}}
+
+.form-group
+  label.control-label Countries
+  countries(props="countriesProps")

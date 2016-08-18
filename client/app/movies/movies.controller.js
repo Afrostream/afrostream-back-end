@@ -78,6 +78,18 @@ angular.module('afrostreamAdminApp')
         });
     };
 
+    //// COUNTRIES ////
+    var updateScopeCountriesProps = function () {
+      $scope.countriesProps = {
+        countries : $scope.item && $scope.item.countries || [],
+        onChange: function (countries) {
+          $scope.item.countries = countries;
+        }
+      };
+    }
+    updateScopeCountriesProps();
+    $scope.$watch('item', updateScopeCountriesProps);
+
     $scope.$watch('item.video', function() {
       if ($scope.item && $scope.item.video && $scope.item.video._id) {
         console.log($scope.item.video);
