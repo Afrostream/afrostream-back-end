@@ -32,5 +32,5 @@ exports.index = function (req, res) {
     });
   }).then(function (importeds) {
     return res.json(importeds);
-  }).catch(req.handleError(res));
+  }).catch(res.handleError());
 };

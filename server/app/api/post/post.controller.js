@@ -98,7 +98,7 @@ exports.index = function (req, res) {
   Post.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets a single post from the DB
@@ -115,7 +115,7 @@ exports.show = function (req, res) {
   Post.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Creates a new post in the DB
@@ -123,7 +123,7 @@ exports.create = function (req, res) {
   Post.create(req.body)
     .then(updateImages(req.body))
     .then(responseWithResult(res, 201))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Updates an existing post in the DB
@@ -140,7 +140,7 @@ exports.update = function (req, res) {
     .then(saveUpdates(req.body))
     .then(updateImages(req.body))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Deletes a post from the DB
@@ -152,5 +152,5 @@ exports.destroy = function (req, res) {
     })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };

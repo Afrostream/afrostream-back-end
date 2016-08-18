@@ -20,6 +20,6 @@ exports.getList = function (req, res) {
       function success(data) {
        res.json(data);
       },
-      req.handleError(res)
+      res.handleError()
     );
 };

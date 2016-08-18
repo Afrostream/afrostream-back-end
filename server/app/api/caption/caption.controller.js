@@ -51,7 +51,7 @@ function removeEntity(res) {
 exports.index = function (req, res) {
   Caption.findAll()
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets a single caption from the DB
@@ -63,7 +63,7 @@ exports.show = function (req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Creates a new caption in the DB
@@ -76,7 +76,7 @@ exports.create = function (req, res) {
       return Caption.create({ src: data.req.url })
     })
     .then(responseWithResult(res, 201))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Updates an existing caption in the DB
@@ -92,7 +92,7 @@ exports.update = function (req, res) {
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Deletes a caption from the DB
@@ -104,5 +104,5 @@ exports.destroy = function (req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };

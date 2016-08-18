@@ -41,6 +41,6 @@ exports.index = function (req, res) {
     ]
   }).then(
     function (result) { res.json(result); },
-    req.handleError(res)
+    res.handleError()
   );
 };

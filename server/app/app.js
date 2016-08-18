@@ -52,7 +52,7 @@ app.use(middlewareAllowCrossDomain());
 app.use(middlewareAllowPreflight());
 
 // hotfix: creating a "error middleware"
-//  to present req.handleError()
+//  to present res.handleError()
 var middlewareError = require('./middlewares/middleware-error.js');
 app.use(middlewareError());
 

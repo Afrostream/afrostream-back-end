@@ -91,7 +91,7 @@ exports.index = function (req, res) {
   Actor.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets a single actor from the DB
@@ -108,7 +108,7 @@ exports.show = function (req, res) {
   Actor.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Creates a new actor in the DB
@@ -116,7 +116,7 @@ exports.create = function (req, res) {
   Actor.create(req.body)
     .then(updateImages(req.body))
     .then(responseWithResult(res, 201))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Updates an existing actor in the DB
@@ -134,7 +134,7 @@ exports.update = function (req, res) {
     .then(saveUpdates(req.body))
     .then(updateImages(req.body))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Deletes a actor from the DB
@@ -146,5 +146,5 @@ exports.destroy = function (req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };

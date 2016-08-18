@@ -190,7 +190,7 @@ exports.index = function (req, res) {
   Movie.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets a single movie from the DB
@@ -238,7 +238,7 @@ exports.show = function (req, res) {
   Movie.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets all Seasons in selected movie
@@ -254,7 +254,7 @@ exports.seasons = function (req, res) {
   Movie.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(responseWithSeasons(req, res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Creates a new movie in the DB
@@ -267,7 +267,7 @@ exports.create = function (req, res) {
     .then(updateVideo(req.body))
     .then(addActors(req.body))
     .then(responseWithResult(res, 201))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 exports.search = function (req, res) {
@@ -277,7 +277,7 @@ exports.search = function (req, res) {
     .then(function (movies) {
       res.json(movies);
     })
-    .catch(req.handleError(res))
+    .catch(res.handleError())
 };
 
 // Updates an existing episode in the DB
@@ -291,7 +291,7 @@ exports.algolia = function (req, res) {
     .then(utils.handleEntityNotFound(res))
     .then(algolia.importAll(res, 'movies'))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 function parseVXstY(body) {
@@ -332,7 +332,7 @@ exports.update = function (req, res) {
     .then(updateVideo(req.body))
     .then(addActors(req.body))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Deletes a movie from the DB
@@ -344,7 +344,7 @@ exports.destroy = function (req, res) {
     })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 /**

@@ -19,5 +19,5 @@ exports.index = function(req, res) {
   Country.findAll()
     .then(function (list) {
       res.json(list);
-    }, req.handleError(res));
+    }, res.handleError());
 };

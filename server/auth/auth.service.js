@@ -57,7 +57,7 @@ function isAuthenticated () {
           var error = new Error(err && err.message || 'unauthorized');
           error.statusCode = err && err.statusCode || 401;
           console.error('[ERROR]: [AUTH]:', error);
-          return req.handleError(res)(error);
+          return res.handleError()(error);
         } else {
           req.user = authentified; /// <= le fameux code ... horrible.
         }

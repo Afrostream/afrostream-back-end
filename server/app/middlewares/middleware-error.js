@@ -1,6 +1,6 @@
 module.exports = function (options) {
   return function (req, res, next) {
-    req.handleError = function (res, defaultStatusCode) {
+    res.handleError = function (defaultStatusCode) {
       defaultStatusCode = defaultStatusCode || 500;
       return function (err) {
         var message = String(err && err.message || err || 'unknown');

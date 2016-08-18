@@ -84,7 +84,7 @@ exports.cancel = function (req, res, next) {
         return res.status(401).end();
       }
       if (user.account_code === null) {
-        return req.handleError(res)('missing account code');
+        return res.handleError()('missing account code');
       }
       var account = new recurly.Account();
       account.id = user.account_code;
@@ -107,7 +107,7 @@ exports.cancel = function (req, res, next) {
     .then(function (canceled) {
       res.json({canceled: ((canceled && canceled.length) ? true : false)});
     })
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 /**

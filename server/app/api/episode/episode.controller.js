@@ -120,7 +120,7 @@ exports.index = function (req, res) {
   Episode.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets a single episode from the DB
@@ -137,7 +137,7 @@ exports.show = function (req, res) {
   Episode.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Creates a new episode in the DB
@@ -147,7 +147,7 @@ exports.create = function (req, res) {
     .then(updateVideo(req.body))
     .then(updateImages(req.body))
     .then(responseWithResult(res, 201))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 exports.search = function (req, res) {
@@ -157,7 +157,7 @@ exports.search = function (req, res) {
     .then(function (movies) {
       res.json(movies);
     })
-    .catch(req.handleError(res))
+    .catch(res.handleError())
 };
 
 function parseVXstY(body) {
@@ -196,7 +196,7 @@ exports.update = function (req, res) {
     .then(updateVideo(req.body))
     .then(updateImages(req.body))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 // Updates an existing episode in the DB
 exports.algolia = function (req, res) {
@@ -209,7 +209,7 @@ exports.algolia = function (req, res) {
     .then(utils.handleEntityNotFound(res))
     .then(algolia.importAll(res, 'episodes'))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Deletes a episode from the DB
@@ -221,5 +221,5 @@ exports.destroy = function (req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };

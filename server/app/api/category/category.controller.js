@@ -261,7 +261,7 @@ exports.index = function (req, res) {
       return entity;
     })
     .then(utils.responseWithResultAndTotal(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets a single category from the DB
@@ -301,7 +301,7 @@ exports.show = function (req, res) {
   Category.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets all AdSpots in selected category
@@ -317,7 +317,7 @@ exports.adSpot = function (req, res) {
   Category.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(responseWithAdSpot(req, res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets all categorys for menu
@@ -331,7 +331,7 @@ exports.menu = function (req, res) {
   Category.findAll(queryOptions)
   .then(utils.handleEntityNotFound(res))
   .then(responseWithResult(res))
-  .catch(req.handleError(res));
+  .catch(res.handleError());
 };
 
 
@@ -360,7 +360,7 @@ exports.mea = function (req, res) {
   Category.findAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(limitResult(res, 'movies', 30))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 exports.allSpots = function (req, res) {
@@ -389,7 +389,7 @@ exports.allSpots = function (req, res) {
   Category.findAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(limitResult(res, 'movies', 30))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Creates a new category in the DB
@@ -399,7 +399,7 @@ exports.create = function (req, res) {
     .then(addMovies(req.body))
     .then(addAdSpots(req.body))
     .then(responseWithResult(res, 201))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Updates an existing category in the DB
@@ -424,7 +424,7 @@ exports.update = function (req, res) {
       })
       //
       .then(responseWithResult(res))
-      .catch(req.handleError(res));
+      .catch(res.handleError());
   } else {
     // normal update.
     if (req.body._id) {
@@ -441,7 +441,7 @@ exports.update = function (req, res) {
       .then(addMovies(req.body))
       .then(addAdSpots(req.body))
       .then(responseWithResult(res))
-      .catch(req.handleError(res));
+      .catch(res.handleError());
   }
 };
 
@@ -454,5 +454,5 @@ exports.destroy = function (req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };

@@ -18,6 +18,6 @@ exports.showConfig = function (req, res) {
     .then(utils.handleEntityNotFound(res))
     .then(
       function (entity) { res.json(entity.data); },
-      req.handleError(res)
+      res.handleError()
     );
 };

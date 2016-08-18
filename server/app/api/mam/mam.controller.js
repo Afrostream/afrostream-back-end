@@ -18,21 +18,21 @@ function responseWithData(res, statusCode) {
 exports.index = function (req, res) {
   request({uri: config.mam.domain, json: true})
     .then(responseWithData(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets a single accessToken from the DB
 exports.show = function (req, res) {
   request({uri: config.mam.domain + '/' + req.params.id, json: true})
     .then(responseWithData(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 exports.import = function (req, res) {
   request({uri: config.mam.domain + '/' + req.body.id, json: true})
     .then(importVideo)
     .then(responseWithData(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 exports.importAll = function (req, res) {
@@ -41,5 +41,5 @@ exports.importAll = function (req, res) {
       return Promise.map(data, importVideo);
     })
     .then(responseWithData(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };

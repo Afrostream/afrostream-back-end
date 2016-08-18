@@ -43,5 +43,5 @@ exports.orange = function (req, res) {
         return entry;
       });
       res.json(data);
-    }, req.handleError(res))
+    }, res.handleError())
 };

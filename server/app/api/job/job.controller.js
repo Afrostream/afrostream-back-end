@@ -28,7 +28,7 @@ exports.create = function (req, res) {
       })
     .then(
       function success (result) { res.status(200).json(result); },
-      req.handleError(res)
+      res.handleError()
     );
 };
 
@@ -49,7 +49,7 @@ exports.catchupBet = function (req, res) {
     })
     .then(
       function success(result) { res.status(200).json(result); },
-      req.handleError(res)
+      res.handleError()
     );
 };
 
@@ -78,6 +78,6 @@ exports.packCaption = function (req, res) {
     }));
   }).then(
     function success(result) { res.json(result); },
-    req.handleError(res)
+    res.handleError()
   );
 };

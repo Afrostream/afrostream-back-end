@@ -42,10 +42,10 @@ function removeEntity(res) {
       var filesName = [entity.path];
       Knox.aws.deleteMultiple(filesName, {}, function (err, response) {
         if (err) {
-          return req.handleError(res)(err);
+          return res.handleError()(err);
         }
         if (response.statusCode !== 200) {
-          return req.handleError(res, response.statusCode)('statusCode not 200 OK');
+          return res.handleError(response.statusCode)('statusCode not 200 OK');
         }
         return entity.destroy()
           .then(function () {
@@ -82,7 +82,7 @@ exports.index = function (req, res) {
 
   Image.findAndCountAll(paramsObj)
     .then(utils.responseWithResultAndTotal(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets a single image from the DB
@@ -94,7 +94,7 @@ exports.show = function (req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Creates a new image in the DB
@@ -118,7 +118,7 @@ exports.create = function (req, res) {
         });
     })
     .then(responseWithResult(res, 201))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Updates an existing image in the DB
@@ -134,7 +134,7 @@ exports.update = function (req, res) {
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Deletes a image from the DB
@@ -147,5 +147,5 @@ exports.destroy = function (req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };

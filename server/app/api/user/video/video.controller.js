@@ -60,7 +60,7 @@ module.exports.update = function (req, res) {
     })
     .then(
       function () { res.json({}); },
-      req.handleError(res)
+      res.handleError()
     );
 };
 
@@ -79,7 +79,7 @@ module.exports.show = function (req, res) {
     )
     .then(
       function (userVideo) { res.json(userVideo); },
-      req.handleError(res)
+      res.handleError()
     );
 };
 
@@ -87,6 +87,6 @@ module.exports.index = function (req, res) {
   UsersVideos.findAll({ where: { userId: req.user._id }, order: [ ['dateLastRead', 'desc'] ] })
     .then(
       function (e) { res.json(e || []); },
-      req.handleError(res)
+      res.handleError()
     );
 };

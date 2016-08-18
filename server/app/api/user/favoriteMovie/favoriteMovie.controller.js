@@ -37,12 +37,12 @@ var index = function (req, res) {
         res.json(user.favoritesMovies);
       }
     })
-    .catch(req.handleError(res, 500));
+    .catch(res.handleError(500));
 };
 
 var add = function (req, res) {
   if (!req.body._id) {
-    return req.handleError(res, 500)('missing movie _id');
+    return res.handleError(500)('missing movie _id');
   }
   // FIXME: find by id.
   bluebird.props({
@@ -54,7 +54,7 @@ var add = function (req, res) {
         return res.status(401).end();
       }
       if (!results.movie) {
-        return req.handleError(res)('unknown movie ' + req.body._id);
+        return res.handleError()('unknown movie ' + req.body._id);
       }
       return results.user.addFavoritesMovies(results.movie).then(function () {
         return Movie.findOne({where: {_id: results.movie._id}, include: getIncludedModel()});
@@ -62,7 +62,7 @@ var add = function (req, res) {
         res.json(result);
       });
     })
-    .catch(req.handleError(res, 500));
+    .catch(res.handleError(500));
 };
 
 var remove = function (req, res) {
@@ -85,7 +85,7 @@ var remove = function (req, res) {
         res.json({});
       });
     })
-    .catch(req.handleError(res, 500));
+    .catch(res.handleError(500));
 };
 
 module.exports.index = index;

@@ -10,5 +10,5 @@ exports.create = function (req, res, next) {
     .then(function (waitingUser) {
       res.json(waitingUser);
     })
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };

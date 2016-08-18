@@ -58,7 +58,7 @@ exports.index = function (req, res) {
   Config.findAll(paramsObj)
     .then(mapEntitys())
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 
 };
 
@@ -75,14 +75,14 @@ exports.target = function (req, res) {
     })
     .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Creates a new client in the DB
 exports.create = function (req, res) {
   Config.create(req.body)
     .then(responseWithResult(res, 201))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Deletes a client from the DB
@@ -94,5 +94,5 @@ exports.destroy = function (req, res) {
     })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };

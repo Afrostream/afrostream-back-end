@@ -48,7 +48,7 @@ function removeEntity(res) {
 exports.index = function(req, res) {
   Tag.findAll()
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets a single tag from the DB
@@ -60,14 +60,14 @@ exports.show = function(req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Creates a new tag in the DB
 exports.create = function(req, res) {
   Tag.create(req.body)
     .then(responseWithResult(res, 201))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Updates an existing tag in the DB
@@ -83,7 +83,7 @@ exports.update = function(req, res) {
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Deletes a tag from the DB
@@ -95,5 +95,5 @@ exports.destroy = function(req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };

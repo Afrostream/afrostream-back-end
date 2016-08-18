@@ -142,7 +142,7 @@ exports.index = function (req, res) {
   Season.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets a single season from the DB
@@ -184,7 +184,7 @@ exports.show = function (req, res) {
   Season.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Creates a new season in the DB
@@ -194,7 +194,7 @@ exports.create = function (req, res) {
     .then(addMovie(req.body))
     .then(updateImages(req.body))
     .then(responseWithResult(res, 201))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 exports.search = function (req, res) {
@@ -204,7 +204,7 @@ exports.search = function (req, res) {
     .then(function (movies) {
       res.json(movies);
     })
-    .catch(req.handleError(res))
+    .catch(res.handleError())
 };
 
 // Updates an existing episode in the DB
@@ -218,7 +218,7 @@ exports.algolia = function (req, res) {
     .then(utils.handleEntityNotFound(res))
     .then(algolia.importAll(res, 'seasons'))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Updates an existing season in the DB
@@ -238,7 +238,7 @@ exports.update = function (req, res) {
     .then(addMovie(req.body))
     .then(updateImages(req.body))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Deletes a season from the DB
@@ -250,5 +250,5 @@ exports.destroy = function (req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };

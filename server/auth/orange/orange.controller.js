@@ -69,7 +69,7 @@ var signup = function (req, res, next) {
 
 var link = function (req, res, next) {
   if (!req.user) {
-    return req.handleError(res)(new Error('missing user'));
+    return res.handleError()(new Error('missing user'));
   }
   passport.authenticate('orange', {
     session: false,
@@ -156,7 +156,7 @@ var callback = function (req, res, next) {
         },
         function error (err) {
           console.error('[ERROR]: [AUTH]: [ORANGE]: callback: error=' + err.message, err);
-          req.handleError(res)(err);
+          res.handleError()(err);
         });
   })(req, res, next);
 };

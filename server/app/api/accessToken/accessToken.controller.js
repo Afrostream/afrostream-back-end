@@ -47,7 +47,7 @@ function removeEntity(res) {
 exports.index = function(req, res) {
   AccessToken.findAll()
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Gets a single accessToken from the DB
@@ -59,7 +59,7 @@ exports.show = function(req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Creates a new accessToken in the DB
@@ -67,7 +67,7 @@ exports.create = function(req, res) {
   var data = _.merge({}, req.body, { userIp: req.clientIp });
   AccessToken.create(data)
     .then(responseWithResult(res, 201))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Updates an existing accessToken in the DB
@@ -83,7 +83,7 @@ exports.update = function(req, res) {
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 // Deletes a accessToken from the DB
@@ -95,5 +95,5 @@ exports.destroy = function(req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };

@@ -72,7 +72,7 @@ exports.index = function (req, res) {
 
   User.findAndCountAll(paramsObj)
     .then(utils.responseWithResultAndTotal(res))
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 
 /**
@@ -247,7 +247,7 @@ exports.destroy = function (req, res) {
     .then(function () {
       res.status(204).end();
     })
-    .catch(req.handleError(res));
+    .catch(res.handleError());
 };
 /**
  * Change a users password
