@@ -60,6 +60,7 @@ if (config.dumpPostData) {
   app.use(dumpPostData());
 }
 
+// add req.passport
 var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
 app.use(middlewarePassport());
 
