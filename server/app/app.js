@@ -64,6 +64,9 @@ if (config.dumpPostData) {
 var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
 app.use(middlewarePassport());
 
+var middlewareCountry = rootRequire('/server/app/middlewares/midleware-country.js');
+app.use(middlewareCountry());
+
 var middlewareBroadcaster = rootRequire('/server/app/middlewares/middleware-broadcaster.js');
 app.use(middlewareBroadcaster());
 
