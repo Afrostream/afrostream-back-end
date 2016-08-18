@@ -90,6 +90,18 @@ angular.module('afrostreamAdminApp')
     updateScopeCountriesProps();
     $scope.$watch('item', updateScopeCountriesProps);
 
+    //// BROADCASTERS ///
+    var updateScopeBroadcastersProps = function () {
+      $scope.broadcastersProps = {
+        broadcasters : $scope.item && $scope.item.broadcasters || [],
+        onChange: function (broadcasters) {
+          $scope.item.broadcasters = broadcasters;
+        }
+      };
+    }
+    updateScopeBroadcastersProps();
+    $scope.$watch('item', updateScopeBroadcastersProps);
+
     $scope.$watch('item.video', function() {
       if ($scope.item && $scope.item.video && $scope.item.video._id) {
         console.log($scope.item.video);

@@ -62,4 +62,16 @@ angular.module('afrostreamAdminApp')
     }
     updateScopeCountriesProps();
     $scope.$watch('item', updateScopeCountriesProps);
+
+    //// BROADCASTERS ///
+    var updateScopeBroadcastersProps = function () {
+      $scope.broadcastersProps = {
+        broadcasters : $scope.item && $scope.item.broadcasters || [],
+        onChange: function (broadcasters) {
+          $scope.item.broadcasters = broadcasters;
+        }
+      };
+    }
+    updateScopeBroadcastersProps();
+    $scope.$watch('item', updateScopeBroadcastersProps);
   });
