@@ -56,6 +56,48 @@ var filterQueryOptions = function (req, options, rootModel) {
     if (isBacko || isAfrostreamExportsBouygues || isAfrostreamExportsOsearch) {
       // no restrictions.
     } else {
+      if (req.country &&
+          model &&
+          model.attributes &&
+          model.attributes.countries && ) {
+          if (options && options.where && options.where.$or && options.where.$and) {
+            options.where.$and = {$and: options.where.$and, $or: options.where.$or};
+            delete options.where.$or;
+          } else if (options && options.where && options.where.$or) {
+            options.where.$and = {$or: options.where.$or};
+            delete options.where.$or;
+          }
+          options = _.merge(options, {
+            where: {
+              $or: [
+                { countries: { $eq: null } },
+                { countries: { $contains: [ req.country ] } }
+              ]
+            }
+          });
+      }
+
+      if (req.broadcaster &&
+          model &&
+          model.attributes &&
+          model.attributes.broadcasters && ) {
+          if (options && options.where && options.where.$or && options.where.$and) {
+            options.where.$and = {$and: options.where.$and, $or: options.where.$or};
+            delete options.where.$or;
+          } else if (options && options.where && options.where.$or) {
+            options.where.$and = {$or: options.where.$or};
+            delete options.where.$or;
+          }
+          options = _.merge(options, {
+            where: {
+              $or: [
+                { broadcasters: { $eq: null } },
+                { broadcasters: { $contains: [ req.broadcaster ] } }
+              ]
+            }
+          });
+      }
+
       if (model &&
         model.attributes &&
         model.attributes.active) {
