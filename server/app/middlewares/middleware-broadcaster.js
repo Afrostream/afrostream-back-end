@@ -18,7 +18,7 @@ module.exports = function (options) {
         req.broadcaster = broadcaster;
       })
       .then(
-        function success() { next(); }),
+        function success() { next(); },
         function error(err) {
           req.broadcaster = null;
           console.error('[ERROR]: [MIDDLEWARE-BROADCASTER]: ' + err.message);

@@ -59,7 +59,7 @@ var filterQueryOptions = function (req, options, rootModel) {
       if (req.country &&
           model &&
           model.attributes &&
-          model.attributes.countries && ) {
+          model.attributes.countries) {
           if (options && options.where && options.where.$or && options.where.$and) {
             options.where.$and = {$and: options.where.$and, $or: options.where.$or};
             delete options.where.$or;
@@ -80,7 +80,7 @@ var filterQueryOptions = function (req, options, rootModel) {
       if (req.broadcaster &&
           model &&
           model.attributes &&
-          model.attributes.broadcasters && ) {
+          model.attributes.broadcasters) {
           if (options && options.where && options.where.$or && options.where.$and) {
             options.where.$and = {$and: options.where.$and, $or: options.where.$or};
             delete options.where.$or;
