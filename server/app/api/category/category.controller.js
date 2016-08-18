@@ -18,7 +18,7 @@ var Video = sqldb.Video;
 var Episode = sqldb.Episode;
 var Caption = sqldb.Caption;
 var Image = sqldb.Image;
-var auth = rootRequire('/server/auth/auth.service');
+var filters = rootRequire('/server/app/api/filters.js');
 var utils = rootRequire('/server/app/api/utils.js');
 
 var getIncludedModel = function () {
@@ -110,7 +110,7 @@ function responseWithAdSpot(req, res, statusCode) {
         ]
       };
 
-      queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
+      queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
 
       return entity.getAdSpots(queryOptions).then(function (adSpots) {
         res.status(statusCode).json(adSpots);
@@ -235,7 +235,7 @@ exports.index = function (req, res) {
     })
   }
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Category);
 
   Category.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
@@ -296,7 +296,7 @@ exports.show = function (req, res) {
     ]
   };
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Category);
 
   Category.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
@@ -312,7 +312,7 @@ exports.adSpot = function (req, res) {
     }
   };
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Category);
 
   Category.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
@@ -326,7 +326,7 @@ exports.menu = function (req, res) {
     order: [['sort', 'ASC']]
   };
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Category);
 
   Category.findAll(queryOptions)
   .then(utils.handleEntityNotFound(res))
@@ -355,7 +355,7 @@ exports.mea = function (req, res) {
     ]
   };
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Category);
 
   Category.findAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
@@ -384,7 +384,7 @@ exports.allSpots = function (req, res) {
     ]
   };
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Category);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Category);
 
   Category.findAll(queryOptions)
     .then(utils.handleEntityNotFound(res))

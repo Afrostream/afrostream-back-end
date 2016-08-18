@@ -20,8 +20,7 @@ var Image = sqldb.Image;
 var Licensor = sqldb.Licensor;
 var Video = sqldb.Video;
 var Actor = sqldb.Actor;
-var auth = rootRequire('/server/auth/auth.service');
-
+var filters = rootRequire('/server/app/api/filters.js');
 var utils = rootRequire('/server/app/api/utils.js');
 
 var getIncludedModel = require('./movie.includedModel').get;
@@ -40,7 +39,7 @@ function responseWithSeasons (req, res, statusCode) {
   return function (entity) {
     if (entity) {
       var queryOptions = {order: [['sort', 'ASC']]};
-      queryOptions = auth.filterQueryOptions(req, queryOptions, Season);
+      queryOptions = filters.filterQueryOptions(req, queryOptions, Season);
       return entity.getSeasons(queryOptions).then(function (seasons) {
         res.status(statusCode).json(seasons);
       })
@@ -178,7 +177,7 @@ exports.index = function (req, res) {
     });
   }
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
 
   if (req.query.limit) {
     queryOptions = _.merge(queryOptions, {limit: req.query.limit});
@@ -234,7 +233,7 @@ exports.show = function (req, res) {
     ]
   };
   //
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
   //
   Movie.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
@@ -250,7 +249,7 @@ exports.seasons = function (req, res) {
     }
   };
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Movie);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
 
   Movie.find(queryOptions)
     .then(utils.handleEntityNotFound(res))

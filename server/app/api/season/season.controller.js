@@ -18,8 +18,7 @@ var Episode = sqldb.Episode;
 var Image = sqldb.Image;
 var Promise = sqldb.Sequelize.Promise;
 var slugify = require('slugify');
-var auth = rootRequire('/server/auth/auth.service');
-
+var filters = rootRequire('/server/app/api/filters.js');
 var utils = rootRequire('/server/app/api/utils.js');
 
 var getIncludedModel = require('./season.includedModel').get;
@@ -138,7 +137,7 @@ exports.index = function (req, res) {
     })
   }
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Season);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Season);
 
   Season.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
@@ -180,7 +179,7 @@ exports.show = function (req, res) {
     });
   }
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Season);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Season);
 
   Season.find(queryOptions)
     .then(utils.handleEntityNotFound(res))

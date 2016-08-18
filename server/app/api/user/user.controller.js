@@ -25,7 +25,7 @@ var mailer = rootRequire('/server/components/mailer');
 
 var utils = require('../utils.js');
 
-var auth = rootRequire('/server/auth/auth.service');
+var filters = rootRequire('/server/app/api/filters.js');
 
 function validationError(res, statusCode) {
   statusCode = statusCode || 422;
@@ -205,7 +205,7 @@ exports.history = function (req, res, next) {
     limit: 10
   };
   //
-  queryOptions = auth.filterQueryOptions(req, queryOptions, UsersVideos);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, UsersVideos);
   //
   UsersVideos.findAll(queryOptions)
   .then(

@@ -16,8 +16,7 @@ var Episode = sqldb.Episode;
 var Season = sqldb.Season;
 var Video = sqldb.Video;
 var Image = sqldb.Image;
-var auth = rootRequire('/server/auth/auth.service');
-
+var filters = rootRequire('/server/app/api/filters.js');
 var utils = rootRequire('/server/app/api/utils.js');
 
 var getIncludedModel = require('./episode.includedModel.js').get;
@@ -112,7 +111,7 @@ exports.index = function (req, res) {
     }
   }
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Episode);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Episode);
 
   if (req.query.limit) {
     queryOptions = _.merge(queryOptions, { limit: req.query.limit });
@@ -133,7 +132,7 @@ exports.show = function (req, res) {
     include: getIncludedModel()
   };
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Episode);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Episode);
 
   Episode.find(queryOptions)
     .then(utils.handleEntityNotFound(res))

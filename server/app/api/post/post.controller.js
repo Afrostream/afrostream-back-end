@@ -13,7 +13,7 @@ var _ = require('lodash');
 var sqldb = rootRequire('/server/sqldb');
 var Post = sqldb.Post;
 var Image = sqldb.Image;
-var auth = rootRequire('/server/auth/auth.service');
+var filters = rootRequire('/server/app/api/filters.js');
 var utils = rootRequire('/server/app/api/utils.js');
 
 var getIncludedModel = function () {
@@ -93,7 +93,7 @@ exports.index = function (req, res) {
     });
   }
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Post);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Post);
 
   Post.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
@@ -110,7 +110,7 @@ exports.show = function (req, res) {
     include: getIncludedModel()
   };
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Post);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Post);
 
   Post.find(queryOptions)
     .then(utils.handleEntityNotFound(res))

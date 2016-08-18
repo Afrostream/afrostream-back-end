@@ -1,6 +1,6 @@
 'use strict';
 
-var auth = rootRequire('/server/auth/auth.service');
+var filters = rootRequire('/server/app/api/filters.js');
 var sqldb = rootRequire('/server/sqldb');
 var User = sqldb.User;
 var Movie = sqldb.Movie;
@@ -25,7 +25,7 @@ var index = function (req, res) {
     ]
   };
   //
-  queryOptions = auth.filterQueryOptions(req, queryOptions, User);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, User);
   // recursive "required: false"
   queryOptions = sqldb.filterOptions(queryOptions, { required: false });
   //
