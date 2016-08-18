@@ -5,7 +5,7 @@ var utils = require('../utils.js');
 var Widget = sqldb.Widget;
 var Image = sqldb.Image;
 var getIncludedModel = require('./widget.includedModel').get;
-var auth = rootRequire('/server/auth/auth.service');
+var filters = rootRequire('/server/app/api/filters.js');
 
 function handleEntityNotFound (res) {
   return function (entity) {
@@ -97,7 +97,7 @@ exports.index = function (req, res) {
     }
   }
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Widget);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Widget);
 
   Widget.findAndCountAll(queryOptions)
     .then(handleEntityNotFound(res))
@@ -115,7 +115,7 @@ exports.show = function (req, res) {
     include: getIncludedModel()
   };
 
-  queryOptions = auth.filterQueryOptions(req, queryOptions, Widget);
+  queryOptions = filters.filterQueryOptions(req, queryOptions, Widget);
 
   Widget.find(queryOptions)
     .then(handleEntityNotFound(res))
