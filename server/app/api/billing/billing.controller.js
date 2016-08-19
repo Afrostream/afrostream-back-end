@@ -41,11 +41,19 @@ module.exports.showInternalplans = function (req, res) {
         case 'front-api.front-end':
           var providerName = req.query.providerName || (client ? client.billingProviderName : '');
           var context = req.query.contextBillingUuid;
+          var filterEnabled = req.query.filterEnabled;
           if (providerName) {
             c.providerName = providerName;
           }
           if (context) {
             c.contextBillingUuid = context;
+          }
+          if (filterEnabled) {
+            c.filterEnabled = filterEnabled;
+            c.country = req.query.country;
+            if (req.query.filterUserReferenceUuid) {
+              c.filterUserReferenceUuid = req.query.filterUserReferenceUuid;
+            }
           }
           break;
         default:
