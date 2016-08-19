@@ -10,8 +10,10 @@ module.exports = function (options) {
           throw new Error('no country ' + req.query.country);
         }
         req.country = country;
-        next();
-      }, function (err) {
+      })
+      .then(
+        function success() { next(); },
+        function error(err) {
         req.country = null;
         console.error('[ERROR]: [MIDDLEWARE-COUNTRY]: cannot find country ' + err.message);
         next();
