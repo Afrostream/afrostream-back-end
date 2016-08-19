@@ -72,7 +72,7 @@ var filterQueryOptions = function (req, options, rootModel) {
             where: {
               $or: [
                 { countries: { $eq: null } },
-                { countries: { $contains: [ req.country ] } }
+                { countries: { $contains: [ req.country._id ] } }
               ]
             }
           });
@@ -93,7 +93,7 @@ var filterQueryOptions = function (req, options, rootModel) {
             where: {
               $or: [
                 { broadcasters: { $eq: null } },
-                { broadcasters: { $contains: [ req.broadcaster ] } }
+                { broadcasters: { $contains: [ req.broadcaster._id ] } }
               ]
             }
           });
