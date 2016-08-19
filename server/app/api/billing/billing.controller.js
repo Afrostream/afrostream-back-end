@@ -51,9 +51,7 @@ module.exports.showInternalplans = function (req, res) {
           if (filterEnabled) {
             c.filterEnabled = filterEnabled;
             c.country = req.query.country;
-            if (req.query.filterUserReferenceUuid) {
-              c.filterUserReferenceUuid = req.query.filterUserReferenceUuid;
-            }
+            c.filterUserReferenceUuid = req.query.filterUserReferenceUuid || req.user._id;
           }
           break;
         default:
