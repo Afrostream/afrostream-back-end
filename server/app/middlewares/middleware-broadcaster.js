@@ -7,7 +7,7 @@ module.exports = function (options) {
     Q(null)
       .then(function () {
         if (!req.passport || !req.passport.client) {
-          throw new Error('no passport');
+          throw new Error('no passport ('+req.url+')');
         }
         return req.passport.client.getBroadcaster();
       })
