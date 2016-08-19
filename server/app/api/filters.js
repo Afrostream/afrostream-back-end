@@ -1,7 +1,8 @@
 'use strict';
 
-var _ = require('lodash');
+var assert = require('assert');
 
+var _ = require('lodash');
 var sqldb = rootRequire('/server/sqldb');
 
 /**
