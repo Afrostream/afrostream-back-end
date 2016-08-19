@@ -60,16 +60,6 @@ if (config.dumpPostData) {
   app.use(dumpPostData());
 }
 
-// add req.passport
-var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
-app.use(middlewarePassport());
-
-var middlewareCountry = rootRequire('/server/app/middlewares/middleware-country.js');
-app.use(middlewareCountry());
-
-var middlewareBroadcaster = rootRequire('/server/app/middlewares/middleware-broadcaster.js');
-app.use(middlewareBroadcaster());
-
 app.use('/heapdumps', require('./heapdump'));
 
 switch (process.env.NODE_ENV) {
@@ -93,6 +83,14 @@ switch (process.env.NODE_ENV) {
     app.use(errorHandler()); // Error handler - has to be last
     break;
 }
+
+// add req.passport
+var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
+app.use(middlewarePassport());
+var middlewareCountry = rootRequire('/server/app/middlewares/middleware-country.js');
+app.use(middlewareCountry());
+var middlewareBroadcaster = rootRequire('/server/app/middlewares/middleware-broadcaster.js');
+app.use(middlewareBroadcaster());
 
 require('./routes')(app);
 
