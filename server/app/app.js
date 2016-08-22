@@ -87,10 +87,10 @@ switch (process.env.NODE_ENV) {
 // add req.passport
 var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
 app.use(middlewarePassport());
-var middlewareCountry = rootRequire('/server/app/middlewares/middleware-country.js');
-app.use(middlewareCountry());
 var middlewareBroadcaster = rootRequire('/server/app/middlewares/middleware-broadcaster.js');
 app.use(middlewareBroadcaster());
+var middlewareCountry = rootRequire('/server/app/middlewares/middleware-country.js');
+app.use(middlewareCountry());
 
 require('./routes')(app);
 
