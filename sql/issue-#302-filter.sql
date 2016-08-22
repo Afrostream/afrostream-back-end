@@ -5,6 +5,7 @@ CREATE TABLE "Broadcasters"
   _id character varying(4),
   name character varying(128),
   fqdns character varying(128) Array,
+  "defaultCountryId" character varying(2),
   CONSTRAINT "Broadcasters_pkey" PRIMARY KEY ("_id")
 )
 WITH (
@@ -13,45 +14,45 @@ WITH (
 
 -- PROD
 INSERT INTO "Broadcasters"
-       ("_id", "name", "fqdns")
+       ("_id", "name", "fqdns", "defaultCountryId")
 VALUES
-     ('WEB', 'WEB', '{"afrostream-backend.herokuapp.com"}'),
-     ('MOBI', 'MOBILE', '{"legacy-api.afrostream.tv"}'),
-     ('BMIA', 'BOUYGUES_MIAMI', '{"legacy-api-bouygues.afrostream.tv"}'),
-     ('EBOU', 'EXPORTS_BOUYGUES', '{"afrostream-backend.herokuapp.com"}'),
-     ('EOCI', 'EXPORTS_OCI', '{"afrostream-backend.herokuapp.com"}'),
-     ('EOSE', 'EXPORTS_OSEARCH', '{"afrostream-backend.herokuapp.com"}'),
-     ('ONEW', 'ORANGE_NEWBOX', '{"legacy-api-orange.afrostream.tv"}'),
-     ('OMIB', 'ORANGE_MIB4', '{"legacy-api-orange.afrostream.tv"}'),
-     ('ROKU', 'ROKU', '{"afrostream-backend.herokuapp.com"}');  -- fixme: should have it's own domain.
+     ('WEB', 'WEB', '{"afrostream-backend.herokuapp.com"}', null),
+     ('MOBI', 'MOBILE', '{"legacy-api.afrostream.tv"}', null),
+     ('BMIA', 'BOUYGUES_MIAMI', '{"legacy-api-bouygues.afrostream.tv"}', 'FR'),
+     ('EBOU', 'EXPORTS_BOUYGUES', '{"afrostream-backend.herokuapp.com"}', 'FR'),
+     ('EOCI', 'EXPORTS_OCI', '{"afrostream-backend.herokuapp.com"}', null),
+     ('EOSE', 'EXPORTS_OSEARCH', '{"afrostream-backend.herokuapp.com"}', null),
+     ('ONEW', 'ORANGE_NEWBOX', '{"legacy-api-orange.afrostream.tv"}', 'FR'),
+     ('OMIB', 'ORANGE_MIB4', '{"legacy-api-orange.afrostream.tv"}', 'FR'),
+     ('ROKU', 'ROKU', '{"afrostream-backend.herokuapp.com"}', null);  -- fixme: should have it's own domain.
 
 -- STAGING
 INSERT INTO "Broadcasters"
-       ("_id", "name", "fqdns")
+       ("_id", "name", "fqdns", "defaultCountryId")
 VALUES
-     ('WEB', 'WEB', '{"afr-back-end-staging.herokuapp.com"}'),
-     ('MOBI', 'MOBILE', '{"legacy-api-staging.afrostream.tv"}'),
-     ('BMIA', 'BOUYGUES_MIAMI', '{"legacy-api-bouygues-staging.afrostream.tv"}'),
-     ('EBOU', 'EXPORTS_BOUYGUES', '{"afr-back-end-staging.herokuapp.com"}'),
-     ('EOCI', 'EXPORTS_OCI', '{"afr-back-end-staging.herokuapp.com"}'),
-     ('EOSE', 'EXPORTS_OSEARCH', '{"afr-back-end-staging.herokuapp.com"}'),
-     ('ONEW', 'ORANGE_NEWBOX', '{"legacy-api-orange-staging.afrostream.tv"}'),
-     ('OMIB', 'ORANGE_MIB4', '{"legacy-api-orange-staging.afrostream.tv"}'),
-     ('ROKU', 'ROKU', '{"afr-back-end-staging.herokuapp.com"}');
+     ('WEB', 'WEB', '{"afr-back-end-staging.herokuapp.com"}', null),
+     ('MOBI', 'MOBILE', '{"legacy-api-staging.afrostream.tv"}', null),
+     ('BMIA', 'BOUYGUES_MIAMI', '{"legacy-api-bouygues-staging.afrostream.tv"}', 'FR'),
+     ('EBOU', 'EXPORTS_BOUYGUES', '{"afr-back-end-staging.herokuapp.com"}', 'FR'),
+     ('EOCI', 'EXPORTS_OCI', '{"afr-back-end-staging.herokuapp.com"}', null),
+     ('EOSE', 'EXPORTS_OSEARCH', '{"afr-back-end-staging.herokuapp.com"}', null),
+     ('ONEW', 'ORANGE_NEWBOX', '{"legacy-api-orange-staging.afrostream.tv"}', 'FR'),
+     ('OMIB', 'ORANGE_MIB4', '{"legacy-api-orange-staging.afrostream.tv"}', 'FR'),
+     ('ROKU', 'ROKU', '{"afr-back-end-staging.herokuapp.com"}', null);
 
 -- DEV
 INSERT INTO "Broadcasters"
-       ("_id", "name", "fqdns")
+       ("_id", "name", "fqdns", "defaultCountryId")
 VALUES
-     ('WEB', 'WEB', '{"localhost"}'),
-     ('MOBI', 'MOBILE', '{"localhost"}'),
-     ('BMIA', 'BOUYGUES_MIAMI', '{"localhost"}'),
-     ('EBOU', 'EXPORTS_BOUYGUES', '{"localhost"}'),
-     ('EOCI', 'EXPORTS_OCI', '{"localhost"}'),
-     ('EOSE', 'EXPORTS_OSEARCH', '{"localhost"}'),
-     ('ONEW', 'ORANGE_NEWBOX', '{"localhost"}'),
-     ('OMIB', 'ORANGE_MIB4', '{"localhost"}'),
-     ('ROKU', 'ROKU', '{"localhost"}');
+     ('WEB', 'WEB', '{"localhost"}', null),
+     ('MOBI', 'MOBILE', '{"localhost"}', null),
+     ('BMIA', 'BOUYGUES_MIAMI', '{"localhost"}', 'FR'),
+     ('EBOU', 'EXPORTS_BOUYGUES', '{"localhost"}', 'FR'),
+     ('EOCI', 'EXPORTS_OCI', '{"localhost"}', null),
+     ('EOSE', 'EXPORTS_OSEARCH', '{"localhost"}', null),
+     ('ONEW', 'ORANGE_NEWBOX', '{"localhost"}', 'FR'),
+     ('OMIB', 'ORANGE_MIB4', '{"localhost"}', 'FR'),
+     ('ROKU', 'ROKU', '{"localhost"}', null);
 
 -- DROP TABLE "BroadcastersClients"
 --CREATE TABLE "BroadcastersClients"
@@ -124,7 +125,7 @@ DROP TABLE "BroadcastersClients";
 DROP TABLE "Broadcasters";
 -- on ne recrée que la table Broadcasters
 
-UPDATE "Clients" SET ("broadcasterId" = "Broadcasters"."_id")
+UPDATE "Clients" SET "broadcasterId" = "Broadcasters"."_id"
 FROM "Broadcasters"
 WHERE
 ("Clients".type = 'front-api.front-end' AND "Broadcasters".name = 'WEB') OR

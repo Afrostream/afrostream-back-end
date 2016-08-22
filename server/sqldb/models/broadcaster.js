@@ -9,6 +9,7 @@ module.exports = function (sequelize, DataTypes) {
       unique: true
     },
     name: DataTypes.STRING(128),
-    fqdns: DataTypes.ARRAY(DataTypes.STRING(128))
+    fqdns: DataTypes.ARRAY(DataTypes.STRING(128)),
+    defaultCountryId: DataTypes.STRING(2)
   });
 };
