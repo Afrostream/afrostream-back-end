@@ -60,7 +60,8 @@ var filterQueryOptions = function (req, options, rootModel) {
       if (req.country &&
           model &&
           model.attributes &&
-          model.attributes.countries) {
+          model.attributes.countries &&
+          req.query.filterCountry !== "false") {
           if (options && options.where && options.where.$or && options.where.$and) {
             options.where.$and = {$and: options.where.$and, $or: options.where.$or};
             delete options.where.$or;

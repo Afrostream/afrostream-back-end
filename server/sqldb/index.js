@@ -61,14 +61,12 @@ db.CategoryMovies = db.sequelize.import('models/categoryMovies');
 db.CategoryAdSpots = db.sequelize.import('models/categoryAdSpots');
 db.MoviesActors = db.sequelize.import('models/moviesActors.js');
 db.UsersVideos = db.sequelize.import('models/usersVideos.js');
-db.BroadcastersClients = db.sequelize.import('models/broadcastersClients.js');
 
 db.Actor.belongsTo(db.Image, {as: 'picture', constraints: false});
 db.Actor.belongsToMany(db.Movie, {through: db.MoviesActors, as: 'movies'});
 db.Movie.belongsToMany(db.Actor, {through: db.MoviesActors, as: 'actors'});
 
-db.Broadcaster.belongsToMany(db.Client, {through: db.BroadcastersClients, as: 'clients', foreignKey: 'broadcasterId' });
-db.Client.belongsToMany(db.Broadcaster, {through: db.BroadcastersClients, as: 'broadcasters', foreignKey: 'clientId' });
+db.Client.belongsTo(db.Broadcaster, {as: 'broadcaster', constraints: false});
 
 db.Licensor.hasMany(db.Movie, {as: 'movies', foreignKey: 'licensorId'});
 db.Movie.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
