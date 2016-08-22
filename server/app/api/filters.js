@@ -72,6 +72,7 @@ var filterQueryOptions = function (req, options, rootModel) {
           options = _.merge(options, {
             where: {
               $or: [
+                { countries: { $eq: '{}' } },
                 { countries: { $eq: null } },
                 { countries: { $contains: [ req.country._id ] } }
               ]
@@ -93,6 +94,7 @@ var filterQueryOptions = function (req, options, rootModel) {
           options = _.merge(options, {
             where: {
               $or: [
+                { broadcasters: { $eq: '{}' } },
                 { broadcasters: { $eq: null } },
                 { broadcasters: { $contains: [ req.broadcaster._id ] } }
               ]
