@@ -3,5 +3,5 @@
   class="btn btn-primary"
   ng-repeat="country in countries"
   ng-click="toggle(country)"
-  ng-class="props.countries.indexOf(country) !== -1 ?'active':'inactive'">{{country}}</button>
+  ng-class="props.countries.indexOf(country._id) !== -1 ?'active':'inactive'">{{country.name}}</button>
 </div>

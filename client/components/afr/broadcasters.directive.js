@@ -7,14 +7,13 @@ angular.module('afrostreamAdminApp')
     // FIXME: this list should be loaded from the api
     // main code
     scope.broadcasters = [
-      { _id: 'MOBI', name: "AFROSTREAM_MOBILE"},
-      { _id: 'WEB', name: "AFROSTREAM_WEB"},
-      { _id: 'BOUY', name: "BOUYGUES"},
-      { _id: 'EB', name: "EXPORTS_BOUYGUES"},
-      { _id: 'EOCI', name: "ORANGE_CI"},
-      { _id: 'EOS', name: "EXPORTS_OSEARCH"},
-      { _id: 'ORAN', name: "ORANGE"},
-      { _id: 'ROKU', name: "ROKU"}
+      { _id: 'MOBI', name: "Mobile"},
+      { _id: 'WEB', name: "Web"},
+      { _id: 'BMIA', name: "Bouygues Miami"},
+      { _id: 'EBOU', name: "Bouygues Ingrid"},
+      { _id: 'EOCI', name: "Orange Côte d'Ivoire"},
+      { _id: 'ONEW', name: "Orange Newbox"},
+      { _id: 'OMIB', name: "Orange Mib4"}
     ];
     scope.toggle = function (broadcaster) {
       var p = scope.props.broadcasters.indexOf(broadcaster._id);
