@@ -19,6 +19,8 @@ var sqldb = rootRequire('/server/sqldb');
 var Q = require('q');
 
 var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
+var middlewareBroadcaster = rootRequire('/server/app/middlewares/middleware-broadcaster.js');
+var middlewareCountry = rootRequire('/server/app/middlewares/middleware-country.js');
 
 /**
  * Attaches the user object to the request if authenticated
@@ -167,6 +169,8 @@ exports.middleware = {
 
     return compose()
       .use(isAuthenticated())
-      .use(middlewarePassport(options.middlewarePassport));
+      .use(middlewarePassport(options.middlewarePassport))
+      .use(middlewareBroadcaster())
+      .use(middlewareCountry());
   }
 }
