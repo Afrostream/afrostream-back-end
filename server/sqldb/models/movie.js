@@ -70,7 +70,8 @@ module.exports = function (sequelize, DataTypes) {
     },
     vXstY: DataTypes.STRING(16),
     countries: DataTypes.ARRAY(DataTypes.STRING(2)),
-    broadcasters: DataTypes.ARRAY(DataTypes.STRING(4))
+    broadcasters: DataTypes.ARRAY(DataTypes.STRING(4)),
+    youtubeTrailer:  DataTypes.STRING
   }, {
     getterMethods   : {
       sharing: function()  {
