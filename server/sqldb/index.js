@@ -63,6 +63,7 @@ db.CategoryMovies = db.sequelize.import('models/categoryMovies');
 db.CategoryAdSpots = db.sequelize.import('models/categoryAdSpots');
 db.MoviesActors = db.sequelize.import('models/moviesActors.js');
 db.UsersVideos = db.sequelize.import('models/usersVideos.js');
+db.VideosComments = db.sequelize.import('models/videosComments.js');
 
 db.Actor.belongsTo(db.Image, {as: 'picture', constraints: false});
 db.Actor.belongsToMany(db.Movie, {through: db.MoviesActors, as: 'movies'});
@@ -113,6 +114,9 @@ db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints
 
 db.UsersVideos.belongsTo(db.Video, {as: 'video', foreignKey: 'videoId', targetKey: '_id'});
 db.UsersVideos.belongsTo(db.User, {as: 'user', foreignKey: 'userId', targetKey: '_id'});
+
+db.VideosComments.belongsTo(db.Video, {as: 'video', foreignKey: 'videoId', targetKey: '_id'});
+db.VideosComments.belongsTo(db.User, {as: 'user', foreignKey: 'userId', targetKey: '_id'});
 
 db.PFGroupsProfiles = db.sequelize.import('models/pfGroupsProfiles');
 db.PFProfile.belongsToMany(db.PFGroup, {through: db.PFGroupsProfiles, as: 'pfGroups', foreignKey: 'pfProfileId'});

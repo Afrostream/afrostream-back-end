@@ -46,6 +46,7 @@ module.exports = function (sequelize, DataTypes) {
     account_code: DataTypes.STRING,
     first_name: DataTypes.STRING,
     last_name: DataTypes.STRING,
+    nickname: DataTypes.STRING(32),
     provider: DataTypes.STRING,
     billing_provider: DataTypes.STRING,
     salt: DataTypes.STRING,
@@ -71,6 +72,7 @@ module.exports = function (sequelize, DataTypes) {
       profile: function () {
         return {
           'name': this.name,
+          'nickname': this.nickname,
           'role': this.role,
           '_id': this._id,
           'email': this.email,

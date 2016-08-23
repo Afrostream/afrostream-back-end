@@ -38,6 +38,9 @@ router.use(function (req, res, next) {
 
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
+//
+router.use('/:videoId/comments', require('./comment'));
+
 // video manipulation.
 router.get('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.index);
 router.get('/:id', controller.show);
