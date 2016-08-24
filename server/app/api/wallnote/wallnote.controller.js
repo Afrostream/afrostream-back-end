@@ -4,6 +4,7 @@ var _ = require('lodash');
 var sqldb = rootRequire('/server/sqldb');
 var WallNote = sqldb.WallNote;
 var WallNotesUsers = sqldb.WallNotesUsers;
+var User = sqldb.User;
 
 var Q = require('q');
 
