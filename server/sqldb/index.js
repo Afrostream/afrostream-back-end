@@ -54,10 +54,16 @@ db.Video = db.sequelize.import('models/video');
 db.Config = db.sequelize.import('models/config');
 db.Widget = db.sequelize.import('models/widget');
 db.WaitingUser = db.sequelize.import('models/waitingUser');
+db.WallNote = db.sequelize.import('models/wallNote');
+db.WallNotesUsers = db.sequelize.import('models/wallNotesUsers');
 
 db.Client.belongsTo(db.PFGroup, {as: 'pfGroup', constraints: false});
 
 db.Broadcaster.belongsTo(db.Country, {as: 'defaultCountry', constraints: false});
+
+db.WallNote.belongsTo(db.User, {as: 'user', foreignKey: 'userId'});
+db.WallNote.belongsToMany(db.User, {through: db.WallNotesUsers, as: 'movies', foreignKey: 'wallNoteId'});
+db.User.belongsToMany(db.WallNote, {through: db.WallNotesUsers, as: 'actors', foreignKey: 'userId'});
 
 db.CategoryMovies = db.sequelize.import('models/categoryMovies');
 db.CategoryAdSpots = db.sequelize.import('models/categoryAdSpots');
