@@ -11,6 +11,11 @@ module.exports.alive = function (req, res) {
 };
 
 module.exports.headers = function (req, res) {
-  res.noCache();
+  if (req.query.cached) {
+    // HW may not have the same behavior on cached & not cached routes...
+    res.cache();
+  } else {
+    res.noCache();
+  }
   res.send('<pre>' + JSON.stringify(req.headers) + '</pre>');
 };
