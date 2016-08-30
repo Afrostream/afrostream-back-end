@@ -8,7 +8,7 @@ var _ = require('lodash');
 program
   .version('0.0.1')
   .option('-c, --client [clientName]', 'client name: front, tapptic, bouygues-miami, orange-newbox ; default=front')
-  .option('-e, --env [env]', 'env: localhost, cdnOrangeStaging, staging, prod; default=staging')
+  .option('-e, --env [env]', 'env: localhost, cdnOrangeStaging, staging, prod, prodOrange; default=staging')
   .option('-u, --username [username]', 'username, default=tech@afrostream.tv')
   .option('-p, --password [password]', 'password')
   .option('-r, --request [request]', 'path to request')
@@ -47,7 +47,11 @@ var envsConf = {
     host: "legacy-api-orange-staging.afrostream.tv"
   },
   staging: { baseUrl : "https://afr-back-end-staging.herokuapp.com" },
-  prod: { baseUrl : "https://afrostream-backend.herokuapp.com" }
+  prod: { baseUrl : "https://afrostream-backend.herokuapp.com" },
+  prodOrange: {
+    baseUrl: "https://legacy-api-orange.afrostream.tv"
+  , host: "legacy-api-orange.afrostream.tv"
+  }
 }
 
 if (typeof envsConf[env] === 'undefined') {
@@ -60,7 +64,7 @@ if (typeof envsConf[env] === 'undefined') {
 console.log('using env ' + env)
 
 var options = {
-  uri: envsConf[env].baseUrl + "/auth/oauth2/token",
+  uri: envsConf[env].baseUrl + "/api/auth/oauth2/token",
   method: 'POST',
   json: true,
   body: {
