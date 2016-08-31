@@ -125,6 +125,7 @@
     "dev": ". ~/.nvm/nvm.sh && nvm use 0.12 && grunt serve",
     "test": "grunt test",
     "seed": "export SEED_DB=true && npm run dev",
+    "cron-daily-queries": "node server/cron/daily-queries.js",
     "cron-stats-usersVideos": "node server/cron/stats-usersVideos.js",
     "update_vxsty": "node server/bin/update_vxsty.js"
   },
