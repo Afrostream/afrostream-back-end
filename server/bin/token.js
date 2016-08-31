@@ -8,7 +8,7 @@ var _ = require('lodash');
 program
   .version('0.0.1')
   .option('-c, --client [clientName]', 'client name: front, tapptic, bouygues-miami, orange-newbox ; default=front')
-  .option('-e, --env [env]', 'env: localhost, cdnOrangeStaging, staging, prod, prodOrange; default=staging')
+  .option('-e, --env [env]', 'env: localhost, cdnOrangeStaging, staging, prod, prodOrange, prodLegacyApi; default=staging')
   .option('-u, --username [username]', 'username, default=tech@afrostream.tv')
   .option('-p, --password [password]', 'password')
   .option('-r, --request [request]', 'path to request')
@@ -48,6 +48,10 @@ var envsConf = {
   },
   staging: { baseUrl : "https://afr-back-end-staging.herokuapp.com" },
   prod: { baseUrl : "https://afrostream-backend.herokuapp.com" },
+  prodLegacyApi: {
+    baseUrl: "https://legacy-api.afrostream.tv"
+  , host: "legacy-api.afrostream.tv"
+  },
   prodOrange: {
     baseUrl: "https://legacy-api-orange.afrostream.tv"
   , host: "legacy-api-orange.afrostream.tv"
