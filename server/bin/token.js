@@ -8,7 +8,7 @@ var _ = require('lodash');
 program
   .version('0.0.1')
   .option('-c, --client [clientName]', 'client name: front, tapptic, bouygues-miami, orange-newbox ; default=front')
-  .option('-e, --env [env]', 'env: localhost, cdnOrangeStaging, staging, prod, prodOrange, prodLegacyApi; default=staging')
+  .option('-e, --env [env]', 'env: localhost, cdnOrangeStaging, staging, prod, prodBouyguesMiami, prodOrange, prodLegacyApi; default=staging')
   .option('-u, --username [username]', 'username, default=tech@afrostream.tv')
   .option('-p, --password [password]', 'password')
   .option('-r, --request [request]', 'path to request')
@@ -55,7 +55,11 @@ var envsConf = {
   prodOrange: {
     baseUrl: "https://legacy-api-orange.afrostream.tv"
   , host: "legacy-api-orange.afrostream.tv"
-  }
+},
+prodBouyguesMiami: {
+  baseUrl: "https://legacy-api-bouygues.afrostream.tv",
+  host: "legacy-api-bouygues.afrostream.tv"
+}
 }
 
 if (typeof envsConf[env] === 'undefined') {
