@@ -68,7 +68,7 @@ module.exports = function (sequelize, DataTypes) {
      * Virtual Getters
      */
     getterMethods: {
-      // Public profile information
+      // profile information
       profile: function () {
         return {
           'name': this.name,
@@ -267,6 +267,20 @@ module.exports = function (sequelize, DataTypes) {
 
       getIse2FromOrangeIdentity: function () {
         return this.orange && this.orange.identity && this.orange.identity.collectiveidentifier;
+      },
+
+      getPublicInfos: function () {
+        return User.getPublicInfos(this.get({plain:true}));
+      }
+    },
+
+    classMethods: {
+      getPublicInfos: function (plainUser) {
+        plainUser = plainUser || {};
+        return {
+          nickname: plainUser.nickname,
+          facebook: plainUser.facebook ? { id: plainUser.facebook.id } : null
+        }
       }
     }
   });
