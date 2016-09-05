@@ -40,6 +40,7 @@ router.use('/dashboard', require('./dashboard/index'));
 router.use('/usersvideos', require('./usersvideos/index'));
 router.use('/waitingUsers', require('./waitingUser/index'));
 router.use('/widgets', require('./widget/index'));
+router.use('/works', require('./work/index'));
 router.use('/wallnotes', require('./wallnote/index'));
 router.use('/stats', require('./stat/index'));
 

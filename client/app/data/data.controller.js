@@ -225,6 +225,7 @@ angular.module('afrostreamAdminApp')
         case'subscription':
         case'post':
         case'config':
+        case'work':
           hasTmb = false;
           break;
         default:

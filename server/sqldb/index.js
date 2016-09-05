@@ -56,6 +56,7 @@ db.Widget = db.sequelize.import('models/widget');
 db.WaitingUser = db.sequelize.import('models/waitingUser');
 db.WallNote = db.sequelize.import('models/wallNote');
 db.WallNotesUsers = db.sequelize.import('models/wallNotesUsers');
+db.Work = db.sequelize.import('models/work');
 
 db.Client.belongsTo(db.PFGroup, {as: 'pfGroup', constraints: false});
 
