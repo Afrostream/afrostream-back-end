@@ -15,12 +15,21 @@ module.exports.index = function (req, res) {
         model: User,
         as: 'user',
         required: true,
-        attributes: ['nickname']
+        attributes: ['nickname', 'facebook']
       }],
       order: [ ['createdAt', 'asc'] ]
     })
+    .then(function (comments) {
+      return (comments || []).map(function (comment) {
+        return comment.get({plain: true});
+      }).map(function (comment) {
+        delete comment.user.profile;
+        delete comment.user.token;
+        return comment;
+      });
+    })
     .then(
-      function (v) { res.json(v || []); },
+      function (v) { res.json(v); },
       res.handleError()
     );
 };
