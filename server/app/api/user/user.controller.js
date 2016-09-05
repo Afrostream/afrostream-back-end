@@ -112,6 +112,33 @@ exports.create = function (req, res, next) {
     .catch(validationError(res));
 };
 
+exports.search = function (req, res, next) {
+  Q()
+    .then(function () {
+      if (!Array.isArray(req.body.facebookIdList)) {
+        throw new Error('malformed facebookIdList');
+      }
+      return User.findAll({
+        where: {
+          facebook: {
+            id: {
+              $in: req.body.facebookIdList
+            }
+          }
+        }
+      });
+    })
+    .then(function (users) {
+      // FIXME: USER_PRIVACY: we should implement a privacy filter in a single place
+      return users.map(function (user) {
+        return user.getPublicInfos();
+      });
+    })
+    .then(res.json.bind(res))
+    .catch(res.handleError());
+};
+
+
 /**
  * Update a user
  *   currently, only used for bouygues

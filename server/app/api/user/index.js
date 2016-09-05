@@ -153,6 +153,7 @@ router.put('/password', controller.auth0ChangePassword);
 router.put('/:id/password', utils.middlewareNoCache, auth.hasRole('admin'), controller.changePassword);
 router.put('/:id/role', utils.middlewareNoCache, auth.hasRole('admin'), controller.changeRole);
 router.get('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.show);
+router.post('/search', controller.search);
 router.post('/', validator.validateCreateBody, controller.create);
 router.put('/:userId', convertUserIdMeToUserId, tokenUserMatchParamUser, validator.validateUpdateBody, controller.update);
 
