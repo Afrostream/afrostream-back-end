@@ -176,4 +176,6 @@ var filterQueryOptions = function (req, options, rootModel) {
   });
 };
 
+// FIXME: USER_PRIVACY: we should implement here a global output filter
+
 exports.filterQueryOptions = filterQueryOptions;

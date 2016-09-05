@@ -20,12 +20,11 @@ module.exports.index = function (req, res) {
       order: [ ['createdAt', 'asc'] ]
     })
     .then(function (comments) {
+      // FIXME: USER_PRIVACY: we should implement a privacy filter in a single place
       return (comments || []).map(function (comment) {
-        return comment.get({plain: true});
-      }).map(function (comment) {
-        delete comment.user.profile;
-        delete comment.user.token;
-        return comment;
+        var c = comment.get({plain: true});
+        c.user = comment.user.getPublicInfos();
+        return c;
       });
     })
     .then(

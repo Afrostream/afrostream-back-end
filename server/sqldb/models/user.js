@@ -285,5 +285,25 @@ module.exports = function (sequelize, DataTypes) {
     }
   });
 
+  // Monkey patching:
+  //  when calling model.get(options) <= options is tranfered to submodels
+  //  we use this implementation to transfer additionnal options like object 'visibility'
+  //  to submodels instances
+  //  FIXME: we cannot use this yet... too risky & buggy.
+  //  FIXME: maybe fork sequelize / use this kind of code later.
+  //  FIXME: USER_PRIVACY: maybe use a global output filter instead of this monkey patch.
+  /*
+  var get = User.Instance.prototype.get;
+  User.Instance.prototype.get = function (key, options) {
+    console.log('User.get monkey patched...', options);
+    if (options && options.plain && options.plain === 'public') {
+      var user = get.apply(this, arguments);
+      return User.getPublicInfos(user);
+    } else {
+      return get.apply(this, arguments);
+    }
+  };
+  */
+
   return User;
 };
