@@ -11617,6 +11617,11 @@
         }
       }
     },
+    "js2xmlparser": {
+      "version": "1.0.0",
+      "from": "js2xmlparser@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/js2xmlparser/-/js2xmlparser-1.0.0.tgz"
+    },
     "jshint-stylish": {
       "version": "0.1.5",
       "from": "jshint-stylish@>=0.1.5 <0.2.0",
