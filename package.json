@@ -58,7 +58,6 @@
     "grunt-svgmin": "~0.4.0",
     "grunt-usemin": "~2.1.1",
     "grunt-wiredep": "~1.8.0",
-    "heapdump": "^0.3.7",
     "http-proxy": "^1.11.1",
     "ip": "^1.1.0",
     "jade": "~1.2.0",
