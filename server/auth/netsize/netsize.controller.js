@@ -84,7 +84,7 @@ module.exports.check = function (req, res) {
 
   var XML = js2xmlparser('request', data);
 
-  console.log('[INFO]: [NETSIZE]: ', JSON.stringify(options));
+  console.log('[INFO]: [NETSIZE]: ', JSON.stringify(XML));
 
   // on essaye d'envoyer ce XML a netsize
   request({
