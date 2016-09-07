@@ -84,6 +84,8 @@ module.exports.check = function (req, res) {
 
   var XML = js2xmlparser('request', data);
 
+  console.log('[INFO]: [NETSIZE]: ', JSON.stringify(options));
+
   // on essaye d'envoyer ce XML a netsize
   request({
     method: 'POST',
@@ -91,13 +93,17 @@ module.exports.check = function (req, res) {
     headers: {
       "Content-Type": 'application/xml; charset="utf-8"'
     },
+    timeout: 10000,
     body: XML
   }, function (err, response, body) {
     if (err) {
-      return res.json({error: err, response: response, body: body})
+      console.log('[ERROR]: [NETSIZE]: '+err, err);
+      return res.handleError(err);
     }
-    console.log(response);
-    res.json({body: body})
+    console.log('[INFO]: [NETSIZE]: ' + JSON.stringify(body));
+    console.log('[DEBUG]: [NETSIZE]: response=', response);
+    console.log('[DEBUG]: [NETSIZE]: body=', body);
+    res.json({body: body});
   })
 };
 
