@@ -10560,11 +10560,6 @@
       "from": "headless@>=0.1.7 <0.2.0",
       "resolved": "https://registry.npmjs.org/headless/-/headless-0.1.7.tgz"
     },
-    "heapdump": {
-      "version": "0.3.7",
-      "from": "heapdump@*",
-      "resolved": "https://registry.npmjs.org/heapdump/-/heapdump-0.3.7.tgz"
-    },
     "hooker": {
       "version": "0.2.3",
       "from": "hooker@>=0.2.3 <0.3.0",

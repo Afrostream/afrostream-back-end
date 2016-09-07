@@ -60,7 +60,9 @@ if (config.dumpPostData) {
   app.use(dumpPostData());
 }
 
-app.use('/heapdumps', require('./heapdump'));
+// tempfix: disabling heapdumps (pb de compilation)
+//   (removed from shrinkwrap & package.json)
+// app.use('/heapdumps', require('./heapdump'));
 
 switch (process.env.NODE_ENV) {
   case 'production':
