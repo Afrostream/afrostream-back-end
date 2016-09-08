@@ -55,7 +55,11 @@ exports.setup = function (User, config) {
               where: {'_id': userId}
             });
           } else {
-            console.log('[INFO]: [FACEBOOK]: [PASSPORT]: user found by profile.id|email => ' + user._id);
+            if (user) {
+              console.log('[INFO]: [FACEBOOK]: [PASSPORT]: user found by profile.id|email => ' + user._id);
+            } else {
+              console.log('[INFO]: [FACEBOOK]: [PASSPORT]: user not found by profile.id|email');
+            }
             return user;
           }
         })
