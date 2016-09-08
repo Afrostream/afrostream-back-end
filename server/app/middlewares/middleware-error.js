@@ -6,7 +6,11 @@ module.exports = function (options) {
         var message = String(err && err.message || err || 'unknown');
         var statusCode = err && err.statusCode || defaultStatusCode;
         var stack = err && err.stack || 'no stack trace';
-        console.error('[ERROR] ' + message, stack, err);
+        if (statusCode !== 404) {
+          console.error('[ERROR] ' + message, stack, err);
+        } else {
+          console.error('[ERROR] ' + message); // message is enough
+        }
         // all errors are "no-cache", prevent HW CDN cache on error
         res.noCache();
         //
