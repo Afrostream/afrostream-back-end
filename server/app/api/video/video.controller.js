@@ -245,7 +245,9 @@ exports.show = function (req, res) {
         return video;
       }
       // FIXME: remove ?bs= query string test
-      if (req.query.bs) {
+      // FIXME: shouldn't bypass security for req.query.backo, but video.name will be empty
+      //        we should refactor the security access of this api.
+      if (req.query.bs || req.query.backo) {
         // bypassing security
         return video;
       }
