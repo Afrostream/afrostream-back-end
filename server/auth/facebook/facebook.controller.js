@@ -34,6 +34,7 @@ function validationError (res, statusCode) {
 
 var signin = function (req, res, next) {
   var userId = req.user ? req.user._id : null;
+  console.log('[INFO]: [FACEBOOK]: [SIGNIN]: userId='+userId);
   passport.authenticate('facebook', {
     display: 'popup',
     scope: scope,
@@ -43,6 +44,7 @@ var signin = function (req, res, next) {
 };
 
 var signup = function (req, res, next) {
+  console.log('[INFO]: [FACEBOOK]: [SIGNUP]: start');
   passport.authenticate('facebook', {
     display: 'popup',
     scope: scope,
@@ -102,10 +104,8 @@ var callback = function (req, res, next) {
         function success (tokens) {
           res.json(tokens);
         },
-        function error (err) {
-          console.error('/auth/facebook/: error: ' + err, err);
-          return res.status(401).json({message: String(err)});
-        });
+        res.handleError()
+      );
   })(req, res, next);
 };
 
@@ -117,5 +117,3 @@ module.exports.signin = signin;
 module.exports.signup = signup;
 module.exports.unlink = unlink;
 module.exports.callback = callback;
-
-
