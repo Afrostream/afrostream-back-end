@@ -62,10 +62,13 @@ module.exports = {
   },
   afterUpdate: function (instance, options) {
     try {
+      var modelName;
+
       if (!options.model) {
-        throw new Error('missing options.model ' + JSON.stringify(options));
+        console.log('[HOOK]: [AFTERUPDATE]: missing options.model => skip (' + JSON.stringify(options) + ')');
+        return;
       }
-      var modelName = options.model.name;
+      modelName = options.model.name;
       if (isModelBlacklisted(modelName)) {
         //console.log('[HOOK]: [AFTERUPDATE]: skip mq message ('+modelName+' is blacklisted)');
         return;

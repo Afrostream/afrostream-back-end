@@ -8,8 +8,6 @@ label(for='id').control-label User Role
   input.form-control(id='name' type='text' ng-model='item.name')
   label(for='email').control-label Email
   input.form-control(id='email' type='text' ng-model='item.email')
-  label(for='plancode').control-label Subscription Plan
-  input.form-control(id='plancode' type='text' ng-model='item.planCode')
 .form-group(ng-if='!item._id')
   label(for='password').control-label Password
   input.form-control(id='password' type='text' ng-model='item.password')
@@ -32,3 +30,9 @@ label(for='id').control-label User Role
           div {{accessToken.data.userIp}}
         td.text-center
           div {{accessToken.data.userAgent}}
+div
+  label.btn.btn-primary.glyphicon.glyphicon-lock(ng-click='togglePasswordEdition()')
+  div(style="padding: 14px 0;" ng-hide='passwordEditionMode')
+    label.btn.btn-primary(ng-click='getNewPassword()') Create new password
+    input.form-control(style="margin-top: 8px; width: 148px" ng-model='item.newPassword' select-on-click)
+    label.btn.btn-primary(style="margin-top: 8px;" ng-click='saveNewPassword()') Save new password

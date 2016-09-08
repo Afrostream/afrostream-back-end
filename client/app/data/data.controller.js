@@ -40,12 +40,27 @@ angular.module('afrostreamAdminApp')
       // new current page
       $scope.pagination.current = page;
       //
-      loadItems(page, $scope.searchField)
+      return loadItems(page, $scope.searchField)
+    };
+
+    $scope.loadItem = function(id) {
+      // this is just an example, in reality this stuff should be in a service
+      return $http.get($scope.apiRessourceUrl+"/"+id, {
+        params: {},
+        headers: angular.extend(
+          {},
+          $scope.headers,
+          {}
+        )
+      })
+        .then(function (result) {
+          return result.data;
+        });
     };
 
     function loadItems (pageNumber, query) {
       // this is just an example, in reality this stuff should be in a service
-      $http.get($scope.apiRessourceUrl, {
+      return $http.get($scope.apiRessourceUrl, {
         params: {query: query},
         headers: angular.extend(
           {},
@@ -63,11 +78,34 @@ angular.module('afrostreamAdminApp')
         });
     }
 
-    $scope.loadPage($scope.pagination.current);
+    $scope.editFromHash = function() {
+      var parameters = window.location.hash.substring(1, window.location.hash.length).split("=");
+      if (parameters["0"] === "id") {
+        var dataId = parameters[1];
+        $scope.loadItem(dataId)
+          .then(function(item) {
+            $scope.editIndex(item);
+          });
+      }
+      if (parameters["0"] === "query") {
+        var dataEmail = parameters[1];
+        loadItems(1, dataEmail)
+          .then(function() {
+            if ($scope.items.length === 1) {
+              $scope.editIndex($scope.items[0]);
+            }
+
+          });
+      }
+    };
+
+    $scope.loadPage($scope.pagination.current)
+      .then($scope.editFromHash);
 
     $scope.$watch('searchField', function (val) {
       if (!val) return;
       $scope.loadPage(1);
+      window.location.hash = "#query="+val;
     });
 
     var modalOpts = {
@@ -245,5 +283,6 @@ angular.module('afrostreamAdminApp')
       }
       return hasTmb;
     }
+
   })
 ;
