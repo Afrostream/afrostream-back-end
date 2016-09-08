@@ -81,12 +81,12 @@ var callback = function (req, res, next) {
     if (err) {
       console.log('[INFO]: [FACEBOOK]: [CALLBACK]: authenticate done, error ' + err.message, JSON.stringify(err));
     } else {
-      console.log('[INFO]: [FACEBOOK]: [CALLBACK]: authenticate done, no error, info = ' + info);
+      console.log('[INFO]: [FACEBOOK]: [CALLBACK]: authenticate done, no error, info = ' + JSON.stringify(info));
     }
     Q()
       .then(function () {
         if (err) throw err;
-        if (info) throw info;
+        //if (info) throw info;
         if (!user) throw new Error('Something went wrong, please try again.');
         console.log('[INFO]: [FACEBOOK]: [CALLBACK]: authenticate getOauth2UserTokens', user._id);
         return req.getPassport();
