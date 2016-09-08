@@ -62,6 +62,9 @@ module.exports = {
   },
   afterUpdate: function (instance, options) {
     try {
+      if (!options.model) {
+        throw new Error('missing options.model ' + JSON.stringify(options));
+      }
       var modelName = options.model.name;
       if (isModelBlacklisted(modelName)) {
         //console.log('[HOOK]: [AFTERUPDATE]: skip mq message ('+modelName+' is blacklisted)');
