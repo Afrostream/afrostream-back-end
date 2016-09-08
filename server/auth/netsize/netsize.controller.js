@@ -1,5 +1,7 @@
+var Q = require('q');
 var js2xmlparser = require('js2xmlparser');
 var request = require('request');
+var xml2js = require('xml2js');
 
 var config = rootRequire('/server/config');
 
@@ -87,7 +89,7 @@ module.exports.check = function (req, res) {
   console.log('[INFO]: [NETSIZE]: ', JSON.stringify(XML));
 
   // on essaye d'envoyer ce XML a netsize
-  request({
+  Q.nfcall(request, {
     method: 'POST',
     uri: config.netsize.uri,
     headers: {
@@ -95,16 +97,28 @@ module.exports.check = function (req, res) {
     },
     timeout: 10000,
     body: XML
-  }, function (err, response, body) {
-    if (err) {
-      console.log('[ERROR]: [NETSIZE]: '+err, err);
-      return res.handleError(err);
-    }
+  })
+  .then(function (data) {
+    var response = data[0];
+    var body = data[1];
+
     console.log('[INFO]: [NETSIZE]: ' + JSON.stringify(body));
     console.log('[DEBUG]: [NETSIZE]: response=', response);
     console.log('[DEBUG]: [NETSIZE]: body=', body);
-    res.json({body: body});
+    return Q.nfcall(xml2js.parseString, body);
   })
+  .then(function (json) {
+    // try to grab redirect url :)
+    console.log('[DEBUG]: [NETSIZE]: json=', JSON.stringify(json));
+    // yeeeeark
+    return json['response']['initialize-authentication'][0]['auth-url'][0]['$']['url'];;
+  })
+  .then(
+    function success(netsizeUrl) {
+      res.redirect(302, netsizeUrl);
+    },
+    res.handleError()
+  );
 };
 
 module.exports.callback = function (req, res) {
