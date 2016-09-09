@@ -8,6 +8,9 @@ angular.module('afrostreamAdminApp')
       $http({method:'GET', url: '/api/logs/', params: { userId: $scope.item._id,  type: 'access_token' } }).then(function (result) {
         $scope.accessTokens = result.data;
       });
+
+      // load the subscriptions of selected user, to display on the page
+      $scope.loadSubscriptions();
     };
     /**
      * Return a brand new randomly generated password
@@ -66,5 +69,25 @@ angular.module('afrostreamAdminApp')
       } else {
         $scope.passwordEditionMode = true;
       }
-    }
+    };
+
+    /**
+     * Find the subscriptions for selected user
+     * @returns {*}
+     */
+    $scope.loadSubscriptions = function() {
+      return $http({
+        method: 'GET',
+        url: '/api/subscriptions/status',
+        params: {
+          userId: $scope.item._id
+        }
+      })
+        .then(function(result) {
+          $scope.subscriptions = result.data.subscriptions;
+        });
+    };
+
+
+
   });

@@ -36,3 +36,69 @@ div
     label.btn.btn-primary(ng-click='getNewPassword()') Create new password
     input.form-control(style="margin-top: 8px; width: 148px" ng-model='item.newPassword' select-on-click)
     label.btn.btn-primary(style="margin-top: 8px;" ng-click='saveNewPassword()') Save new password
+
+
+.form-group(style="max-height:300px;overflow-y:scroll;font-size:10px;font-family: 'Courier New';")
+  table.table
+    colgroup
+      col.col-md-1
+      col.col-md-1
+      col.col-md-1
+      col.col-md-1
+      col.col-md-1
+      col.col-md-1
+      col.col-md-1
+      col.col-md-1
+      col.col-md-1
+      col.col-md-1
+      col.col-md-1
+      col.col-md-1
+      col.col-md-1
+      col.col-md-1
+    thead
+      tr
+        th(style="padding: 8px 5px;").text-center Id Interne
+        th(style="padding: 8px 5px;").text-center Id externe
+        th(style="padding: 8px 5px;").text-center Provider
+        th(style="padding: 8px 5px;").text-center Accès aux catalogue
+        th(style="padding: 8px 5px;").text-center Date de création
+        th(style="padding: 8px 5px;").text-center Date d'activation
+        th(style="padding: 8px 5px;").text-center Période d'Abo
+        th(style="padding: 8px 5px;").text-center Période de trial
+        th(style="padding: 8px 5px;").text-center Plan
+        th(style="padding: 8px 5px;").text-center Coupon
+        th(style="padding: 8px 5px;").text-center Statut externe
+        th(style="padding: 8px 5px;").text-center Options
+        th(style="padding: 8px 5px;").text-center Date d'annulation
+        th(style="padding: 8px 5px;").text-center Date d'expiration
+    tbody
+      tr(ng-repeat='subscription in subscriptions')
+        td(style="padding: 8px 5px;").text-center
+          div {{subscription.subscriptionBillingUuid}}
+        td(style="padding: 8px 5px;").text-center
+          div(style="width: 70px; word-wrap: break-word;") {{subscription.subscriptionProviderUuid}}
+        td(style="padding: 8px 5px;").text-center
+          div {{subscription.provider.providerName}}
+        td(style="padding: 8px 5px;").text-center
+          div
+            label.glyphicon(ng-class="subscription.isActive=='yes' ? 'glyphicon-ok' : 'glyphicon-remove'")
+        td(style="padding: 8px 5px;").text-center
+          div {{subscription.creationDate | date:'dd/MM/yyyy'}}
+        td(style="padding: 8px 5px;").text-center
+          div {{subscription.subActivatedDate| date:'dd/MM/yyyy'}}
+        td(style="padding: 8px 5px;").text-center
+          div {{subscription.subPeriodStartedDate| date:'dd/MM/yyyy'}} -> {{subscription.subPeriodEndsDate| date:'dd/MM/yyyy'}}
+        td(style="padding: 8px 5px;").text-center
+          div {{subscription.inTrial}}
+        td(style="padding: 8px 5px;").text-center
+          div {{subscription.internalPlan.name}}
+        td(style="padding: 8px 5px;").text-center
+          div {{subscription.subOpts.couponCode}}
+        td(style="padding: 8px 5px;").text-center
+          div {{subscription.subStatus}}
+        td(style="padding: 8px 5px;").text-center
+          div Annulable: {{subscription.isCancelable}} Reactivable: {{subscription.isReactivable}}
+        td(style="padding: 8px 5px;").text-center
+          div {{subscription.subCanceledDate| date:'dd/MM/yyyy'}}
+        td(style="padding: 8px 5px;").text-center
+          div {{subscription.subExpiresDate| date:'dd/MM/yyyy'}}
