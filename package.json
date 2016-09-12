@@ -114,7 +114,8 @@
     "supertest": "0.11.0"
   },
   "engines": {
-    "node": "0.12.x"
+    "node": "0.12.x",
+    "npm": "2.14.9"
   },
   "scripts": {
     "start": "node server/server.js",
