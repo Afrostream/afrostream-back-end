@@ -3215,6 +3215,18 @@
       "from": "btoa@1.1.2",
       "resolved": "https://registry.npmjs.org/btoa/-/btoa-1.1.2.tgz"
     },
+    "commander": {
+      "version": "2.9.0",
+      "from": "commander@*",
+      "resolved": "https://registry.npmjs.org/commander/-/commander-2.9.0.tgz",
+      "dependencies": {
+        "graceful-readlink": {
+          "version": "1.0.1",
+          "from": "graceful-readlink@>=1.0.0",
+          "resolved": "https://registry.npmjs.org/graceful-readlink/-/graceful-readlink-1.0.1.tgz"
+        }
+      }
+    },
     "composable-middleware": {
       "version": "0.3.0",
       "from": "composable-middleware@0.3.0",
