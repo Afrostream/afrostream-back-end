@@ -463,6 +463,7 @@ module.exports.createCoupons = function (req, res) {
 
   var c = {
     userId: req.user._id,
+    userReferenceUuid: req.body.userReferenceUuid,
     userEmail: req.user.email,
     userProviderUuid: null,
     userBillingUuid: req.body.userBillingUuid,
@@ -483,7 +484,7 @@ module.exports.createCoupons = function (req, res) {
       }
       return billingApi.getOrCreateUser({
         providerName: c.billingProviderName,
-        userReferenceUuid: c.userId,
+        userReferenceUuid: c.userReferenceUuid || c.userId,
         userProviderUuid: c.userProviderUuid,
         userOpts: {
           email: c.userEmail,
