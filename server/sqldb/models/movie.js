@@ -49,7 +49,6 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
-    dateReleased: DataTypes.DATE,
     genre: DataTypes.STRING,
     creation: DataTypes.STRING,
     live: {
@@ -71,11 +70,20 @@ module.exports = function (sequelize, DataTypes) {
     vXstY: DataTypes.STRING(16),
     countries: DataTypes.ARRAY(DataTypes.STRING(2)),
     broadcasters: DataTypes.ARRAY(DataTypes.STRING(4)),
-    youtubeTrailer:  DataTypes.STRING
+    youtubeTrailer:  DataTypes.STRING,
+    yearReleased: DataTypes.INTEGER
   }, {
     getterMethods   : {
       sharing: function()  {
         return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/sharing/movie/' + this._id }
+      },
+      // backward compatibility for api pre 13/09/2016
+      dateReleased: function () {
+        if (this.yearReleased) {
+          return this.yearReleased + '-06-01T00:00:00.000Z'; // june, to avoid timezone artefacts :)
+        } else {
+          return null;
+        }
       }
     }
   });
