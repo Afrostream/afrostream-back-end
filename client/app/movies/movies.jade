@@ -36,8 +36,8 @@
   slider(min='0' step='0.1' max='5' ng-model="item.rating")
 
 .form-group
-  label.control-label Release Date
-  input.form-control(type='date' ng-model='item.dateReleased')
+  label.control-label Release Year
+  input.form-control(type='number' ng-model='item.yearReleased' min="1900" max="2100")
 
 .form-group
   label.control-label Genre

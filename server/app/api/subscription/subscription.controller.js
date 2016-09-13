@@ -122,7 +122,8 @@ exports.cancel = function (req, res, next) {
  * }
  */
 exports.status = function (req, res) {
-  billingApi.getSubscriptionsStatus(req.user._id, true)
+  var userId = parseInt(req.param('userId'), 10) || req.user._id;
+  billingApi.getSubscriptionsStatus(userId, true)
     .then(function (subscriptionsStatus) {
       res.json(subscriptionsStatus);
     })

@@ -73,22 +73,29 @@ var unlink = function (req, res) {
 };
 
 var callback = function (req, res, next) {
+  console.log('[INFO]: [FACEBOOK]: [CALLBACK]: start');
   passport.authenticate('facebook', {
     display: 'popup',
     session: false
   }, function (err, user, info) {
+    if (err) {
+      console.log('[INFO]: [FACEBOOK]: [CALLBACK]: authenticate done, error ' + err.message, JSON.stringify(err));
+    } else {
+      console.log('[INFO]: [FACEBOOK]: [CALLBACK]: authenticate done, no error, info = ' + JSON.stringify(info));
+    }
     Q()
       .then(function () {
         if (err) throw err;
-        if (info) throw info;
+        //if (info) throw info;
         if (!user) throw new Error('Something went wrong, please try again.');
-        console.log('authenticate getOauth2UserTokens', user._id);
+        console.log('[INFO]: [FACEBOOK]: [CALLBACK]: authenticate getOauth2UserTokens', user._id);
         return req.getPassport();
       })
       .then(function (passport) {
-        console.log('generate token with client', passport.client._id, user._id);
+        console.log('[INFO]: [FACEBOOK]: [CALLBACK]: generate token with client', passport.client._id, user._id);
         var deferred = Q.defer();
         oauth2.generateToken(passport.client, user, null, req.clientIp, req.userAgent, null, function (err, accessToken, refreshToken, info) {
+          console.log('[INFO]: [FACEBOOK]: [CALLBACK]: token generated ');
           if (err)  return deferred.reject(err);
           return deferred.resolve({
             token: accessToken,
@@ -98,7 +105,6 @@ var callback = function (req, res, next) {
           });
         });
         return deferred.promise;
-
       })
       .then(
         function success (tokens) {
