@@ -11,6 +11,8 @@ var Client = sqldb.Client;
 
 // Gets a list of captions
 exports.orange = function (req, res) {
+  var day = (req.query.day) ? moment(req.query.day, "YYYYMMDD") : moment().subtract(1, 'days');
+
   /*
    * searching stats of UsersVideos for users having a ise2 (orange id), having browsed yesterday
    *
@@ -25,8 +27,8 @@ exports.orange = function (req, res) {
       type: 'read-video',
       createdAt : {
         $and: [
-          { $gt : moment().subtract(1, 'days').startOf('day').toDate() },
-          { $lt : moment().subtract(1, 'days').endOf('day').toDate() }
+          { $gt : day.startOf('day').toDate() },
+          { $lt : day.endOf('day').toDate() }
         ]
       }
     }
