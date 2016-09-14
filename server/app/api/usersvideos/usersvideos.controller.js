@@ -13,8 +13,8 @@ var Client = sqldb.Client;
 exports.orange = function (req, res) {
   var day = (req.query.day) ? moment(req.query.day, "YYYYMMDD") : moment().subtract(1, 'days');
   console.log('[INFO]: [USERSVIDEOS]: [ORANGE]: day = ', day.toDate());
-  var dateFrom = day.startOf('day').toDate();
-  var dateTo = day.endOf('day').toDate()
+  var dateFrom = day.clone().startOf('day').toDate();
+  var dateTo = day.clone().endOf('day').toDate()
   console.log('[INFO]: [USERSVIDEOS]: [ORANGE]: dateFrom=' + dateFrom + ' dateTo=' + dateTo);
 
   /*
