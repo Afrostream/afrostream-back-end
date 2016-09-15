@@ -4,7 +4,7 @@ var BasicStrategy = require('passport-http').BasicStrategy;
 var ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy;
 var BearerStrategy = require('passport-http-bearer').Strategy;
 
-function localAuthenticate(User, email, password, done) {
+function localAuthenticate (User, email, password, done) {
   User.find({
     where: {
       email: email.toLowerCase()
@@ -34,7 +34,7 @@ function localAuthenticate(User, email, password, done) {
     });
 }
 
-function clientAuthenticate(Client, clientId, clientSecret, done) {
+function clientAuthenticate (Client, clientId, clientSecret, done) {
   Client.find({
     where: {
       _id: clientId
@@ -115,7 +115,6 @@ exports.setup = function (Client, User, AccessToken, config) {
    * the authorizing user.
    */
   passport.use('bearer', new BearerStrategy(
-
     function (accessToken, done) {
       AccessToken.find({
         where: {
@@ -124,13 +123,13 @@ exports.setup = function (Client, User, AccessToken, config) {
       })
         .then(function (token) {
           if (!token) {
-            console.error('passport: bearer: cannot find token '+accessToken);
+            console.error('passport: bearer: cannot find token ' + accessToken);
             return done(null, false);
           }
           if (new Date() > token.expirationDate) {
             return token.destroy()
               .then(function () {
-                console.error('passport: bearer: token expired '+accessToken);
+                console.error('passport: bearer: token expired ' + accessToken);
                 done(new Error('token expired'))
               });
           }
@@ -142,7 +141,7 @@ exports.setup = function (Client, User, AccessToken, config) {
             })
               .then(function (entity) {
                 if (!entity) {
-                  console.error('passport: bearer: cannot find user '+token.userId);
+                  console.error('passport: bearer: cannot find user ' + token.userId);
                   return done(null, false);
                 }
                 // no use of scopes for no
@@ -157,7 +156,7 @@ exports.setup = function (Client, User, AccessToken, config) {
             })
               .then(function (client) {
                 if (!client) {
-                  console.error('passport: bearer: cannot find client '+token.clientId);
+                  console.error('passport: bearer: cannot find client ' + token.clientId);
                   return done(null, false);
                 }
                 // no use of scopes for no
@@ -167,7 +166,7 @@ exports.setup = function (Client, User, AccessToken, config) {
           }
         })
         .catch(function (err) {
-          console.error('passport: bearer: unknownerror '+err, err);
+          console.error('passport: bearer: unknownerror ' + err, err);
           return done(err);
         });
     }

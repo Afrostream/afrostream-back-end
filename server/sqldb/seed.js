@@ -419,6 +419,12 @@ promises.push(
       secret: "6789a6d9-8771-5555-8407-ee67af604ccc",
       type: "legacy-api.orange-newbox",
       role: "client"
+    }, {
+      name: 'afrostream-admin',
+      _id: '488d2f13-6c01-464f-bfa4-bf8c641d7063',
+      secret: "17abaee4-032d-4703-be86-0af3523dcedd",
+      type: "afrostream-admin.gui",
+      role: "client"
     }]);
   })
 );
