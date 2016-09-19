@@ -11,6 +11,7 @@ var validatePresenceOf = function (value) {
 
 module.exports = function (sequelize, DataTypes) {
   var User = sequelize.define('User', {
+    // database basic infos
     _id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -23,7 +24,46 @@ module.exports = function (sequelize, DataTypes) {
       allowNull: true,
       defaultValue: DataTypes.NOW
     },
+
+    // PERSONNAL INFOS
     name: DataTypes.STRING,
+    first_name: DataTypes.STRING,
+    last_name: DataTypes.STRING,
+
+    gender: DataTypes.STRING(16),
+
+    birthDate: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+
+    nationality: DataTypes.STRING(2),
+
+    postalAddressCode: DataTypes.STRING(16),
+    postalAddressCity: DataTypes.STRING(64),
+    postalAddressStreet: DataTypes.STRING(64),
+    postalAddressRegion: DataTypes.STRING(8),
+    postalAddressLocality: DataTypes.STRING(32),
+    postalAddressCountry: DataTypes.STRING(2),
+
+    telephone: DataTypes.STRING(16),
+
+    jobTitle: DataTypes.STRING(32),
+
+    // PROFILE
+    nickname: DataTypes.STRING(32),
+    avatarImageId: DataTypes.UUID(),
+
+    // PREFERENCES
+    languageId: DataTypes.INTEGER,
+    playerCaption: DataTypes.STRING(3),
+    playerAudio: DataTypes.STRING(3),
+    playerQuality: DataTypes.INTEGER,
+    playerAutoNext: DataTypes.BOOLEAN,
+    playerKoment: DataTypes.BOOLEAN,
+    socialSharing: DataTypes.BOOLEAN,
+
+    // EMAILING
     email: {
       type: DataTypes.STRING,
       unique: {
@@ -33,6 +73,27 @@ module.exports = function (sequelize, DataTypes) {
         isEmail: true
       }
     },
+    emailOptIn: DataTypes.BOOLEAN,
+    emailNewsletter: DataTypes.BOOLEAN,
+
+    // 3-Leg
+    google: DataTypes.JSON,
+    github: DataTypes.JSON,
+    facebook: DataTypes.JSON,
+    orange: DataTypes.JSON,
+    bouygues: DataTypes.JSON,
+    bouyguesId: DataTypes.STRING(128), // bouygues ise2 id.
+    ise2: DataTypes.STRING(128), // orange ise2 id.
+
+    // FRONT
+    splashList: DataTypes.JSON,
+
+    // BILLING
+    provider: DataTypes.STRING,
+    billing_provider: DataTypes.STRING,
+    account_code: DataTypes.STRING,
+
+    // INTERNALS
     role: {
       type: DataTypes.STRING,
       defaultValue: 'user'
@@ -43,21 +104,9 @@ module.exports = function (sequelize, DataTypes) {
         notEmpty: true
       }
     },
-    account_code: DataTypes.STRING,
-    first_name: DataTypes.STRING,
-    last_name: DataTypes.STRING,
-    nickname: DataTypes.STRING(32),
-    provider: DataTypes.STRING,
-    billing_provider: DataTypes.STRING,
     salt: DataTypes.STRING,
-    google: DataTypes.JSON,
-    github: DataTypes.JSON,
-    facebook: DataTypes.JSON,
-    orange: DataTypes.JSON,
-    bouygues: DataTypes.JSON,
-    bouyguesId: DataTypes.STRING(128), // bouygues ise2 id.
-    ise2: DataTypes.STRING(128), // orange ise2 id.
-    splashList: DataTypes.JSON,
+
+    //
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
@@ -68,22 +117,12 @@ module.exports = function (sequelize, DataTypes) {
      * Virtual Getters
      */
     getterMethods: {
-      // profile information
-      profile: function () {
-        return {
-          'name': this.name,
-          'nickname': this.nickname,
-          'role': this.role,
-          '_id': this._id,
-          'email': this.email,
-          'provider': this.provider,
-          'facebook': this.facebook,
-          'orange': this.orange,
-          'ise2': this.ise2 || this.orange && this.orange.identify && this.orange.identify.collectiveidentifier || null,  // fixme: security: should this id be exported ?
-          'bouygues': this.bouygues,
-          'bouyguesId': this.bouyguesId || this.bouygues && this.bouygues.id || null, // fixme: security: should this id be exported ?
-          'splashList': this.splashList
-        };
+      ise2: function () {
+        return this.getDataValue('ise2') || this.orange && this.orange.identify && this.orange.identify.collectiveidentifier || null;
+      },
+
+      bouyguesId: function () {
+        return this.getDataValue('bouyguesId') || this.bouygues && this.bouygues.id || null;
       },
 
       // Non-sensitive info we'll be putting in the token
@@ -269,6 +308,17 @@ module.exports = function (sequelize, DataTypes) {
         return this.orange && this.orange.identity && this.orange.identity.collectiveidentifier;
       },
 
+      // public & private infos (removing "internal" infos)
+      getInfos: function () {
+        var userInfos = this.get({plain: true});
+        // removing internal infos
+        delete userInfos.role;
+        delete userInfos.password;
+        delete userInfos.salt;
+        return userInfos;
+      },
+
+      // public infos
       getPublicInfos: function () {
         return User.getPublicInfos(this.get({plain:true}));
       }

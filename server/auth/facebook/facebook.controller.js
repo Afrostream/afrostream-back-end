@@ -67,7 +67,7 @@ var unlink = function (req, res) {
       user.facebook = null;
       return user.save()
         .then(function () {
-          res.json(user.profile);
+          res.json(user.getInfos());
         }).catch(validationError(res));
     });
 };

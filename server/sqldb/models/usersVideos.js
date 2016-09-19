@@ -30,6 +30,7 @@ module.exports = function (sequelize, DataTypes) {
     playerPosition: DataTypes.INTEGER,
     playerAudio: DataTypes.STRING(3),
     playerCaption: DataTypes.STRING(3),
+    playerQuality: DataTypes.INTEGER,
     rating: DataTypes.INTEGER,
     lastUpdateClientType: DataTypes.STRING(32),
     lastUpdateDeviceType: DataTypes.STRING(16),

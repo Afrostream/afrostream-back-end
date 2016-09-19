@@ -230,9 +230,9 @@ exports.create = function (req, res) {
     //
     .then(
       function success() {
-        var profile = c.user.profile;
-        profile.planCode = c.subscriptionPlanCode;
-        res.json(profile);
+        var userInfos = c.user.getInfos();
+        userInfos.planCode = c.subscriptionPlanCode;
+        res.json(userInfos);
       },
       function error(err) {
 
@@ -448,9 +448,9 @@ exports.gift = function (req, res) {
     })
     .then(
       function success() {
-        var profile = c.giftedUser.profile;
-        profile.planCode = c.subscriptionPlanCode;
-        res.json(profile);
+        var userInfos = c.giftedUser.getInfos();
+        userInfos.planCode = c.subscriptionPlanCode;
+        res.json(userInfos);
       },
       function error(err) {
 
