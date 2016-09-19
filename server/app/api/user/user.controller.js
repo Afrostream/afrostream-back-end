@@ -156,9 +156,39 @@ exports.search = function (req, res, next) {
  ***********************************************
  */
 exports.update = function (req, res) {
-  //
+  // FIXME : use joi.
   var updateableFields = [
-    /* 'name', 'first_name', 'last_name', 'email', */ // FIXME_023 Please read the comment above before changing this.
+    /* 'email', */ // FIXME_023 Please read the comment above before changing this.
+    'name',
+    'first_name',
+    'last_name',
+    //
+    'telephone',
+    'birthDate',
+    'gender',
+    'nationality',
+    //
+    'languageId',
+    //
+    'postalAddressCountry',
+    'postalAddressLocality',
+    'postalAddressRegion',
+    'postalAddressCode',
+    'postalAddressCity',
+    'postalAddressStreet',
+    //
+    'jobTitle',
+    //
+    'playerCaption',
+    'playerAudio',
+    'playerQuality',
+    'playerAutoNext',
+    //
+    'emailOptIn',
+    'emailNewsletter',
+    'avatarImageId',
+    'socialSharing',
+    //
     'bouyguesId',
     'splashList',
     'nickname'
@@ -170,7 +200,7 @@ exports.update = function (req, res) {
   });
   // FIXME: security: we should ensure bouyguesId could only be updated by bouygues client.
   req.user.save()
-    .then(function () { res.json(req.user.profile); })
+    .then(function () { res.json(req.user.getInfos()); })
     .catch(validationError(res));
 };
 
@@ -189,7 +219,7 @@ exports.show = function (req, res, next) {
       if (!user) {
         return res.status(404).end();
       }
-      return res.json(user.profile);
+      return res.json(user.getInfos());
     })
     .catch(function (err) {
       return next(err);
@@ -296,7 +326,7 @@ exports.auth0ChangePassword = function (req, res, next) {
       user.password = newPass;
       return user.save()
         .then(function () {
-          res.json(user.profile);
+          res.json(user.getInfos());
         })
         .catch(validationError(res));
     })
@@ -370,7 +400,7 @@ exports.verify = function (req, res) {
       user.active = true;
       return user.save()
         .then(function () {
-          res.json(user.profile);
+          res.json(user.getInfos());
         })
         .catch(validationError(res));
     })
@@ -385,19 +415,20 @@ exports.verify = function (req, res) {
  *  profile.planCode
  */
 exports.me = function (req, res) {
-  var profile = req.user.profile;
+  var userInfos = req.user.getInfos();
+
   // on enrichi le profile avec des infos de souscriptions
   billingApi.getSubscriptionsStatus(req.user._id)
     .then(function (subscriptionsStatus) {
       // utilisateur inscrit
-      profile.subscriptionsStatus = subscriptionsStatus;
-      profile.planCode = subscriptionsStatus ? subscriptionsStatus.planCode : undefined;
+      userInfos.subscriptionsStatus = subscriptionsStatus;
+      userInfos.planCode = subscriptionsStatus ? subscriptionsStatus.planCode : undefined;
     }, function () {
       // utilisateur inscrit mais non abonné
       console.log('[INFO]: /api/users/me: user registered but no subscriptions (' + req.user._id + ')');
     })
     .then(
-    function success() { res.json(profile); },
+    function success() { res.json(userInfos); },
     function error(err) {
       console.error('[ERROR]: /api/users/me: ' + err, err);
       res.status(err.statusCode || 500).json({error:String(err)});

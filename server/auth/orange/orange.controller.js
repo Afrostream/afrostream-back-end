@@ -100,7 +100,7 @@ var unlink = function (req, res) {
     })
     .then(
       function (user) {
-        res.json(user.profile);
+        res.json(user.getInfos());
       },
       validationError(res)
     );
