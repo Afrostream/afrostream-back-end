@@ -117,24 +117,6 @@ module.exports = function (sequelize, DataTypes) {
      * Virtual Getters
      */
     getterMethods: {
-      // profile information
-      profile: function () {
-        return {
-          'name': this.name,
-          'nickname': this.nickname,
-          'role': this.role,
-          '_id': this._id,
-          'email': this.email,
-          'provider': this.provider,
-          'facebook': this.facebook,
-          'orange': this.orange,
-          'ise2': this.ise2 || this.orange && this.orange.identify && this.orange.identify.collectiveidentifier || null,  // fixme: security: should this id be exported ?
-          'bouygues': this.bouygues,
-          'bouyguesId': this.bouyguesId || this.bouygues && this.bouygues.id || null, // fixme: security: should this id be exported ?
-          'splashList': this.splashList
-        };
-      },
-
       ise2: function () {
         return this.getDataValue('ise2') || this.orange && this.orange.identify && this.orange.identify.collectiveidentifier || null;
       },
