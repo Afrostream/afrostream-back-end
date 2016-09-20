@@ -136,7 +136,7 @@ var callback = function (req, res, next) {
           }
           return Client.findOne({where:{type:req.signupClientType}}).then(function (c) {
             return c || passport.client;
-          })
+          });
         }
         return passport.client;
       })
@@ -149,7 +149,8 @@ var callback = function (req, res, next) {
           token: tokenInfos[0],
           access_token: tokenInfos[0],
           refresh_token: tokenInfos[1],
-          expires_in: tokenInfos[2].expires_in
+          expires_in: tokenInfos[2].expires_in,
+          signupClientType: req.signupClientType
         };
       })
       .then(
