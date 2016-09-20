@@ -182,6 +182,7 @@ exports.update = function (req, res) {
     'playerCaption',
     'playerAudio',
     'playerQuality',
+    'playerKoment',
     'playerAutoNext',
     //
     'emailOptIn',
