@@ -201,10 +201,27 @@ exports.search = function (req, res) {
   var query = req.body.query || '';
 
   algolia.searchIndex('seasons', query)
-    .then(function (movies) {
-      res.json(movies);
+    .then(function (result) {
+      if (!result) {
+        throw new Error('no result from algolia');
+      }
+      var queryOptions = { where: { _id: {
+        $in: (result.hits || []).map(function (season) { return season._id; })
+      } } };
+      //
+      queryOptions = filters.filterQueryOptions(req, queryOptions, Season);
+      //
+      return Season.findAll(queryOptions)
+        .then(function (seasons) {
+          result.hits = seasons;
+          result.nbHits = seasons.length;
+          return result;
+        });
     })
-    .catch(res.handleError())
+    .then(
+      res.json.bind(res),
+      res.handleError()
+    );
 };
 
 // Updates an existing episode in the DB

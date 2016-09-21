@@ -270,14 +270,43 @@ exports.create = function (req, res) {
     .catch(res.handleError());
 };
 
+/*
+ * on imite le resultat d'algolia
+ * {
+ *   hits: [{sharing: {url: "https://afrostream.tv/sharing/movie/149"}, duration: 6238, rating: 5, _id: 149,…},…],
+ *   hitsPerPage: 20,
+ *   nbHits: 8,
+ *   nbPages: 1,
+ *   page:0,
+ *   params: "query=ali",
+ *   query: "ali"
+ * }
+ */
 exports.search = function (req, res) {
   var query = req.body.query || '';
 
   algolia.searchIndex('movies', query)
-    .then(function (movies) {
-      res.json(movies);
+    .then(function (result) {
+      if (!result) {
+        throw new Error('no result from algolia');
+      }
+      var queryOptions = { where: { _id: {
+        $in: (result.hits || []).map(function (movie) { return movie._id; })
+      } } };
+      //
+      queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
+      //
+      return Movie.findAll(queryOptions)
+        .then(function (movies) {
+          result.hits = movies;
+          result.nbHits = movies.length;
+          return result;
+        });
     })
-    .catch(res.handleError())
+    .then(
+      res.json.bind(res),
+      res.handleError()
+    );
 };
 
 // Updates an existing episode in the DB

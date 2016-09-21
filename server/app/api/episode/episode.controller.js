@@ -154,10 +154,27 @@ exports.search = function (req, res) {
   var query = req.body.query || '';
 
   algolia.searchIndex('episodes', query)
-    .then(function (movies) {
-      res.json(movies);
+    .then(function (result) {
+      if (!result) {
+        throw new Error('no result from algolia');
+      }
+      var queryOptions = { where: { _id: {
+        $in: (result.hits || []).map(function (episode) { return episode._id; })
+      } } };
+      //
+      queryOptions = filters.filterQueryOptions(req, queryOptions, Episode);
+      //
+      return Episode.findAll(queryOptions)
+        .then(function (episodes) {
+          result.hits = episodes;
+          result.nbHits = episodes.length;
+          return result;
+        });
     })
-    .catch(res.handleError())
+    .then(
+      res.json.bind(res),
+      res.handleError()
+    );
 };
 
 function parseVXstY(body) {
