@@ -209,10 +209,18 @@ exports.search = function (req, res) {
 
 // Updates an existing episode in the DB
 exports.algolia = function (req, res) {
+  var now = new Date();
+
   Season.findAll({
     include: getIncludedModel(),
     where: {
-      active: true
+      active: true,
+      $or: [
+        {dateFrom: null, dateTo: null},
+        {dateFrom: null, dateTo: {$gt: now}},
+        {dateTo: null, dateFrom: {$lt: now}},
+        {dateFrom: {$lt: now}, dateTo: {$gt: now}}
+      ]
     }
   })
     .then(utils.handleEntityNotFound(res))
