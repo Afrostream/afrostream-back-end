@@ -205,9 +205,12 @@ exports.search = function (req, res) {
       if (!result) {
         throw new Error('no result from algolia');
       }
-      var queryOptions = { where: { _id: {
-        $in: (result.hits || []).map(function (season) { return season._id; })
-      } } };
+      var queryOptions = {
+        where: { _id: {
+          $in: (result.hits || []).map(function (season) { return season._id; })
+        } },
+        include: getIncludedModel()
+      };
       //
       queryOptions = filters.filterQueryOptions(req, queryOptions, Season);
       //

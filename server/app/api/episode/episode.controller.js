@@ -158,9 +158,12 @@ exports.search = function (req, res) {
       if (!result) {
         throw new Error('no result from algolia');
       }
-      var queryOptions = { where: { _id: {
-        $in: (result.hits || []).map(function (episode) { return episode._id; })
-      } } };
+      var queryOptions = {
+        where: { _id: {
+          $in: (result.hits || []).map(function (episode) { return episode._id; })
+        } },
+        include: getIncludedModel()
+      };
       //
       queryOptions = filters.filterQueryOptions(req, queryOptions, Episode);
       //
