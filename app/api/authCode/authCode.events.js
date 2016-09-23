@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var AuthCode = rootRequire('/server/sqldb').AuthCode;
+var AuthCode = rootRequire('/sqldb').AuthCode;
 var AuthCodeEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

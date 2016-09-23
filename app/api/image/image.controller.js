@@ -11,12 +11,12 @@
 
 var _ = require('lodash');
 var path = require('path');
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 var Image = sqldb.Image;
-var config = rootRequire('/server/config');
-var aws = rootRequire('/server/aws');
+var config = rootRequire('/config');
+var aws = rootRequire('/aws');
 
-var utils = rootRequire('/server/app/api/utils.js');
+var utils = rootRequire('/app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;

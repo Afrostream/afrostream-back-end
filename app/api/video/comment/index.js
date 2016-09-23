@@ -2,7 +2,7 @@
 
 var express = require('express');
 var controller = require('./comment.controller.js');
-var auth = rootRequire('/server/auth/auth.service');
+var auth = rootRequire('/auth/auth.service');
 var router = express.Router({mergeParams:true});
 
 router.get('/', auth.isAuthenticated(), controller.index);

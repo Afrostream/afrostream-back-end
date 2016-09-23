@@ -10,16 +10,16 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/server/sqldb');
-var algolia = rootRequire('/server/components/algolia');
+var sqldb = rootRequire('/sqldb');
+var algolia = rootRequire('/components/algolia');
 var Season = sqldb.Season;
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Image = sqldb.Image;
 var Promise = sqldb.Sequelize.Promise;
 var slugify = require('slugify');
-var filters = rootRequire('/server/app/api/filters.js');
-var utils = rootRequire('/server/app/api/utils.js');
+var filters = rootRequire('/app/api/filters.js');
+var utils = rootRequire('/app/api/utils.js');
 
 var getIncludedModel = require('./season.includedModel').get;
 

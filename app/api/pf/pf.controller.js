@@ -1,10 +1,10 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 var Video = sqldb.Video;
 
-var pf = rootRequire('/server/pf');
+var pf = rootRequire('/pf');
 var Q = require('q');
 
 function sortPfContents(a, b) {

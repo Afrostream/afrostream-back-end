@@ -7,8 +7,8 @@ var _ = require('lodash');
 var Q = require('q')
   , request = require('request');
 
-var sqldb = rootRequire('/server/sqldb')
-  , config = rootRequire('/server/config');
+var sqldb = rootRequire('/sqldb')
+  , config = rootRequire('/config');
 
 var requestPF = function (options) {
   var defaultOptions = {

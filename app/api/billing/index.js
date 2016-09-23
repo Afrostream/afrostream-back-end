@@ -177,8 +177,8 @@
  */
 var express = require('express');
 var controller = require('./billing.controller.js');
-var auth = rootRequire('/server/auth/auth.service');
-var utils = rootRequire('/server/app/api/utils.js');
+var auth = rootRequire('/auth/auth.service');
+var utils = rootRequire('/app/api/utils.js');
 var router = express.Router();
 
 // all billing routes cannot be cached.

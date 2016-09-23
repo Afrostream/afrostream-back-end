@@ -4,9 +4,9 @@ var Q = require('q');
 
 var URLSafeBase64 = require('urlsafe-base64');
 
-var mailer = rootRequire('/server/components/mailer');
+var mailer = rootRequire('/components/mailer');
 
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 var User = sqldb.User;
 
 var validateResetBody = function (body) {

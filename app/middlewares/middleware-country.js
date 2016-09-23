@@ -1,6 +1,6 @@
 var Q = require('q');
 
-var Country = rootRequire('/server/sqldb').Country;
+var Country = rootRequire('/sqldb').Country;
 
 module.exports = function (options) {
   return function (req, res, next) {

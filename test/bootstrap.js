@@ -6,7 +6,7 @@ process.env.NODE_ENV = 'test';
 global.__basedir = __dirname + '/../..';
 global.rootRequire = function (name) { return require(global.__basedir + '/' + (name[0] === '/' ? name.substr(1) : name)); };
 
-var config = rootRequire('/server/config');
+var config = rootRequire('/config');
 
 if (config.env !== 'test') {
   console.error('test should only be run on test env');
@@ -14,7 +14,7 @@ if (config.env !== 'test') {
 }
 
 before(function () {
-  var User = rootRequire('/server/sqldb').User;
+  var User = rootRequire('/sqldb').User;
   // ensure user test@test.com / test exist.
   // create a new test user at each session.
   return User.destroy({where: {email:'test@test.com'}}).then(function () {
@@ -32,15 +32,15 @@ process.on('uncaughtException', function(err) {
 });
 
 module.exports.getApp = function () {
-  return rootRequire('/server/app/app.js');
+  return rootRequire('/app/app.js');
 };
 
 module.exports.getSqldb = function () {
-  return rootRequire('/server/sqldb');
+  return rootRequire('/sqldb');
 };
 
 module.exports.getTestUser = function () {
-  var User = rootRequire('/server/sqldb').User;
+  var User = rootRequire('/sqldb').User;
 
   return User.find({ where: { email: 'test@test.com' } })
     .then(function (user) {
@@ -50,7 +50,7 @@ module.exports.getTestUser = function () {
 };
 
 module.exports.getTestClient = function () {
-  var Client = rootRequire('/server/sqldb').Client;
+  var Client = rootRequire('/sqldb').Client;
 
   return Client.find({ where: { role: 'client' }})
     .then(function (client) {
@@ -104,8 +104,8 @@ module.exports.getClientToken = function (app, client) {
 };
 
 module.exports.getRandomMovie = function (app) {
-  var Movie = rootRequire('/server/sqldb').Movie;
-  var Video = rootRequire('/server/sqldb').Video;
+  var Movie = rootRequire('/sqldb').Movie;
+  var Video = rootRequire('/sqldb').Video;
 
   return Movie.find({ where: { title: { $iLike : '%random%' } , active: true }
                     , include: [ { model: Video, as: 'video', active: true } ] })
@@ -116,7 +116,7 @@ module.exports.getRandomMovie = function (app) {
 };
 
 module.exports.getRandomInactiveMovie = function (app) {
-  var Movie = rootRequire('/server/sqldb').Movie;
+  var Movie = rootRequire('/sqldb').Movie;
 
   return Movie.find({ where: { title: { $iLike : '%random%' }, active: false }})
     .then(function (movie) {
@@ -126,7 +126,7 @@ module.exports.getRandomInactiveMovie = function (app) {
 };
 
 module.exports.getRandomSeason = function (app) {
-  var Season = rootRequire('/server/sqldb').Season;
+  var Season = rootRequire('/sqldb').Season;
 
   return Season.find({ where: { title: { $iLike : '%random%' }, active: true }})
     .then(function (season) {
@@ -136,7 +136,7 @@ module.exports.getRandomSeason = function (app) {
 };
 
 module.exports.getRandomInactiveSeason = function (app) {
-  var Season = rootRequire('/server/sqldb').Season;
+  var Season = rootRequire('/sqldb').Season;
 
   return Season.find({ where: { title: { $iLike : '%random%' }, active: false }})
     .then(function (season) {
@@ -146,7 +146,7 @@ module.exports.getRandomInactiveSeason = function (app) {
 };
 
 module.exports.getRandomEpisode = function (app) {
-  var Episode = rootRequire('/server/sqldb').Episode;
+  var Episode = rootRequire('/sqldb').Episode;
 
   return Episode.find({ where: { title: { $iLike : '%random%' }, active: true }})
     .then(function (epispode) {
@@ -156,7 +156,7 @@ module.exports.getRandomEpisode = function (app) {
 };
 
 module.exports.getRandomInactiveEpisode = function (app) {
-  var Episode = rootRequire('/server/sqldb').Episode;
+  var Episode = rootRequire('/sqldb').Episode;
 
   return Episode.find({ where: { title: { $iLike : '%random%' }, active: false }})
     .then(function (epispode) {

@@ -10,13 +10,13 @@
 'use strict';
 
 var _ = require('lodash');
-var aws = rootRequire('/server/aws');
+var aws = rootRequire('/aws');
 var path = require('path');
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 var Caption = sqldb.Caption;
 var Language = sqldb.Language;
 
-var utils = rootRequire('/server/app/api/utils.js');
+var utils = rootRequire('/app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;

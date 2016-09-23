@@ -1,7 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;

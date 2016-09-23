@@ -1,7 +1,7 @@
 'use strict';
 
-var filters = rootRequire('/server/app/api/filters.js');
-var sqldb = rootRequire('/server/sqldb');
+var filters = rootRequire('/app/api/filters.js');
+var sqldb = rootRequire('/sqldb');
 var User = sqldb.User;
 var Episode = sqldb.Episode;
 var UsersFavoritesEpisodes = sqldb.UsersFavoritesEpisodes;

@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var User = rootRequire('/server/sqldb').User;
+var User = rootRequire('/sqldb').User;
 var UserEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

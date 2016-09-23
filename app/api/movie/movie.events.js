@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var Movie = rootRequire('/server/sqldb').Movie;
+var Movie = rootRequire('/sqldb').Movie;
 var MovieEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

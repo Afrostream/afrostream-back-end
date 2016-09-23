@@ -7,7 +7,7 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging' 
   process.exit(1);
 }
 
-var config = rootRequire('/server/config');
+var config = rootRequire('/config');
 
 var nock = require('nock');
 

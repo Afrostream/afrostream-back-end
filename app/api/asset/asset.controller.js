@@ -10,8 +10,8 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/server/sqldb');
-var config = rootRequire('/server/config');
+var sqldb = rootRequire('/sqldb');
+var config = rootRequire('/config');
 var Promise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
 var jwtVerifyAsync = Promise.promisify(jwt.verify, jwt);
@@ -27,7 +27,7 @@ var proxy = httpProxy.createProxyServer({
   changeOrigin: true
 });
 
-var utils = rootRequire('/server/app/api/utils.js');
+var utils = rootRequire('/app/api/utils.js');
 
 Asset.belongsTo(Episode, {foreignKey: 'episode'}); // Adds episodeId to Asset
 

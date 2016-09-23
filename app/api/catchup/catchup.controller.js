@@ -2,7 +2,7 @@
 
 var url = require('url');
 
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 var Category = sqldb.Category;
 var Episode = sqldb.Episode;
 var Movie = sqldb.Movie;
@@ -18,7 +18,7 @@ var rp = require('request-promise');
 
 var Q = require('q');
 
-var config = rootRequire('/server/config');
+var config = rootRequire('/config');
 
 // convert mamItem to video
 var importVideo = require('../mam/mam.import.js').importVideo;

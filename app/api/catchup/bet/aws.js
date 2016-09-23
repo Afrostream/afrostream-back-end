@@ -5,7 +5,7 @@ var url = require('url');
 var Q = require('q')
   , rp = require('request-promise');
 
-var aws = rootRequire('/server/aws.js');
+var aws = rootRequire('/aws.js');
 
 /**
  * save the xml content into aws s3 bucket 'tracks.afrostream.tv'

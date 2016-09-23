@@ -1,12 +1,12 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 var User = sqldb.User;
 var Client = sqldb.Client;
 var Log = sqldb.Log;
 
-var config = rootRequire('/server/config');
+var config = rootRequire('/config');
 
 exports.index = function (req, res) {
   var limit = req.query.limit || 50;

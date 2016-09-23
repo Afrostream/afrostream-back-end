@@ -8,7 +8,7 @@ var createJobPackCaptions = require('./job.packcaptions.js').create;
 
 var createJobCatchupBet = require('./job.catchup-bet.js').create;
 
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 var Video = sqldb.Video;
 
 // Creates a new video in the DB

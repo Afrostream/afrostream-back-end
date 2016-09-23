@@ -6,7 +6,7 @@ var bootstrap = require('../bootstrap.js');
 
 var fs = require('fs');
 
-var aws = rootRequire('/server/aws');
+var aws = rootRequire('/aws');
 
 describe('Send to bucket', function() {
   var kitten;

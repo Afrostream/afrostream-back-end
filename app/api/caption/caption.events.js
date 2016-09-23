@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var Caption = rootRequire('/server/sqldb').Caption;
+var Caption = rootRequire('/sqldb').Caption;
 var CaptionEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

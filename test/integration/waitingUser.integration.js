@@ -9,7 +9,7 @@ var request = require('supertest');
 
 var assert = require('better-assert');
 
-var config = rootRequire('/server/config');
+var config = rootRequire('/config');
 
 describe('WaitingUser API:', function() {
   var user;

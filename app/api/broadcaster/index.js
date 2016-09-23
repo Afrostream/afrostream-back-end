@@ -1,7 +1,7 @@
 var express = require('express');
 var controller = require('./broadcaster.controller.js');
-var auth = rootRequire('/server/auth/auth.service');
-var utils = rootRequire('/server/app/api/utils.js');
+var auth = rootRequire('/auth/auth.service');
+var utils = rootRequire('/app/api/utils.js');
 var router = express.Router();
 
 // all video routes cannot be cached.

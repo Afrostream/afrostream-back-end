@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var Episode = rootRequire('/server/sqldb').Episode;
+var Episode = rootRequire('/sqldb').Episode;
 var EpisodeEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

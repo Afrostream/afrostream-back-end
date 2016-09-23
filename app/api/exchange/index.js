@@ -1,7 +1,7 @@
 'use strict';
 
 var express = require('express');
-var utils = rootRequire('/server/app/api/utils.js');
+var utils = rootRequire('/app/api/utils.js');
 var router = express.Router();
 
 // routes cannot be cached

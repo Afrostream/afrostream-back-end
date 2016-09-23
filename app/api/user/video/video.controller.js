@@ -2,8 +2,8 @@
 
 var _ = require('lodash');
 var Q = require('q');
-var auth = rootRequire('/server/auth/auth.service');
-var sqldb = rootRequire('/server/sqldb');
+var auth = rootRequire('/auth/auth.service');
+var sqldb = rootRequire('/sqldb');
 var User = sqldb.User;
 var UsersVideos = sqldb.UsersVideos;
 var UsersFavoritesEpisodes = sqldb.UsersFavoritesEpisodes;

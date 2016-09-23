@@ -11,7 +11,7 @@
 
 var _ = require('lodash');
 
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 var Country = sqldb.Country;
 
 // Gets a list of comments

@@ -4,7 +4,7 @@ var ip = require('ip');
 
 var Q = require('q');
 
-var AccessToken = rootRequire('/server/sqldb').AccessToken;
+var AccessToken = rootRequire('/sqldb').AccessToken;
 
 /**
  * userIp searched in :

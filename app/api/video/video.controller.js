@@ -12,8 +12,8 @@
 var _ = require('lodash');
 var path = require('path');
 var url = require('url');
-var sqldb = rootRequire('/server/sqldb');
-var config = rootRequire('/server/config');
+var sqldb = rootRequire('/sqldb');
+var config = rootRequire('/config');
 var Video = sqldb.Video;
 var Asset = sqldb.Asset;
 var Movie = sqldb.Movie;
@@ -24,17 +24,17 @@ var Image = sqldb.Image;
 var Log = sqldb.Log;
 var Promise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
-var auth = rootRequire('/server/auth/auth.service');
+var auth = rootRequire('/auth/auth.service');
 
 var Q = require('q');
 
-var utils = rootRequire('/server/app/api/utils.js');
+var utils = rootRequire('/app/api/utils.js');
 
-var billingApi = rootRequire('/server/billing-api.js');
+var billingApi = rootRequire('/billing-api.js');
 
-var getClientIp = rootRequire('/server/auth/geo').getClientIp;
-var cdnselector = rootRequire('/server/cdnselector');
-var pf = rootRequire('/server/pf');
+var getClientIp = rootRequire('/auth/geo').getClientIp;
+var cdnselector = rootRequire('/cdnselector');
+var pf = rootRequire('/pf');
 
 var User = sqldb.User;
 var Client = sqldb.Client;

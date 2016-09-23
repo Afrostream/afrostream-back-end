@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var Comment = rootRequire('/server/sqldb').Comment;
+var Comment = rootRequire('/sqldb').Comment;
 var CommentEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

@@ -7,13 +7,13 @@ var _ = require('lodash');
 var Q = require('q')
   , request = require('request');
 
-var sqldb = rootRequire('/server/sqldb')
-  , config = rootRequire('/server/config');
+var sqldb = rootRequire('/sqldb')
+  , config = rootRequire('/config');
 
 if (process.env.NODE_ENV === 'development' ||
   process.env.NODE_ENV === 'test') {
   // MOCKING API
-  rootRequire('/server/test/mock-billing-api.js');
+  rootRequire('/test/mock-billing-api.js');
 }
 
 var requestBilling = function (options) {

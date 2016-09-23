@@ -3,7 +3,7 @@
 var assert = require('assert');
 
 var _ = require('lodash');
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 
 /**
  * Tels if the request provider is the backoffice GUI.

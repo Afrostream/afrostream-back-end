@@ -12,15 +12,15 @@
 var _ = require('lodash');
 var recurly = require('recurring')();
 var uuid = require('node-uuid');
-var config = rootRequire('/server/config');
-var sqldb = rootRequire('/server/sqldb');
-var mailer = rootRequire('/server/components/mailer');
+var config = rootRequire('/config');
+var sqldb = rootRequire('/sqldb');
+var mailer = rootRequire('/components/mailer');
 var User = sqldb.User;
 var GiftGiver = sqldb.GiftGiver;
 var Promise = sqldb.Sequelize.Promise;
 recurly.setAPIKey(config.recurly.apiKey);
 
-var billingApi = rootRequire('/server/billing-api');
+var billingApi = rootRequire('/billing-api');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;

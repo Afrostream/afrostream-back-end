@@ -7,7 +7,7 @@ var User = require('../sqldb').User;
 var Client = require('../sqldb').Client;
 var AccessToken = require('../sqldb').AccessToken;
 
-var auth = rootRequire('/server/auth/auth.service');
+var auth = rootRequire('/auth/auth.service');
 
 // Passport Configuration
 require('./local/passport').setup(User, config);

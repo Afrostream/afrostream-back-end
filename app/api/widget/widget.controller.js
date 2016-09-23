@@ -1,11 +1,11 @@
 'use strict';
-var sqldb = rootRequire('/server/sqldb');
-var config = rootRequire('/server/config');
+var sqldb = rootRequire('/sqldb');
+var config = rootRequire('/config');
 var utils = require('../utils.js');
 var Widget = sqldb.Widget;
 var Image = sqldb.Image;
 var getIncludedModel = require('./widget.includedModel').get;
-var filters = rootRequire('/server/app/api/filters.js');
+var filters = rootRequire('/app/api/filters.js');
 
 function handleEntityNotFound (res) {
   return function (entity) {

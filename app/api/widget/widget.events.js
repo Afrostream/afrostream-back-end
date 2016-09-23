@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var Widget = rootRequire('/server/sqldb').Widget;
+var Widget = rootRequire('/sqldb').Widget;
 var WidgetEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

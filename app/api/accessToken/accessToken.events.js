@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var AccessToken = rootRequire('/server/sqldb').AccessToken;
+var AccessToken = rootRequire('/sqldb').AccessToken;
 var AccessTokenEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

@@ -3,7 +3,7 @@
 var request = require('request-promise');
 var Promise = require('bluebird');
 
-var config = rootRequire('/server/config');
+var config = rootRequire('/config');
 
 var importVideo = require('./mam.import.js').importVideo;
 

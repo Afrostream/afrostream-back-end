@@ -14,13 +14,13 @@ var User = require('../sqldb').User;
 var validateJwt = expressJwt({
   secret: config.secrets.session
 });
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 
 var Q = require('q');
 
-var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
-var middlewareBroadcaster = rootRequire('/server/app/middlewares/middleware-broadcaster.js');
-var middlewareCountry = rootRequire('/server/app/middlewares/middleware-country.js');
+var middlewarePassport = rootRequire('/app/middlewares/middleware-passport.js');
+var middlewareBroadcaster = rootRequire('/app/middlewares/middleware-broadcaster.js');
+var middlewareCountry = rootRequire('/app/middlewares/middleware-country.js');
 
 /**
  * Attaches the user object to the request if authenticated

@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var Image = rootRequire('/server/sqldb').Image;
+var Image = rootRequire('/sqldb').Image;
 var ImageEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

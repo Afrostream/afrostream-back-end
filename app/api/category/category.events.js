@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var Category = rootRequire('/server/sqldb').Category;
+var Category = rootRequire('/sqldb').Category;
 var CategoryEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

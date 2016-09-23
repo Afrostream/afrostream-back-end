@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var Video = rootRequire('/server/sqldb').Video;
+var Video = rootRequire('/sqldb').Video;
 var VideoEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

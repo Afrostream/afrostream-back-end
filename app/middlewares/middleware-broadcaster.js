@@ -1,6 +1,6 @@
 var Q = require('q');
 
-var Broadcaster = rootRequire('/server/sqldb').Broadcaster;
+var Broadcaster = rootRequire('/sqldb').Broadcaster;
 
 module.exports = function (options) {
   return function (req, res, next) {

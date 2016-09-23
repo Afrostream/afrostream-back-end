@@ -87,7 +87,7 @@ switch (process.env.NODE_ENV) {
 }
 
 // add req.passport
-var middlewarePassport = rootRequire('/server/app/middlewares/middleware-passport.js');
+var middlewarePassport = rootRequire('/app/middlewares/middleware-passport.js');
 app.use(middlewarePassport());
 
 require('./routes')(app);

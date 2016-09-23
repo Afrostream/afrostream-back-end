@@ -1,9 +1,9 @@
 'use strict';
 
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 var CatchupProvider = sqldb.CatchupProvider;
 
-var config = rootRequire('/server/config');
+var config = rootRequire('/config');
 
 var getCatchupProviderInfos = function (catchupProviderId) {
   return CatchupProvider.find({where: { _id: catchupProviderId } })

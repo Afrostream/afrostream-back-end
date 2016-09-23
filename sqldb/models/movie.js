@@ -1,6 +1,6 @@
 'use strict';
 
-var config = rootRequire('/server/config');
+var config = rootRequire('/config');
 
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Movie', {

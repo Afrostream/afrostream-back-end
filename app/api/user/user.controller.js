@@ -3,9 +3,9 @@
 var _ = require('lodash');
 var Q = require('q');
 
-var oauth2 = rootRequire('/server/auth/oauth2/oauth2');
+var oauth2 = rootRequire('/auth/oauth2/oauth2');
 
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 var User = sqldb.User;
 var Client = sqldb.Client;
 var Movie = sqldb.Movie;
@@ -15,17 +15,17 @@ var Video = sqldb.Video;
 var Image = sqldb.Image;
 var UsersVideos = sqldb.UsersVideos;
 var passport = require('passport');
-var config = rootRequire('/server/config');
+var config = rootRequire('/config');
 
-var billingApi = rootRequire('/server/billing-api');
+var billingApi = rootRequire('/billing-api');
 
 var sha1 = require('sha1');
 
-var mailer = rootRequire('/server/components/mailer');
+var mailer = rootRequire('/components/mailer');
 
 var utils = require('../utils.js');
 
-var filters = rootRequire('/server/app/api/filters.js');
+var filters = rootRequire('/app/api/filters.js');
 
 function validationError(res, statusCode) {
   statusCode = statusCode || 422;

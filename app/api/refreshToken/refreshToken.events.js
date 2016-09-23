@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var RefreshToken = rootRequire('/server/sqldb').RefreshToken;
+var RefreshToken = rootRequire('/sqldb').RefreshToken;
 var RefreshTokenEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

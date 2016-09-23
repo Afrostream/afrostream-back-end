@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var Licensor = rootRequire('/server/sqldb').Licensor;
+var Licensor = rootRequire('/sqldb').Licensor;
 var LicensorEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

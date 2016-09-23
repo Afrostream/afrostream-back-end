@@ -8,9 +8,9 @@
  * to avoid event flooding, we limit the messages to certain models
  * to avoid event flooding, we limit the data sent to the changes & _id field.
  */
-var config = rootRequire('/server/config');
+var config = rootRequire('/config');
 
-var mq = rootRequire('/server/mq');
+var mq = rootRequire('/mq');
 
 var _ = require('lodash');
 

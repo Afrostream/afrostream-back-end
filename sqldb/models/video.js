@@ -1,10 +1,10 @@
 'use strict';
 
-var config = rootRequire('/server/config');
+var config = rootRequire('/config');
 
 var Q = require('q');
 
-var pf = rootRequire('/server/pf.js');
+var pf = rootRequire('/pf.js');
 
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Video', {

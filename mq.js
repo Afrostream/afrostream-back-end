@@ -1,8 +1,8 @@
 'use strict';
 
 // exporting an instance
-var config = rootRequire('/server/config');
-var AMQP = rootRequire('/server/amqp');
+var config = rootRequire('/config');
+var AMQP = rootRequire('/amqp');
 
 // creating mq
 var mq = new AMQP(config.mq);

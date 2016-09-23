@@ -9,7 +9,7 @@ module.exports.log = function (req, res) {
 };
 
 module.exports.mq = function (req, res) {
-  var mq = rootRequire('/server/mq');
+  var mq = rootRequire('/mq');
   mq.send({date: new Date().toISOString(), q: req.query.q || 'foo'});
   res.send('done');
 };

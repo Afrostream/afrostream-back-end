@@ -3,7 +3,7 @@
 var _ = require('lodash');
 var Q = require('q');
 
-var sqldb = rootRequire('/server/sqldb');
+var sqldb = rootRequire('/sqldb');
 var Video = sqldb.Video;
 var User = sqldb.User;
 var VideosComments = sqldb.VideosComments;

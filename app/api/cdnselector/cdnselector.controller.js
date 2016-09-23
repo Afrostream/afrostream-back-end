@@ -1,8 +1,8 @@
 'use strict';
 
-var config = rootRequire('/server/config');
+var config = rootRequire('/config');
 
-var cdnselector = rootRequire('/server/cdnselector');
+var cdnselector = rootRequire('/cdnselector');
 
 exports.getList = function (req, res) {
   // FIXME: to be removed

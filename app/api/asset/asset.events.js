@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var Asset = rootRequire('/server/sqldb').Asset;
+var Asset = rootRequire('/sqldb').Asset;
 var AssetEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

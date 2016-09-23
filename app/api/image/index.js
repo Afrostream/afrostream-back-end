@@ -2,9 +2,9 @@
 
 var express = require('express');
 var controller = require('./image.controller.js');
-var auth = rootRequire('/server/auth/auth.service');
-var utils = rootRequire('/server/app/api/utils.js');
-var middlewareReadFile = rootRequire('/server/app/middlewares/middleware-readfile.js');
+var auth = rootRequire('/auth/auth.service');
+var utils = rootRequire('/app/api/utils.js');
+var middlewareReadFile = rootRequire('/app/middlewares/middleware-readfile.js');
 var router = express.Router();
 
 router.use(auth.middleware.restrictRoutesToAuthentified());

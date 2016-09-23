@@ -11,8 +11,8 @@
 
 var _ = require('lodash');
 var path = require('path');
-var sqldb = rootRequire('/server/sqldb');
-var config = rootRequire('/server/config');
+var sqldb = rootRequire('/sqldb');
+var config = rootRequire('/config');
 var Promise = sqldb.Sequelize.Promise;
 
 function responseWithResult(res, statusCode) {
