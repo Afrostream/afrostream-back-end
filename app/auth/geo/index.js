@@ -3,7 +3,7 @@
 var express = require('express');
 var router = express.Router();
 
-var maxmind = require('../../maxmind');
+var maxmind = rootRequire('maxmind');
 
 var countriesAuthorizations = require('./countries').authorizations;
 

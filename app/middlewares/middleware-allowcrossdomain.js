@@ -1,6 +1,6 @@
 'use strict';
 
-var config = require('../../config');
+var config = rootRequire('/config');
 
 module.exports = function (options) {
   options = options || {};

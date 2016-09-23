@@ -177,7 +177,7 @@
  */
 var express = require('express');
 var controller = require('./billing.controller.js');
-var auth = rootRequire('/auth/auth.service');
+var auth = rootRequire('/app/auth/auth.service');
 var utils = rootRequire('/app/api/utils.js');
 var router = express.Router();
 

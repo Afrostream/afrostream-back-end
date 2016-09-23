@@ -7,7 +7,7 @@
 var _ = require('lodash');
 
 var path = require('path');
-var config = require('../config');
+var config = rootRequire('/config');
 
 var Sequelize = require('sequelize');
 

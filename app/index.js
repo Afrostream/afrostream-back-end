@@ -3,16 +3,16 @@
 // Export the application
 var app = require('./app');
 
-var config = require('../config');
+var config = rootRequire('/config');
 
 // Populate databases with sample data
 if (config.seedDB) {
-  require('../sqldb/seed');
+  rootRequire('/sqldb/seed');
 }
 
 var mq = rootRequire('/mq');
 
-var sqldb = require('../sqldb');
+var sqldb = rootRequire('/sqldb');
 
 // Start server
 sqldb.sequelize.sync()

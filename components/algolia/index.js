@@ -1,6 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
-var config = require('../../config');
+var config = rootRequire('/config');
 var _ = require('lodash');
 var algoliasearch = require('algoliasearch');
 var client = algoliasearch(config.algolia.appId, config.algolia.apiKey);

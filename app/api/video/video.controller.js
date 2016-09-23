@@ -24,7 +24,7 @@ var Image = sqldb.Image;
 var Log = sqldb.Log;
 var Promise = sqldb.Sequelize.Promise;
 var jwt = require('jsonwebtoken');
-var auth = rootRequire('/auth/auth.service');
+var auth = rootRequire('/app/auth/auth.service');
 
 var Q = require('q');
 
@@ -32,7 +32,7 @@ var utils = rootRequire('/app/api/utils.js');
 
 var billingApi = rootRequire('/billing-api.js');
 
-var getClientIp = rootRequire('/auth/geo').getClientIp;
+var getClientIp = rootRequire('/app/auth/geo').getClientIp;
 var cdnselector = rootRequire('/cdnselector');
 var pf = rootRequire('/pf');
 

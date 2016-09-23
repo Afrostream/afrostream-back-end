@@ -5,12 +5,12 @@ var assert = require('assert');
 var _ = require('lodash');
 var passport = require('passport');
 var oauth2 = require('./oauth2/oauth2');
-var config = require('../config');
+var config = rootRequire('/config');
 var jwt = require('jsonwebtoken');
 var expressJwt = require('express-jwt');
 var compose = require('composable-middleware');
 var login = require('connect-ensure-login');
-var User = require('../sqldb').User;
+var User = rootRequire('/sqldb').User;
 var validateJwt = expressJwt({
   secret: config.secrets.session
 });

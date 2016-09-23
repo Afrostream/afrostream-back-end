@@ -12,7 +12,7 @@ module.exports = function (app) {
   app.use('/api', require('./api'));
 
   // drm
-  app.use('/right', require('../right/index'));
+  app.use('/right', require('./right/index'));
 
   // tests & monitoring
   app.use('/alive', require('./controller.js').alive);

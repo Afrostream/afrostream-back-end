@@ -3,7 +3,7 @@ var crypto = require('crypto');
 var moment = require('moment');
 var path = require('path');
 var Promise = require('bluebird');
-var config = require('../../config');
+var config = rootRequire('/config');
 var Knox = require('knox');
 
 

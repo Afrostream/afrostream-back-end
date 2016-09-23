@@ -4,7 +4,7 @@ var express = require('express');
 var errorHandler = require('errorhandler');
 var path = require('path');
 
-var config = require('../config');
+var config = rootRequire('/config');
 
 var dumpPostData = require('./middlewares/middleware-dumppostdata.js');
 var morgan = require('./middlewares/middleware-morgan.js');
