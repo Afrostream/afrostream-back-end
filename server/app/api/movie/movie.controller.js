@@ -290,9 +290,12 @@ exports.search = function (req, res) {
       if (!result) {
         throw new Error('no result from algolia');
       }
-      var queryOptions = { where: { _id: {
-        $in: (result.hits || []).map(function (movie) { return movie._id; })
-      } } };
+      var queryOptions = {
+        where: { _id: {
+          $in: (result.hits || []).map(function (movie) { return movie._id; })
+        } },
+        include: getIncludedModel()
+      };
       //
       queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
       //
