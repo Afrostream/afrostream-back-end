@@ -20,17 +20,12 @@ module.exports = function (app) {
   app.use('/tests', require('./test/index'));
 
   // documentation
+  /*
   app.route('/doc')
     .get(function (req, res) {
       res.sendFile(path.resolve(app.get('docPath') + '/index.html'));
     });
-
-  // Admin whitelist routes.
-  app.route(/^\/(categorys|licensors|movies|seasons|episodes|videos|languages|images|users|subscriptions|clients|actors|settings|login|logout|jobs|posts|catchup|users\-logs|imports|configs|widgets|works)/)
-    .get(function (req, res) {
-      res.set('Cache-Control', 'public, max-age=0');
-      res.sendFile(path.resolve(app.get('appPath') + '/index.html'));
-    });
+  */
 
   // undefined routes should return a 404
   app.route('.*').get(errors[404]);
