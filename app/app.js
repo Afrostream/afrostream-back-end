@@ -71,7 +71,6 @@ switch (process.env.NODE_ENV) {
   default:
     app.set('appPath', path.join(config.root, 'client'));
     app.set('docPath', path.join(config.root, 'dist', 'apidoc'));
-    app.use(require('connect-livereload')());
     app.use(express.static(path.join(config.root, '.tmp')));
     app.use(express.static(app.get('appPath')));
     app.use('/doc', express.static(app.get('docPath')));

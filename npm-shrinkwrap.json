@@ -1535,6 +1535,18 @@
         }
       }
     },
+    "pg-hstore": {
+      "version": "2.3.2",
+      "from": "pg-hstore@*",
+      "resolved": "https://registry.npmjs.org/pg-hstore/-/pg-hstore-2.3.2.tgz",
+      "dependencies": {
+        "underscore": {
+          "version": "1.8.3",
+          "from": "underscore@>=1.7.0 <2.0.0",
+          "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.8.3.tgz"
+        }
+      }
+    },
     "q": {
       "version": "1.4.1",
       "from": "https://registry.npmjs.org/q/-/q-1.4.1.tgz",

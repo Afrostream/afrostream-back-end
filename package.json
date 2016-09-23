@@ -47,6 +47,7 @@
     "passport-oauth2-client-password": "0.1.2",
     "passport-saml": "0.15.0",
     "pg": "4.4.2",
+    "pg-hstore": "^2.3.2",
     "q": "1.4.1",
     "recurring": "2.1.0",
     "request": "2.64.0",

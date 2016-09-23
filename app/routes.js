@@ -5,8 +5,8 @@ var path = require('path');
 
 module.exports = function (app) {
   // authentification
-  app.use('/auth', require('../auth/index'));
-  app.use('/api/auth', require('../auth/index')); // <= used by orange
+  app.use('/auth', require('./auth/index'));
+  app.use('/api/auth', require('./auth/index')); // <= used by orange
 
   // api
   app.use('/api', require('./api'));
