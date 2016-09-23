@@ -1,15 +1,5 @@
 'use strict';
 
-// Set default node environment to development
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-
-// tempfix: bouygues (faut les piquer)
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-
-// global
-global.__basedir = __dirname + '/../..';
-global.rootRequire = function (name) { return require(global.__basedir + '/' + (name[0] === '/' ? name.substr(1) : name)); };
-
 // Export the application
 var app = require('./app');
 
@@ -35,4 +25,4 @@ sqldb.sequelize.sync()
     console.log('Server failed to start due to error: %s', err);
   });
 
-exports = module.exports = app;
+module.exports = app;

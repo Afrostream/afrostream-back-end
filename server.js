@@ -6,5 +6,5 @@ var clusterConf = { count: process.env.WEB_CONCURRENCY || 1, verbose: true};
 
 cluster(function (worker) {
   console.log('worker '+worker.id+' is up');
-  return require('./app');
+  return require('./worker.js');
 }, clusterConf);
