@@ -190,6 +190,8 @@ exports.update = function (req, res) {
     'avatarImageId',
     'socialSharing',
     //
+    'webPushNotifications',
+    //
     'bouyguesId',
     'splashList',
     'nickname'
