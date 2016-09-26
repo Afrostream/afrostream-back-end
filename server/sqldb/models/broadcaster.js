@@ -10,6 +10,7 @@ module.exports = function (sequelize, DataTypes) {
     },
     name: DataTypes.STRING(128),
     fqdns: DataTypes.ARRAY(DataTypes.STRING(128)),
-    defaultCountryId: DataTypes.STRING(2)
+    defaultCountryId: DataTypes.STRING(2),
+    pfName: DataTypes.STRING(128)
   });
 };
