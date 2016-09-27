@@ -483,7 +483,7 @@ exports.show = function (req, res) {
             return Log.create({
               type: 'read-video',
               clientId: req.passport && req.passport.client && req.passport && req.passport.client._id || null,
-              userId: req.passport && req.passport.user && req.passport.user._id || req.user && req.user._id || null,
+              userId: req.passport && req.passport.user && req.passport.user._id || req.user && parseInt(req.user._id, 10) || null,
               data: {
                 videoId: video._id,
                 userIp: req.clientIp || undefined,
