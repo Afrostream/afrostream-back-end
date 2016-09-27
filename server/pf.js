@@ -17,7 +17,11 @@ var requestPF = function (options) {
   };
   options = _.merge({}, defaultOptions, options);
 
-  console.log('[INFO]: [PF]: request ', JSON.stringify(options));
+  console.log(
+    '[INFO]: [PF]: request ',
+    options.url + '?' + Object.keys(options.qs).map(function (k) { return k + '=' + options.qs[k]; }).join('&'),
+    JSON.stringify(options)
+  );
 
   return Q.nfcall(request, options)
     .then(function (data) {
