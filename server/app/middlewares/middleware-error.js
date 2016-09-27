@@ -8,6 +8,7 @@ module.exports = function (options) {
         var message = String(err && err.message || err || 'unknown');
         var statusCode = err && err.statusCode || defaultStatusCode;
         var stack = err && err.stack || 'no stack trace';
+        var code = err && err.code || undefined;
         if (statusCode !== 404) {
           console.error('[ERROR] ' + message, stack, err);
         } else {
@@ -19,7 +20,8 @@ module.exports = function (options) {
         res.status(statusCode).json(_.merge({
           error: message,
           message: message,
-          statusCode: statusCode
+          statusCode: statusCode,
+          code: code
         }, additionnalFields || {}));
       };
     };
