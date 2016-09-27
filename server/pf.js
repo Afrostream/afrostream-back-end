@@ -76,17 +76,19 @@ var getContent = function (id) {
 /**
  * if PF is on error, or without content => return an empty object
  * @param md5Hash
- * @param profilName  VIDEO0ENG_AUDIO0ENG_SUB0FRA_BOUYGUES | VIDEO0ENG_AUDIO0ENG_USP | VIDEO0ENG_AUDIO0FRA_BOUYGUES
+ * @param profilName  VIDEO0ENG_AUDIO0ENG_SUB0FRA | VIDEO0ENG_AUDIO0ENG | VIDEO0ENG_AUDIO0FRA
+ * @param pfBroadcasterName  BOUYGUES
  * @returns {*}
  */
-var getAssetsStreamsSafe = function (md5Hash, profileName) {
+var getAssetsStreamsSafe = function (md5Hash, profileName, pfBroadcasterName) {
   assert(md5Hash);
 
   return requestPF({
     url: config.pf.url + '/api/assetsStreams',
     qs: {
       md5Hash: md5Hash,
-      profileName: profileName
+      profileName: profileName,
+      broadcaster: pfBroadcasterName
     }
   })
     .then(

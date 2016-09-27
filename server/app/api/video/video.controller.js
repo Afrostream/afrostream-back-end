@@ -375,7 +375,8 @@ exports.show = function (req, res) {
           videoPfMd5Hash: null,
           client: null,
           clientGroup: null,
-          clientGroupProfiles: null
+          clientGroupProfiles: null,
+          pfBroadcasterName: null
         };
 
         return Q()
@@ -386,8 +387,12 @@ exports.show = function (req, res) {
           if (!req.passport || !req.passport.client) {
             throw new Error('missing passport.client');
           }
+          if (!req.broadcaster) {
+            throw new Error('missing broadcaster');
+          }
           c.videoPfMd5Hash = video.pfMd5Hash;
           c.client = req.passport.client;
+          c.pfBroadcasterName = req.broadcaster.get('pfName')
           console.log('[INFO]: [VIDEO]: pfMd5Hash='+c.videoPfMd5Hash);
           console.log('[INFO]: [VIDEO]: clienType='+c.client.type);
         })
@@ -442,7 +447,7 @@ exports.show = function (req, res) {
           }
           c.videoProfile = profile;
           console.log('[INFO]: [VIDEO]: profileName='+c.videoProfile.name);
-          return pf.getAssetsStreamsSafe(c.videoPfMd5Hash, c.videoProfile.name);
+          return pf.getAssetsStreamsSafe(c.videoPfMd5Hash, c.videoProfile.name, c.pfBroadcasterName);
         })
         .then(function (assetsStreams) {
           video.pf.assetsStreams = assetsStreams;
