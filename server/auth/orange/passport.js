@@ -40,6 +40,7 @@ exports.setup = function (User, config) {
           console.log('[INFO]: [AUTH]: [ORANGE]: passport: search orange user in DB using orange.identity.collectiveidentifier= ' + orange.identity.collectiveidentifier);
           if (!orange.identity.collectiveidentifier) {
             var error = new Error('missing collectiveidentifier');
+            error.statusCode = 403;
             error.code = 'ORANGE_MISSING_COLLECTIVEIDENTIFIER';
             throw error;
           }
