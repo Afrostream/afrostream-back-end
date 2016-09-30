@@ -182,65 +182,200 @@ exports.index = function (req, res) {
     .catch(res.handleError());
 };
 
+function ensureAccessToVideo(req) {
+  if (!req.user instanceof User.Instance &&
+      !req.user instanceof Client.Instance) {
+    throw new Error('missing user/client');
+  }
+  if (!req.passport || !req.passport.client) {
+    throw new Error('missing passport.client');
+  }
+  if (!req.broadcaster) {
+    throw new Error('missing broadcaster');
+  }
+}
+
+function readVideo(videoId) {
+  return Video.find({
+    where: {
+      _id: req.params.id
+    }
+    , include: [
+      {
+        model: Movie,
+        as: 'movie',
+        include: [
+          {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
+          {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
+        ]
+      },
+      {
+        model: Episode,
+        as: 'episode',
+        include: [
+          {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
+          {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
+        ]
+      },
+      {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]}
+    ]
+  })
+  .then(function (video) {
+    if (!video) {
+      var error = new Error('entity not found');
+      error.statusCode = 404;
+      throw error;
+    }
+    return video;
+  });
+}
+
+function getBillingUserSubscriptionStatus(user) {
+  if (user instanceof User.Instance) {
+    return billingApi.someSubscriptionActiveSafe(user.id)
+      .then(function (active) { ; });
+  }
+  return Q();
+}
+
+function getCdnselectorInfos(userIp) {
+  return cdnselector.getFirstSafe(userIp);
+}
+
 // Gets a single video from the DB
 exports.show = function (req, res) {
+  var closure = {
+    billingUserSubscriptionActive: true, // default to true: if the billing is down
+                                         // users can still watch videos.. ! :)
+    //
+    cdnselectorInfos: null,
+    //
+    video: null,
+    pfContent: null,
+    pfAssetsStreams: null,
+    pfManifests: null
+  };
+
+  // WORKFLOW:
+  // -- security checks
+  // || database: read Video
+  // || billing: is the user subscription active
+  // |-
+
+  // |- recherche du content dans la PF
+  // - verification
+
   Q()
-    //
-    // first: reading video object
-    //
     .then(function () {
-      return Video.find({
-        where: {
-          _id: req.params.id
+      // security & checks
+      ensureAccessToVideo(req);
+      //
+      console.log('[INFO]: [VIDEO]: client.type='+req.passport.client.get('type'));
+      console.log('[INFO]: [VIDEO]: broadcaster.pfName='+req.broadcaster.get('pfName'));
+    })
+    .then(function () {
+      // READ VIDEO
+      //   as soon as possible, read pf infos.
+      return Q.all([
+        readVideo(req.params.id)
+          .then(function (video) {
+            if (!video.pfMd5Hash) {
+              throw new Error('missing pfMd5Hash');
+            }
+            closure.video = video;
+            closure.pfContent = new (pf.PfContent)(video.pfMd5Hash, req.broadcaster.get('pfName'));
+            return Q.all([
+              closure.pfContent.getAssetsStreams(),
+              closure.pfContent.getManifests()
+            ]);
+          })
+          .then(function (pfData) {
+            closure.pfAssetsStreams = pfData[0];
+            closure.pfManifests = pfData[1];
+          })
+        ,
+        // BILLING INFOS
+        getBillingUserSubscriptionStatus(req.user)
+          .then(function (active) {
+            closure.billingUserSubscriptionActive = active;
+          })
+        ,
+        // CDN-SELECTOR
+        getCdnselectorInfos(req.clientIp)
+          .then(function (cdnselectorInfos) {
+            closure.cdnselectorInfos = cdnselectorInfos;
+          })
+      ])
+    })
+    .then(function buildingVideoObject() {
+      // convert video to plain object
+      var video = closure.video.get({plain: true});
+      video.pf = {
+        definition: 'HD', // SD, HD, 4K
+        assetsStreams: closure.pfAssetsStreams,
+        sources: closure.pfManifests
+      };
+      return video;
+    })
+    .then(function rewriteSources(video) {
+      // CDN-SELECTOR
+      video.sources.forEach(function (source, i) {
+        // FIXME: to be removed
+        // START REMOVE
+        // hack staging cdnselector orange (testing)
+        if (process.env.NODE_ENV === 'staging' && req.query.from === 'afrostream-orange-staging') {
+          source.src = 'https://orange-labs.cdn.afrostream.net/' + source.src;
+          console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: cdn-orange: source = ' + source.src);
+          return;
         }
-        , include: [
-          {
-            model: Movie,
-            as: 'movie',
-            include: [
-              {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
-              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
-              {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
-            ]
-          },
-          {
-            model: Episode,
-            as: 'episode',
-            include: [
-              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
-              {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
-            ]
-          },
-          {model: Asset, as: 'sources'},
-          {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]}
-        ]
-      }).then(utils.handleEntityNotFound(res));
+        // END REMOVE
+
+        // BEGIN TEMPFIX: 2016/08/02: on bascule l'intégralité du trafic orange sur l'origine en http simple, sans passer par le cdnselector
+        if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
+          source.src = 'http://origin.cdn.afrostream.net/' + source.src;
+          console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: tempfix orange: source = ' + source.src);
+          return;
+        }
+        // END TEMPFIX
+
+        source.src = closure.cdnselectorInfos.scheme + '://' + closure.cdnselectorInfos.authority + '/' + source.src;
+      });
+      console.log('[INFO]: [VIDEO]: sources = ' + JSON.stringify(video.sources));
+      return video;
     })
-    //
-    // fixme
-    //
-    .then(function (entity) {
-      if (config.mam.useToken == 'true' && !auth.validRole(req, 'admin')) {
-        return tokenizeResult(req, res)(entity);
+    .then(function rewriteCaptions(video) {
+      // FIXME: shouldn't assume randomContentProfile is set.
+
+      //
+      // specificité des sous titres brulés, on supprime les captions inutilisés...
+      // ce code est ultra spécifique, il se base sur le fait que les captions brulés
+      // sont FR
+      //
+      // FIXME: shouldn't be "named based"
+      if (closure.pfContent.randomContentProfile.name.indexOf('_SUB0FRA')) {
+        console.log('[INFO]: [VIDEO]: burnedCaptions, filtering on fra');
+        video.captions = (video.captions || []).filter(function (caption) {
+          return caption.lang.ISO6392T === 'fra';
+        });
       }
-      return entity;
-    })
-    //
-    // convert entity to plain object
-    //
-    .then(function (entity) {
-      return entity.get({plain: true});
-    })
-    //
-    // first, on mobile (android & iOS)
-    //  we check if the user has an active subscription
-    //
-    .then(function (video) {
-      if (!req.user instanceof User.Instance &&
-          !req.user instanceof Client.Instance) {
-        throw new Error('missing user/client');
+
+      //
+      // spécificité orange, on supprime le sous titre fra, si 1 audio fra unique
+      //
+      if (closure.pfContent.randomContentProfile.broadcaster === 'ORANGE') {
+        var audios = closure.pfAssetsStreams
+          .filter(function (asset) { return asset.type === 'audio'; })
+          .map(function (asset) { return asset.language });
+        if (audios.length === 1 && audios[0] === 'fra') {
+          console.log('[INFO]: [VIDEO]: hack profile _ORANGE: 1 audio language=fra => no captions');
+          video.captions = [];
+        }
       }
-      // orange clients old & newbox have a full access
+      return video;
+    })
+    .then(function filterOutput() {
+      // orange clients mib4 & newbox have a full access
       if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
         return video;
       }
@@ -252,262 +387,38 @@ exports.show = function (req, res) {
         return video;
       }
       //
-      var disableSources = function (video) {
+      if ((!user instanceof User.Instance) || !billingUserSubscriptionActive) {
+        // client or unauthentified user => disabling sources
+        console.error('[WARNING]: client|user ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
-      };
-      if (req.user instanceof User.Instance) {
-        // mobile, we check req.user
-        return billingApi.someSubscriptionActiveSafe(req.user._id)
-          .then(function (active) {
-            if (!active) {
-              console.log('[WARNING]: user ' + req.user._id + ' UA=' + req.userAgent + ' no active subscription => disabling sources');
-              disableSources(video);
-            }
-            return video;
-          });
-      } else {
-        console.error('[WARNING]: client ' + req.user._id + ' request video => disabling sources');
-        disableSources(video);
-        return video;
       }
+      return video
     })
-    //
-    // cdn selector
-    //
-    .then(function (video) {
-      if (req.query.backo) {
-        return video;
+    .then(
+      function (video) {
+        // logs
+        return Log.create({
+          type: 'read-video',
+          clientId: req.passport && req.passport.client && req.passport && req.passport.client._id || null,
+          userId: req.passport && req.passport.user && req.passport.user._id || req.user && parseInt(req.user._id, 10) || null,
+          data: {
+            videoId: video._id,
+            userIp: req.clientIp || undefined,
+            userAgent: req.userAgent || undefined,
+            userDeviceType: req.get('X-Device-Type') || undefined
+          }
+        }).then(
+          function noop() { },
+          function (err) {
+            console.error('[ERROR]: [VIDEO]: [LOG]: '+err.message);
+            return
+          }
+        ).then(function () { return video; });
       }
-      if (!config.cdnselector.enabled) {
-        console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: is disabled'); // warning.
-        return video;
-      }
-
-      // FIXME: to be removed
-      // START REMOVE
-      // hack staging cdnselector orange (testing)
-      if (process.env.NODE_ENV === 'staging' && req.query.from === 'afrostream-orange-staging') {
-        video.sources.forEach(function (source, i) {
-          var src = source.src;
-          if (source.src.match(/^[^\:]+\:\/\/[^/]+\//)) {
-            source.src = source.src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'https://orange-labs.cdn.afrostream.net/');
-          }
-          console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: cdn-orange: source ' + src + ' => ' + source.src);
-        });
-        return video;
-      }
-      // END REMOVE
-
-      // BEGIN TEMPFIX: 2016/08/02: on bascule l'intégralité du trafic orange sur l'origine en http simple, sans passer par le cdnselector
-      if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
-        video.sources.forEach(function (source, i) {
-          var src = source.src;
-          if (source.src.match(/^[^\:]+\:\/\/[^/]+\//)) {
-            source.src = source.src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, 'http://origin.cdn.afrostream.net/');
-          }
-          console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: tempfix orange: source ' + src + ' => ' + source.src);
-        });
-        return video;
-      }
-      // END TEMPFIX
-
-      // frontend (api-v1) or mobile: we try to use cdnselector.
-      return cdnselector.getFirstSafe(req.clientIp)
-        .then(
-          function (infos) {
-            video.sources.forEach(function (source, i) {
-              var src = source.src;
-              if (source.src.match(/^[^\:]+\:\/\/[^/]+\//)) {
-                source.src = source.src.replace(/^([^\:]+\:\/\/[^\/]+\/)/, infos.scheme + '://' + infos.authority + '/');
-              }
-
-              // BEGIN HACK HACK HACK
-              // if smooth streaming & client=orange => cannot use HTTPS :(
-              if (source.type === 'application/vnd.ms-sstr+xml' &&
-                req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
-                source.src = source.src.replace(/^https:\/\//, 'http://');
-              }
-              // END HACK HACK
-
-              // FIXME: remove this
-              // BEGIN
-              console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: source ' + src + ' => ' + source.src);
-              // END
-            });
-            return video;
-          },
-          function (err) { return video; }
-      );
-    })
-    //
-    // BEGIN HACK orange newbox...
-    //
-  .then(function (video) {
-      if (!Array.isArray(video.sources)) {
-        console.error('[ERROR]: [API]: '+req.originalUrl+': sources is not an Array');
-        return video;
-      }
-      if (req.passport && req.passport.client) {
-        if ((req.passport.client.isOrangeNewbox() || req.passport.client.isOrange()) && !video.catchupProviderId) {
-          // FIXME: pour l'instant, on évite d'utiliser l'ISM orange pour la catchup
-          video.sources.forEach(function (source) {
-            source.src = source.src.replace('.ism', '-orange.ism');
-          });
-        } else if (req.passport.client.isBouyguesMiami() && !video.catchupProviderId) {
-          // FIXME: pour l'instant, on évite d'utiliser l'ISM miami pour la catchup
-          video.sources.forEach(function (source) {
-            source.src = source.src.replace('.ism', '-bouygues-miami.ism');
-          });
-        }
-      }
-      return video;
-  })
-    //
-    // PF infos
-    //  FIXME: PF & CDNSELECTOR should be launched // and not sequential...
-    //
-  .then(function (video) {
-        // pour l'instant on hardcode certaines infos
-        video.pf = { definition: 'HD' }; // SD, HD, 4K
-
-        var c = {
-          videoPfMd5Hash: null,
-          client: null,
-          clientGroup: null,
-          clientGroupProfiles: null,
-          pfBroadcasterName: null
-        };
-
-        return Q()
-        .then(function check() {
-          if (!video.pfMd5Hash) {
-            throw new Error('missing pfMd5Hash');
-          }
-          if (!req.passport || !req.passport.client) {
-            throw new Error('missing passport.client');
-          }
-          if (!req.broadcaster) {
-            throw new Error('missing broadcaster');
-          }
-          c.videoPfMd5Hash = video.pfMd5Hash;
-          c.client = req.passport.client;
-          c.pfBroadcasterName = req.broadcaster.get('pfName')
-          console.log('[INFO]: [VIDEO]: pfMd5Hash='+c.videoPfMd5Hash);
-          console.log('[INFO]: [VIDEO]: clienType='+c.client.type);
-        })
-        .then(function getClientGroup() {
-          return req.passport.client.getPfGroup();
-        })
-        .then(function (clientGroup) {
-          if (!clientGroup) {
-            throw new Error('no group attached to client');
-          }
-          c.clientGroup = clientGroup;
-          console.log('[INFO]: [VIDEO]: clientGroupName='+c.clientGroup.name);
-          return clientGroup.getPfProfiles();
-        })
-        .then(function getClientGroupProfiles(clientGroupProfiles) {
-          if (!clientGroupProfiles) {
-            throw new Error('no group profiles');
-          }
-          if (!clientGroupProfiles.length) {
-            throw new Error('no profiles in group');
-          }
-          c.clientGroupProfiles = clientGroupProfiles;
-          console.log('[INFO]: [VIDEO]: clientGroupProfiles='+
-          JSON.stringify(c.clientGroupProfiles.map(function (p) { return p.pfId; })));
-        })
-        .then(function readPFContent() {
-          return pf.getContentByMd5Hash(c.videoPfMd5Hash);
-        })
-        .then(function intersect(pfContent) {
-          //
-          // normaly, a profile should be associated with the video for the clientGroup
-          //  but currently, the backend doesn't know the profile, so we list the
-          //  content profiles & try to find one intersecting with clientGroupProfiles
-          //
-          if (!pfContent) {
-            throw new Error('[PF]: no content associated to hash');
-          }
-          if (!Array.isArray(pfContent.profilesIds)) {
-            throw new Error('[PF]: pfContent.profilesIds is not an array');
-          }
-          if (!pfContent.profilesIds.length) {
-            throw new Error('[PF]: no profiles in pfContent.profilesIds');
-          }
-          // intersecting groupProfiles & contentProfiles, pick a random profile (first one)
-          return c.clientGroupProfiles.filter(function (p) {
-            return pfContent.profilesIds.indexOf(p.pfId) !== -1;
-          })[0];
-        })
-        .then(function getAssetsStreams(profile) {
-          if (!profile) {
-            throw new Error('[PF]: no intersecting profile found');
-          }
-          c.videoProfile = profile;
-          console.log('[INFO]: [VIDEO]: profileName='+c.videoProfile.name);
-          return pf.getAssetsStreamsSafe(c.videoPfMd5Hash, c.videoProfile.name, c.pfBroadcasterName);
-        })
-        .then(function (assetsStreams) {
-          video.pf.assetsStreams = assetsStreams;
-        })
-        .then(function filterCaptions() {
-          //
-          // specificité des sous titres brulés, on supprime les captions inutilisés...
-          // ce code est ultra spécifique, il se base sur le fait que les captions brulés
-          // sont FR
-          //
-          if (c.videoProfile.burnedCaptions) {
-            console.log('[INFO]: [VIDEO]: burnedCaptions, filtering on fra');
-            video.captions = (video.captions || []).filter(function (caption) {
-              return caption.lang.ISO6392T === 'fra';
-            });
-          }
-          //
-          // spécificité orange, on supprime le sous titre fra, si 1 audio fra unique
-          //
-          if (String(c.videoProfile.name).match(/_ORANGE$/)) {
-            var audios = (video.pf.assetsStreams||[])
-              .filter(function (asset) { return asset.type === 'audio'; })
-              .map(function (asset) { return asset.language });
-            if (audios.length === 1 && audios[0] === 'fra') {
-              console.log('[INFO]: [VIDEO]: hack profile _ORANGE: 1 audio language=fra => no captions');
-              video.captions = [];
-            }
-          }
-        })
-        .then(
-          function () {
-            // logs
-            return Log.create({
-              type: 'read-video',
-              clientId: req.passport && req.passport.client && req.passport && req.passport.client._id || null,
-              userId: req.passport && req.passport.user && req.passport.user._id || req.user && parseInt(req.user._id, 10) || null,
-              data: {
-                videoId: video._id,
-                userIp: req.clientIp || undefined,
-                userAgent: req.userAgent || undefined,
-                userDeviceType: req.get('X-Device-Type') || undefined
-              }
-            }).then(
-              function noop() { },
-              function (err) {
-                console.error('[ERROR]: [VIDEO]: [LOG]: '+err.message);
-              }
-            );
-          }
-        )
-        .then(
-          function success() { return video; },
-          function error(err) {
-            console.log('[ERROR]: [pf-infos]: pfMd5Hash=' + c.videoPfMd5Hash + ' ' + err.message, err.stack);
-            return video;
-          }
-        );
-    })
-     .then(responseWithResult(res))
-     .catch(res.handleError());
+    )
+    .then(responseWithResult(res))
+    .catch(res.handleError());
 };
 
 // Creates a new video in the DB
