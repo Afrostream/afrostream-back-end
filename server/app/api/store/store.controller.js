@@ -14,6 +14,9 @@ var sqldb = rootRequire('/server/sqldb');
 var Store = sqldb.Store;
 var filters = rootRequire('/server/app/api/filters.js');
 var utils = rootRequire('/server/app/api/utils.js');
+var config = rootRequire('/server/config');
+var csvgeocode = require('csvgeocode');
+var path = require('path');
 
 function responseWithResult (res, statusCode) {
   statusCode = statusCode || 200;
@@ -93,6 +96,51 @@ exports.create = function (req, res) {
   Store.create(req.body)
     .then(responseWithResult(res, 201))
     .catch(res.handleError());
+};
+
+exports.import = function (req, res) {
+  var importFile = path.join(__dirname, 'CLIENT_AFROSTREAM_20160923.geocoded-simple.csv')
+
+  csvgeocode(importFile, {
+    url: 'https://maps.googleapis.com/maps/api/geocode/json?address={{Adresse1}}+{{Adresse2}}+{{Ville}}&key=' + config.google.cloudKey
+  })
+    .on('row', function (err, row) {
+      if (err) {
+        console.warn(err);
+      }
+      /*
+       `row` is an object like:
+       {
+       first: "John",
+       last: "Keefe",
+       address: "160 Varick St, New York NY",
+       employer: "WNYC",
+       lat: 40.7267926,
+       lng: -74.00537369999999
+       }
+       */
+      console.log(row)
+      Store.create({
+        name: row.first,
+        adresse: row.address,
+        location: [row.lng, row.lat]
+      })
+        .then(responseWithResult(res, 201))
+        .catch(res.handleError());
+    })
+    .on("complete", function (summary) {
+      console.log('import Stores csv complete : ', summary);
+      /*
+       `summary` is an object like:
+       {
+       failures: 1, //1 row failed
+       successes: 49, //49 rows succeeded
+       time: 8700 //it took 8.7 seconds
+       }
+       */
+    });
+
+
 };
 
 // Updates an existing Store in the DB

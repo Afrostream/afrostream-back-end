@@ -79,7 +79,8 @@ var all = {
 
   google: {
     clientID: process.env.GOOGLE_ID || 'id',
-    clientSecret: process.env.GOOGLE_SECRET || 'secret'
+    clientSecret: process.env.GOOGLE_SECRET || 'secret',
+    cloudKey: 'AIzaSyAF6gmoWfA_IDrn_7c8-dyFB9yZJ8ujpws'
   },
 
   pagination: {
