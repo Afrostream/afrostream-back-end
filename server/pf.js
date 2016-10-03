@@ -51,22 +51,22 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
       qs: {
         md5Hash: this.pfMd5Hash
       }
-    }).then(function (pfContent) {
+    }).then(function (pfContents) {
       // postprocessing, this api return an array of result
-      if (!pfContent) {
+      if (!pfContents) {
         throw new Error('[PF]: no content associated to hash ' + that.pfMd5Hash);
       }
-      if (!Array.isArray(pfContent)) {
+      if (!Array.isArray(pfContents)) {
         throw new Error('[PF]: malformed content result');
       }
-      if (pfContent.length === 0) {
+      if (pfContents.length === 0) {
         throw new Error('[PF]: no content found');
       }
-      if (pfContent.length > 1) {
-        console.log('[WARNING]: [PF]: multiple content (' + pfContent.length + ') found');
+      if (pfContents.length > 1) {
+        console.log('[WARNING]: [PF]: multiple content (' + pfContents.length + ') found');
       }
       // returning first content.
-      that.pfContent = pfContent;
+      that.pfContent = pfContents[0];
       return that.pfContent;
     });
  };
@@ -101,6 +101,8 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
    ])
     .then(function (data) {
       var pfContent = data[0];
+
+      console.log(pfContent);
 
       if (!Array.isArray(pfContent.profilesIds)) {
         throw new Error('[PF]: '+that.pfMd5Hash+' pfContent.profilesIds is not an array');
