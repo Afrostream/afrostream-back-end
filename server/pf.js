@@ -83,7 +83,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
          throw new Error("profiles format")
        }
        that.pfProfiles = profiles.filter(function (profile) {
-         return profile.broadcaster = that.pfBroadcasterName;
+         return profile.broadcaster === that.pfBroadcasterName;
        });
       return that.pfProfiles;
      });
@@ -102,8 +102,6 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
     .then(function (data) {
       var pfContent = data[0];
 
-      console.log(pfContent);
-
       if (!Array.isArray(pfContent.profilesIds)) {
         throw new Error('[PF]: '+that.pfMd5Hash+' pfContent.profilesIds is not an array');
       }
@@ -115,6 +113,9 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
     .then(function intersect(data) {
       var pfContent = data[0];
       var pfProfiles = data[1];
+
+      console.log('pfContent', pfContent);
+      console.log('pfProfiles', pfProfiles);
 
       // intersecting profiles & contentProfiles, pick a random profile (first one)
       var profile = pfProfiles.filter(function (profile) {
