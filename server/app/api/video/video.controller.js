@@ -354,8 +354,8 @@ exports.show = function (req, res) {
       // sont FR
       //
       // FIXME: shouldn't be "named based"
-      if (closure.pfContent.randomContentProfile.name.indexOf('_SUB0FRA')) {
-        console.log('[INFO]: [VIDEO]: burnedCaptions, filtering on fra');
+      if (closure.pfContent.randomContentProfile.name.indexOf('_SUB0FRA') !== -1) {
+        console.log('[INFO]: [VIDEO]: burnedCaptions (' + closure.pfContent.randomContentProfile.name + '), filtering on fra');
         video.captions = (video.captions || []).filter(function (caption) {
           return caption.lang.ISO6392T === 'fra';
         });
