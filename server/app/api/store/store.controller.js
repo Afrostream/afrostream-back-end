@@ -81,7 +81,8 @@ function removeEntity (res) {
 exports.index = function (req, res) {
   var longitude = req.param('longitude');
   var latitude = req.param('latitude');
-  var distance = req.param('distance') || 8;
+  //distance = zoom
+  var zoom = req.param('zoom') || 8;
   var queryOptions = {};
 
   // pagination
@@ -92,7 +93,7 @@ exports.index = function (req, res) {
       where: sqldb.Sequelize.where(sqldb.Sequelize.fn('ST_Distance_Sphere',
         sqldb.Sequelize.fn('ST_MakePoint', parseFloat(longitude), parseFloat(latitude)),
         sqldb.Sequelize.col('geometry')
-      ), '<=', parseFloat(( distance * 1609.4 ) * 1000)) // -- convert miles to meters and to km
+      ), '<=', parseFloat(( 1000000 / zoom )))
     });
   }
 
