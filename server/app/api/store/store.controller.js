@@ -26,6 +26,35 @@ function responseWithResult (res, statusCode) {
     }
   };
 }
+// GeoJSON Feature Collection
+function FeatureCollection () {
+  this.type = 'FeatureCollection';
+  this.features = [];
+}
+
+function responseWithResultGEO (res, statusCode) {
+  statusCode = statusCode || 200;
+  return function (result) {
+    if (result) {
+      var featureCollection = new FeatureCollection();
+      _.forEach(result, function (row) {
+
+        var feature = {
+          'type': 'Feature',
+          'geometry': row.geometry,
+          'properties': {
+            'type': 'cluster',
+            'name': row.ville,
+            'count': "1"
+          }
+        }
+        featureCollection.features.push(feature)
+      })
+
+      res.status(statusCode).json(featureCollection);
+    }
+  };
+}
 
 function saveUpdates (updates) {
   return function (entity) {
@@ -62,16 +91,16 @@ exports.index = function (req, res) {
     queryOptions = _.merge(queryOptions, {
       where: sqldb.Sequelize.where(sqldb.Sequelize.fn('ST_Distance_Sphere',
         sqldb.Sequelize.fn('ST_MakePoint', parseFloat(longitude), parseFloat(latitude)),
-        sqldb.Sequelize.col('location')
+        sqldb.Sequelize.col('geometry')
       ), '<=', parseFloat(( distance * 1609.4 ) * 1000)) // -- convert miles to meters and to km
     });
   }
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, Store);
 
-  Store.findAndCountAll(queryOptions)
+  Store.findAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(utils.responseWithResultAndTotal(res))
+    .then(responseWithResultGEO(res))
     .catch(res.handleError());
 };
 
@@ -129,7 +158,7 @@ exports.import = function (req, res) {
           cp: row.CP,
           ville: row.Ville,
           phone: row.Telephone,
-          location: [row.lng, row.lat]
+          geometry: [row.lng, row.lat]
         }
       })
     })

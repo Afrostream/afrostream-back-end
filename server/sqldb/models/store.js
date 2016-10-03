@@ -19,17 +19,17 @@ module.exports = function (sequelize, DataTypes) {
     ville: DataTypes.STRING,
     cp: DataTypes.INTEGER,
     phone: DataTypes.INTEGER,
-    location: {
+    geometry: {
       type: DataTypes.GEOMETRY('POINT'),
       get: function () {
-        var geoPoint = this.getDataValue('location');
-        return geoPoint && geoPoint.coordinates;
+        var geoPoint = this.getDataValue('geometry');
+        return geoPoint;
       },
       set: function (coords) {
         if (coords === null) {
-          this.setDataValue('location', null);
+          this.setDataValue('geometry', null);
         } else {
-          this.setDataValue('location', {type: 'Point', coordinates: coords});
+          this.setDataValue('geometry', {type: 'Point', coordinates: coords});
         }
       },
       validations: {
