@@ -11,151 +11,27 @@ var sqldb = rootRequire('/server/sqldb')
 
 var anr = require('afrostream-node-request');
 
-var requestPF = anr.create({
-  name: 'REQUEST-PF',
-  timeout: config.pf.timeout,
-  baseUrl: config.pf.url,
-  filter: anr.filters['200OKNotEmpty']
-});
-
 // wrapper
-var requestPF = function (options) {
-  var readableQueryString = Object.keys(options.qs).map(function (k) { return k + '=' + options.qs[k]; }).join('&');
-  var readableUrl = config.pf.url + options.url + '?' + readableQueryString;
-  console.log('[INFO]: [REQUEST-PF]: ' + readableUrl);
-
-  return request(options);
-};
-
-var getContentByMd5Hash = function (md5Hash) {
-  return requestPF({
-    uri: '/api/contents',
-    qs: {
-      md5Hash: md5Hash
-    }
-  }).then(function (content) {
-    // postprocessing, this api return an array of result
-    if (!content) {
-      throw new Error('[PF]: no content associated to hash ' + md5Hash);
-    }
-    if (!Array.isArray(content)) {
-      throw new Error('[PF]: malformed content result');
-    }
-    if (content.length === 0) {
-      throw new Error('[PF]: no content found');
-    }
-    if (content.length > 1) {
-      console.log('[WARNING]: [PF]: multiple content (' + content.length + ') found');
-    }
-    // returning first content.
-    return content[0];
+var requestPF = (function (options) {
+  var request = anr.create({
+    name: 'REQUEST-PF',
+    timeout: config.pf.timeout,
+    baseUrl: config.pf.url,
+    filter: anr.filters['200OKNotEmpty']
   });
-};
 
-var getContent = function (id) {
-  return requestPF({
-    uri: '/api/contents/' + id
-  });
-}
+  return function (options) {
+    var readableQueryString = Object.keys(options.qs || []).map(function (k) { return k + '=' + options.qs[k]; }).join('&');
+    var readableUrl = config.pf.url + options.uri + (readableQueryString?'?' + readableQueryString:'');
+    console.log('[INFO]: [REQUEST-PF]: ' + readableUrl);
 
-/**
- * if PF is on error, or without content => return an empty object
- * @param md5Hash
- * @param profilName  VIDEO0ENG_AUDIO0ENG_SUB0FRA | VIDEO0ENG_AUDIO0ENG | VIDEO0ENG_AUDIO0FRA
- * @param pfBroadcasterName  BOUYGUES
- * @returns {*}
- */
-var getAssetsStreamsSafe = function (md5Hash, profileName, pfBroadcasterName) {
-  assert(md5Hash);
-
-  return requestPF({
-    uri: '/api/assetsStreams',
-    qs: {
-      md5Hash: md5Hash,
-      profileName: profileName,
-      broadcaster: pfBroadcasterName
-    }
-  })
-    .then(
-    function success(assets) {
-      return assets;
-    },
-    function error(err) {
-      console.error('[ERROR]: [PF]: '+err, err.stack);
-      return [];
+    return request(options).then(function (data) {
+      return data[1]; // body
     });
-};
+  }
+})();
 
-var getProfiles = function (pfBroadcasterName) {
-  return requestPF({ uri: '/api/profiles' })
-    .then(function filter(profiles) {
-      if (!Array.isArray(profiles)) {
-        throw new Error("profiles format")
-      }
-      if (broadcaster) {
-        return profiles.filter(function (profile) {
-          return profile.broadcaster = pfBroadcasterName;
-        });
-      }
-      return profiles;
-    })
-    .then(
-      function success(result) { return result; },
-      function error(err) {
-        console.error('[ERROR]: [PF]: '+err, err.stack);
-        return [];
-      }
-    );
-};
-
-var getAssetsStreamsRandomProfile = function (pfMd5Hash, pfBroadcasterName) {
-  return Q()
-    .then(function () {
-      if (!pfMd5Hash) {
-        throw new Error('[PF]: missing pfMd5Hash');
-      }
-      if (!pfBroadcasterName) {
-        throw new Error('[PF]: missing pfBroadcasterName');
-      }
-      return Q.all([
-        pf.getContentByMd5Hash(pfMd5Hash),
-        pf.getProfiles(pfBroadcasterName)
-      ]);
-    })
-    .then(function intersect(data) {
-      var pfContent = data[0];
-      var profiles = data[1];
-
-      if (!pfContent) {
-        throw new Error('[PF]: '+pfMd5Hash+' no content');
-      }
-      if (!Array.isArray(pfContent.profilesIds)) {
-        throw new Error('[PF]: '+pfMd5Hash+' pfContent.profilesIds is not an array');
-      }
-      if (!pfContent.profilesIds.length) {
-        throw new Error('[PF]: '+pfMd5Hash+' no profiles in pfContent.profilesIds');
-      }
-      // intersecting profiles & contentProfiles, pick a random profile (first one)
-      var profile = profiles.filter(function (profile) {
-        return pfContent.profilesIds.indexOf(profile.profileId) !== -1;
-      })[0];
-      if (!profile) {
-        throw new Error('[PF]: '+pfMd5Hash+'|'+pfBroadcasterName+' no intersecting profile found');
-      }
-      // fetch assets streams
-      return pf.getAssetsStreamsSafe(pfMd5Hash, profile.name, pfBroadcasterName)
-    });
-};
-
-/*
- * we should have an api:
- *
- *
- *
- *
- */
-
- function PfContent(pfMd5Hash, pfBroadcasterName) {
+function PfContent(pfMd5Hash, pfBroadcasterName) {
    this.pfMd5Hash = pfMd5Hash;
    this.pfBroadcasterName = pfBroadcasterName;
    this.pfContent = null;
@@ -175,22 +51,22 @@ var getAssetsStreamsRandomProfile = function (pfMd5Hash, pfBroadcasterName) {
       qs: {
         md5Hash: this.pfMd5Hash
       }
-    }).then(function (content) {
+    }).then(function (pfContent) {
       // postprocessing, this api return an array of result
-      if (!content) {
+      if (!pfContent) {
         throw new Error('[PF]: no content associated to hash ' + that.pfMd5Hash);
       }
-      if (!Array.isArray(content)) {
+      if (!Array.isArray(pfContent)) {
         throw new Error('[PF]: malformed content result');
       }
-      if (content.length === 0) {
+      if (pfContent.length === 0) {
         throw new Error('[PF]: no content found');
       }
-      if (content.length > 1) {
-        console.log('[WARNING]: [PF]: multiple content (' + content.length + ') found');
+      if (pfContent.length > 1) {
+        console.log('[WARNING]: [PF]: multiple content (' + pfContent.length + ') found');
       }
       // returning first content.
-      that.pfContent = content[0];
+      that.pfContent = pfContent;
       return that.pfContent;
     });
  };
@@ -348,18 +224,9 @@ var getAssetsStreamsRandomProfile = function (pfMd5Hash, pfBroadcasterName) {
       that.manifests = manifests;
       return manifests;
     })
- };
-
-
+};
 
 var pf = {
-  /*
-  getContent: getContent,
-  getAssetsStreamsRandomProfile: getAssetsStreamsRandomProfile,
-  getContentByMd5Hash: getContentByMd5Hash,
-  getProfiles: getProfiles,
-  getManifests: getManifests
-  */
   PfContent: PfContent
 }
 
