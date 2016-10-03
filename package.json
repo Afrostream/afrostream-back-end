@@ -22,6 +22,7 @@
     "connect-ensure-login": "0.1.1",
     "cookie-parser": "1.0.1",
     "crypto": "0.0.3",
+    "csvgeocode": "^2.3.0",
     "errorhandler": "1.0.2",
     "express": "4.9.8",
     "express-cluster": "0.0.4",

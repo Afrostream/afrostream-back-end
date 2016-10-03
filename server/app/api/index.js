@@ -43,6 +43,7 @@ router.use('/widgets', require('./widget/index'));
 router.use('/works', require('./work/index'));
 router.use('/wallnotes', require('./wallnote/index'));
 router.use('/stats', require('./stat/index'));
+router.use('/stores', require('./store/index'));
 
 router.use('/player', require('./player/index'));
 router.use('/cdnselector', require('./cdnselector/index'));
