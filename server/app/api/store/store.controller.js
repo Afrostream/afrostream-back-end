@@ -131,7 +131,7 @@ exports.import = function (req, res) {
           phone: row.Telephone,
           location: [row.lng, row.lat]
         }
-      }).catch(res.handleError());
+      })
     })
     .on('complete', function (summary) {
       console.log('import Stores csv complete : ', summary);
