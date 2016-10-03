@@ -44,8 +44,12 @@ function responseWithResultGEO (res, statusCode) {
           'geometry': row.geometry,
           'properties': {
             'type': 'cluster',
-            'name': row.ville,
-            'count': "1"
+            'name': row.name,
+            'adresse': row.adresse,
+            'cp': row.cp,
+            'phone': row.phone,
+            'ville': row.ville,
+            'count': '1'
           }
         }
         featureCollection.features.push(feature)
