@@ -311,11 +311,12 @@ exports.show = function (req, res) {
     .then(function buildingVideoObject() {
       // convert video to plain object
       var video = closure.video.get({plain: true});
+      // hydrate data from PF.
       video.pf = {
         definition: 'HD', // SD, HD, 4K
-        assetsStreams: closure.pfAssetsStreams,
-        sources: closure.pfManifests
+        assetsStreams: closure.pfAssetsStreams
       };
+      video.sources = closure.pfManifests
       return video;
     })
     .then(function rewriteSources(video) {
