@@ -233,8 +233,7 @@ function readVideo(videoId) {
 
 function getBillingUserSubscriptionStatus(user) {
   if (user instanceof User.Instance) {
-    return billingApi.someSubscriptionActiveSafe(user.id)
-      .then(function (active) { ; });
+    return billingApi.someSubscriptionActiveSafe(user.id);
   }
   return Q();
 }
@@ -273,6 +272,7 @@ exports.show = function (req, res) {
       //
       console.log('[INFO]: [VIDEO]: client.type='+req.passport.client.get('type'));
       console.log('[INFO]: [VIDEO]: broadcaster.pfName='+req.broadcaster.get('pfName'));
+      console.log('[INFO]: [VIDEO]: req.user._id=' + req.user._id);
     })
     .then(function () {
       // READ VIDEO
@@ -296,7 +296,7 @@ exports.show = function (req, res) {
           })
         ,
         // BILLING INFOS
-        getBillingUserSubscriptionStatus(req.user)
+        getBillingUserSubscriptionStatus(req.user._id)
           .then(function (active) {
             closure.billingUserSubscriptionActive = active;
           })
