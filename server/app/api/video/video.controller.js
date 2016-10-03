@@ -326,7 +326,7 @@ exports.show = function (req, res) {
         // START REMOVE
         // hack staging cdnselector orange (testing)
         if (process.env.NODE_ENV === 'staging' && req.query.from === 'afrostream-orange-staging') {
-          source.src = 'https://orange-labs.cdn.afrostream.net/' + source.src;
+          source.src = 'https://orange-labs.cdn.afrostream.net' + source.src;
           console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: cdn-orange: source = ' + source.src);
           return;
         }
@@ -334,13 +334,13 @@ exports.show = function (req, res) {
 
         // BEGIN TEMPFIX: 2016/08/02: on bascule l'intégralité du trafic orange sur l'origine en http simple, sans passer par le cdnselector
         if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
-          source.src = 'http://origin.cdn.afrostream.net/' + source.src;
+          source.src = 'http://origin.cdn.afrostream.net' + source.src;
           console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: tempfix orange: source = ' + source.src);
           return;
         }
         // END TEMPFIX
 
-        source.src = closure.cdnselectorInfos.scheme + '://' + closure.cdnselectorInfos.authority + '/' + source.src;
+        source.src = closure.cdnselectorInfos.scheme + '://' + closure.cdnselectorInfos.authority + source.src;
       });
       console.log('[INFO]: [VIDEO]: sources = ' + JSON.stringify(video.sources));
       return video;
