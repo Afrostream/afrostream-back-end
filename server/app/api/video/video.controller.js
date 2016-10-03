@@ -375,7 +375,7 @@ exports.show = function (req, res) {
       }
       return video;
     })
-    .then(function filterOutput() {
+    .then(function filterOutput(video) {
       // orange clients mib4 & newbox have a full access
       if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
         return video;
@@ -388,7 +388,7 @@ exports.show = function (req, res) {
         return video;
       }
       //
-      if ((!user instanceof User.Instance) || !billingUserSubscriptionActive) {
+      if ((!req.user instanceof User.Instance) || !closure.billingUserSubscriptionActive) {
         // client or unauthentified user => disabling sources
         console.error('[WARNING]: client|user ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
