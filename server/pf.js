@@ -113,10 +113,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
     .then(function intersect(data) {
       var pfContent = data[0];
       var pfProfiles = data[1];
-
-      console.log('pfContent', pfContent);
-      console.log('pfProfiles', pfProfiles);
-
+      
       // intersecting profiles & contentProfiles, pick a random profile (first one)
       var profile = pfProfiles.filter(function (profile) {
         return pfContent.profilesIds.indexOf(profile.profileId) !== -1;
