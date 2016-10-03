@@ -99,10 +99,10 @@ exports.create = function (req, res) {
 };
 
 exports.import = function (req, res) {
-  var importFile = path.join(__dirname, 'CLIENT_AFROSTREAM_20160923.geocoded-simple.csv')
+  var importFile = path.join(__dirname, 'CLIENT_AFROSTREAM_20160923.csv');
 
   csvgeocode(importFile, {
-    url: 'https://maps.googleapis.com/maps/api/geocode/json?address={{Adresse1}}+{{Adresse2}}+{{Ville}}&key=' + config.google.cloudKey
+    url: 'https://maps.googleapis.com/maps/api/geocode/json?address={{Adresse2}}+{{Ville}}&key=' + config.google.cloudKey
   })
     .on('row', function (err, row) {
       if (err) {
@@ -119,16 +119,21 @@ exports.import = function (req, res) {
        lng: -74.00537369999999
        }
        */
-      console.log(row)
-      Store.create({
-        name: row.first,
-        adresse: row.address,
-        location: [row.lng, row.lat]
-      })
-        .then(responseWithResult(res, 201))
-        .catch(res.handleError());
+      console.log(row);
+      Store.findOrCreate({
+        where: {mid: row.MID},
+        defaults: {
+          mid: row.MID,
+          name: row.Nom,
+          adresse: row.Adresse1 + ' ' + row.Adresse2,
+          cp: row.CP,
+          ville: row.Ville,
+          phone: row.Telephone,
+          location: [row.lng, row.lat]
+        }
+      }).catch(res.handleError());
     })
-    .on("complete", function (summary) {
+    .on('complete', function (summary) {
       console.log('import Stores csv complete : ', summary);
       /*
        `summary` is an object like:
@@ -138,6 +143,7 @@ exports.import = function (req, res) {
        time: 8700 //it took 8.7 seconds
        }
        */
+      res.status(200).json(summary);
     });
 
 
