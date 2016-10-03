@@ -198,7 +198,7 @@ function ensureAccessToVideo(req) {
 function readVideo(videoId) {
   return Video.find({
     where: {
-      _id: req.params.id
+      _id: videoId
     }
     , include: [
       {
