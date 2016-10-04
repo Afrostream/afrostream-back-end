@@ -233,7 +233,7 @@ function readVideo(videoId) {
 
 function getBillingUserSubscriptionStatus(user) {
   if (user instanceof User.Instance) {
-    return billingApi.someSubscriptionActiveSafe(user.id);
+    return billingApi.someSubscriptionActiveSafe(parseInt(user._id, 10));
   }
   return Q();
 }
