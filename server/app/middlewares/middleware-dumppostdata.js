@@ -16,11 +16,10 @@ module.exports = function (options) {
             if (body.month) body.month = 1;
           }
           if (body.cvv) { body.cvv = '123'; }
-          console.log(req.url + ' postData =', body);
+          console.log('[INFO]: ' + req.method + ' ' + req.url + ' body=', body);
         }
       } catch (e) { }
     }
     next();
   };
 };
-
