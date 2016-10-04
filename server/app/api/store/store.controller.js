@@ -51,9 +51,9 @@ function responseWithResultGEO (res, statusCode) {
             'ville': row.ville,
             'count': '1'
           }
-        }
+        };
         featureCollection.features.push(feature)
-      })
+      });
 
       res.status(statusCode).json(featureCollection);
     }
@@ -85,7 +85,7 @@ function removeEntity (res) {
 exports.index = function (req, res) {
   var longitude = req.param('longitude');
   var latitude = req.param('latitude');
-  //distance = zoom
+  var distance = req.param('distance') || 1000000;
   var zoom = req.param('zoom') || 8;
   var queryOptions = {};
 
@@ -97,7 +97,7 @@ exports.index = function (req, res) {
       where: sqldb.Sequelize.where(sqldb.Sequelize.fn('ST_Distance_Sphere',
         sqldb.Sequelize.fn('ST_MakePoint', parseFloat(longitude), parseFloat(latitude)),
         sqldb.Sequelize.col('geometry')
-      ), '<=', parseFloat(( 1000000 / zoom )))
+      ), '<=', parseFloat(distance * 10000))
     });
   }
 
