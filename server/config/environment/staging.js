@@ -81,7 +81,7 @@ module.exports = {
   },
 
   pf: {
-    timeout: 1000,
+    timeout: 2000,
     url: 'http://p-afsmsch-001.afrostream.tv:4000'
   },
 
