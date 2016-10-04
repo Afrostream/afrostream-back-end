@@ -296,7 +296,7 @@ exports.show = function (req, res) {
           })
         ,
         // BILLING INFOS
-        getBillingUserSubscriptionStatus(req.user._id)
+        getBillingUserSubscriptionStatus(req.user)
           .then(function (active) {
             closure.billingUserSubscriptionActive = active;
           })
@@ -388,9 +388,13 @@ exports.show = function (req, res) {
         return video;
       }
       //
-      if ((!req.user instanceof User.Instance) || !closure.billingUserSubscriptionActive) {
-        // client or unauthentified user => disabling sources
-        console.error('[WARNING]: client|user ' + req.user._id + ' request video => disabling sources');
+      if (!req.user instanceof User.Instance) {
+        console.error('[WARNING]: client ' + req.user._id + ' request video => disabling sources');
+        video.sources = [];
+        video.name = null;
+      }
+      if (!closure.billingUserSubscriptionActive) {
+        console.error('[WARNING]: user subscription inactive ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
       }
