@@ -97,7 +97,7 @@ exports.index = function (req, res) {
       where: sqldb.Sequelize.where(sqldb.Sequelize.fn('ST_Distance_Sphere',
         sqldb.Sequelize.fn('ST_MakePoint', parseFloat(longitude), parseFloat(latitude)),
         sqldb.Sequelize.col('geometry')
-      ), '<=', parseFloat(distance * 10000))
+      ), '<=', parseFloat(distance * 1000))
     });
   }
 
