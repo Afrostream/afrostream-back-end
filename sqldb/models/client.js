@@ -47,6 +47,10 @@ module.exports = function (sequelize, DataTypes) {
 
       isFrontApi: function () {
         return this.getDataValue('type') === 'front-api.front-end';
+      },
+
+      isAfrostreamAdmin: function () {
+        return this.getDataValue('type') === 'afrostream-admin.gui';
       }
     }
   });
