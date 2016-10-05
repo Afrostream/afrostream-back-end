@@ -94,28 +94,6 @@ function saveUpdates(updates) {
   };
 }
 
-function addAssets(updates) {
-  return function (entity) {
-    return Promise.map(updates.sources || [], function (item) {
-      return Asset.findOrCreate({where: {_id: item._id}, defaults: item}).then(function (elem) {
-        var elem = elem[0];
-        if (!elem.isNewRecord) {
-          return elem.updateAttributes(item);
-        }
-        return elem;
-      });
-    }).then(function (inserts) {
-      if (!inserts || !inserts.length) {
-        return entity;
-      }
-      return entity.setSources(inserts)
-        .then(function () {
-          return entity;
-        });
-    });
-  };
-}
-
 function addCaptions(updates) {
   return function (entity) {
     return Promise.map(updates.captions || [], function (item) {
@@ -429,7 +407,6 @@ exports.show = function (req, res) {
 // Creates a new video in the DB
 exports.create = function (req, res) {
   Video.create(req.body)
-    .then(addAssets(req.body))
     .then(addCaptions(req.body))
     .then(responseWithResult(res, 201))
     .catch(res.handleError());
@@ -447,7 +424,6 @@ exports.update = function (req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
-    .then(addAssets(req.body))
     .then(addCaptions(req.body))
     .then(responseWithResult(res))
     .catch(res.handleError());
@@ -467,13 +443,11 @@ exports.destroy = function (req, res) {
 
 var create = function (data) {
   return Video.create(data)
-    .then(addAssets(data))
     .then(addCaptions(data));
 };
 
 var update = function (data, video) {
   return saveUpdates(data)(video)
-    .then(addAssets(data))
     .then(addCaptions(data));
 };
 
