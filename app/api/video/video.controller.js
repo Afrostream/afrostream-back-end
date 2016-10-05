@@ -258,20 +258,23 @@ exports.show = function (req, res) {
       return Q.all([
         readVideo(req.params.id)
           .then(function (video) {
-            if (!video.pfMd5Hash) {
+            closure.video = video;
+            if (!video.pfMd5Hash && !req.passport.client.isAfrostreamAdmin()) {
               throw new Error('missing pfMd5Hash');
             }
-            closure.video = video;
+            if (!video.pfMd5Hash) {
+              return;
+            }
             closure.pfContent = new (pf.PfContent)(video.pfMd5Hash, req.broadcaster.get('pfName'));
             return Q.all([
               closure.pfContent.getAssetsStreams(),
               closure.pfContent.getManifests()
-            ]);
+            ]).then(function (pfData) {
+              closure.pfAssetsStreams = pfData[0];
+              closure.pfManifests = pfData[1];
+            })
           })
-          .then(function (pfData) {
-            closure.pfAssetsStreams = pfData[0];
-            closure.pfManifests = pfData[1];
-          })
+
         ,
         // BILLING INFOS
         getBillingUserSubscriptionStatus(req.user)
@@ -298,6 +301,11 @@ exports.show = function (req, res) {
       return video;
     })
     .then(function rewriteSources(video) {
+      // admin
+      if (!video.sources) {
+        return video;
+      }
+
       // CDN-SELECTOR
       video.sources.forEach(function (source, i) {
         // FIXME: to be removed
@@ -324,6 +332,11 @@ exports.show = function (req, res) {
       return video;
     })
     .then(function rewriteCaptions(video) {
+      // afrostream-admin ? => skip the rewrite.
+      if (req.passport.client.isAfrostreamAdmin()) {
+        return video;
+      }
+
       // FIXME: shouldn't assume randomContentProfile is set.
 
       //
@@ -354,15 +367,15 @@ exports.show = function (req, res) {
       return video;
     })
     .then(function filterOutput(video) {
-      // orange clients mib4 & newbox have a full access
-      if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
+      // FIXME: remove ?bs= query string test
+      // afrostream-admin ? => full access
+      if (req.query.bs || req.passport.client.isAfrostreamAdmin()) {
+        // bypassing security
         return video;
       }
-      // FIXME: remove ?bs= query string test
-      // FIXME: shouldn't bypass security for req.query.backo, but video.name will be empty
-      //        we should refactor the security access of this api.
-      if (req.query.bs || req.query.backo) {
-        // bypassing security
+
+      // orange clients mib4 & newbox have a full access
+      if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
         return video;
       }
       //
