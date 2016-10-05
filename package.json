@@ -1,7 +1,7 @@
 {
   "name": "afrostream-admin",
   "version": "0.0.0",
-  "main": "server/app.js",
+  "main": "server.js",
   "dependencies": {
     "afrostream-node-request": "git+https://afrostream-tech:d51e355769ddd0fd212084c35fb99f71ab4146b2@github.com/Afrostream/afrostream-node-request.git#v2.3.2",
     "algoliasearch": "3.8.1",
