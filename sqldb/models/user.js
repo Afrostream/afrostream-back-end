@@ -76,6 +76,12 @@ module.exports = function (sequelize, DataTypes) {
     emailOptIn: DataTypes.BOOLEAN,
     emailNewsletter: DataTypes.BOOLEAN,
 
+    // notifications
+    webPushNotifications: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    },
+
     // 3-Leg
     google: DataTypes.JSON,
     github: DataTypes.JSON,

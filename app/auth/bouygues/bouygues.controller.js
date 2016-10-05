@@ -160,7 +160,7 @@ var callback = function (req, res, next) {
         },
         function error (err) {
           console.error('[ERROR]: [AUTH]: [BOUYGUES]: callback: error=' + err.message, err);
-          res.handleError()(err);
+          res.handleError()(err, {signupClientType: req.signupClientType});
         });
   })(req, res, next);
 };

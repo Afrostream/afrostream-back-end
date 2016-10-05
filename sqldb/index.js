@@ -48,6 +48,7 @@ db.PFProfile = db.sequelize.import('models/pfProfile');
 db.Post = db.sequelize.import('models/post');
 db.RefreshToken = db.sequelize.import('models/refreshToken');
 db.Season = db.sequelize.import('models/season');
+db.Store = db.sequelize.import('models/store');
 db.Tag = db.sequelize.import('models/tag');
 db.User = db.sequelize.import('models/user');
 db.Video = db.sequelize.import('models/video');
