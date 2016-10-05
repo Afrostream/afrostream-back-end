@@ -37,6 +37,7 @@ var Client = sqldb.Client;
 var Video = sqldb.Video;
 var Image = sqldb.Image;
 var Actor = sqldb.Actor;
+var Broadcaster = sqldb.Broadcaster;
 
 var Promise = require('bluebird');
 var promises = [];
@@ -365,6 +366,22 @@ promises.push(
 );
 
 promises.push(
+  Broadcaster.sync()
+  .then(function () {
+    return Broadcaster.destroy({where: {}});
+  })
+  .then(function () {
+    return Broadcaster.bulkCreate([{
+      _id: "WEB",
+      name: "WEB",
+      fqdn: "{localhost:9000}",
+      defaultCountryId: "FR",
+      pfName: "AFROSTREAM"
+    }]);
+  })
+);
+
+promises.push(
   Client.sync()
   .then(function () {
     return Client.destroy({where: {}});
@@ -375,7 +392,8 @@ promises.push(
       _id: '8c261045-89a3-44bb-af38-65a847269605',
       secret: '3dc3cae6-9c79-487a-9e0f-712be857dcee',
       type: 'front-api.front-end',
-      role: 'client'
+      role: 'client',
+      broadcasterId: 'WEB'
     }, {
       name: 'tapptic',
       _id: '1abf31b2-4242-4242-9fd2-f3a63bda64b4',
@@ -424,7 +442,8 @@ promises.push(
       _id: '488d2f13-6c01-464f-bfa4-bf8c641d7063',
       secret: "17abaee4-032d-4703-be86-0af3523dcedd",
       type: "afrostream-admin.gui",
-      role: "client"
+      role: "client",
+      broadcasterId: "WEB"
     }]);
   })
 );
