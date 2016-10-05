@@ -22,10 +22,10 @@ describe('API: /api/catchup/*', function() {
     var fs = require('fs');
     staticapp.get('/fake.xml', function (req, res) {
       var file = 'NELLYVILLE SAISON 1-0018.xml'; // 'catchup-bet-example-001.xml';
-      res.send(fs.readFileSync(__basedir + '/server/test/data/bet/'+file));
+      res.send(fs.readFileSync(__basedir + '/test/data/bet/'+file));
     });
     staticapp.get('/vtt/:filename', function (req, res) {
-      res.send(fs.readFileSync(__basedir + '/server/test/data/'+req.params.filename));
+      res.send(fs.readFileSync(__basedir + '/test/data/'+req.params.filename));
     });
     staticapp.post('/jobs/*', function (req, res) {
 

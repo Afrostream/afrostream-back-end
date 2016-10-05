@@ -15,7 +15,7 @@ var cacheHandler = require('./middlewares/middleware-cachehandler.js');
 // Setup server
 var app =  require('express')();
 app.set('startDate', new Date());
-app.set('views', config.root + '/server/views');
+app.set('views', config.root + '/views');
 app.set('view engine', 'jade');
 app.set('etag', false);
 app.use(require('compression')());
