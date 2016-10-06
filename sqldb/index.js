@@ -14,14 +14,14 @@ var Sequelize = require('sequelize');
 var hooks = require('./hooks');
 
 var options = _.merge({}, config.sequelize.options, {
-  define: {
-    hooks: hooks
-  }
+    define: {
+        hooks: hooks
+    }
 });
 
 var db = {
-  Sequelize: Sequelize,
-  sequelize: new Sequelize(config.sequelize.uri, options)
+    Sequelize: Sequelize,
+    sequelize: new Sequelize(config.sequelize.uri, options)
 };
 
 db.AccessToken = db.sequelize.import('models/accessToken');
@@ -59,6 +59,15 @@ db.WallNote = db.sequelize.import('models/wallNote');
 db.WallNotesUsers = db.sequelize.import('models/wallNotesUsers');
 db.Work = db.sequelize.import('models/work');
 
+//LIFE
+db.LifePin = db.sequelize.import('models/life/lifePin');
+db.LifeUsersPins = db.sequelize.import('models/life/lifeUsersPins');
+db.LifePin.belongsTo(db.Image, {as: 'image', constraints: false});
+
+db.LifePin.belongsTo(db.User, {as: 'user', constraints: false});
+db.LifePin.belongsToMany(db.User, {through: db.LifeUsersPins, as: 'users', foreignKey: 'lifePinId'});
+db.User.belongsToMany(db.LifePin, {through: db.LifeUsersPins, as: 'lifePins', foreignKey: 'userId'});
+//JOIN
 db.Client.belongsTo(db.PFGroup, {as: 'pfGroup', constraints: false});
 
 db.Broadcaster.belongsTo(db.Country, {as: 'defaultCountry', constraints: false});
@@ -164,15 +173,15 @@ db.Widget.belongsTo(db.Image, {as: 'image', constraints: false});
 var _ = require('lodash');
 
 db._filterOptionsRec = function (options, obj, root) {
-  if (Array.isArray(options.include)) {
-    options.include = options.include.map(function (subOptions) {
-      return db._filterOptionsRec(subOptions, obj);
-    });
-  }
-  if (typeof obj === 'function') {
-    return obj(options, (root === true)); // filter function
-  }
-  return _.merge(options, obj);
+    if (Array.isArray(options.include)) {
+        options.include = options.include.map(function (subOptions) {
+            return db._filterOptionsRec(subOptions, obj);
+        });
+    }
+    if (typeof obj === 'function') {
+        return obj(options, (root === true)); // filter function
+    }
+    return _.merge(options, obj);
 };
 
 //
@@ -186,7 +195,7 @@ db._filterOptionsRec = function (options, obj, root) {
 // db.filterOptions(options, function (options, root) { options.foo = 'bar'; return options; }
 //  =>
 db.filterOptions = function (options, obj) {
-  return db._filterOptionsRec(options, obj, true);
+    return db._filterOptionsRec(options, obj, true);
 };
 
 /**
@@ -196,12 +205,12 @@ db.filterOptions = function (options, obj) {
  * @return        object              new options
  */
 db.noInnerJoin = function (options) {
-  return db.filterOptions(options, function (options, root) {
-    if (root) {
-      return options;
-    }
-    return _.merge(options, {required: false});
-  });
+    return db.filterOptions(options, function (options, root) {
+        if (root) {
+            return options;
+        }
+        return _.merge(options, {required: false});
+    });
 };
 
 
