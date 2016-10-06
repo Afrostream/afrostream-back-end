@@ -3,7 +3,6 @@
 var Q = require('q');
 
 var sqldb = rootRequire('/sqldb');
-var Asset = sqldb.Asset;
 var Video = sqldb.Video;
 var Caption = sqldb.Caption;
 var Language = sqldb.Language;
@@ -18,7 +17,6 @@ var create = function (videoId) {
           _id: videoId
         }
         , include: [
-          {model: Asset, as: 'sources'},
           {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]}
         ]
       });

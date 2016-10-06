@@ -26,7 +26,6 @@ var db = {
 
 db.AccessToken = db.sequelize.import('models/accessToken');
 db.Actor = db.sequelize.import('models/actor');
-db.Asset = db.sequelize.import('models/asset');
 db.AuthCode = db.sequelize.import('models/authCode');
 db.Broadcaster = db.sequelize.import('models/broadcaster');
 db.Caption = db.sequelize.import('models/caption');
@@ -108,9 +107,6 @@ db.Episode.belongsTo(db.Season, {as: 'season', foreignKey: 'seasonId', constrain
 db.Episode.belongsTo(db.Image, {as: 'poster', constraints: false});
 db.Episode.belongsTo(db.Image, {as: 'thumb', constraints: false});
 db.Episode.belongsTo(db.Video, {as: 'video', constraints: false});
-
-db.Video.hasMany(db.Asset, {as: 'sources', foreignKey: 'videoId'});
-db.Asset.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
 
 db.Video.hasMany(db.Caption, {as: 'captions', foreignKey: 'videoId'});
 db.Caption.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});

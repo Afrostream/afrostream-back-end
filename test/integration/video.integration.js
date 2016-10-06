@@ -6,7 +6,6 @@ var app = bootstrap.getApp();
 var sqldb = bootstrap.getSqldb();
 var User = sqldb.User;
 var Video = sqldb.Video;
-var Asset = sqldb.Asset;
 var Client = sqldb.Client;
 var request = require('supertest');
 
@@ -31,14 +30,6 @@ describe('Video API: ', function() {
       pfMd5Hash: fakeMd5
     }).then(function (v) {
       video = v;
-      // create Assets
-      return Q.all([
-        Asset.create({src:"https://origin.cdn.afrostream.net/vod/soeurs_ennemies_s01ep05/d82a85af21284391.ism/d82a85af21284391.mpd", type:"application/dash+xml", videoId: video._id, active: true, importId: 0}),
-        Asset.create({src:"https://origin.cdn.afrostream.net/vod/soeurs_ennemies_s01ep05/d82a85af21284391.ism/master.m3u", type:"application/vnd.apple.mpegurl", videoId: video._id, active: true, importId: 0}),
-        Asset.create({src:"https://origin.cdn.afrostream.net/vod/soeurs_ennemies_s01ep05/d82a85af21284391.ism/MANIFEST", type:"application/vnd.ms-sstr+xml", videoId: video._id, active: true, importId: 0})
-      ]).then(function (data) {
-        assets = data;
-      });
     });
   });
 

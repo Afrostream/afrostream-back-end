@@ -15,7 +15,6 @@ var url = require('url');
 var sqldb = rootRequire('/sqldb');
 var config = rootRequire('/config');
 var Video = sqldb.Video;
-var Asset = sqldb.Asset;
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Caption = sqldb.Caption;
@@ -43,7 +42,6 @@ var getIncludedModel = function () {
   return [
     {model: Movie, as: 'movie'}, // load all sources assets
     {model: Episode, as: 'episode'}, // load all sources assets
-    {model: Asset, as: 'sources'}, // load all sources assets
     {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]} // load all sources captions
   ];
 };
@@ -492,5 +490,37 @@ module.exports.upsertUsingPfMd5Hash = function (data) {
     .then(function upsert(video) {
       console.log('video: upsertUsingEncodingId: video already exist ? ' + (video?'true':'false'));
       return video ? update(data, video) : create(data);
+    });
+};
+
+// FIXME : should be in the model
+module.exports.createFromPfContent = function (pfContent) {
+  if (!pfContent) {
+    throw new Error('missing pfContent');
+  }
+  if (pfContent.state !== 'ready') {
+    throw new Error('pfContent state='+pfContent.state);
+  }
+  if (!pfContent.md5Hash) {
+    throw new Error('missing pfContent.md5Hash');
+  }
+
+  console.log('[INFO]: [IMPORT]: pfContent', pfContent);
+
+  var data = {
+    pfMd5Hash: pfContent.md5Hash,
+    encodingId: pfContent.contentId,
+    name: pfContent.filename,
+    drm: Boolean(pfContent.drm === "enabled"),
+    duration: pfContent.duration
+  };
+
+  Video.findOne({ where: { pfMd5Hash: pfContent.md5Hash }})
+    .then(function (video) {
+      return video ? video.update(data) : Video.create(data);
+    })
+    .then(function (video) {
+      console('[INFO]: video '+video._id+' was inserted');
+      return video;
     });
 };

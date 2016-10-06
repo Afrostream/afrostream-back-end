@@ -23,7 +23,7 @@ var config = rootRequire('/config');
 var pf = rootRequire('pf');
 
 // convert mamItem to video
-var importVideo = require('../video/video.controller.js').createFromPfContent;
+var createVideoFromPfContent = require('../video/video.controller.js').createFromPfContent;
 
 var saveAndParseXml = require('./bet/xml').saveAndParseXml;
 var getCatchupProviderInfos = require('./bet/catchupprovider').getInfos;
@@ -223,7 +223,7 @@ var bet = function (req, res) {
         // upserting
         var pfContent = new (pf.PfContent)();
         return pfContent.getContentById(pfContentId)
-          .then(importVideoFromPfContent)
+          .then(createVideoFromPfContent)
           .then(function (video) {
             // video modifier
             if (!video) {

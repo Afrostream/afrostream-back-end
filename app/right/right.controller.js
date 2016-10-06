@@ -53,9 +53,9 @@ module.exports.drmtodayCallback = function (req, res, next) {
         throw 'userId mismatch userTokenId';
       }
     })
-    .then(function checkAsset() {
+    .then(function checkEncodingId() {
       return Video.find({where: {encodingId: encodingId}}).then(function (video) {
-        if (!video) throw 'unknown asset '+encodingId;
+        if (!video) throw 'unknown encodingId '+encodingId;
         return video;
       })
     })
