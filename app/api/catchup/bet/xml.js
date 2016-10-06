@@ -54,25 +54,25 @@ var flatten = function (xml) {
  * parse & flatten the xml.
  *
  * @param catchupProviderId  number
- * @param mamId              number   mam id
+ * @param pfContentId              number   mam id
  * @param xml                string   containing the xml.
  * @returns {*}              object   { flatten xml object }
  */
-var parseXml = function (catchupProviderId, mamId, xml) {
-  console.log('catchup: '+catchupProviderId+': '+mamId+': parsing xml = ', xml);
+var parseXml = function (catchupProviderId, pfContentId, xml) {
+  console.log('catchup: '+catchupProviderId+': '+pfContentId+': parsing xml = ', xml);
   return Q.nfcall(xml2js.parseString, xml)
     .then(function (json) {
-      console.log('catchup: '+catchupProviderId+': '+mamId+': json =' + JSON.stringify(json));
+      console.log('catchup: '+catchupProviderId+': '+pfContentId+': json =' + JSON.stringify(json));
       var flattenXml = flatten(json);
-      console.log('catchup: '+catchupProviderId+': '+mamId+': flatten = ' + JSON.stringify(flattenXml));
+      console.log('catchup: '+catchupProviderId+': '+pfContentId+': flatten = ' + JSON.stringify(flattenXml));
       return flattenXml;
     });
 };
 
-var saveAndParseXml = function (catchupProviderId, mamId, xmlUrl) {
-  return saveXmlToBucket(catchupProviderId, mamId, xmlUrl)
+var saveAndParseXml = function (catchupProviderId, pfContentId, xmlUrl) {
+  return saveXmlToBucket(catchupProviderId, pfContentId, xmlUrl)
     .then(function (xml) {
-      return parseXml(catchupProviderId, mamId, xml);
+      return parseXml(catchupProviderId, pfContentId, xml);
     });
 };
 

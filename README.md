@@ -35,7 +35,7 @@ POST /api/jobs/catchup-bet/
 {
   sharedSecret: "...",
   xml: "...",
-  mamId: 4242
+  pfContentId: 424242
   caption: [ "http://.../...fr.vtt", "http://.../...en.vtt" ]
 }
 ```
@@ -52,18 +52,18 @@ POST /api/catchup/bet
 {
   sharedSecret: "...",
   xml: "...",
-  mamId: 4242
+  pfContentId: 4242
   caption: [ "http://.../...fr.vtt", "http://.../...en.vtt" ]
 }
 ```
 
 test the catchup api using curl :
 ```
-curl -v -X POST --header "Content-Type: application/json" --header "Authorization: Basic ZGV2OmRldg==" --data '{"sharedSecret":"62b8557f248035275f6f8219fed7e9703d59509c","xml":"http://localhost:47611/fake.xml","mamId":1316}' http://localhost:9000/api/jobs/catchup-bet
+curl -v -X POST --header "Content-Type: application/json" --header "Authorization: Basic ZGV2OmRldg==" --data '{"sharedSecret":"62b8557f248035275f6f8219fed7e9703d59509c","xml":"http://localhost:47611/fake.xml","pfContentId":1316}' http://localhost:9000/api/jobs/catchup-bet
 ```
 
 test creation catchup job ok & fail :
 ```
-curl -v -X POST --header "Content-Type: application/json"  --data '{"sharedSecret":"62b8557f248035275f6f8219fed7e9703d59509c","xml":"http://o/bet/SOUL_TRAIN_AWARDS_2015-0001.xml","mamId":"1522","captions":["https://origin.cdn.afrostream.net/catchup/bet/SOUL_TRAIN_AWARDS_2015-0001.vtt"]}' https://afr-back-end-staging.herokuapp.com/api/jobs/catchup-bet
-curl -v -X POST --header "Content-Type: application/json"  --data '{"sharedSecret":"62b8557f248035275f6f8219fed7e9703d59509c","xml":"http://o/bet/SOUL_TRAIN_AWARDS_2015-0001.xml","mamId":"424242","captions":["https://origin.cdn.afrostream.net/catchup/bet/SOUL_TRAIN_AWARDS_2015-0001.vtt"]}' https://afr-back-end-staging.herokuapp.com/api/jobs/catchup-bet
+curl -v -X POST --header "Content-Type: application/json"  --data '{"sharedSecret":"62b8557f248035275f6f8219fed7e9703d59509c","xml":"http://o/bet/SOUL_TRAIN_AWARDS_2015-0001.xml","pfContentId":"1522","captions":["https://origin.cdn.afrostream.net/catchup/bet/SOUL_TRAIN_AWARDS_2015-0001.vtt"]}' https://afr-back-end-staging.herokuapp.com/api/jobs/catchup-bet
+curl -v -X POST --header "Content-Type: application/json"  --data '{"sharedSecret":"62b8557f248035275f6f8219fed7e9703d59509c","xml":"http://o/bet/SOUL_TRAIN_AWARDS_2015-0001.xml","pfContentId":"424242","captions":["https://origin.cdn.afrostream.net/catchup/bet/SOUL_TRAIN_AWARDS_2015-0001.vtt"]}' https://afr-back-end-staging.herokuapp.com/api/jobs/catchup-bet
 ```

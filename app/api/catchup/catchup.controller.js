@@ -20,8 +20,10 @@ var Q = require('q');
 
 var config = rootRequire('/config');
 
+var pf = rootRequire('pf');
+
 // convert mamItem to video
-var importVideo = require('../mam/mam.import.js').importVideo;
+var importVideo = require('../video/video.controller.js').createFromPfContent;
 
 var saveAndParseXml = require('./bet/xml').saveAndParseXml;
 var getCatchupProviderInfos = require('./bet/catchupprovider').getInfos;
@@ -181,7 +183,7 @@ var linkMovieToLicensor = function (catchupProviderInfos, movie) {
  * {
  *   "sharedSecret": "62b8557f248035275f6f8219fed7e9703d59509c"
  *   "xml": "http://blabla.com/foo/bar/niania",
- *   "mamId": "1316",
+ *   "pfContentId": "1316",
  *   "captions": [ "http://file1", "http://file2", ... ]
  * }
  *
@@ -199,34 +201,35 @@ var bet = function (req, res) {
     .then(function validateBody() {
       if (req.body.sharedSecret !== '62b8557f248035275f6f8219fed7e9703d59509c')  throw 'unauthentified';
       if (!req.body.xml) throw 'xml missing';
-      if (!req.body.mamId) throw 'mamId missing';
+      if (!req.body.pfContentId) throw 'pfContentId missing';
       if (req.body.captions && !Array.isArray(req.body.captions)) throw 'malformed captions';
     })
     .then(function () {
       var catchupProviderId = config.catchup.bet.catchupProviderId;
-      var mamId = req.body.mamId
+      var pfContentId = req.body.pfContentId
         , xmlUrl = req.body.xml
         , captions = req.body.captions || [];
 
       // parallel execution of
       return Q.all([
-        saveAndParseXml(catchupProviderId, mamId, xmlUrl),
+        saveAndParseXml(catchupProviderId, pfContentId, xmlUrl),
         getCatchupProviderInfos(catchupProviderId),
-        saveCaptionsToBucket(catchupProviderId, mamId, captions)
+        saveCaptionsToBucket(catchupProviderId, pfContentId, captions)
       ]).then(function (result) {
         var xmlInfos = result[0]
           , catchupProviderInfos = result[1]
           , captionsInfos = result[2];
 
         // upserting
-        return rp({uri: config.mam.domain + '/' + mamId, json: true})
-          .then(importVideo)
+        var pfContent = new (pf.PfContent)();
+        return pfContent.getContentById(pfContentId)
+          .then(importVideoFromPfContent)
           .then(function (video) {
             // video modifier
             if (!video) {
-              throw 'catchup: '+catchupProviderId+': '+mamId+': video import from mam failed';
+              throw 'catchup: '+catchupProviderId+': '+pfContentId+': video import from mam failed';
             }
-            console.log('catchup: '+catchupProviderId+': '+mamId+': video._id =' + video._id);
+            console.log('catchup: '+catchupProviderId+': '+pfContentId+': video._id =' + video._id);
             return video.update({catchupProviderId: catchupProviderInfos._id});
           })
           .then(function (video) {
@@ -236,22 +239,22 @@ var bet = function (req, res) {
             //  - launch automaticaly afrostream-job
             return Q.all(captionsInfos.map(function (captionUrl) {
               // https://s3-eu-west-1.amazonaws.com/tracks.afrostream.tv/production/caption/2015/11/58da212180a508494f47-vimeocom140051722.en.vtt
-              console.log('catchup: '+catchupProviderId+': '+mamId+': searching caption ' + captionUrl);
+              console.log('catchup: '+catchupProviderId+': '+pfContentId+': searching caption ' + captionUrl);
               return Caption.findOrCreate({where: {src: captionUrl, videoId: video._id}})
                 .then(function (captionInfos) {
                   var caption = captionInfos[0];
-                  console.log('catchup: '+catchupProviderId+': '+mamId+': attaching caption ' + captionUrl + ' id='+ caption._id + ' to video ' + video._id);
+                  console.log('catchup: '+catchupProviderId+': '+pfContentId+': attaching caption ' + captionUrl + ' id='+ caption._id + ' to video ' + video._id);
                   var matches = captionUrl.match(/\.([^.]+)\.vtt/);
                   var lang = (matches && matches.length > 1) ? matches[1].toLowerCase() : '??';
 
-                  console.log('catchup: '+catchupProviderId+': '+mamId+': caption ' + captionUrl + ' lang='+lang);
+                  console.log('catchup: '+catchupProviderId+': '+pfContentId+': caption ' + captionUrl + ' lang='+lang);
                   return Language.findOne({where: { lang: lang } })
                     .then(function (language) {
                       if (language) {
-                        console.log('catchup: ' + catchupProviderId + ': ' + mamId + ': caption ' + captionUrl + ' has langId ' + language._id);
+                        console.log('catchup: ' + catchupProviderId + ': ' + pfContentId + ': caption ' + captionUrl + ' has langId ' + language._id);
                         return language;
                       } else {
-                        console.log('catchup: '+catchupProviderId+': '+mamId+': caption ' + captionUrl + ' no langId found, searching "fr"');
+                        console.log('catchup: '+catchupProviderId+': '+pfContentId+': caption ' + captionUrl + ' no langId found, searching "fr"');
                         return Language.findOne({where: { lang: "fr" } });
                       }
                     }).then(function (language) {

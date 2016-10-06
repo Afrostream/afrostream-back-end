@@ -65,7 +65,6 @@ module.exports.importVideo = function (mamItem) {
           drm: Boolean(video.drm),
           duration: video.duration
         };
-
         console.log('mam: importVideo: upserting ', newVideo);
         return upsertUsingEncodingId(newVideo);
       }

@@ -480,3 +480,17 @@ module.exports.upsertUsingEncodingId = function (data) {
       return video ? update(data, video) : create(data);
     });
 };
+
+module.exports.upsertUsingPfMd5Hash = function (data) {
+  // create / update base on encodingId
+  if (!data.pfContentId) {
+    // should trigger a warning
+    console.error("video: warning: shouldn't upsertUsingEncodingId without encodingId, fallback using insert");
+    return create(data);
+  }
+  return Video.findOne({ where: { encodingId: data.encodingId }})
+    .then(function upsert(video) {
+      console.log('video: upsertUsingEncodingId: video already exist ? ' + (video?'true':'false'));
+      return video ? update(data, video) : create(data);
+    });
+};

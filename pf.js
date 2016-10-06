@@ -40,6 +40,36 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
    this.manifests = null;
  }
 
+ // FIXME: should never return
+ PfContent.prototype.getContentById = function (pfContentId) {
+   var that = this;
+
+   if (this.pfContent) {
+     return Q(this.pfContent);
+   }
+   return requestPF({
+     uri: '/api/contents/'+pfContentId
+   }).then(function (pfContents) {
+     // postprocessing, this api return an array of result
+     if (!pfContents) {
+       throw new Error('[PF]: no content associated to hash ' + that.pfMd5Hash);
+     }
+     if (!Array.isArray(pfContents)) {
+       throw new Error('[PF]: malformed content result');
+     }
+     if (pfContents.length === 0) {
+       throw new Error('[PF]: no content found');
+     }
+     if (pfContents.length > 1) {
+       console.log('[WARNING]: [PF]: multiple content (' + pfContents.length + ') found');
+     }
+     // returning first content.
+     that.pfContent = pfContents[0];
+     that.pfMd5Hash = that.pfContent.md5Hash;
+     return that.pfContent;
+   });
+ };
+
  PfContent.prototype.getContent = function () {
     var that = this;
 
@@ -113,7 +143,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
     .then(function intersect(data) {
       var pfContent = data[0];
       var pfProfiles = data[1];
-      
+
       // intersecting profiles & contentProfiles, pick a random profile (first one)
       var profile = pfProfiles.filter(function (profile) {
         return pfContent.profilesIds.indexOf(profile.profileId) !== -1;

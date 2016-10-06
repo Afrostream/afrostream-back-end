@@ -37,13 +37,13 @@ exports.catchupBet = function (req, res) {
     .then(function validateBody() {
       if (req.body.sharedSecret !== '62b8557f248035275f6f8219fed7e9703d59509c')  throw 'unauthentified';
       if (!req.body.xml) throw 'xml missing';
-      if (!req.body.mamId) throw 'mamId missing';
+      if (!req.body.pfContentId) throw 'pfContentId missing';
       if (req.body.captions && !Array.isArray(req.body.captions)) throw 'malformed captions';
     })
     .then(function () {
       return createJobCatchupBet({
         xml: req.body.xml,
-        mamId: req.body.mamId,
+        pfContentId: req.body.pfContentId,
         captions: req.body.captions || []
       });
     })
