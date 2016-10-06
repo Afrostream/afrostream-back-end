@@ -11,7 +11,8 @@ module.exports = function (sequelize, DataTypes) {
         },
         type: {
             type: DataTypes.STRING,
-            defaultValue: 'pin'
+            defaultValue: 'pin',
+            length: 16
         },
         title: DataTypes.STRING,
         date: {
@@ -32,7 +33,8 @@ module.exports = function (sequelize, DataTypes) {
         },
         role: {
             type: DataTypes.STRING,
-            defaultValue: 'free'
+            defaultValue: 'free',
+            length: 16
         }
     });
 };
