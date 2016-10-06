@@ -12,7 +12,7 @@ var aws = rootRequire('/aws.js');
  *   in directory  {env}/catchup/xml/{pfContentId}-{name} where name is the end of xml filename.
  *
  * @param catchupProviderId  number
- * @param pfContentId              number   mam id
+ * @param pfContentId        number   pf content id
  * @param xmlUrl             string   url containing the xml file
  * @returns {*}              string   xml content
  */

@@ -54,14 +54,6 @@ var all = {
     domain: process.env.IMGIX_DOMAIN || 'https://afrostream.imgix.net'  // GRRRRR... should NOT contain "https://"
   },
 
-  // FIXME: config env vars DIGIBOS => MAM
-  mam: {
-    domain: process.env.DIGIBOS_DOMAIN || process.env.MAM_DOMAIN || 'http://mam.afrostream.tv:3000/api/contents',// FIXME: should be a dev video platform environment
-    proxy: process.env.DIGIBOS_PROXY || process.env.MAM_PROXY || 'http://origin.afrostream.tv',
-    useToken: process.env.DIGIBOS_TOKEN || process.env.MAM_TOKEN || true
-  },
-
-
   bouygues: {
     clientID: '',
     clientSecret: ''

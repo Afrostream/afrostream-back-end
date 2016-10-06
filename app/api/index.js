@@ -35,7 +35,6 @@ router.use('/categorys', require('./category/index'));
 router.use('/movies', require('./movie/index'));
 router.use('/series', require('./movie/index'));
 router.use('/users', require('./user/index'));
-router.use('/mam', require('./mam/index'));
 router.use('/dashboard', require('./dashboard/index'));
 router.use('/usersvideos', require('./usersvideos/index'));
 router.use('/waitingUsers', require('./waitingUser/index'));

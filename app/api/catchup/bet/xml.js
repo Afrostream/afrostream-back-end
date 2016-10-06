@@ -54,7 +54,7 @@ var flatten = function (xml) {
  * parse & flatten the xml.
  *
  * @param catchupProviderId  number
- * @param pfContentId              number   mam id
+ * @param pfContentId        number   pf content id
  * @param xml                string   containing the xml.
  * @returns {*}              object   { flatten xml object }
  */
