@@ -140,6 +140,7 @@ exports.create = function (req, res) {
         injectData: null
     };
 
+    //TODO create afrostream-fetch-data project
     Q.fcall(function () {
         //EXTRACT VIDEO INFO PROVIDER
         if (req.body.url) {
@@ -215,6 +216,7 @@ exports.create = function (req, res) {
             }
 
         })
+        //END TODO
         //SAVE Buffer
         .then(function (file) {
             var bucket = aws.getBucket('afrostream-life');
