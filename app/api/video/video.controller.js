@@ -87,10 +87,7 @@ function tokenizeResult(req, res) {
 
 function saveUpdates(updates) {
   return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
+    return entity.updateAttributes(updates);
   };
 }
 
