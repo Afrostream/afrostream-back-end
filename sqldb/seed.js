@@ -42,7 +42,7 @@ var Broadcaster = sqldb.Broadcaster;
 var Promise = require('bluebird');
 var promises = [];
 
-var nbGeneratedMovies = 50;
+var nbGeneratedMovies = 100;
 var nbGeneratedSeasons = 5;
 var nbGeneratedEpisodes = 10;
 var getMovieTitle = function (i) { return 'Title of random movie ' + i; };
