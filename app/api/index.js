@@ -27,7 +27,6 @@ router.use('/captions', require('./caption/index'));
 router.use('/videos', require('./video/index'));
 router.use('/images', require('./image/index'));
 router.use('/jobs', require('./job/index'));
-router.use('/assets', require('./asset/index'));
 router.use('/episodes', require('./episode/index'));
 router.use('/seasons', require('./season/index'));
 router.use('/tags', require('./tag/index'));
