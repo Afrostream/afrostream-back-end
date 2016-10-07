@@ -8,15 +8,6 @@ module.exports = {
     publicAuthority: 'afrostream-backend.herokuapp.com'
   },
 
-  // MongoDB connection options
-  mongo: {
-    uri: process.env.MONGOLAB_URI ||
-    process.env.MONGOHQ_URL ||
-    process.env.OPENSHIFT_MONGODB_DB_URL +
-    process.env.OPENSHIFT_APP_NAME ||
-    'mongodb://localhost/afrostreamadmin'
-  },
-
   frontEnd: {
     protocol: 'https',
     authority: 'afrostream.tv'

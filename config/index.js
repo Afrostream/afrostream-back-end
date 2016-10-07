@@ -34,15 +34,6 @@ var all = {
   // List of user roles
   userRoles: ['guest', 'user', 'client', 'admin'],
 
-  // MongoDB connection options
-  mongo: {
-    options: {
-      db: {
-        safe: true
-      }
-    }
-  },
-
   amazon: {
     key: process.env.AWS_ACCESS_KEY_ID || 'AKIAIJ7BEEEIYX3CZDOQ',
     secret: process.env.AWS_SECRET_ACCESS_KEY || '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',
