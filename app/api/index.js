@@ -48,4 +48,7 @@ router.use('/cdnselector', require('./cdnselector/index'));
 
 router.use('/exchanges', require('./exchange'));
 
+//LIFE
+router.use('/life', require('./life'));
+
 module.exports = router;
