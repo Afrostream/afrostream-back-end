@@ -213,12 +213,17 @@ exports.create = function (req, res) {
 
                     });
                 });
+            } else {
+                return null;
             }
 
         })
         //END TODO
         //SAVE Buffer
         .then(function (file) {
+            if (!file) {
+                return c.injectData;
+            }
             var bucket = aws.getBucket('afrostream-life');
             return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, path.join(process.env.NODE_ENV, 'life', file.name))
                 .then(function (data) {
