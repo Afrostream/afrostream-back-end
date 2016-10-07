@@ -51,15 +51,15 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
     var seasonNumber = parseInt(infos.SEASON_NUMBER, 10) || 1;
 
     return Q.all([
-      Episode.findOrCreate({
+      sqldb.nonAtomicFindOrCreate(Episode, {
         where: { catchupProviderId: catchupProviderInfos._id, episodeNumber: episodeNumber, title: episodeTitle },
         defaults: { synopsis: episodeResume, sort: episodeNumber, dateFrom: dateFrom, active: true }
       }),
-      Season.findOrCreate({
+      sqldb.nonAtomicFindOrCreate(Season, {
         where: { catchupProviderId: catchupProviderInfos._id, seasonNumber: seasonNumber, title: seriesTitle },
         defaults: { synopsis: seriesResume, sort: seasonNumber, dateFrom: dateFrom, active: true }
       }),
-      Movie.findOrCreate({
+      sqldb.nonAtomicFindOrCreate(Movie, {
         where: { catchupProviderId: catchupProviderInfos._id, title: seriesTitle},
         defaults: { synopsis: seriesResume, dateFrom: dateFrom, active: true, genre: 'BET' } // FIXME: should not be hardcoded...
       })
@@ -132,7 +132,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
       ]).then(function () { return movie; })
     });
   } else {
-    return Movie.findOrCreate({
+    return sqldb.nonAtomicFindOrCreate(Movie, {
       where: { catchupProviderId: catchupProviderInfos._id, title: seriesTitle},
       defaults: { synopsis: seriesResume, active: true, genre: 'BET' }
     }).then(function (movieInfos) {
@@ -240,7 +240,7 @@ var bet = function (req, res) {
             return Q.all(captionsInfos.map(function (captionUrl) {
               // https://s3-eu-west-1.amazonaws.com/tracks.afrostream.tv/production/caption/2015/11/58da212180a508494f47-vimeocom140051722.en.vtt
               console.log('catchup: '+catchupProviderId+': '+pfContentId+': searching caption ' + captionUrl);
-              return Caption.findOrCreate({where: {src: captionUrl, videoId: video._id}})
+              return sqldb.nonAtomicFindOrCreate(Caption, {where: {src: captionUrl, videoId: video._id}})
                 .then(function (captionInfos) {
                   var caption = captionInfos[0];
                   console.log('catchup: '+catchupProviderId+': '+pfContentId+': attaching caption ' + captionUrl + ' id='+ caption._id + ' to video ' + video._id);

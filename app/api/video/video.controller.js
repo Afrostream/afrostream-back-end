@@ -92,7 +92,7 @@ function saveUpdates(updates) {
 function addCaptions(updates) {
   return function (entity) {
     return Promise.map(updates.captions || [], function (item) {
-      return Caption.findOrCreate({where: {_id: item._id}}).then(function (elem) {
+      return sqldb.nonAtomicFindOrCreate(Caption, {where: {_id: item._id}}).then(function (elem) {
         var elem = elem[0];
         if (!elem.isNewRecord) {
           return elem.updateAttributes(item);

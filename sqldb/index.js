@@ -21,7 +21,25 @@ var options = _.merge({}, config.sequelize.options, {
 
 var db = {
   Sequelize: Sequelize,
-  sequelize: new Sequelize(config.sequelize.uri, options)
+  sequelize: new Sequelize(config.sequelize.uri, options),
+  /**
+   * this version of sequelize "3.10.0" cannot work with postgresql 9.5
+   * problem with autocommit feature (ex: findOrCreate)
+   * [error: unrecognized configuration parameter "autocommit"]
+   * @see https://github.com/sequelize/sequelize/issues/4631
+   * until we bump sequelize, we implement a non atomic find or create
+   */
+  nonAtomicFindOrCreate: function (model, queryOptions) {
+    return model.findOne({where: queryOptions.where})
+      .then(function (instance) {
+        if (instance) {
+          return [instance];
+        }
+        return model.create(_.merge({}, queryOptions.default, queryOptions.where)).then(function (m) {
+          return [m, true];
+        });
+      });
+  }
 };
 
 db.AccessToken = db.sequelize.import('models/accessToken');

@@ -154,7 +154,7 @@ exports.import = function (req, res) {
              }
              */
             console.log(row);
-            Store.findOrCreate({
+            sqldb.nonAtomicFindOrCreate(Store, {
                 where: {mid: row.MID},
                 defaults: {
                     mid: row.MID,
@@ -165,7 +165,7 @@ exports.import = function (req, res) {
                     phone: row.Telephone,
                     geometry: [row.lng, row.lat]
                 }
-            })
+            });
         })
         .on('complete', function (summary) {
             console.log('import Stores csv complete : ', summary);
