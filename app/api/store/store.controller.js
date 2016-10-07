@@ -32,10 +32,16 @@ function FeatureCollection () {
     this.features = [];
 }
 
-function responseWithResultGEO (res, statusCode) {
+function responseWithResultGEO (req, res, statusCode) {
     statusCode = statusCode || 200;
     return function (result) {
         if (result) {
+
+            console.log(req.user)
+            if (req.user && req.user.role === 'admin') {
+                return res.status(statusCode).json(result);
+            }
+
             var featureCollection = new FeatureCollection();
             _.forEach(result, function (row) {
 
@@ -83,6 +89,7 @@ function removeEntity (res) {
 // Gets a list of Stores
 // ?point=... (search by point)
 exports.index = function (req, res) {
+    var queryName = req.param('query');
     var longitude = req.param('longitude');
     var latitude = req.param('latitude');
     var distance = req.param('distance') || 1000000;
@@ -101,11 +108,41 @@ exports.index = function (req, res) {
         });
     }
 
+    if (queryName) {
+        if (queryName.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)) {
+            queryOptions = _.merge(queryOptions, {
+                where: {
+                    $or: [
+                        {_id: queryName}
+                    ]
+                }
+            });
+        }
+        else if (queryName.match(/^[0-9]{2,}$/)) {
+
+            queryOptions = _.merge(queryOptions, {
+                where: {cp: queryName}
+            });
+
+
+        } else {
+            queryOptions = _.merge(queryOptions, {
+                where: {
+                    $or: [
+                        {ville: {$iLike: '%' + queryName + '%'}},
+                        {adresse: {$iLike: '%' + queryName + '%'}}
+                    ]
+                }
+            });
+        }
+    }
+
+
     queryOptions = filters.filterQueryOptions(req, queryOptions, Store);
 
     Store.findAll(queryOptions)
         .then(utils.handleEntityNotFound(res))
-        .then(responseWithResultGEO(res))
+        .then(responseWithResultGEO(req, res))
         .catch(res.handleError());
 };
 
