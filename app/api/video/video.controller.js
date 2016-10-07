@@ -504,23 +504,34 @@ module.exports.createFromPfContent = function (pfContent) {
   if (!pfContent.md5Hash) {
     throw new Error('missing pfContent.md5Hash');
   }
+  if (!pfContent.duration) {
+    throw new Error('missing pfContent.duration');
+  }
 
   console.log('[INFO]: [IMPORT]: pfContent', pfContent);
 
+  var duration = null; // unknown
+  var pfContentDurationSplitted = pfContent.duration.split(':')
+  if (pfContentDurationSplitted.length === 3) {
+    duration = parseInt(pfContentDurationSplitted[0]) * 3600 +
+               parseInt(pfContentDurationSplitted[1]) * 60 +
+               parseInt(pfContentDurationSplitted[2]);
+  }
+
   var data = {
     pfMd5Hash: pfContent.md5Hash,
-    encodingId: pfContent.contentId,
+    encodingId: String(pfContent.contentId),
     name: pfContent.filename,
     drm: Boolean(pfContent.drm === "enabled"),
-    duration: pfContent.duration
+    duration: duration || null
   };
 
-  Video.findOne({ where: { pfMd5Hash: pfContent.md5Hash }})
+  return Video.findOne({ where: { pfMd5Hash: pfContent.md5Hash }})
     .then(function (video) {
       return video ? video.update(data) : Video.create(data);
     })
     .then(function (video) {
-      console('[INFO]: video '+video._id+' was inserted');
+      console.log('[INFO]: video '+video._id+' was inserted');
       return video;
     });
 };

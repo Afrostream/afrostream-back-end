@@ -285,9 +285,7 @@ var bet = function (req, res) {
       });
     }).then(
     function success() {res.json({status:'success'}); },
-    function error(err) {
-      console.error('catchup error: ', err);
-      res.status(500).json({status:'error',message:String(err)});}
+    res.handleError()
   );
 };
 

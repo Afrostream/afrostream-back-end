@@ -77,7 +77,8 @@
     "dev": ". ~/.nvm/nvm.sh && nvm use 0.12 && node server.js",
     "seed": "export SEED_DB=true && npm run dev",
     "cron-daily-queries": "node cron/daily-queries.js",
-    "cron-stats-usersVideos": "node cron/stats-usersVideos.js"
+    "cron-stats-usersVideos": "node cron/stats-usersVideos.js",
+    "test": ". ~/.nvm/nvm.sh && nvm use 0.12 && node_modules/.bin/mocha -b test/integration/*"
   },
   "private": true
 }

@@ -11,6 +11,33 @@ var config = rootRequire('/config');
 
 var nock = require('nock');
 
+console.log('mocking ' + config.pf.url);
+
+nock(config.pf.url)
+  .persist()
+  .get('/api/contents/1316')
+  .reply(200, [
+    {
+      profilesIds: [
+        1,
+        7,
+        10,
+        16
+      ],
+      contentId: 1316,
+      uuid: "b8ed17803e02c1fe",
+      md5Hash: "67c4b94698fa90fe9c877d76b3badc51",
+      filename: "/space/videos/sources/Tundu_Wundu_Eng-VO_14_H264.mp4",
+      state: "ready",
+      size: 3218526211,
+      duration: "00:26:14",
+      uspPackage: "disabled",
+      drm: "disabled",
+      createdAt: "2016-04-13 13:39:52",
+      updatedAt: "2016-09-27 18:32:19"
+    }
+])
+
 console.log('mocking ' + config.billings.url);
 
 nock(config.billings.url)

@@ -63,6 +63,7 @@ describe('API: /api/catchup/*', function() {
         .expect('Content-Type', /json/)
         .expect(function (res) {
           assert(res.body.status === 'success');
+          console.log(res.body);
         })
         .expect(200, done);
     });
