@@ -99,7 +99,7 @@ exports.show = function (req, res) {
 
 // Creates a new image in the DB
 exports.create = function (req, res) {
-  var type = req.query.type || 'poster';
+  var type = req.param('type') || req.query.type || 'poster';
 
   req.readFile()
     .then(function (file) {
