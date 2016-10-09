@@ -13,8 +13,6 @@ var _ = require('lodash');
 var request = require('request');
 var sqldb = rootRequire('/sqldb');
 var LifePin = sqldb.LifePin;
-var User = sqldb.User;
-var Image = sqldb.Image;
 var filters = rootRequire('/app/api/filters.js');
 var utils = rootRequire('/app/api/utils.js');
 var Q = require('q');
@@ -27,13 +25,7 @@ var config = rootRequire('/config');
 var fileType = require('file-type');
 var md5 = require('md5');
 
-var getIncludedModel = function () {
-    return [
-        {model: User, as: 'user'},
-        {model: User, as: 'users'},
-        {model: Image, as: 'image'}
-    ];
-};
+var getIncludedModel = require('./pin.includedModel').get;
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
