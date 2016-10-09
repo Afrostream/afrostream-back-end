@@ -217,10 +217,11 @@ exports.create = function (req, res) {
                 return c.injectData;
             }
             var bucket = aws.getBucket('afrostream-life');
-            return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, path.join(process.env.NODE_ENV, 'life', file.name))
+            var type = 'pin';
+            return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/' + type + '/{date}/{rand}-' + file.name)
                 .then(function (data) {
                     c.image = {
-                        type: 'pin',
+                        type: type,
                         path: data.req.path,
                         url: data.req.url,
                         mimetype: file.mimeType,
