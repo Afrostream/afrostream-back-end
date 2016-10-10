@@ -16,11 +16,4 @@ process.env.HEROKU_SLUG_DESCRIPTION = 'Deploy c2ebd25';
 process.env.NODE_ENV = 'staging';
 process.env.PORT = '9000';
 
-var cluster = require('express-cluster');
-
-var clusterConf = { count: 1, verbose: true};
-
-cluster(function (worker) {
-  console.log('worker '+worker.id+' is up');
-  return require('./app');
-}, clusterConf);
+return require('./worker.js');
