@@ -128,16 +128,16 @@ exports.show = function (req, res) {
 exports.create = function (req, res) {
 
     var c = {
-        originalData: req.body,
+        originalUrl: req.body.originalUrl,
         injectData: null
     };
 
     //TODO create afrostream-fetch-data project
     Q.fcall(function () {
         //EXTRACT VIDEO INFO PROVIDER
-        if (req.body.url) {
+        if (c.originalUrl) {
             return new Promise(function (resolve) {
-                mediaParser.parse(req.body.url, function (data) {
+                mediaParser.parse(c.originalUrl, function (data) {
                     if (!data) {
                         resolve(null);
                     }
@@ -164,7 +164,7 @@ exports.create = function (req, res) {
                 return data;
             }
             return new Promise(function (resolve, reject) {
-                var client = new MetaInspector(req.body.url, {timeout: 5000});
+                var client = new MetaInspector(c.originalUrl, {timeout: 5000});
 
                 client.on('fetch', function () {
                     //console.log('pin xcrapped : ', client);

@@ -20,6 +20,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: DataTypes.NOW
         },
+        originalUrl: DataTypes.STRING,
         imageUrl: DataTypes.STRING,
         providerName: DataTypes.STRING,
         providerUrl: DataTypes.STRING,
