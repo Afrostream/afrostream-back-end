@@ -12,6 +12,7 @@
 var _ = require('lodash');
 var request = require('request');
 var sqldb = rootRequire('/sqldb');
+var Image = rsqldb.Image;
 var LifePin = sqldb.LifePin;
 var filters = rootRequire('/app/api/filters.js');
 var utils = rootRequire('/app/api/utils.js');
@@ -141,7 +142,6 @@ exports.create = function (req, res) {
                     if (!data) {
                         resolve(null);
                     }
-                    console.log('pin xcrapped : ', data);
                     var rawdata = data.raw;
                     c.injectData = {
                         title: rawdata.title,
@@ -167,8 +167,6 @@ exports.create = function (req, res) {
                 var client = new MetaInspector(c.originalUrl, {timeout: 5000});
 
                 client.on('fetch', function () {
-                    //console.log('pin xcrapped : ', client);
-                    console.log("Description: " + client.description);
 
                     c.injectData = {
                         title: client.title,
@@ -234,7 +232,7 @@ exports.create = function (req, res) {
 
         })
         .then(function (pin) {
-            console.log('pin create : ', pin);
+            console.log('pin create : ', c.injectData);
             return LifePin.create(c.injectData)
         })
         .then(updateImages(c))
