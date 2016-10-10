@@ -49,7 +49,7 @@ function saveUpdates (updates) {
 function updateImages (updates) {
     return function (entity) {
         var promises = [];
-        promises.push(entity.setImage(updates.image && Image.build(updates.image) || null));
+        promises.push(entity.setImage(updates.image && updates.image.dataValues && Image.build(updates.image.dataValues) || updates.image && Image.build(updates.image) || null));
         return sqldb.Sequelize.Promise
             .all(promises)
             .then(function () {
@@ -125,12 +125,10 @@ exports.show = function (req, res) {
         .catch(res.handleError());
 };
 
-// Creates a new LifePin in the DB
-exports.create = function (req, res) {
-
+// Scrapp wep url and return medias
+exports.scrap = function (req, res) {
     var c = {
-        originalUrl: req.body.originalUrl,
-        injectData: null
+        originalUrl: req.body.scrapUrl
     };
 
     //TODO create afrostream-fetch-data project
@@ -139,23 +137,24 @@ exports.create = function (req, res) {
         if (c.originalUrl) {
             return new Promise(function (resolve) {
                 mediaParser.parse(c.originalUrl, function (data) {
-                    if (!data) {
+                    if (!data || !data.raw) {
                         resolve(null);
                     }
                     var rawdata = data.raw;
-                    c.injectData = {
+                    _.merge(c, {
                         title: rawdata.title,
                         type: rawdata.type,
                         imageUrl: rawdata.thumbnail_url,
+                        imagesList: [rawdata.thumbnail_url],
                         providerUrl: rawdata.provider_url,
                         providerName: rawdata.provider_name
-                    };
-                    resolve(c.injectData);
+                    });
+                    resolve(c);
                 }, 3000);
             })
         }
         else {
-            return req.body;
+            return null;
         }
     })
     //EXTRACT METADATA INFO PROVIDER
@@ -168,15 +167,19 @@ exports.create = function (req, res) {
 
                 client.on('fetch', function () {
 
-                    c.injectData = {
+                    _.merge(c, {
                         title: client.title,
+                        type: 'website',
                         description: client.description,
                         imageUrl: client.image,
+                        imagesList: _.pick(client.images, function (value, key) {
+                            return parseInt(key);
+                        }),
                         providerUrl: client.rootUrl,
                         providerName: client.host
-                    };
+                    });
 
-                    resolve(c.injectData);
+                    resolve(c);
                 });
 
                 client.on('error', function (err) {
@@ -188,37 +191,46 @@ exports.create = function (req, res) {
 
             });
         })
+        .then(responseWithResult(res, 201))
+        .catch(res.handleError());
+}
+// Creates a new LifePin in the DB
+exports.create = function (req, res) {
+    var c = {
+        injectData: req.body
+    };
+
+    Q.fcall(function () {
         //EXTRACT IMAGE
-        .then(function (data) {
-            if (data && data.imageUrl) {
-                return new Promise(function (resolve, reject) {
-                    request({url: data.imageUrl, encoding: null}, function (err, res, buffer) {
-                        if (err) {
-                            console.log('[ PIN ] cant extract image');
-                            reject(err)
-                        }
-                        var typeOfFile = fileType(buffer);
-                        var name = md5(buffer);
-                        resolve({name: name, buffer: buffer, mimeType: typeOfFile.mime});
+        if (req.body.imageUrl) {
+            return new Promise(function (resolve, reject) {
+                request({url: req.body.imageUrl, encoding: null}, function (err, res, buffer) {
+                    if (err) {
+                        console.log('[ PIN ] cant extract image');
+                        reject(err)
+                    }
+                    var typeOfFile = fileType(buffer);
+                    var name = md5(buffer);
+                    resolve({name: name, buffer: buffer, mimeType: typeOfFile.mime});
 
-                    });
                 });
-            } else {
-                return null;
-            }
+            });
+        } else {
+            return null;
+        }
+    })
 
-        })
-        //END TODO
-        //SAVE Buffer
+
+    //SAVE Buffer
         .then(function (file) {
             if (!file) {
-                return c.injectData;
+                return;
             }
-            var bucket = aws.getBucket('afrostream-life');
+            var bucket = aws.getBucket('afrostream-img');
             var type = 'pin';
             return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/' + type + '/{date}/{rand}-' + file.name)
                 .then(function (data) {
-                    c.image = {
+                    c.injectData.image = {
                         type: type,
                         path: data.req.path,
                         url: data.req.url,
@@ -227,15 +239,23 @@ exports.create = function (req, res) {
                         active: true,
                         name: file.name
                     };
-                    return c.injectData;
+                    return c.injectData.image;
                 });
 
         })
-        .then(function (pin) {
-            console.log('pin create : ', c.injectData);
+        .then(function (image) {
+            if (!image) {
+                return null
+            }
+            return Image.create(image)
+        })
+        .then(function (image) {
+            c.injectData.image = image
+        })
+        .then(function () {
             return LifePin.create(c.injectData)
         })
-        .then(updateImages(c))
+        .then(updateImages(c.injectData))
         .then(updateUser(req))
         .then(responseWithResult(res, 201))
         .catch(res.handleError());

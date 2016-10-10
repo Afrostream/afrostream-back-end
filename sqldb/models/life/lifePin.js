@@ -24,7 +24,7 @@ module.exports = function (sequelize, DataTypes) {
         imageUrl: DataTypes.STRING,
         providerName: DataTypes.STRING,
         providerUrl: DataTypes.STRING,
-        description: DataTypes.STRING,
+        description: DataTypes.TEXT,
         slug: DataTypes.STRING,
         body: DataTypes.TEXT,
         sort: DataTypes.INTEGER,

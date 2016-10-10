@@ -10,6 +10,7 @@ router.use(auth.middleware.restrictRoutesToAuthentified());
 
 router.get('/', utils.middlewareCache, controller.index);
 router.get('/:id', utils.middlewareCache, controller.show);
+router.post('/scrap', utils.middlewareNoCache, controller.scrap);
 router.post('/', utils.middlewareNoCache, controller.create);
 router.put('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
 router.patch('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
