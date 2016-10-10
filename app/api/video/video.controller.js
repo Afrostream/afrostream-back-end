@@ -356,6 +356,12 @@ exports.show = function (req, res) {
         return video;
       }
 
+      //! FIXME: HOTFIX 10/10/2016 live bet down.
+      // pfContent is null here (not loaded from PF)
+      if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
+        return video;
+      }
+
       // FIXME: shouldn't assume randomContentProfile is set.
 
       //
