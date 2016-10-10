@@ -147,7 +147,7 @@ exports.scrap = function (req, res) {
                         imageUrl: rawdata.thumbnail_url,
                         imagesList: [rawdata.thumbnail_url],
                         providerUrl: rawdata.provider_url,
-                        providerName: rawdata.provider_name
+                        providerName: rawdata.provider_name.toLowerCase()
                     });
                     resolve(c);
                 }, 3000);
