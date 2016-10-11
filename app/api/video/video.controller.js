@@ -403,6 +403,10 @@ exports.show = function (req, res) {
       }
 
       // FIXME: shouldn't assume randomContentProfile is set.
+      if (!closure.pfContent) {
+        console.log('[WARNING]: [VIDEO]: no pfContent => skip rewriteCaptions');
+        return video;
+      }
 
       //
       // specificité des sous titres brulés, on supprime les captions inutilisés...
