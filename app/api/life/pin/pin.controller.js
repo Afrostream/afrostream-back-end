@@ -61,7 +61,7 @@ function updateImages (updates) {
 function updateUser (req) {
     return function (entity) {
         var promises = [];
-        promises.push(entity.setUser(req.user && User.build(req.user) || null));
+        promises.push(entity.setUser(req.user || null));
         return sqldb.Sequelize.Promise
             .all(promises)
             .then(function () {
@@ -167,14 +167,14 @@ exports.scrap = function (req, res) {
 
                 client.on('fetch', function () {
 
+                    var imagesList = _.take(client.images || [], 50);
+
                     _.merge(c, {
                         title: client.title,
                         type: 'website',
                         description: client.description,
                         imageUrl: client.image,
-                        imagesList: _.pick(client.images, function (value, key) {
-                            return parseInt(key);
-                        }),
+                        imagesList: imagesList,
                         providerUrl: client.rootUrl,
                         providerName: client.host
                     });
