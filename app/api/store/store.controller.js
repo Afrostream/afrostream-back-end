@@ -109,21 +109,23 @@ function interpolate (str) {
 function saveGeoCodedStore (store) {
     return function (geocodeResult) {
         var promises = [];
-        promises.push(sqldb.nonAtomicFindOrCreate(Store, {
-            where: {mid: store.MID},
-            defaults: {
-                mid: store.MID
-            }
-        }).then(function (stores) {
-            var entity = stores[0];
-            entity.name = store.Nom;
-            entity.adresse = store.Adresse1 + ' ' + store.Adresse2;
-            entity.cp = store.CP;
-            entity.ville = store.Ville;
-            entity.phone = store.Telephone;
-            entity.geometry = [geocodeResult.geometry.location.lng, geocodeResult.geometry.location.lat];
-            return entity.save();
-        }));
+        if (geocodeResult && geocodeResult.geometry) {
+            promises.push(sqldb.nonAtomicFindOrCreate(Store, {
+                where: {mid: store.MID},
+                defaults: {
+                    mid: store.MID
+                }
+            }).then(function (stores) {
+                var entity = stores[0];
+                entity.name = store.Nom;
+                entity.adresse = store.Adresse1 + ' ' + store.Adresse2;
+                entity.cp = store.CP;
+                entity.ville = store.Ville;
+                entity.phone = store.Telephone;
+                entity.geometry = [geocodeResult.geometry.location.lng, geocodeResult.geometry.location.lat];
+                return entity.save();
+            }));
+        }
         return Promise.all(promises)
     }
 };
