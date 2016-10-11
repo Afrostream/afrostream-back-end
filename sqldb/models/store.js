@@ -32,24 +32,48 @@ module.exports = function (sequelize, DataTypes) {
                     this.setDataValue('geometry', {type: 'Point', coordinates: coords});
                 }
             },
-            validations: {
-                isCoordinateArray: function (value) {
-                    if (!_.isArray(value) || value.length !== 2) {
-                        throw new Error('Must be an array with 2 elements');
-                    }
-                }
-            }
-        },
+            //validations: {
+            //    isCoordinateArray: function (value) {
+            //        if (!_.isArray(value) || value.length !== 2) {
+            //            throw new Error('Must be an array with 2 elements');
+            //        }
+            //    }
+            //}
+        }
+    }, {
         /**
          * Pre-save hooks
          */
         hooks: {
             beforeUpdate: function (store, fields, fn) {
                 if (store.changed('geometry')) {
-                    user.geometry = _.merge(user.bouygues, {id: user.bouyguesId});
+                    store.updateGeometry(fn);
                     return fn();
                 }
                 fn();
+            }
+        },
+        /**
+         * Instance Methods
+         */
+        instanceMethods: {
+            /**
+             * Set geojson data - check if the passwords are the same
+             *
+             * @param {String} password
+             * @param {Function} callback
+             * @return {Boolean}
+             */
+            updateGeometry: function (fn) {
+                sequelize.query('UPDATE "Store" SET geometry= ST_GeomFromGeoJSON(\'' + {
+                        type: 'Point',
+                        coordinates: this.geometry
+                    } + '\') WHERE id=' + this._id).then(function (result) {
+                    console.log('update geo ok', result.geometry);
+                    fn()
+                }).catch(function (err) {
+                    fn(err);
+                });
             }
         }
     });

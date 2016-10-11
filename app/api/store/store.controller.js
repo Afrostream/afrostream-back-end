@@ -109,6 +109,7 @@ function interpolate (str) {
 function saveGeoCodedStore (store) {
     return function (geocodeResult) {
         var promises = [];
+
         if (geocodeResult && geocodeResult.geometry) {
             promises.push(sqldb.nonAtomicFindOrCreate(Store, {
                 where: {mid: store.MID},
@@ -126,7 +127,7 @@ function saveGeoCodedStore (store) {
                 entity.geometry = [geocodeResult.geometry.location.lng, geocodeResult.geometry.location.lat];
                 return entity.save();
             }).then(function (entity) {
-                console.log('[Store] success save', entity);
+                console.log('[Store] success save', entity.geometry && entity.geometry.coordinates);
                 return entity;
             }, function (err) {
                 console.error('[Store] erreur ' + err.message, err.stack);
@@ -140,6 +141,7 @@ function geocode (loc, store) {
     loc = loc.replace(/(%20| )/g, '+').replace(/[&]/g, '%26');
     var options = _.extend({sensor: false, address: loc, key: config.google.cloudKey}, {});
     var uri = 'https://maps.googleapis.com/maps/api/geocode/json';
+    console.log('[STORE] try getgeo :', loc);
     return new Promise(function (resolve, reject) {
         request({
             uri: uri,
@@ -149,6 +151,8 @@ function geocode (loc, store) {
             var result;
             try {
                 result = JSON.parse(body);
+
+                console.log('[STORE] getgeo :', result);
             } catch (err) {
                 return reject(err);
             }
