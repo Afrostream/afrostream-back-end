@@ -44,6 +44,7 @@ var db = {
 
 db.AccessToken = db.sequelize.import('models/accessToken');
 db.Actor = db.sequelize.import('models/actor');
+db.Asset = db.sequelize.import('models/asset');
 db.AuthCode = db.sequelize.import('models/authCode');
 db.Broadcaster = db.sequelize.import('models/broadcaster');
 db.Caption = db.sequelize.import('models/caption');
