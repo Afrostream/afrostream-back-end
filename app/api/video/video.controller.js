@@ -269,6 +269,7 @@ exports.show = function (req, res) {
                   throw new Error('missing pfMd5Hash, cannot fallback to Assets table');
                 }
                 // on imite le retour de la pf
+                console.log('[INFO]: [VIDEO]: missing pfMd5Hash, fallback to Assets');
                 closure.pfAssetsStreams = [];
                 closure.pfManifests = sources.map(function (source) {
                   return {
@@ -314,6 +315,7 @@ exports.show = function (req, res) {
       //! FIXME: HOTFIX 10/10/2016 live bet down.
       // on hydrate l'objet vidéo avec de la data
       if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
+        console.log('[WARNING]: [VIDEO]: live: faking sources');
         video.sources = [
           {
             src: "/live/betdev.isml/bet.m3u8",
@@ -403,6 +405,10 @@ exports.show = function (req, res) {
       }
 
       // FIXME: shouldn't assume randomContentProfile is set.
+      if (!closure.pfContent) {
+        console.log('[WARNING]: [VIDEO]: no pfContent => skip rewriteCaptions');
+        return video;
+      }
 
       //
       // specificité des sous titres brulés, on supprime les captions inutilisés...
