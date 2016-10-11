@@ -29,17 +29,7 @@ module.exports = function (sequelize, DataTypes) {
                 if (coords === null) {
                     this.setDataValue('geometry', null);
                 } else {
-                    //  this.setDataValue('geometry', {type: 'Point', coordinates: coords});
-                    var deferred = Q.defer();
-                    sequelize.query('UPDATE "Store" SET geometry= ST_GeomFromGeoJSON(\'' + {
-                            type: 'Point',
-                            coordinates: coords
-                        } + '\') WHERE id=' + this._id).then(function (result) {
-                        deferred.resolve(result);
-                    }).catch(function (err) {
-                        deferred.reject(err);
-                    });
-                    return deferred;
+                    this.setDataValue('geometry', {type: 'Point', coordinates: coords});
                 }
             },
             validations: {
@@ -50,5 +40,17 @@ module.exports = function (sequelize, DataTypes) {
                 }
             }
         },
+        /**
+         * Pre-save hooks
+         */
+        hooks: {
+            beforeUpdate: function (store, fields, fn) {
+                if (store.changed('geometry')) {
+                    user.geometry = _.merge(user.bouygues, {id: user.bouyguesId});
+                    return fn();
+                }
+                fn();
+            }
+        }
     });
 };
