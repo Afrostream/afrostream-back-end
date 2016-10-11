@@ -127,6 +127,7 @@ function saveGeoCodedStore (store) {
                 return entity.save();
             }).then(function (entity) {
                 console.log('[Store] success save', entity);
+                return entity;
             }, function (err) {
                 console.error('[Store] erreur ' + err.message, err.stack);
             }));
