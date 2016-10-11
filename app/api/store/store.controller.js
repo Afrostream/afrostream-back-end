@@ -10,19 +10,29 @@
 'use strict';
 
 var _ = require('lodash');
+var assert = require('better-assert');
 var sqldb = rootRequire('/sqldb');
 var Store = sqldb.Store;
+var Promise = sqldb.Sequelize.Promise;
 var filters = rootRequire('/app/api/filters.js');
 var utils = rootRequire('/app/api/utils.js');
 var config = rootRequire('/config');
-var csvgeocode = require('csvgeocode');
-var path = require('path');
+var request = require('request');
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
     return function (entity) {
         if (entity) {
             res.status(statusCode).json(entity);
+        }
+    };
+}
+
+function responseAllPrmisesResult (res, statusCode) {
+    statusCode = statusCode || 200;
+    return function (entity) {
+        if (entity) {
+            res.status(statusCode).json(_.flatten(entity));
         }
     };
 }
@@ -85,6 +95,61 @@ function removeEntity (res) {
         }
     };
 }
+
+// Replace stink {{øø}} like mustache template
+function interpolate (str) {
+    return function interpolate (o) {
+        return str.replace(/{([^{}]*)}/g, function (a, b) {
+            var r = o[b];
+            return typeof r === 'string' || typeof r === 'number' ? r : a;
+        });
+    }
+}
+
+
+function saveGeoCodedStore (store) {
+    return function (geocodeResult) {
+        console.log('geocode result', store, geocodeResult);
+        var promises = [];
+        promises.push(sqldb.nonAtomicFindOrCreate(Store, {
+            where: {mid: store.MID},
+            defaults: {
+                mid: store.MID
+            }
+        }).then(function (stores) {
+            var entity = stores[0];
+            console.log(entity)
+            entity.name = store.Nom;
+            entity.adresse = store.Adresse1 + ' ' + store.Adresse2;
+            entity.cp = store.CP;
+            entity.ville = store.Ville;
+            entity.phone = store.Telephone;
+            entity.geometry = [geocodeResult.geometry.location.lng, geocodeResult.geometry.location.lat];
+            return entity.save();
+        }));
+        return Promise.all(promises)
+    }
+};
+
+function geocode (loc, store) {
+    var options = _.extend({sensor: false, address: loc, key: config.google.cloudKey}, {});
+    var uri = 'https://maps.googleapis.com/maps/api/geocode/json';
+    return new Promise(function (resolve, reject) {
+        request({
+            uri: uri,
+            qs: options
+        }, function (err, resp, body) {
+            if (err) return reject(err);
+            var result;
+            try {
+                result = JSON.parse(body);
+            } catch (err) {
+                return reject(err);
+            }
+            resolve(result.results[0]);
+        });
+    }).then(saveGeoCodedStore(store));
+};
 
 // Gets a list of Stores
 // ?point=... (search by point)
@@ -171,56 +236,18 @@ exports.create = function (req, res) {
 };
 
 exports.import = function (req, res) {
-    var importFile = path.join(__dirname, 'CLIENT_AFROSTREAM_20160923.csv');
-
-    csvgeocode(importFile, {
-        url: 'https://maps.googleapis.com/maps/api/geocode/json?address={{Adresse2}},{{cp}},{{Ville}}&key=' + config.google.cloudKey
-    })
-        .on('row', function (err, row) {
-            if (err) {
-                console.warn(err);
-            }
-            /*
-             `row` is an object like:
-             {
-             first: "John",
-             last: "Keefe",
-             address: "160 Varick St, New York NY",
-             employer: "WNYC",
-             lat: 40.7267926,
-             lng: -74.00537369999999
-             }
-             */
-            console.log(row);
-            var store = sqldb.nonAtomicFindOrCreate(Store, {
-                where: {mid: row.MID},
-                defaults: {
-                    mid: row.MID,
-                    name: row.Nom,
-                    adresse: row.Adresse1 + ' ' + row.Adresse2,
-                    cp: row.CP,
-                    ville: row.Ville,
-                    phone: row.Telephone,
-                    geometry: [row.lng, row.lat]
-                }
-            }).then(function (store) {
-                store.geometry = [row.lng, row.lat];
-                store.save();
-            });
-        })
-        .on('complete', function (summary) {
-            console.log('import Stores csv complete : ', summary);
-            /*
-             `summary` is an object like:
-             {
-             failures: 1, //1 row failed
-             successes: 49, //49 rows succeeded
-             time: 8700 //it took 8.7 seconds
-             }
-             */
-            res.status(200).json(summary);
-        });
-
+    assert(req.body && req.body.storeList);
+    assert(req.body && req.body.location);
+    assert(req.body.location && typeof req.body.location === 'string');
+    assert(req.body.storeList && typeof req.body.storeList === 'object');
+    var promises = [];
+    _.forEach(req.body.storeList, function (store) {
+        var location = interpolate(req.body.location)(store);
+        promises.push(geocode(location, store));
+    });
+    return Promise.all(promises)
+        .then(responseAllPrmisesResult(res, 201))
+        .catch(res.handleError());
 
 };
 
