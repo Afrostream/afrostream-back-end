@@ -47,7 +47,6 @@ function responseWithResultGEO (req, res, statusCode) {
     return function (result) {
         if (result) {
 
-            console.log(req.user)
             if (req.user && req.user.role === 'admin') {
                 return res.status(statusCode).json(result);
             }
@@ -109,7 +108,6 @@ function interpolate (str) {
 
 function saveGeoCodedStore (store) {
     return function (geocodeResult) {
-        console.log('geocode result', store, geocodeResult);
         var promises = [];
         promises.push(sqldb.nonAtomicFindOrCreate(Store, {
             where: {mid: store.MID},
@@ -118,7 +116,6 @@ function saveGeoCodedStore (store) {
             }
         }).then(function (stores) {
             var entity = stores[0];
-            console.log(entity)
             entity.name = store.Nom;
             entity.adresse = store.Adresse1 + ' ' + store.Adresse2;
             entity.cp = store.CP;
