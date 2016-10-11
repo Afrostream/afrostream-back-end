@@ -45,12 +45,12 @@ module.exports = function (sequelize, DataTypes) {
          * Pre-save hooks
          */
         hooks: {
-            beforeUpdate: function (store, fields, fn) {
-                if (store.changed('geometry')) {
-                    return store.updateGeometry(fn);
-                }
-                fn();
-            }
+            //beforeUpdate: function (store, fields, fn) {
+            //    if (store.changed('geometry')) {
+            //        return store.updateGeometry(fn);
+            //    }
+            //    fn();
+            //}
         },
         /**
          * Instance Methods
