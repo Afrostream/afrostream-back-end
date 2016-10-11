@@ -14,6 +14,7 @@ var path = require('path');
 var url = require('url');
 var sqldb = rootRequire('/sqldb');
 var config = rootRequire('/config');
+var Asset = sqldb.Asset;
 var Video = sqldb.Video;
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
@@ -260,10 +261,22 @@ exports.show = function (req, res) {
               return;
             }
             if (!video.pfMd5Hash && !req.passport.client.isAfrostreamAdmin()) {
-              throw new Error('missing pfMd5Hash');
-            }
-            if (!video.pfMd5Hash) {
-              return;
+              // fallback, on cherche les sources dans l'ancienne table Assets
+              return Asset.findAll({
+                where: { videoId: video._id }
+              }).then(function (sources) {
+                if (!sources || !sources.length) {
+                  throw new Error('missing pfMd5Hash, cannot fallback to Assets table');
+                }
+                // on imite le retour de la pf
+                closure.pfAssetsStreams = [];
+                closure.pfManifests = sources.map(function (source) {
+                  return {
+                    src: source.src.replace(/^https?:\/\/[^/]+/,''),
+                    type: source.type
+                  }
+                });
+              });
             }
             closure.pfContent = new (pf.PfContent)(video.pfMd5Hash, req.broadcaster.get('pfName'));
             return Q.all([
