@@ -254,6 +254,11 @@ exports.show = function (req, res) {
         readVideo(req.params.id)
           .then(function (video) {
             closure.video = video;
+            //! FIXME: HOTFIX 10/10/2016 live bet down.
+            // on skip la recherche côté PF, car la pf ne connait pas les manifests
+            if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
+              return;
+            }
             if (!video.pfMd5Hash && !req.passport.client.isAfrostreamAdmin()) {
               throw new Error('missing pfMd5Hash');
             }
@@ -293,6 +298,25 @@ exports.show = function (req, res) {
         assetsStreams: closure.pfAssetsStreams
       };
       video.sources = closure.pfManifests
+      //! FIXME: HOTFIX 10/10/2016 live bet down.
+      // on hydrate l'objet vidéo avec de la data
+      if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
+        video.sources = [
+          {
+            src: "/live/betdev.isml/bet.m3u8",
+            type: "application/vnd.apple.mpegurl"
+          },
+          {
+            src: "/live/bet.isml/bet.mpd",
+            type: "application/dash+xml"
+          },
+          {
+            src: "/live/betdev.isml/bet.m3u8",
+            type: "application/vnd.ms-sstr+xml"
+          }
+        ];
+      }
+
       return video;
     })
     .then(function rewriteSources(video) {
@@ -329,6 +353,12 @@ exports.show = function (req, res) {
     .then(function rewriteCaptions(video) {
       // afrostream-admin ? => skip the rewrite.
       if (req.passport.client.isAfrostreamAdmin()) {
+        return video;
+      }
+
+      //! FIXME: HOTFIX 10/10/2016 live bet down.
+      // pfContent is null here (not loaded from PF)
+      if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
         return video;
       }
 
