@@ -47,8 +47,7 @@ module.exports = function (sequelize, DataTypes) {
         hooks: {
             beforeUpdate: function (store, fields, fn) {
                 if (store.changed('geometry')) {
-                    store.updateGeometry(fn);
-                    return fn();
+                    return store.updateGeometry(fn);
                 }
                 fn();
             }
