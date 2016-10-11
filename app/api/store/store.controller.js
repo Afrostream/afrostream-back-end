@@ -116,6 +116,7 @@ function saveGeoCodedStore (store) {
                     mid: store.MID
                 }
             }).then(function (stores) {
+                console.log('[STORE] saveGeoCodedStore :', geocodeResult);
                 var entity = stores[0];
                 entity.name = store.Nom;
                 entity.adresse = store.Adresse1 + ' ' + store.Adresse2;
