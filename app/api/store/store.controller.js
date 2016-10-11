@@ -125,6 +125,10 @@ function saveGeoCodedStore (store) {
                 entity.phone = store.Telephone;
                 entity.geometry = [geocodeResult.geometry.location.lng, geocodeResult.geometry.location.lat];
                 return entity.save();
+            }).then(function (entity) {
+                console.log('[Store] success save', entity);
+            }, function (err) {
+                console.error('[Store] erreur ' + err.message, err.stack);
             }));
         }
         return Promise.all(promises)
