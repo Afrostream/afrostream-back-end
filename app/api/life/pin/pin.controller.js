@@ -167,7 +167,11 @@ exports.scrap = function (req, res) {
 
                 client.on('fetch', function () {
 
-                    var imagesList = _.take(client.images || [], 50);
+                    var imagesList = _.pick(client.images || [], function (value, key) {
+                        return parseInt(key);
+                    });
+
+                    //imagesList = _.take(imagesList, 5);
 
                     _.merge(c, {
                         title: client.title,
