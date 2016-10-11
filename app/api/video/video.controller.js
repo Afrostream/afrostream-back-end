@@ -347,6 +347,33 @@ exports.show = function (req, res) {
 
         source.src = closure.cdnselectorInfos.scheme + '://' + closure.cdnselectorInfos.authority + source.src;
       });
+
+
+      //!FIXME: hotfix 11/10/2016 #361 : pb iOS
+      /*
+      l'iOS s'attend potentiellement a recevoir un objet source de la forme
+      { _id: 'b90680bc-9506-4900-a886-2819ded838a0',
+       src: 'https://hw.cdn.afrostream.net/vod/HANCOCK_240_25_ProRes422_FRA_ENG_HD_STEREO/b10bbcc21f1b8988.ism/b10bbcc21f1b8988.mpd',
+       type: 'application/dash+xml',
+       videoId: '4bad689b-e155-43e4-8a2b-b73d8c77fc62',
+       importId: 958,
+       sort: null,
+       active: false,
+       episode: null
+      }
+      }
+      */
+      if (req.passport && req.passport.client && req.passport.client.isTapptic()) {
+        video.sources.forEach(function (source) {
+          source._id = video._id;
+          source.videoId = video._id;
+          source.importId = Math.round(Math.random()*10000);
+          source.sort = null;
+          source.active = true;
+          source.episode = null;
+        });
+      }
+      //!FIXME: fin hotfix 11/10/2016 #361 : pb iOS
       console.log('[INFO]: [VIDEO]: sources = ' + JSON.stringify(video.sources));
       return video;
     })

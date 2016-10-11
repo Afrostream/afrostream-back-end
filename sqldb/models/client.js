@@ -51,6 +51,10 @@ module.exports = function (sequelize, DataTypes) {
 
       isAfrostreamAdmin: function () {
         return this.getDataValue('type') === 'afrostream-admin.gui';
+      },
+
+      isTapptic: function () {
+        return this.getDataValue('type') === 'legacy-api.tapptic';
       }
     }
   });
