@@ -130,7 +130,8 @@ exports.index = function (req, res) {
                 where: {
                     $or: [
                         {ville: {$iLike: '%' + queryName + '%'}},
-                        {adresse: {$iLike: '%' + queryName + '%'}}
+                        {adresse: {$iLike: '%' + queryName + '%'}},
+                        {name: {$iLike: '%' + queryName + '%'}}
                     ]
                 }
             });
@@ -173,7 +174,7 @@ exports.import = function (req, res) {
     var importFile = path.join(__dirname, 'CLIENT_AFROSTREAM_20160923.csv');
 
     csvgeocode(importFile, {
-        url: 'https://maps.googleapis.com/maps/api/geocode/json?address={{Adresse2}}+{{Ville}}&key=' + config.google.cloudKey
+        url: 'https://maps.googleapis.com/maps/api/geocode/json?address={{Adresse2}},{{cp}},{{Ville}}&key=' + config.google.cloudKey
     })
         .on('row', function (err, row) {
             if (err) {
@@ -191,7 +192,7 @@ exports.import = function (req, res) {
              }
              */
             console.log(row);
-            sqldb.nonAtomicFindOrCreate(Store, {
+            var store = sqldb.nonAtomicFindOrCreate(Store, {
                 where: {mid: row.MID},
                 defaults: {
                     mid: row.MID,
@@ -202,6 +203,9 @@ exports.import = function (req, res) {
                     phone: row.Telephone,
                     geometry: [row.lng, row.lat]
                 }
+            }).then(function (store) {
+                store.geometry = [row.lng, row.lat];
+                store.save();
             });
         })
         .on('complete', function (summary) {
