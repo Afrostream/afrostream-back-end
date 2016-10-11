@@ -131,6 +131,7 @@ function saveGeoCodedStore (store) {
 };
 
 function geocode (loc, store) {
+    loc = encodeURIComponent(loc).replace(/(%20| )/g, '+').replace(/[&]/g, '%26');
     var options = _.extend({sensor: false, address: loc, key: config.google.cloudKey}, {});
     var uri = 'https://maps.googleapis.com/maps/api/geocode/json';
     return new Promise(function (resolve, reject) {
