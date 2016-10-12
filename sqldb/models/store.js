@@ -17,8 +17,16 @@ module.exports = function (sequelize, DataTypes) {
         name: DataTypes.STRING,
         adresse: DataTypes.STRING,
         ville: DataTypes.STRING,
-        cp: DataTypes.INTEGER,
-        phone: DataTypes.INTEGER,
+        cp: {
+            type: DataTypes.STRING,
+            defaultValue: 'pin',
+            length: 8
+        },
+        phone: {
+            type: DataTypes.STRING,
+            defaultValue: 'pin',
+            length: 16
+        },
         geometry: {
             type: DataTypes.GEOMETRY('POINT'),
             get: function () {
@@ -32,47 +40,13 @@ module.exports = function (sequelize, DataTypes) {
                     this.setDataValue('geometry', {type: 'Point', coordinates: coords});
                 }
             },
-            //validations: {
-            //    isCoordinateArray: function (value) {
-            //        if (!_.isArray(value) || value.length !== 2) {
-            //            throw new Error('Must be an array with 2 elements');
-            //        }
-            //    }
-            //}
-        }
-    }, {
-        /**
-         * Pre-save hooks
-         */
-        hooks: {
-            //beforeUpdate: function (store, fields, fn) {
-            //    if (store.changed('geometry')) {
-            //        return store.updateGeometry(fn);
-            //    }
-            //    fn();
-            //}
-        },
-        /**
-         * Instance Methods
-         */
-        instanceMethods: {
-            /**
-             * Set geojson data - check if the passwords are the same
-             *
-             * @param {String} password
-             * @param {Function} callback
-             * @return {Boolean}
-             */
-            updateGeometry: function (fn) {
-                sequelize.query('UPDATE "Store" SET geometry= ST_GeomFromGeoJSON(\'' + {
-                        type: 'Point',
-                        coordinates: this.geometry
-                    } + '\') WHERE id=' + this._id).then(function (result) {
-                    console.log('update geo ok', result.geometry);
-                    fn()
-                }).catch(function (err) {
-                    fn(err);
-                });
+            validations: {
+                isCoordinateArray: function (value) {
+                    console.log('isCoordinateArray', value)
+                    if (!_.isArray(value) || value.length !== 2) {
+                        throw new Error('Must be an array with 2 elements');
+                    }
+                }
             }
         }
     });
