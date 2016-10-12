@@ -197,14 +197,34 @@ exports.index = function (req, res) {
         else if (queryName.match(/^[0-9]{2,}$/)) {
 
             queryOptions = _.merge(queryOptions, {
-                where: {cp: queryName}
+                where: {
+                    $or: [
+                        {cp: queryName}
+                    ]
+                }
             });
+
+        }
+        else if (queryName.match(/([1-9][0-9]*,[ ])*[1-9][0-9]*/g)) {
+            var position = queryName.split(',');
+            console.log(position)
+            if (position.length === 2) {
+                longitude = position[0];
+                latitude = position[1];
+                queryOptions = _.merge(queryOptions, {
+                    where: sqldb.Sequelize.where(sqldb.Sequelize.fn('ST_Distance_Sphere',
+                        sqldb.Sequelize.fn('ST_MakePoint', parseFloat(longitude), parseFloat(latitude)),
+                        sqldb.Sequelize.col('geometry')
+                    ), '<=', parseFloat(100))
+                });
+            }
 
 
         } else {
             queryOptions = _.merge(queryOptions, {
                 where: {
                     $or: [
+                        {geometry: [queryName]},
                         {ville: {$iLike: '%' + queryName + '%'}},
                         {adresse: {$iLike: '%' + queryName + '%'}},
                         {name: {$iLike: '%' + queryName + '%'}}
