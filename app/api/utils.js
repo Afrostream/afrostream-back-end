@@ -66,6 +66,15 @@ var middlewareNoCache = function (req, res, next) {
   next();
 };
 
+/**
+ * Tels if the request provider is the backoffice GUI.
+ * @param req
+ * @returns {*}
+ */
+function isReqFromAfrostreamAdmin (req) {
+  return req.passport && req.passport.client && req.passport.client.isAfrostreamAdmin();
+}
+
 // middlewares
 module.exports.middlewareCache = middlewareCache;
 module.exports.middlewareNoCache = middlewareNoCache;
@@ -73,3 +82,4 @@ module.exports.reqRangeToSequelizeLimit = reqRangeToSequelizeLimit;
 module.exports.mergeReqRange = mergeReqRange;
 module.exports.responseWithResultAndTotal = responseWithResultAndTotal;
 module.exports.handleEntityNotFound = handleEntityNotFound;
+module.exports.isReqFromAfrostreamAdmin = isReqFromAfrostreamAdmin;

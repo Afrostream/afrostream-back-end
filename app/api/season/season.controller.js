@@ -162,7 +162,7 @@ exports.show = function (req, res) {
     ]
   };
 
-  if (req.query.backo) {
+  if (utils.isReqFromAfrostreamAdmin(req)) {
     queryOptions.include.push({
       model: Episode, as: 'episodes',
       required: false,

@@ -215,7 +215,7 @@ exports.index = function (req, res) {
   }
 
   // pagination :
-  if (req.query.backo) {
+  if (utils.isReqFromAfrostreamAdmin(req)) {
     utils.mergeReqRange(queryOptions, req);
   } else {
     if (parseInt(req.query.limit)) {
@@ -405,7 +405,7 @@ exports.create = function (req, res) {
 // Updates an existing category in the DB
 exports.update = function (req, res) {
   // backo only security, prevent backo updates
-  if (req.query.backo && req.body.ro === true) {
+  if (utils.isReqFromAfrostreamAdmin(req) && req.body.ro === true) {
     // warning message for log sake
     console.warn('shouldnot try to update category '+req.params.id);
     // returning without updating
