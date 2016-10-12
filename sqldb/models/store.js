@@ -19,12 +19,10 @@ module.exports = function (sequelize, DataTypes) {
         ville: DataTypes.STRING,
         cp: {
             type: DataTypes.STRING,
-            defaultValue: 'pin',
             length: 8
         },
         phone: {
             type: DataTypes.STRING,
-            defaultValue: 'pin',
             length: 16
         },
         geometry: {

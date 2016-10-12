@@ -112,19 +112,19 @@ function saveGeoCodedStore (store) {
 
         if (geocodeResult && geocodeResult.geometry) {
             promises.push(sqldb.nonAtomicFindOrCreate(Store, {
-                where: {mid: store.mid || store.MID},
+                where: {mid: store.mid},
                 defaults: {
-                    mid: store.mid || store.MID
+                    mid: store.mid
                 }
             }).then(function (stores) {
                 console.log('[STORE] saveGeoCodedStore :', geocodeResult);
                 var entity = stores[0];
-                entity.mid = entity.mid || store.mid || store.MID;
-                entity.name = store.name || store.Nom;
-                entity.adresse = store.adresse || store.Adresse1 + ' ' + store.Adresse2;
-                entity.cp = store.cp || store.CP;
-                entity.ville = store.ville || store.Ville;
-                entity.phone = store.phone || store.Telephone;
+                entity.mid = store.mid;
+                entity.name = store.name;
+                entity.adresse = store.adresse;
+                entity.cp = store.cp;
+                entity.ville = store.ville;
+                entity.phone = store.phone;
                 entity.geometry = [geocodeResult.geometry.location.lng, geocodeResult.geometry.location.lat];
                 return entity.save();
             }).then(function (entity) {
