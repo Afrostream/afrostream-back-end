@@ -260,7 +260,10 @@ exports.show = function (req, res) {
             if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
               return;
             }
-            if (!video.pfMd5Hash && !req.passport.client.isAfrostreamAdmin()) {
+            if (req.passport.client.isAfrostreamAdmin()) {
+              return; // skip pf part for the admin.
+            }
+            if (!video.pfMd5Hash) {
               // fallback, on cherche les sources dans l'ancienne table Assets
               return Asset.findAll({
                 where: { videoId: video._id }
