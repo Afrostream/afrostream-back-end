@@ -224,7 +224,6 @@ exports.index = function (req, res) {
             queryOptions = _.merge(queryOptions, {
                 where: {
                     $or: [
-                        {geometry: [queryName]},
                         {ville: {$iLike: '%' + queryName + '%'}},
                         {adresse: {$iLike: '%' + queryName + '%'}},
                         {name: {$iLike: '%' + queryName + '%'}}
