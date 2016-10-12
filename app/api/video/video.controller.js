@@ -596,7 +596,7 @@ module.exports.createFromPfContent = function (pfContent) {
 
   var data = {
     pfMd5Hash: pfContent.md5Hash,
-    encodingId: String(pfContent.contentId),
+    encodingId: pfContent.uuid,
     name: pfContent.filename,
     drm: Boolean(pfContent.drm === "enabled"),
     duration: duration || null
