@@ -14,6 +14,7 @@ var request = require('request');
 var sqldb = rootRequire('/sqldb');
 var Image = sqldb.Image;
 var LifePin = sqldb.LifePin;
+var LifeTheme = sqldb.LifeTheme;
 var filters = rootRequire('/app/api/filters.js');
 var utils = rootRequire('/app/api/utils.js');
 var Q = require('q');
@@ -81,6 +82,19 @@ function removeEntity (res) {
     };
 }
 
+function addThemes (updates) {
+    var themes = LifeTheme.build(_.map(updates.themes || [], _.partialRight(_.pick, '_id')));
+    return function (entity) {
+        if (!themes || !themes.length) {
+            return entity;
+        }
+        return entity.setThemes(themes)
+            .then(function () {
+                return entity;
+            });
+    };
+}
+
 // Gets a list of life/pins
 // ?query=... (search in the title)
 exports.index = function (req, res) {
@@ -128,6 +142,8 @@ exports.show = function (req, res) {
 // Scrapp wep url and return medias
 exports.scrap = function (req, res) {
     var c = {
+        slug: '',
+        role: 'free',
         originalUrl: req.body.scrapUrl
     };
 
@@ -261,6 +277,7 @@ exports.create = function (req, res) {
         })
         .then(updateImages(c.injectData))
         .then(updateUser(req))
+        .then(addThemes(c.injectData))
         .then(responseWithResult(res, 201))
         .catch(res.handleError());
 };
@@ -278,6 +295,7 @@ exports.update = function (req, res) {
         .then(utils.handleEntityNotFound(res))
         .then(saveUpdates(req.body))
         .then(updateImages(req.body))
+        .then(addThemes(req.body))
         .then(responseWithResult(res))
         .catch(res.handleError());
 };

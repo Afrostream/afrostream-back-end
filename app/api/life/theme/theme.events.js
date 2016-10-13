@@ -5,11 +5,11 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var LifePin = rootRequire('/sqldb').LifePin;
-var LifePinEvents = new EventEmitter();
+var LifeTheme = rootRequire('/sqldb').LifeTheme;
+var LifeThemeEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)
-LifePinEvents.setMaxListeners(0);
+LifeThemeEvents.setMaxListeners(0);
 
 // Model events
 var events = {
@@ -21,15 +21,15 @@ var events = {
 // Register the event emitter to the model events
 for (var e in events) {
     var event = events[e];
-    LifePin.hook(e, emitEvent(event));
+    LifeTheme.hook(e, emitEvent(event));
 }
 
 function emitEvent (event) {
     return function (doc, options, done) {
-        LifePinEvents.emit(event + ':' + doc._id, doc);
-        LifePinEvents.emit(event, doc);
+        LifeThemeEvents.emit(event + ':' + doc._id, doc);
+        LifeThemeEvents.emit(event, doc);
         done(null);
     }
 }
 
-module.exports = LifePinEvents;
+module.exports = LifeThemeEvents;
