@@ -14,6 +14,7 @@ var request = require('request');
 var sqldb = rootRequire('/sqldb');
 var Image = sqldb.Image;
 var LifePin = sqldb.LifePin;
+var LifePinCategory = sqldb.LifePinCategory;
 var filters = rootRequire('/app/api/filters.js');
 var utils = rootRequire('/app/api/utils.js');
 var Q = require('q');
@@ -78,6 +79,19 @@ function removeEntity (res) {
                     res.status(204).end();
                 });
         }
+    };
+}
+
+function addCategories (updates) {
+    var categories = LifePinCategory.build(_.map(updates.categories || [], _.partialRight(_.pick, '_id')));
+    return function (entity) {
+        if (!categories || !categories.length) {
+            return entity;
+        }
+        return entity.setCategories(categories)
+            .then(function () {
+                return entity;
+            });
     };
 }
 

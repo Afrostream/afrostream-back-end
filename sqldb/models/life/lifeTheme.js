@@ -1,7 +1,7 @@
 'use strict';
-
+var sqldb = rootRequire('/sqldb');
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define('LifePinsCategories', {
+    return sequelize.define('LifeTheme', {
         _id: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -15,16 +15,17 @@ module.exports = function (sequelize, DataTypes) {
         active: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
-        },
+        }
+    }, {
         instanceMethods: {
             setPinsOrdered: sqldb.generateInstanceMethodSetXOrdered({
                 // mandatory
-                linkModel: 'LifePinsCategories',
-                linkColumnSrc: 'CategoryId',
-                linkColumnDst: 'MovieId',
-                linkColumnSrcIndex: 'movieOrder',
-                linkColumnDstIndex: 'categoryOrder'
-                dstModel: 'Movie',
+                linkModel: 'LifeThemePins',
+                linkColumnSrc: 'lifeThemeId',
+                linkColumnDst: 'lifePinId',
+                linkColumnSrcIndex: 'lifePinOrder',
+                linkColumnDstIndex: 'lifeThemeOrder',
+                dstModel: 'LifePin',
                 // optional
                 srcIdColumn: '_id',
                 dstIdColumn: '_id'

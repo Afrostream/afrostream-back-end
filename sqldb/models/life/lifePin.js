@@ -1,5 +1,5 @@
 'use strict';
-
+var sqldb = rootRequire('/sqldb');
 module.exports = function (sequelize, DataTypes) {
     return sequelize.define('LifePin', {
         _id: {
@@ -36,6 +36,21 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING,
             defaultValue: 'free',
             length: 16
+        }
+    }, {
+        instanceMethods: {
+            setThemesOrdered: sqldb.generateInstanceMethodSetXOrdered({
+                // mandatory
+                linkModel: 'LifeThemePins',
+                linkColumnSrc: 'lifePinId',
+                linkColumnDst: 'lifeThemeId',
+                linkColumnSrcIndex: 'lifeThemeOrder',
+                linkColumnDstIndex: 'lifePinOrder',
+                dstModel: 'LifeTheme',
+                // optional
+                srcIdColumn: '_id',
+                dstIdColumn: '_id'
+            })
         }
     });
 };
