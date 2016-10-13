@@ -14,6 +14,7 @@ var sqldb = rootRequire('/sqldb');
 var filters = rootRequire('/app/api/filters.js');
 var utils = rootRequire('/app/api/utils.js');
 var getIncludedModel = require('./theme.includedModel.js').get;
+var LifePin = sqldb.LifePin;
 var LifeTheme = sqldb.LifeTheme;
 var LifeThemePins = sqldb.LifeThemePins;
 
@@ -50,7 +51,7 @@ function saveUpdates (updates) {
 }
 
 function addLifePins (updates) {
-    var pins = LifePins.build(_.map(updates.pins || [], _.partialRight(_.pick, '_id')));
+    var pins = LifePin.build(_.map(updates.pins || [], _.partialRight(_.pick, '_id')));
     return function (entity) {
         return entity.setPins(pins)
             .then(function () {
@@ -75,7 +76,7 @@ exports.index = function (req, res) {
     var queryName = req.param('query');
     var queryOptions = {
         include: getIncludedModel(),
-        order: [['sort', 'ASC'], [LifeThemePins, 'order', 'desc']]
+        order: [['sort', 'ASC']]
     };
     // pagination :
     if (utils.isReqFromAfrostreamAdmin(req)) {

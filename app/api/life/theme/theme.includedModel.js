@@ -5,6 +5,6 @@ var LifeThemePins = sqldb.LifeThemePins;
 
 module.exports.get = function () {
     return [
-        {model: LifeThemePins, as: 'pins', required: false}
+        {model: LifeThemePins, all: true}
     ];
 };

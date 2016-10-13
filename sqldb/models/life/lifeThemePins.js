@@ -9,8 +9,6 @@ module.exports = function (sequelize, DataTypes) {
             unique: true,
             autoIncrement: true
         },
-        lifeThemeId: DataTypes.INTEGER,
-        lifePinId: DataTypes.UUID,
         lifeThemeOrder: DataTypes.INTEGER,
         lifePinOrder: DataTypes.INTEGER
     });

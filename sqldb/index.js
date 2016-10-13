@@ -286,14 +286,14 @@ db.Work = db.sequelize.import('models/work');
 //LIFE
 db.LifePin = db.sequelize.import('models/life/lifePin');
 db.LifeTheme = db.sequelize.import('models/life/LifeTheme');
-db.LifeThemePins = db.sequelize.import('models/life/LifeThemePins');
+db.LifeThemePins = db.sequelize.import('models/life/lifeThemePins');
 db.LifeUsersPins = db.sequelize.import('models/life/lifeUsersPins');
 db.LifePin.belongsTo(db.Image, {as: 'image', constraints: false});
 
 db.LifePin.belongsTo(db.User, {as: 'user', constraints: false});
 db.LifePin.belongsToMany(db.User, {through: db.LifeUsersPins, as: 'users', foreignKey: 'lifePinId'});
-db.LifePin.belongsToMany(db.LifeTheme, {through: db.LifeThemePins, as: 'themes'});
-db.LifeTheme.belongsToMany(db.LifePin, {through: db.LifeThemePins, as: 'pins'});
+db.LifePin.belongsToMany(db.LifeTheme, {through: db.LifeThemePins, as: 'themes', foreignKey: 'lifePinId'});
+db.LifeTheme.belongsToMany(db.LifePin, {through: db.LifeThemePins, as: 'pins', foreignKey: 'lifeThemeId'});
 db.User.belongsToMany(db.LifePin, {through: db.LifeUsersPins, as: 'lifePins', foreignKey: 'userId'});
 
 //JOIN
