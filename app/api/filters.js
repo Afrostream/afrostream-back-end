@@ -5,14 +5,7 @@ var assert = require('assert');
 var _ = require('lodash');
 var sqldb = rootRequire('/sqldb');
 
-/**
- * Tels if the request provider is the backoffice GUI.
- * @param req
- * @returns {*}
- */
-function isQueryFromBacko (req) {
-  return req.query.backo;
-}
+var utils = require('./utils.js');
 
 /**
  * resulting query parameters will be modified as :
@@ -41,7 +34,7 @@ function isQueryFromBacko (req) {
 var filterQueryOptions = function (req, options, rootModel) {
   assert(rootModel);
 
-  var isBacko = isQueryFromBacko(req);
+  var isBacko = utils.isReqFromAfrostreamAdmin(req);
 
   // opportunistic guess... (req.passport might not be loaded)
   var client = req.passport && req.passport.client;
