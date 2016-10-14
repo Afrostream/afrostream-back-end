@@ -47,17 +47,24 @@ module.exports.contents = function (req, res) {
     }).then(
       function (videos) {
         // md5Hash to videoId
-        var pfMd5HashToVideoId = {};
+        var pfMd5HashToVideo = {};
 
         videos.forEach(function (v) {
           if (v.get('pfMd5Hash')) {
-            pfMd5HashToVideoId[v.get('pfMd5Hash')] = v.get('_id');
+            pfMd5HashToVideo[v.get('pfMd5Hash')] = v;
           }
         });
         //
         closure.pfContents.forEach(function (pfContent) {
-          if (pfMd5HashToVideoId[pfContent.md5Hash]) {
-            pfContent.videoId = pfMd5HashToVideoId[pfContent.md5Hash]; // already imported.
+          var video = pfMd5HashToVideo[pfContent.md5Hash];
+
+          if (video) {
+            pfContent.video = {
+              _id: video._id,
+              name: video.name,
+              catchupProviderId: video.catchupProviderId,
+              duration: video.duration
+            };
           }
         });
       }

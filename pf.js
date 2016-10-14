@@ -266,7 +266,7 @@ var getContents = function (state) {
      throw new Error('[PF]: no content associated to hash ' + that.pfMd5Hash);
     }
     if (!Array.isArray(pfContents)) {
-     throw new Error('[PF]: malformed content result');
+     throw new Error('[PF]: malformed content result : ', JSON.stringify(pfContents));
     }
     return pfContents;
   });
