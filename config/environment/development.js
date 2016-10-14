@@ -58,7 +58,10 @@ module.exports = {
     uri: 'http://qa.pay.netsize.com/API/1.2/',
     key: '368b8163dca54e64a17ec098d63d2464',
     serviceId: 1,
-    productType: 121
+    productType: 121,
+    cookie: {
+      name: 'netsize'
+    }
   },
 
   dumpPostData: true,
@@ -101,6 +104,11 @@ module.exports = {
     exchangeName: 'afrostream-backend',
     autoReconnect: false,
     displayErrors: false
+  },
+
+  cookies: {
+    domain: '.afrostream.dev',
+    secret: '2342REJIEJIZJO29J9JGZF'
   },
 
   // if you want to seed:

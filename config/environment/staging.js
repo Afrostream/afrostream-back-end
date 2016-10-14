@@ -108,12 +108,20 @@ module.exports = {
     uri: 'http://qa.pay.netsize.com/API/1.2/',
     key: '368b8163dca54e64a17ec098d63d2464',
     serviceId: 1,
-    productType: 121
+    productType: 121,
+    cookie: {
+      name: 'netsize'
+    }
   },
 
   // tempfix
   secrets: {
     expire: 3600 * 24,
+  },
+
+  cookies: {
+    domain: 'afr-api-v1-staging.herokuapp.com',
+    secret: '2342REJIEJIZJO29J9JGZF'
   },
 
   dumpPostData: true

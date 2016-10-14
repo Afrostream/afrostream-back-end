@@ -12,6 +12,8 @@ var clientIp = require('./middlewares/middleware-client-ip.js');
 var userAgent = require('./middlewares/middleware-user-agent.js');
 var cacheHandler = require('./middlewares/middleware-cachehandler.js');
 
+var cookieParser = require('cookie-parser')
+
 // Setup server
 var app =  require('express')();
 app.set('startDate', new Date());
@@ -19,6 +21,7 @@ app.set('views', config.root + '/views');
 app.set('view engine', 'jade');
 app.set('etag', false);
 app.use(require('compression')());
+app.use(cookieParser(config.cookies.secret))
 
 // we should never reach 500kb...
 // FIXME: add an error log entry when this limit is hit

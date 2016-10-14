@@ -94,7 +94,15 @@ module.exports = {
     uri: 'http://qa.pay.netsize.com/API/1.2/',
     key: '368b8163dca54e64a17ec098d63d2464',
     serviceId: 1,
-    productType: 121
+    productType: 121,
+    cookie: {
+      name: 'netsize'
+    }
+  },
+
+  cookies: {
+    domain: '.afrostream.tv',
+    secret: '2342REJIEJIZJO29J9JGZF'
   },
 
   dumpPostData: true
