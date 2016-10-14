@@ -572,6 +572,23 @@ module.exports.upsertUsingPfMd5Hash = function (data) {
     });
 };
 
+module.exports.importFromPfContent = function (req, res) {
+  Q()
+    .then(function () {
+      if (!req.query.pfContentId) {
+        throw new Error('missing pfContentId');
+      }
+      //
+      var pfContent = new (pf.PfContent)();
+      return pfContent.getContentById(req.query.pfContentId)
+          .then(module.exports.createFromPfContent);
+    })
+    .then(
+      function success(video) { res.json(video); },
+      res.handleError()
+    );
+};
+
 // FIXME : should be in the model
 module.exports.createFromPfContent = function (pfContent) {
   if (!pfContent) {

@@ -41,6 +41,9 @@ router.use(auth.middleware.restrictRoutesToAuthentified());
 //
 router.use('/:videoId/comments', require('./comment'));
 
+// import
+router.get('/importFromPfContent', utils.middlewareNoCache, auth.hasRole('admin'), controller.importFromPfContent);
+
 // video manipulation.
 router.get('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.index);
 router.get('/:id', controller.show);
