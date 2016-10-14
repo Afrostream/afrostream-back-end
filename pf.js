@@ -256,8 +256,25 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
     })
 };
 
+var getContents = function (state) {
+  return requestPF({
+   uri: '/api/contents',
+   qs: { state: state || 'ready' }
+  }).then(function (pfContents) {
+    // postprocessing, this api return an array of result
+    if (!pfContents) {
+     throw new Error('[PF]: no content associated to hash ' + that.pfMd5Hash);
+    }
+    if (!Array.isArray(pfContents)) {
+     throw new Error('[PF]: malformed content result');
+    }
+    return pfContents;
+  });
+};
+
 var pf = {
-  PfContent: PfContent
+  PfContent: PfContent,
+  getContents: getContents
 }
 
 module.exports = pf;
