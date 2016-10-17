@@ -46,7 +46,7 @@ function generateBaseParameters(methodName) {
 }
 
 function requestNetsize(data) {
-  var XML = js2xmlparser('request', data);
+  var XML = js2xmlparser.parse('request', data);
 
   console.log('[INFO]: [NETSIZE]: ', JSON.stringify(XML));
 
@@ -126,7 +126,7 @@ module.exports.check = function (req, res) {
       // try to grab netsize redirect url :)
       var netsizeUrl = json['response']['initialize-authentication'][0]['auth-url'][0]['$']['url'];
       // try to grab transaction id
-      var netsizeTransactionId = json['response']['initialize-authentication']['$']['transaction-id'];
+      var netsizeTransactionId = json['response']['initialize-authentication'][0]['$']['transaction-id'];
       // netsize
       console.log('[DEBUG]: [NETSIZE]: netsizeUrl = ' + netsizeUrl);
       console.log('[DEBUG]: [NETSIZE]: netsizeTransactionId = ' + netsizeTransactionId);
@@ -134,12 +134,14 @@ module.exports.check = function (req, res) {
       if (!netsizeUrl || !netsizeTransactionId) {
         throw new Error('[NETSIZE]: missing url / transaction id');
       }
-      //
-      res.cookie(
+      var cookieArgs = [
         config.cookies.netsize.name,
         { transactionId: netsizeTransactionId },
         { domain: config.cookies.netsize.domain, path: '/', signed:true }
-      );
+      ];
+      console.log('[DEBUG]: [NETSIZE]: set cookie ' + JSON.stringify(cookieArgs));
+      //
+      res.cookie.apply(res, cookieArgs);
       //
       return netsizeUrl;
     })
