@@ -46,7 +46,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
   var dateFrom = new Date(txShedDate.getTime() + 24 * 3600 * 1000) // day + 1.
     , dateTo = new Date(txShedDate.getTime() + 24 * 3600 * 1000 + 1000 * catchupProviderInfos.expiration);
 
-  if (parseInt(infos.EPISODE_NUMBER, 10) && parseInt(infos.SEASON_NUMBER, 10)) {
+  if (!Number.isNaN(parseInt(infos.EPISODE_NUMBER, 10)) && !Number.isNaN(parseInt(infos.SEASON_NUMBER, 10))) {
     var episodeNumber = parseInt(infos.EPISODE_NUMBER, 10) || 1;
     var seasonNumber = parseInt(infos.SEASON_NUMBER, 10) || 1;
 
