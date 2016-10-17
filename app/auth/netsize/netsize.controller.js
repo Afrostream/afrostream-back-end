@@ -5,10 +5,9 @@ var xml2js = require('xml2js');
 
 var config = rootRequire('/config');
 
-module.exports.check = function (req, res) {
-  var methodName = "initialize-authentication";
-  var requestVersion = "1.2";
 
+function generateBaseParameters(methodName) {
+  var requestVersion = "1.2";
   // base input parameters
   /*
     Mandatory, string
@@ -26,6 +25,61 @@ module.exports.check = function (req, res) {
   */
   var countryCode = "FR";
 
+  var data = {
+    "@": {
+      type: methodName,
+      version: requestVersion,
+      xmlns: "http://www.netsize.com/ns/pay/api",
+    }
+  };
+
+  data[methodName] = {
+    "@": {
+      // basic parameters
+      "auth-key": authKey,
+      "service-id": serviceId,
+      "country-code": countryCode
+    }
+  };
+
+  return data;
+}
+
+function requestNetsize(data) {
+  var XML = js2xmlparser('request', data);
+
+  console.log('[INFO]: [NETSIZE]: ', JSON.stringify(XML));
+
+  // on essaye d'envoyer ce XML a netsize
+  return Q.nfcall(request, {
+    method: 'POST',
+    uri: config.netsize.uri,
+    headers: {
+      "Content-Type": 'application/xml; charset="utf-8"'
+    },
+    timeout: 10000,
+    body: XML
+  })
+  .then(function (data) {
+    var response = data[0];
+    var body = data[1];
+
+    console.log('[INFO]: [NETSIZE]: ' + JSON.stringify(body));
+    console.log('[DEBUG]: [NETSIZE]: response=', response);
+    console.log('[DEBUG]: [NETSIZE]: body=', body);
+    return Q.nfcall(xml2js.parseString, body);
+  })
+  .then(function (json) {
+    console.log('[DEBUG]: [NETSIZE]: json=', JSON.stringify(json));
+    return json;
+  });
+}
+
+module.exports.check = function (req, res) {
+  var methodName = "initialize-authentication";
+
+  // base method parameters
+  var data = generateBaseParameters(methodName);
 
   // specific method parameters
   /*
@@ -61,83 +115,64 @@ module.exports.check = function (req, res) {
     Internal identifier for credit card and other payment providers.
   */
   var providerId = "FIXME";
+
   //
-  var data = {
-    "@": {
-      type: methodName,
-      version: requestVersion,
-      xmlns: "http://www.netsize.com/ns/pay/api",
-    }
-  };
-  data[methodName] = {
-    "@": {
-      // basic parameters
-      "auth-key": authKey,
-      "service-id": serviceId,
-      "country-code": countryCode,
-      // specific method parameters
-      "flow-id": flowId,
-      "language-code": languageCode,
-      "return-url": returnUrl/*,
-      "brand-id": brandId,
-      "provider-id": providerId*/
-    }
-  };
+  data[methodName]["@"]["flow-id"] = flowId;
+  data[methodName]["@"]["language-code"] = languageCode;
+  data[methodName]["@"]["return-url"] = returnUrl;
 
-  var XML = js2xmlparser('request', data);
-
-  console.log('[INFO]: [NETSIZE]: ', JSON.stringify(XML));
-
-  // on essaye d'envoyer ce XML a netsize
-  Q.nfcall(request, {
-    method: 'POST',
-    uri: config.netsize.uri,
-    headers: {
-      "Content-Type": 'application/xml; charset="utf-8"'
-    },
-    timeout: 10000,
-    body: XML
-  })
-  .then(function (data) {
-    var response = data[0];
-    var body = data[1];
-
-    console.log('[INFO]: [NETSIZE]: ' + JSON.stringify(body));
-    console.log('[DEBUG]: [NETSIZE]: response=', response);
-    console.log('[DEBUG]: [NETSIZE]: body=', body);
-    return Q.nfcall(xml2js.parseString, body);
-  })
-  .then(function (json) {
-    console.log('[DEBUG]: [NETSIZE]: json=', JSON.stringify(json));
-    // try to grab netsize redirect url :)
-    var netsizeUrl = json['response']['initialize-authentication'][0]['auth-url'][0]['$']['url'];
-    // try to grab transaction id
-    var netsizeTransactionId = json['response']['initialize-authentication']['$']['transaction-id'];
-    // netsize
-    console.log('[DEBUG]: [NETSIZE]: netsizeUrl = ' + netsizeUrl);
-    console.log('[DEBUG]: [NETSIZE]: netsizeTransactionId = ' + netsizeTransactionId);
-    //
-    if (!netsizeUrl || !netsizeTransactionId) {
-      throw new Error('[NETSIZE]: missing url / transaction id');
-    }
-    //
-    res.cookie(
-      config.netsize.cookie.name,
-      { transactionId: netsizeTransactionId },
-      { domain: config.cookies.domain, path: '/admin', signed:true }
+  requestNetsize(data)
+    .then(function (json) {
+      // try to grab netsize redirect url :)
+      var netsizeUrl = json['response']['initialize-authentication'][0]['auth-url'][0]['$']['url'];
+      // try to grab transaction id
+      var netsizeTransactionId = json['response']['initialize-authentication']['$']['transaction-id'];
+      // netsize
+      console.log('[DEBUG]: [NETSIZE]: netsizeUrl = ' + netsizeUrl);
+      console.log('[DEBUG]: [NETSIZE]: netsizeTransactionId = ' + netsizeTransactionId);
+      //
+      if (!netsizeUrl || !netsizeTransactionId) {
+        throw new Error('[NETSIZE]: missing url / transaction id');
+      }
+      //
+      res.cookie(
+        config.cookies.netsize.name,
+        { transactionId: netsizeTransactionId },
+        { domain: config.cookies.netsize.domain, path: '/', signed:true }
+      );
+      //
+      return netsizeUrl;
+    })
+    .then(
+      function success(netsizeUrl) {
+        res.redirect(302, netsizeUrl);
+      },
+      res.handleError()
     );
-    //
-    return netsizeUrl;
-  })
-  .then(
-    function success(netsizeUrl) {
-      res.redirect(302, netsizeUrl);
-    },
-    res.handleError()
-  );
 };
 
 module.exports.callback = function (req, res) {
-  console.log(req.query);
-  res.send('');
+  Q()
+    .then(function () {
+      if (!req.signedCookies) {
+        throw new Error('no cookies');
+      }
+      if (!req.signedCookies.netsize) {
+        throw new Error('no netsize cookie');
+      }
+      if (!req.signedCookies.netsize.transactionId) {
+        throw new Error('missing transactionId');
+      }
+      return req.signedCookies.netsize.transactionId;
+    })
+    .then(function success(transactionId) {
+      var methodName = "get-status";
+      var data = generateBaseParameters(methodName);
+      return requestNetsize(data);
+    })
+    .then(function success(json) {
+      res.json(json);
+    },
+    res.handleError()
+  );
 }

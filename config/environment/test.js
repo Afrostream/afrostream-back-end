@@ -54,10 +54,7 @@ module.exports = {
     uri: 'http://qa.pay.netsize.com/API/1.2/',
     key: '368b8163dca54e64a17ec098d63d2464',
     serviceId: 1,
-    productType: 121,
-    cookie: {
-      name: 'netsize'
-    }
+    productType: 121
   },
 
   cdnselector: {
@@ -103,7 +100,14 @@ module.exports = {
   env: 'test',
 
   cookies: {
-    domain: '.afrostream.dev',
-    secret: '2342REJIEJIZJO29J9JGZF'
+    secret: '2342REJIEJIZJO29J9JGZF',
+    test: {
+      name: 'test',
+      domain: '.afrostream.dev'
+    },
+    netsize: {
+      name: 'netsize',
+      domain: '.afrostream.dev'
+    }
   }
 };

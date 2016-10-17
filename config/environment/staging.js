@@ -108,10 +108,7 @@ module.exports = {
     uri: 'http://qa.pay.netsize.com/API/1.2/',
     key: '368b8163dca54e64a17ec098d63d2464',
     serviceId: 1,
-    productType: 121,
-    cookie: {
-      name: 'netsize'
-    }
+    productType: 121
   },
 
   // tempfix
@@ -120,8 +117,15 @@ module.exports = {
   },
 
   cookies: {
-    domain: 'afr-api-v1-staging.herokuapp.com',
-    secret: '2342REJIEJIZJO29J9JGZF'
+    secret: '2342REJIEJIZJO29J9JGZF',
+    test: {
+      name: 'test',
+      domain: 'afr-api-v1-staging.herokuapp.com'
+    },
+    netsize: {
+      name: 'netsize',
+      domain: 'afr-api-v1-staging.herokuapp.com'
+    }
   },
 
   dumpPostData: true

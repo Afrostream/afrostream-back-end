@@ -10,5 +10,6 @@ router.get('/mq', controller.mq);
 router.put('/put', controller.dumpHeaders);
 router.post('/post', controller.dumpHeaders);
 router.delete('/delete', controller.dumpHeaders);
+router.get('/cookies', controller.cookies);
 
 module.exports = router;
