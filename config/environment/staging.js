@@ -124,7 +124,7 @@ module.exports = {
     },
     netsize: {
       name: 'netsize',
-      domain: 'afr-api-v1-staging.herokuapp.com'
+      domain: '.afrostream.tv'
     }
   },
 
