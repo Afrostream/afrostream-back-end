@@ -7,13 +7,19 @@
  *
  * @apiDescription this route allows you to get an access_token
  *
- * @apiParam (postData) {String} grant_type password|bouygues|refresh_token
+ * @apiParam (postData) {String} grant_type client_credentials|password|bouygues|refresh_token
  * @apiParam (postData) {String} client_id api client id
  * @apiParam (postData) {String} client_secret api client secret
  * @apiParam (postData) {String} username (grant_type=password) user email
  * @apiParam (postData) {String} password (grant_type=password) user password
  * @apiParam (postData) {String} id (grant_type=bouygues) bouygues customer id
  * @apiParam (postData) {String} refresh_token (grant_type=refresh_token) refresh token
+ * @apiParamExample {String} grant_type: "client_credentials"
+ *   {
+ *     "grant_type": "client_credentials",
+ *     "client_id": "apiKey",
+ *     "client_secret": "apiSecret"
+ *   }
  * @apiParamExample {String} grant_type: "password"
  *   {
  *     "grant_type": "password",
