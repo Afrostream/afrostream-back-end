@@ -175,6 +175,8 @@ module.exports.check = function (req, res) {
 };
 
 module.exports.callback = function (req, res) {
+  var c = { transactionId: null };
+
   Q()
     .then(function () {
       if (!req.signedCookies) {
@@ -189,14 +191,33 @@ module.exports.callback = function (req, res) {
       return req.signedCookies.netsize.transactionId;
     })
     .then(function success(transactionId) {
+      c.transactionId = transactionId;
       var methodName = "get-status";
       var data = generateBaseParameters(methodName);
       data[methodName]["@"]["transaction-id"] = transactionId;
       return requestNetsize(data);
     })
-    .then(function success(json) {
-      res.json(json);
-    },
-    res.handleError()
-  );
+    .then(function parse(json) {
+      var code;
+      try {
+        code = json['response']['get-status'][0]['transaction-status'][0]['$']['code']
+      } catch (e) {
+        throw new Error('no code');
+      }
+      if (config.netsize["initialize-authentication-success-code-list"].indexOf(code) === -1) {
+        var error = new Error('error code');
+        error.netsizeStatusCode = code;
+        throw error;
+      }
+      return code;
+    })
+    .then(
+      function success(code) {
+        console.log('[INFO]: [NETSIZE]: success  (code='+code+')');
+        res.json({success: true, netsizeStatusCode: code, netsizeTransactionId: c.transactionId});
+      },
+      function error(err) {
+        res.handleError()(err, { netsizeStatusCode: err.netsizeStatusCode, netsizeTransactionId: c.transactionId });
+      }
+    );
 }
