@@ -108,7 +108,8 @@ module.exports = {
     uri: 'http://qa.pay.netsize.com/API/1.2/',
     key: '368b8163dca54e64a17ec098d63d2464',
     serviceId: 1,
-    productType: 121
+    productType: 121,
+    "initialize-authentication-success-code-list": [ "120" ]
   },
 
   // tempfix
