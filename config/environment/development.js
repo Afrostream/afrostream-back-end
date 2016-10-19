@@ -14,7 +14,7 @@ module.exports = {
 
   frontEnd: {
     protocol: 'http',
-    authority: 'localhost:3000'
+    authority: 'afrostream.dev'
   },
 
   sequelize: {
