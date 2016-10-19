@@ -101,6 +101,8 @@ exports.show = function (req, res) {
 exports.create = function (req, res) {
   var type = req.param('type') || req.query.type || 'poster';
 
+  console.log('upload type : ',type,req);
+
   req.readFile()
     .then(function (file) {
       var bucket = aws.getBucket('afrostream-img');

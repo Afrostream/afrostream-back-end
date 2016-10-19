@@ -59,10 +59,10 @@ function updateImages (updates) {
     };
 }
 
-function updateUser (req) {
+function updateUser (updates, req) {
     return function (entity) {
         var promises = [];
-        promises.push(entity.setUser(req.user || null));
+        promises.push(entity.setUser((updates.user && updates.user._id) || req.user || null));
         return sqldb.Sequelize.Promise
             .all(promises)
             .then(function () {
@@ -100,9 +100,22 @@ function addThemes (updates) {
 exports.index = function (req, res) {
     var queryName = req.param('query'); // deprecated.
     var queryOptions = {
-        include: getIncludedModel()
+        include: getIncludedModel(),
+        order: [['date', 'DESC']]
     };
 
+    // pagination :
+    if (utils.isReqFromAfrostreamAdmin(req)) {
+        utils.mergeReqRange(queryOptions, req);
+    } else {
+        if (parseInt(req.query.limit)) {
+            // adding limit option if limit is NaN or 0 (undefined/whatever/"0")
+            _.merge(queryOptions, {limit: req.query.limit});
+        }
+        if (!isNaN(req.query.offset)) {
+            _.merge(queryOptions, {offset: req.query.offset});
+        }
+    }
     // pagination
     utils.mergeReqRange(queryOptions, req);
 
@@ -276,7 +289,7 @@ exports.create = function (req, res) {
             return LifePin.create(c.injectData)
         })
         .then(updateImages(c.injectData))
-        .then(updateUser(req))
+        .then(updateUser(c.injectData, req))
         .then(addThemes(c.injectData))
         .then(responseWithResult(res, 201))
         .catch(res.handleError());
@@ -295,6 +308,7 @@ exports.update = function (req, res) {
         .then(utils.handleEntityNotFound(res))
         .then(saveUpdates(req.body))
         .then(updateImages(req.body))
+        .then(updateUser(req.body, req))
         .then(addThemes(req.body))
         .then(responseWithResult(res))
         .catch(res.handleError());
