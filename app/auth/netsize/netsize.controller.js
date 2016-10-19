@@ -123,14 +123,13 @@ module.exports.check = function (req, res) {
   data[methodName]["@"]["return-url"] = returnUrl;
 
   // on ajoute sur l'env qa netsize des paramètres
-  /*
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production' && req.query.qaScenario) {
     data[methodName]["advanced-params"] = {
       "advanced-param": [
         {
           "@": {
             "key": "qaScenario",
-            "value": req.query.qaScenario || "authenticationFailed"
+            "value": req.query.qaScenario // ex: "?qaScenario=authenticationFailed"
           }
         },
         {
@@ -142,7 +141,6 @@ module.exports.check = function (req, res) {
       ]
     };
   }
-  */
 
   requestNetsize(data)
     .then(function (json) {
