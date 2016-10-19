@@ -65,7 +65,8 @@ function requestNetsize(data) {
     var body = data[1];
 
     console.log('[INFO]: [NETSIZE]: ' + JSON.stringify(body));
-    console.log('[DEBUG]: [NETSIZE]: response=', response);
+    console.log('[DEBUG]: [NETSIZE]: response.statusCode=', response.statusCode);
+    console.log('[DEBUG]: [NETSIZE]: response.headers=', response.headers);
     console.log('[DEBUG]: [NETSIZE]: body=', body);
     return Q.nfcall(xml2js.parseString, body);
   })
@@ -120,6 +121,26 @@ module.exports.check = function (req, res) {
   data[methodName]["@"]["flow-id"] = flowId;
   data[methodName]["@"]["language-code"] = languageCode;
   data[methodName]["@"]["return-url"] = returnUrl;
+
+  // on ajoute sur l'env qa netsize des paramètres
+  if (process.env.NODE_ENV !== 'production') {
+    data[methodName]["advanced-params"] = {
+      "advanced-param": [
+        {
+          "@": {
+            "key": "qaScenario",
+            "value": req.query.qaScenario || "authenticationFailed"
+          }
+        },
+        {
+          "@": {
+            "key": "qaScenarioOperator",
+            "value": req.query.qaScenarioOperator || "208001"
+          }
+        }
+      ]
+    };
+  }
 
   requestNetsize(data)
     .then(function (json) {
