@@ -103,7 +103,7 @@ module.exports.check = function (req, res) {
     If empty, end-user will not be redirected, rather a blank page will be
     returned with HTTP status code 200.
   */
-  var returnUrl = config.frontEnd.protocol + '://' + config.frontEnd.authority + '/auth/netsize/callback'
+  var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback'
   /*
     Optionnal, integer
     This identifier allows Netsize to customize payment pages when accurate.

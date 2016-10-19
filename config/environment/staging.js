@@ -105,6 +105,7 @@ module.exports = {
   },
 
   netsize: {
+    callbackBaseUrl: 'https://staging.afrostream.tv',
     uri: 'http://qa.pay.netsize.com/API/1.2/',
     key: '368b8163dca54e64a17ec098d63d2464',
     serviceId: 1,
