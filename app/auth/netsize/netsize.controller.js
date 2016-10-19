@@ -123,6 +123,7 @@ module.exports.check = function (req, res) {
   data[methodName]["@"]["return-url"] = returnUrl;
 
   // on ajoute sur l'env qa netsize des paramètres
+  /*
   if (process.env.NODE_ENV !== 'production') {
     data[methodName]["advanced-params"] = {
       "advanced-param": [
@@ -141,6 +142,7 @@ module.exports.check = function (req, res) {
       ]
     };
   }
+  */
 
   requestNetsize(data)
     .then(function (json) {
@@ -191,6 +193,7 @@ module.exports.callback = function (req, res) {
     .then(function success(transactionId) {
       var methodName = "get-status";
       var data = generateBaseParameters(methodName);
+      data[methodName]["@"]["transaction-id"] = transactionId;
       return requestNetsize(data);
     })
     .then(function success(json) {
