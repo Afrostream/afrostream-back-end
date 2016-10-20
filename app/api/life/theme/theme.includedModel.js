@@ -23,6 +23,7 @@ module.exports.get = function () {
                 'providerName',
                 'originalUrl',
                 'imageUrl',
+                'richMediaUrl',
                 'description',
                 'date'],
             required: false,

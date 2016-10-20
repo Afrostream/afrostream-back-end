@@ -172,6 +172,7 @@ exports.scrap = function (req, res) {
                         imageUrl: rawdata.thumbnail_url,
                         imagesList: [rawdata.thumbnail_url],
                         providerUrl: rawdata.provider_url,
+                        richMediaUrl: c.originalUrl,
                         providerName: rawdata.provider_name.toLowerCase()
                     });
                     resolve(c);
@@ -204,6 +205,7 @@ exports.scrap = function (req, res) {
                         description: client.description,
                         imageUrl: client.image,
                         imagesList: imagesList,
+                        richMediaUrl: c.originalUrl,
                         providerUrl: client.rootUrl,
                         providerName: client.host
                     });
