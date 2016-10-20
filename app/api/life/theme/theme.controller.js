@@ -15,22 +15,8 @@ var filters = rootRequire('/app/api/filters.js');
 var utils = rootRequire('/app/api/utils.js');
 var getIncludedModel = require('./theme.includedModel.js').get;
 var LifePin = sqldb.LifePin;
+var LifeSpot = sqldb.LifeSpot;
 var LifeTheme = sqldb.LifeTheme;
-var LifeThemePins = sqldb.LifeThemePins;
-
-/**
- * Limit result in included model because it's not possible with Sequelize
- * @param res
- * @param statusCode
- * @returns {Function}
- */
-function limitResult (res, key, limit) {
-    return function (entity) {
-        if (entity) {
-            res.status(200).json(entity);
-        }
-    };
-}
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
@@ -54,6 +40,16 @@ function addLifePins (updates) {
     var pins = LifePin.build(_.map(updates.pins || [], _.partialRight(_.pick, '_id')));
     return function (entity) {
         return entity.setPins(pins)
+            .then(function () {
+                return entity;
+            });
+    };
+}
+
+function addLifeSpots (updates) {
+    var spots = LifeSpot.build(_.map(updates.spots || [], _.partialRight(_.pick, '_id')));
+    return function (entity) {
+        return entity.setSpots(spots)
             .then(function () {
                 return entity;
             });
@@ -129,6 +125,7 @@ exports.create = function (req, res) {
     LifeTheme.create(req.body)
         .then(saveUpdates(req.body))
         .then(addLifePins(req.body))
+        .then(addLifeSpots(req.body))
         .then(responseWithResult(res, 201))
         .catch(res.handleError());
 };
@@ -170,6 +167,7 @@ exports.update = function (req, res) {
             .then(utils.handleEntityNotFound(res))
             .then(saveUpdates(req.body))
             .then(addLifePins(req.body))
+            .then(addLifeSpots(req.body))
             .then(responseWithResult(res))
             .catch(res.handleError());
     }
