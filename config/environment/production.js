@@ -92,9 +92,9 @@ module.exports = {
 
   netsize: {
     callbackBaseUrl: 'https://api.afrostream.tv',
-    uri: 'http://qa.pay.netsize.com/API/1.2/',
-    key: '368b8163dca54e64a17ec098d63d2464',
-    serviceId: 1,
+    uri: 'https://pay.netsize.com/api/1.2/',
+    key: 'decef8a23e764beaa5c39018e034a254',
+    serviceId: 2,
     productType: 121,
     "initialize-authentication-success-code-list": [ "120" ]
   },
