@@ -28,6 +28,7 @@ module.exports.get = function () {
                 {
                     model: User,
                     as: 'user',
+                    required: false,
                     attributes: ['nickname', 'facebook']
                 }
             ]
