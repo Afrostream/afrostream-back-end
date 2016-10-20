@@ -80,12 +80,12 @@
   },
   "scripts": {
     "start": "node server.js",
-    "staging": ". ~/.nvm/nvm.sh && nvm use 0.12 && nodemon staging.js",
-    "dev": ". ~/.nvm/nvm.sh && nvm use 0.12 && nodemon server.js",
+    "staging": "nodemon staging.js",
+    "dev": "nodemon server.js",
     "seed": "export SEED_DB=true && npm run dev",
     "cron-daily-queries": "node cron/daily-queries.js",
     "cron-stats-usersVideos": "node cron/stats-usersVideos.js",
-    "test": ". ~/.nvm/nvm.sh && nvm use 0.12 && node_modules/.bin/mocha -b test/integration/*"
+    "test": "node_modules/.bin/mocha -b test/integration/*"
   },
   "private": true
 }
