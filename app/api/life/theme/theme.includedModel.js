@@ -22,7 +22,6 @@ module.exports.get = function () {
                 'originalUrl',
                 'imageUrl',
                 'description',
-                'body',
                 'date'],
             required: false,
             where: {'active': true},
