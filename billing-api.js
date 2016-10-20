@@ -264,6 +264,15 @@ var getInternalPlans = function (billingsData) {
   });
 };
 
+var getInternalPlan = function (internalPlanUuid) {
+  assert(typeof internalPlanUuid === 'string' && internalPlanUuid);
+  return requestBilling({
+    url: config.billings.url + '/billings/api/internalplans/'+internalPlanUuid
+  }).then(function (body) {
+    return body && body.response && body.response.internalPlan || null;
+  });
+}
+
 var subscriptionToPlanCode = function (subscription) {
   if (subscription &&
     subscription.isActive === 'yes' &&
@@ -388,11 +397,11 @@ module.exports.updateUser = updateUser;
 //module.exports.updateUser = updateUser;
 module.exports.getOrCreateUser = getOrCreateUser;
 // fetching internal infos
-module.exports.getInternalPlans = getInternalPlans;
+module.exports.getInternalPlan = getInternalPlan;
+module.exports.getInternalPlans = getInternalPlans
 // parsing subscription
 module.exports.subscriptionToPlanCode = subscriptionToPlanCode;
 module.exports.subscriptionToPromo = subscriptionToPromo;
-
 // coupon codes
 module.exports.validateCoupons = validateCoupons;
 module.exports.createCoupons = createCoupons;

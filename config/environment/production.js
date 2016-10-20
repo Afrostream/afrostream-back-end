@@ -96,7 +96,8 @@ module.exports = {
     key: 'decef8a23e764beaa5c39018e034a254',
     serviceId: 2,
     productType: 121,
-    "initialize-authentication-success-code-list": [ "120" ]
+    "initialize-authentication-success-code-list": [ "120" ],
+    internalPlanUuid: 'nsafrostreammonthly'
   },
 
   cookies: {

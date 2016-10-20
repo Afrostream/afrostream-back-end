@@ -7,7 +7,7 @@ var router = express.Router();
 
 router.get('/check', controller.check);
 router.get('/callback', controller.callback);
-//router.get('/subscribe', controller.subscribe);
+router.get('/subscribe', controller.subscribe);
 //router.get('/unsubscribe', controller.unsubscribe);
 
 module.exports = router;

@@ -60,7 +60,8 @@ module.exports = {
     key: '368b8163dca54e64a17ec098d63d2464',
     serviceId: 1,
     productType: 121,
-    "initialize-authentication-success-code-list": [ "120" ]
+    "initialize-authentication-success-code-list": [ "120" ],
+    internalPlanUuid: 'nsafrostreammonthly'
   },
 
   dumpPostData: true,
