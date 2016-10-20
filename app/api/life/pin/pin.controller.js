@@ -103,19 +103,6 @@ exports.index = function (req, res) {
         include: getIncludedModel(),
         order: [['date', 'DESC']]
     };
-
-    // pagination :
-    if (utils.isReqFromAfrostreamAdmin(req)) {
-        utils.mergeReqRange(queryOptions, req);
-    } else {
-        if (parseInt(req.query.limit)) {
-            // adding limit option if limit is NaN or 0 (undefined/whatever/"0")
-            _.merge(queryOptions, {limit: req.query.limit});
-        }
-        if (!isNaN(req.query.offset)) {
-            _.merge(queryOptions, {offset: req.query.offset});
-        }
-    }
     // pagination
     utils.mergeReqRange(queryOptions, req);
 
@@ -128,6 +115,15 @@ exports.index = function (req, res) {
     }
 
     queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
+
+    if (req.query.limit) {
+        queryOptions = _.merge(queryOptions, {limit: req.query.limit});
+    }
+
+    if (req.query.order) {
+        queryOptions = _.merge(queryOptions, {order: [[req.query.order, req.query.sort || 'DESC']]});
+    }
+
 
     LifePin.findAndCountAll(queryOptions)
         .then(utils.handleEntityNotFound(res))
