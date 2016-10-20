@@ -24,7 +24,6 @@ module.exports.get = function () {
                 'description',
                 'date'],
             required: false,
-            where: {'active': true},
             include: [
                 {
                     model: User,
@@ -36,8 +35,7 @@ module.exports.get = function () {
         {
             model: LifeSpot,
             as: 'spots',
-            required: false,
-            where: {'active': true}
+            required: false
         }
     ];
 };
