@@ -93,6 +93,9 @@ function getCookieInfos(req) {
       if (!req.signedCookies.netsize.transactionId) {
         throw new Error('missing transactionId');
       }
+      if (!req.signedCookies.netsize.lastCall) {
+        throw new Error('missing lastCall info');
+      }
       return req.signedCookies.netsize;
     });
 }
@@ -178,7 +181,7 @@ module.exports.check = function (req, res) {
       }
       var cookieArgs = [
         config.cookies.netsize.name,
-        { transactionId: netsizeTransactionId, returnUrl: req.query.returnUrl },
+        { transactionId: netsizeTransactionId, returnUrl: req.query.returnUrl, lastCall: 'check' },
         { domain: config.cookies.netsize.domain, path: '/', signed:true }
       ];
       console.log('[DEBUG]: [NETSIZE]: set cookie ' + JSON.stringify(cookieArgs));
@@ -210,27 +213,54 @@ module.exports.callback = function (req, res) {
       } catch (e) {
         throw new Error('no code');
       }
-      if (config.netsize["initialize-authentication-success-code-list"].indexOf(code) === -1) {
-        var error = new Error('error code');
-        error.netsizeStatusCode = code;
-        throw error;
-      }
       return code;
     })
     .then(
-      function success(code) {
+      function isSuccessful(code) {
         console.log('[INFO]: [NETSIZE]: code='+code);
+        switch (c.cookieInfos.lastCall) {
+          case 'check':
+          case 'subscribe':
+            if (config.netsize["initialize-authentication-success-code-list"].indexOf(code) === -1) {
+              var error = new Error('error code');
+              error.netsizeStatusCode = code;
+              throw error;
+            }
+            break;
+          default:
+            throw new Error('unknown lastCall ' + c.cookieInfos.lastCall);
+        }
+      }
+    )
+    .then(
+      function success(code) {
+        var json = {success: true, netsizeStatusCode: code, netsizeTransactionId: c.cookieInfos.transactionId};
+
         if (c.cookieInfos.returnUrl) {
           console.log('[INFO]: [NETSIZE]: cookie containing redirect-url => redirecting to '+c.cookieInfos.returnUrl);
-          res.redirect(302, c.cookieInfos.returnUrl);
+          // passing info to returnUrl
+          var returnUrl = c.cookieInfos.returnUrl;
+          returnUrl += '#' + btoa(JSON.stringify({statusCode:200, data: json}));
+          res.redirect(302, returnUrl);
         } else {
-          var json = {success: true, netsizeStatusCode: code, netsizeTransactionId: c.cookieInfos.transactionId};
-          console.log('[INFO]: [NETSIZE]: no redirect-url => displaying json ', json);
+          console.log('[INFO]: [NETSIZE]: no redirect-url => displaying json ' + JSON.stringify(json));
           res.json(json);
         }
       },
       function error(err) {
-        res.handleError()(err, { netsizeStatusCode: err.netsizeStatusCode, netsizeTransactionId: c.cookieInfos.transactionId });
+        var message = String(err && err.message || err || 'unknown');
+        var json = { error: message, netsizeStatusCode: err.netsizeStatusCode, netsizeTransactionId: c.cookieInfos.transactionId };
+
+        if (c.cookieInfos.returnUrl) {
+          console.error('[ERROR]: [NETSIZE]: '+ message);
+          console.error('[ERROR]: [NETSIZE]: cookie containing redirect-url => redirecting to '+c.cookieInfos.returnUrl);
+          // passing info to returnUrl
+          var returnUrl = c.cookieInfos.returnUrl;
+          returnUrl += '#' + btoa(JSON.stringify({statusCode:err.statusCode || 500, data: json}));
+          res.redirect(302, returnUrl);
+        } else {
+          res.handleError()(err, json);
+        }
       }
     );
 };
@@ -316,6 +346,15 @@ module.exports.subscribe = function (req, res) {
     */
     var languageCode = internalPlan.internalPlanOpts.languageCode;
 
+    /*
+      The URL where the end-user will be redirected to after the finalization
+      of authentication, payment validation or subscription setup.
+      If empty, end-user will not be redirected, rather a blank page will be
+      returned with HTTP status code 200.
+      Optional
+    */
+    var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback'
+
     //
     data[methodName]["@"]["flow-id"] = flowId;
     data[methodName]["@"]["@subscription-model-id"] = subscriptionModelId;
@@ -328,6 +367,7 @@ module.exports.subscribe = function (req, res) {
     data[methodName]["product"]["description"] = {};
     data[methodName]["product"]["description"]["#"] = productDescription;
     data[methodName]["@"]["language-code"] = languageCode
+    data[methodName]["@"]["return-url"] = returnUrl;
 
     return requestNetsize(data);
   })
@@ -345,7 +385,7 @@ module.exports.subscribe = function (req, res) {
     }
     var cookieArgs = [
       config.cookies.netsize.name,
-      { transactionId: netsizeTransactionId, returnUrl: req.query.returnUrl },
+      { transactionId: netsizeTransactionId, returnUrl: req.query.returnUrl, lastCall: 'subscribe' },
       { domain: config.cookies.netsize.domain, path: '/', signed:true }
     ];
     console.log('[DEBUG]: [NETSIZE]: set cookie ' + JSON.stringify(cookieArgs));
