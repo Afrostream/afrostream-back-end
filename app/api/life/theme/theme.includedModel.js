@@ -13,6 +13,7 @@ module.exports.get = function () {
             model: LifePin,
             as: 'pins',
             attributes: [
+                '_id',
                 'type',
                 'title',
                 'slug',
