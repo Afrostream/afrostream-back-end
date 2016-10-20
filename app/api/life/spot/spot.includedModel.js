@@ -7,7 +7,7 @@ var LifeTheme = sqldb.LifeTheme;
 
 module.exports.get = function () {
     return [
-        {model: LifeTheme, as: 'themes'},
+        {model: LifeTheme, as: 'themes', required: false},
         {model: Image, as: 'image', required: false}
     ];
 };

@@ -13,6 +13,7 @@ module.exports.get = function () {
             model: LifePin,
             as: 'pins',
             attributes: [
+                '_id',
                 'type',
                 'title',
                 'slug',
@@ -24,11 +25,11 @@ module.exports.get = function () {
                 'description',
                 'date'],
             required: false,
-            where: {'active': true},
             include: [
                 {
                     model: User,
                     as: 'user',
+                    required: false,
                     attributes: ['nickname', 'facebook']
                 }
             ]
@@ -36,8 +37,7 @@ module.exports.get = function () {
         {
             model: LifeSpot,
             as: 'spots',
-            required: false,
-            where: {'active': true}
+            required: false
         }
     ];
 };
