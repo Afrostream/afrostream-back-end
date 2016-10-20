@@ -195,15 +195,13 @@ module.exports.check = function (req, res) {
     );
 };
 
-
-
 module.exports.callback = function (req, res) {
   var c = { transactionId: null, cookieInfos: null };
 
   getCookieInfos(req)
     .then(function success(cookieInfos) {
       c.cookieInfos = cookieInfos;
-      return requestNetsize(generateBaseParameters("get-status", methodName));
+      return requestNetsize(generateBaseParameters("get-status", cookieInfos.transactionId));
     })
     .then(function parse(json) {
       var code;
@@ -261,7 +259,8 @@ module.exports.subscribe = function (req, res) {
     c.transactionId = cookieInfos.transactionId;
 
     // base method parameters
-    var data = generateBaseParameters("initialize-subscription", cookieInfos.transactionId);
+    var methodName = "initialize-subscription"
+    var data = generateBaseParameters(methodName, cookieInfos.transactionId);
 
     // specific method parameters
     /*
