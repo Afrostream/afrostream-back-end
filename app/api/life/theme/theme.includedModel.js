@@ -4,6 +4,7 @@ var sqldb = rootRequire('/sqldb');
 var LifeSpot = sqldb.LifeSpot;
 //var LifeThemePins = sqldb.LifeThemePins;
 var LifePin = sqldb.LifePin;
+var Image = sqldb.Image;
 var User = sqldb.User;
 
 module.exports.get = function () {
@@ -22,6 +23,7 @@ module.exports.get = function () {
                 'providerName',
                 'originalUrl',
                 'imageUrl',
+                'richMediaUrl',
                 'description',
                 'date'],
             required: false,
@@ -37,7 +39,14 @@ module.exports.get = function () {
         {
             model: LifeSpot,
             as: 'spots',
-            required: false
+            required: false,
+            include: [
+                {
+                    model: Image,
+                    as: 'image',
+                    required: false
+                }
+            ]
         }
     ];
 };

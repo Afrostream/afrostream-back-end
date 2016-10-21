@@ -1,7 +1,6 @@
 'use strict';
 
 var sqldb = rootRequire('/sqldb');
-var User = sqldb.User;
 var Image = sqldb.Image;
 var LifeTheme = sqldb.LifeTheme;
 
