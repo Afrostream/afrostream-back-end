@@ -26,7 +26,7 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: DataTypes.NOW
         },
         dateTo: DataTypes.DATE,
-        targetlUrl: DataTypes.STRING,
+        targetUrl: DataTypes.STRING,
         pixelUrl: DataTypes.STRING,
         providerName: DataTypes.STRING,
         providerUrl: DataTypes.STRING,
