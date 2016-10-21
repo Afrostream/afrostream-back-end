@@ -287,7 +287,7 @@ db.Work = db.sequelize.import('models/work');
 db.LifePin = db.sequelize.import('models/life/lifePin');
 db.LifeTheme = db.sequelize.import('models/life/lifeTheme');
 db.LifeThemePins = db.sequelize.import('models/life/lifeThemePins');
-db.LifeUsersPinsLike = db.sequelize.import('models/life/LifeUsersPinsLike');
+db.LifeUsersPinsLike = db.sequelize.import('models/life/lifeUsersPinsLike');
 db.LifeThemeSpots = db.sequelize.import('models/life/lifeThemeSpots');
 db.LifeSpot = db.sequelize.import('models/life/lifeSpot');
 
