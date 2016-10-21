@@ -249,13 +249,14 @@ module.exports.callback = function (req, res) {
       },
       function error(err) {
         var message = String(err && err.message || err || 'unknown');
-        var json = { error: message, netsizeStatusCode: err.netsizeStatusCode, netsizeTransactionId: c.cookieInfos.transactionId };
+        var returnUrl = c.cookieInfos && c.cookieInfos.returnUrl;
+        var netsizeTransactionId = c.cookieInfos && c.cookieInfos.transactionId;
+        var json = { error: message, netsizeStatusCode: err.netsizeStatusCode, netsizeTransactionId: netsizeTransactionId };
 
-        if (c.cookieInfos.returnUrl) {
+        if (returnUrl) {
           console.error('[ERROR]: [NETSIZE]: '+ message);
-          console.error('[ERROR]: [NETSIZE]: cookie containing redirect-url => redirecting to '+c.cookieInfos.returnUrl);
+          console.error('[ERROR]: [NETSIZE]: cookie containing redirect-url => redirecting to '+returnUrl);
           // passing info to returnUrl
-          var returnUrl = c.cookieInfos.returnUrl;
           returnUrl += '#' + btoa(JSON.stringify({statusCode:err.statusCode || 500, data: json}));
           res.redirect(302, returnUrl);
         } else {
