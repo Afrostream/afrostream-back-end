@@ -87,6 +87,7 @@ function getCookieInfos(req) {
       if (!req.signedCookies) {
         throw new Error('no cookies');
       }
+      console.log('[DEBUG]: [NETSIZE]: signedCookies', JSON.stringify(req.signedCookies));
       if (!req.signedCookies.netsize) {
         throw new Error('no netsize cookie');
       }
@@ -94,7 +95,7 @@ function getCookieInfos(req) {
         throw new Error('missing transactionId');
       }
       if (!req.signedCookies.netsize.lastCall) {
-        throw new Error('missing lastCall info');
+        throw new Error('missing lastCall');
       }
       return req.signedCookies.netsize;
     });
