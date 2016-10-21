@@ -339,6 +339,7 @@ module.exports = function (sequelize, DataTypes) {
             getPublicInfos: function (plainUser) {
                 plainUser = plainUser || {};
                 return {
+                    picture: plainUser.picture,
                     nickname: plainUser.nickname,
                     facebook: plainUser.facebook ? {id: plainUser.facebook.id} : null
                 }
