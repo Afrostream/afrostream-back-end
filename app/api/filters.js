@@ -207,18 +207,19 @@ var filterUserAttributesAll = function (req, role, attr) {
         var promises = [];
         var entityList = entitys.rows || entitys;
         (entityList || []).map(function (entity) {
-
-            promises.push(new Promise(function (resolve) {
-                var c = filterUserRecursive(entity, role);
-                resolve(c);
-            }));
-
-            _.map(attributes, function (attribute) {
+            if (!attributes.length) {
                 promises.push(new Promise(function (resolve) {
-                    var c = filterUserRecursive(entity, role, attribute);
+                    var c = filterUserRecursive(entity, role);
                     resolve(c);
-                }))
-            });
+                }));
+            } else {
+                _.map(attributes, function (attribute) {
+                    promises.push(new Promise(function (resolve) {
+                        var c = filterUserRecursive(entity, role, attribute);
+                        resolve(c);
+                    }))
+                });
+            }
         });
 
         return Promise
