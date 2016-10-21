@@ -241,21 +241,14 @@ var filterUserAttributes = function (req, role, attr) {
         if (isBacko) {
             return entity; // no restrictions.
         }
-        var promises = [];
         if (!attributes.length) {
             return filterUserRecursive(entity, role);
         } else {
+            var c = entity.get({plain: true});
             _.map(attributes, function (attribute) {
-                promises.push(new Promise(function (resolve) {
-                    var c = filterUserRecursive(entity, role, attribute);
-                    resolve(c);
-                }))
+                _.merge(c, filterUserRecursive(entity, role, attribute));
             });
-            return Promise
-                .all(promises)
-                .then(function (entityFiltered) {
-                    return entityFiltered;
-                });
+            return c;
         }
 
     }
