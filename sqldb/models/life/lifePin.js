@@ -21,7 +21,6 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: DataTypes.NOW
         },
         originalUrl: DataTypes.STRING,
-        richMediaUrl: DataTypes.STRING,
         imageUrl: DataTypes.STRING,
         providerName: DataTypes.STRING,
         providerUrl: DataTypes.STRING,
