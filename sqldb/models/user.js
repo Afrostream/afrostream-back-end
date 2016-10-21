@@ -125,7 +125,7 @@ module.exports = function (sequelize, DataTypes) {
         getterMethods: {
             picture: function () {
                 var frontUrl = config.frontEnd.protocol + '://' + config.frontEnd.authority;
-                return (this.facebook && this.facebook.id && '//graph.facebook.com/' + this.facebook.id + '/picture') || (frontUrl + '/avatar/' + (this.email || this.name)) || null;
+                return (this.facebook && this.facebook.id && '//graph.facebook.com/' + this.facebook.id + '/picture') || (frontUrl + '/avatar/' + ( this.email || this.name)) || null;
             },
 
             ise2: function () {
