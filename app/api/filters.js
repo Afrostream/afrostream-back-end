@@ -205,7 +205,7 @@ var filterUserAttributesAll = function (req, role, attr) {
         }
 
         var promises = [];
-        var entityList = entitys.rows || entitys;
+        var entityList = entitys.rows || [entitys];
         (entityList || []).map(function (entity) {
             if (!attributes.length) {
                 promises.push(new Promise(function (resolve) {
@@ -233,16 +233,34 @@ var filterUserAttributesAll = function (req, role, attr) {
     }
 };
 
-var filterUserAttributes = function (req, role) {
+var filterUserAttributes = function (req, role, attr) {
     assert(role);
+    var attributes = attr || [];
     var isBacko = utils.isReqFromAfrostreamAdmin(req);
     return function (entity) {
         if (isBacko) {
             return entity; // no restrictions.
         }
+        var promises = [];
+        if (!attributes.length) {
+            promises.push(new Promise(function (resolve) {
+                var c = filterUserRecursive(entity, role);
+                resolve(c);
+            }));
+        } else {
+            _.map(attributes, function (attribute) {
+                promises.push(new Promise(function (resolve) {
+                    var c = filterUserRecursive(entity, role, attribute);
+                    resolve(c);
+                }))
+            });
+        }
 
-        var c = filterUserRecursive(entity, role);
-        return c;
+        return Promise
+            .all(promises)
+            .then(function (entityFiltered) {
+                return entityFiltered;
+            });
     }
 };
 

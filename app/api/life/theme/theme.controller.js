@@ -115,7 +115,7 @@ exports.show = function (req, res) {
 
     LifeTheme.find(queryOptions)
         .then(utils.handleEntityNotFound(res))
-        .then(filters.filterUserAttributesAll(req, 'public', ['pins']))
+        .then(filters.filterUserAttributes(req, 'public', ['pins']))
         .then(responseWithResult(res))
         .catch(res.handleError());
 };
