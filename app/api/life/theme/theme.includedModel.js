@@ -31,14 +31,12 @@ module.exports.get = function () {
                 {
                     model: User,
                     as: 'user',
-                    required: false,
-                    attributes: ['nickname', 'picture']
+                    required: false
                 },
                 {
                     model: User,
                     as: 'users',
-                    required: false,
-                    attributes: ['picture', 'nickname']
+                    required: false
                 }
             ]
         },

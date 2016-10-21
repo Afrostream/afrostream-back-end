@@ -97,6 +97,7 @@ exports.index = function (req, res) {
 
     LifeTheme.findAndCountAll(queryOptions)
         .then(utils.handleEntityNotFound(res))
+        .then(filters.filterUserAttributes('public', ['pins']))
         .then(utils.responseWithResultAndTotal(res))
         .catch(res.handleError());
 };
@@ -114,6 +115,7 @@ exports.show = function (req, res) {
 
     LifeTheme.find(queryOptions)
         .then(utils.handleEntityNotFound(res))
+        .then(filters.filterUserAttributes('public'))
         .then(responseWithResult(res))
         .catch(res.handleError());
 };
