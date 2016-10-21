@@ -201,12 +201,15 @@ module.exports.check = function (req, res) {
 module.exports.callback = function (req, res) {
   var c = { transactionId: null, cookieInfos: null };
 
+  console.log('[DEBUG]: [NETSIZE]: callback - start');
   getCookieInfos(req)
     .then(function success(cookieInfos) {
+      console.log('[DEBUG]: [NETSIZE]: cookieInfos', cookieInfos);
       c.cookieInfos = cookieInfos;
       return requestNetsize(generateBaseParameters("get-status", cookieInfos.transactionId));
     })
     .then(function parse(json) {
+      console.log('[DEBUG]: [NETSIZE]: json', json);
       var code;
       try {
         code = json['response']['get-status'][0]['transaction-status'][0]['$']['code']
@@ -234,6 +237,7 @@ module.exports.callback = function (req, res) {
     )
     .then(
       function success(code) {
+        console.log('[DEBUG]: [NETSIZE]:success');
         var json = {success: true, netsizeStatusCode: code, netsizeTransactionId: c.cookieInfos.transactionId};
 
         if (c.cookieInfos.returnUrl) {
@@ -248,6 +252,7 @@ module.exports.callback = function (req, res) {
         }
       },
       function error(err) {
+        console.log('[DEBUG]: [NETSIZE]:err', err);
         var message = String(err && err.message || err || 'unknown');
         var returnUrl = c.cookieInfos && c.cookieInfos.returnUrl;
         var netsizeTransactionId = c.cookieInfos && c.cookieInfos.transactionId;
