@@ -169,33 +169,39 @@ var filterQueryOptions = function (req, options, rootModel) {
     });
 };
 
-var filterUserAttributes = function (req, role, attributes) {
-    assert(role);
-    var isBacko = utils.isReqFromAfrostreamAdmin(req);
+function filterUserRecursive (entity, role, attribute) {
     var roleMehod = 'getPublicInfos';
     if (role === 'private') {
         roleMehod = 'getInfos';
     }
+    var c = entity.get({plain: true});
+    if (attribute) {
+        var entityR = entity[attribute];
+        c[attribute] = (entityR || []).map(function (entityD) {
+            var p = entityD.get({plain: true});
+            if (entityD.user) {
+                p.user = entityD.user[roleMehod]();
+            }
+            if (entityD.users) {
+                p.users = (entityD.users || []).map(function (user) {
+                    return user[roleMehod]();
+                });
+            }
+            return p;
+        });
+        return c;
+    } else {
+        return c[roleMehod]();
+    }
+}
+
+var filterUserAttributesAll = function (req, role, attr) {
+    assert(role);
+    var attributes = attr || [];
+    var isBacko = utils.isReqFromAfrostreamAdmin(req);
     return function (entitys) {
         if (isBacko) {
             return entitys; // no restrictions.
-        }
-        function filterUserRecursive (entity, attribute) {
-            var c = entity.get({plain: true});
-            var entityR = entity[attribute];
-            c[attribute] = (entityR || []).map(function (entityD) {
-                var p = entityD.get({plain: true});
-                if (entityD.user) {
-                    p.user = entityD.user[roleMehod]();
-                }
-                if (entityD.users) {
-                    p.users = (entityD.users || []).map(function (user) {
-                        return user[roleMehod]();
-                    });
-                }
-                return p;
-            });
-            return c;
         }
 
         var promises = [];
@@ -203,7 +209,7 @@ var filterUserAttributes = function (req, role, attributes) {
         (entityList || []).map(function (entity) {
             _.map(attributes, function (attribute) {
                 promises.push(new Promise(function (resolve) {
-                    var c = filterUserRecursive(entity, attribute);
+                    var c = filterUserRecursive(entity, role, attribute);
                     resolve(c);
                 }))
             });
@@ -220,8 +226,22 @@ var filterUserAttributes = function (req, role, attributes) {
     }
 };
 
+var filterUserAttributes = function (req, role) {
+    assert(role);
+    var isBacko = utils.isReqFromAfrostreamAdmin(req);
+    return function (entity) {
+        if (isBacko) {
+            return entity; // no restrictions.
+        }
+
+        var c = filterUserRecursive(entity, role);
+        return c;
+    }
+};
+
 
 // FIXME: USER_PRIVACY: we should implement here a global output filter
 
 exports.filterQueryOptions = filterQueryOptions;
+exports.filterUserAttributesAll = filterUserAttributesAll;
 exports.filterUserAttributes = filterUserAttributes;

@@ -17,7 +17,6 @@ module.exports.get = function () {
                 '_id',
                 'type',
                 'title',
-                'slug',
                 'role',
                 'providerUrl',
                 'providerName',
@@ -31,14 +30,12 @@ module.exports.get = function () {
                 {
                     model: User,
                     as: 'user',
-                    required: false,
-                    //attributes: ['nickname', 'email', 'name', 'facebook']
+                    required: false
                 },
                 {
                     model: User,
                     as: 'users',
-                    required: false,
-                    //attributes: ['nickname', 'email', 'name', 'facebook']
+                    required: false
                 }
             ]
         },
