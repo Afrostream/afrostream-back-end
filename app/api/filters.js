@@ -243,10 +243,7 @@ var filterUserAttributes = function (req, role, attr) {
         }
         var promises = [];
         if (!attributes.length) {
-            promises.push(new Promise(function (resolve) {
-                var c = filterUserRecursive(entity, role);
-                resolve(c);
-            }));
+            return filterUserRecursive(entity, role);
         } else {
             _.map(attributes, function (attribute) {
                 promises.push(new Promise(function (resolve) {
@@ -254,13 +251,13 @@ var filterUserAttributes = function (req, role, attr) {
                     resolve(c);
                 }))
             });
+            return Promise
+                .all(promises)
+                .then(function (entityFiltered) {
+                    return entityFiltered;
+                });
         }
 
-        return Promise
-            .all(promises)
-            .then(function (entityFiltered) {
-                return entityFiltered;
-            });
     }
 };
 
