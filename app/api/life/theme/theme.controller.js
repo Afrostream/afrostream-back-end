@@ -97,18 +97,7 @@ exports.index = function (req, res) {
 
     LifeTheme.findAndCountAll(queryOptions)
         .then(utils.handleEntityNotFound(res))
-        //.then(function (themes) {
-        //    // FIXME: USER_PRIVACY: we should implement a privacy filter in a single place
-        //    themes.rows = (themes.rows || []).map(function (theme) {
-        //        theme.pins = (theme.pins || []).map(function (pin) {
-        //            var c = pin.get({plain: true});
-        //            c.user = pin.user && pin.user.getPublicInfos();
-        //            return c;
-        //        });
-        //        return theme;
-        //    });
-        //    return themes;
-        //})
+        .then(filters.filterUserAttributes(req, 'public', ['pins']))
         .then(utils.responseWithResultAndTotal(res))
         .catch(res.handleError());
 };
@@ -126,6 +115,7 @@ exports.show = function (req, res) {
 
     LifeTheme.find(queryOptions)
         .then(utils.handleEntityNotFound(res))
+        .then(filters.filterUserAttributes(req, 'public', ['pins']))
         .then(responseWithResult(res))
         .catch(res.handleError());
 };
