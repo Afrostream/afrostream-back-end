@@ -151,7 +151,6 @@ exports.show = function (req, res) {
 // Scrapp wep url and return medias
 exports.scrap = function (req, res) {
     var c = {
-        slug: '',
         role: 'free',
         originalUrl: req.body.scrapUrl
     };
