@@ -78,6 +78,7 @@ function addThemes (updates) {
 // ?query=... (search in the title)
 exports.index = function (req, res) {
     var queryName = req.param('query'); // deprecated.
+    var queryType = req.param('type'); // deprecated.
     var queryOptions = {
         include: getIncludedModel()
     };
@@ -89,6 +90,13 @@ exports.index = function (req, res) {
         queryOptions = _.merge(queryOptions, {
             where: {
                 title: {$iLike: '%' + queryName + '%'}
+            }
+        })
+    }
+    if (queryType) {
+        queryOptions = _.merge(queryOptions, {
+            where: {
+                type: {$iLike: '%' + queryType + '%'}
             }
         })
     }
