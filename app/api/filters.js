@@ -191,7 +191,7 @@ function filterUserRecursive (entity, role, attribute) {
         });
         return c;
     } else {
-        return c[roleMehod]();
+        return entity[roleMehod]();
     }
 }
 
@@ -207,6 +207,12 @@ var filterUserAttributesAll = function (req, role, attr) {
         var promises = [];
         var entityList = entitys.rows || entitys;
         (entityList || []).map(function (entity) {
+
+            promises.push(new Promise(function (resolve) {
+                var c = filterUserRecursive(entity, role);
+                resolve(c);
+            }));
+
             _.map(attributes, function (attribute) {
                 promises.push(new Promise(function (resolve) {
                     var c = filterUserRecursive(entity, role, attribute);

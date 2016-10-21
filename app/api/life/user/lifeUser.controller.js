@@ -7,16 +7,12 @@ var utils = rootRequire('/app/api/utils.js');
 var getIncludedModel = require('./lifeUser.includedModel').get;
 
 var index = function (req, res) {
-    var queryName = req.param('query'); // deprecated.
     var queryOptions = {
         include: getIncludedModel(),
-        order: [['date', 'DESC']],
         limit: 100
     };
     // pagination
     utils.mergeReqRange(queryOptions, req);
-
-    queryOptions = filters.filterQueryOptions(req, queryOptions, User);
 
     if (req.query.limit) {
         queryOptions = _.merge(queryOptions, {limit: req.query.limit});
@@ -28,7 +24,7 @@ var index = function (req, res) {
 
     User.findAndCountAll(queryOptions)
         .then(utils.handleEntityNotFound(res))
-        .then(filters.filterUserAttributes(req, 'public'))
+        .then(filters.filterUserAttributesAll(req, 'public'))
         .then(utils.responseWithResultAndTotal(res))
         .catch(res.handleError())
 };
