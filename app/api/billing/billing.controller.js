@@ -425,7 +425,7 @@ module.exports.validateCoupons = function (req, res) {
       function (err) {
         var message = (err instanceof Error) ? err.message : String(err);
         var code = err && err.code;
-        console.error('ERROR: /api/billing/coupons', message);
+        console.error('ERROR: /api/billing/coupons', err);
         res.status(500).send({error: message,code:code});
       }
     );
