@@ -65,17 +65,9 @@ module.exports.showInternalplans = function (req, res) {
     .then(function () {
       return billingApi.getInternalPlans(c)
     })
-    .then(
-      function (internalPlans) {
+    .then(function (internalPlans) {
         res.json(internalPlans);
-      },
-      function (err) {
-        var message = (err instanceof Error) ? err.message : String(err);
-        var code = err && err.code;
-        console.error('ERROR: /api/billing/internalplans', message);
-        res.status(500).send({error: message,code:code});
-      }
-    );
+    }).catch(res.handleError());
 };
 
 /**
@@ -110,17 +102,9 @@ module.exports.cancelSubscriptions = function (req, res) {
     .then(function () {
       return billingApi.updateSubscription(c.subscriptionUuid, 'cancel')
     })
-    .then(
-      function success (subscription) {
+    .then(function success (subscription) {
         res.json(subscription);
-      },
-      function error (err) {
-        var message = (err instanceof Error) ? err.message : String(err);
-        var code = err && err.code;
-        console.error('ERROR: /api/billing/cancelSubscriptions', message);
-        res.status(500).send({error: message,code:code});
-      }
-    );
+    }).catch(res.handleError());
 };
 
 /**
@@ -155,17 +139,9 @@ module.exports.reactivateSubscriptions = function (req, res) {
     .then(function () {
       return billingApi.updateSubscription(c.subscriptionUuid, 'reactivate')
     })
-    .then(
-      function success (subscription) {
+    .then(function success (subscription) {
         res.json(subscription);
-      },
-      function error (err) {
-        var message = (err instanceof Error) ? err.message : String(err);
-        var code = err && err.code;
-        console.error('ERROR: /api/billing/reactivateSubscriptions', message);
-        res.status(500).send({error: message,code:code});
-      }
-    );
+    }).catch(res.handleError());
 };
 
 /**
@@ -259,17 +235,9 @@ module.exports.createSubscriptions = function (req, res) {
 
       return billingApi.createSubscription(subscriptionBillingData);
     })
-    .then(
-      function success (subscription) {
+    .then(function success (subscription) {
         res.json(subscription);
-      },
-      function error (err) {
-        var message = (err instanceof Error) ? err.message : String(err);
-        var code = err && err.code;
-        console.error('ERROR: /api/billing/createSubscriptions', message);
-        res.status(500).send({error: message,code:code});
-      }
-    );
+    }).catch(res.handleError());
 };
 
 /**
@@ -398,17 +366,10 @@ module.exports.createGift = function (req, res) {
     .then(function (subscription) {
       return mailer.sendGiftEmail(c, subscription);
     })
-    .then(
-      function success () {
+    .then(function success () {
         res.json({});
-      },
-      function error (err) {
-        var message = (err instanceof Error) ? err.message : String(err);
-        var code = err && err.code;
-        console.error('ERROR: /api/billing/gift', message);
-        res.status(500).send({error: message,code:code});
-      }
-    );
+    })
+    .catch(res.handleError());
 };
 
 module.exports.validateCoupons = function (req, res) {
@@ -418,17 +379,10 @@ module.exports.validateCoupons = function (req, res) {
       var couponCode = req.query.coupon;
       return billingApi.validateCoupons(billingProviderName, couponCode);
     })
-    .then(
-      function (couponStatus) {
+    .then(function (couponStatus) {
         res.json(couponStatus);
-      },
-      function (err) {
-        var message = (err instanceof Error) ? err.message : String(err);
-        var code = err && err.code;
-        console.error('ERROR: /api/billing/coupons', err);
-        res.status(500).send({error: message,code:code});
-      }
-    );
+    })
+    .catch(res.handleError());
 };
 
 module.exports.listCoupons = function (req, res) {
@@ -453,17 +407,9 @@ module.exports.listCoupons = function (req, res) {
       var couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
       return billingApi.listCoupons(userBillingUuid, couponsCampaignBillingUuid);
     })
-    .then(
-      function (couponsList) {
+    .then(function (couponsList) {
         res.json(couponsList);
-      },
-      function (err) {
-        var message = (err instanceof Error) ? err.message : String(err);
-        var code = err && err.code;
-        console.error('ERROR: /api/billing/coupons/list', message);
-        res.status(500).send({error: message,code:code});
-      }
-    );
+    }).catch(res.handleError());
 };
 
 module.exports.createCoupons = function (req, res) {
@@ -509,17 +455,9 @@ module.exports.createCoupons = function (req, res) {
       var couponOpts = c.couponOpts;
       return billingApi.createCoupons(userBillingUuid, couponsCampaignBillingUuid, couponOpts);
     })
-    .then(
-      function (couponStatus) {
+    .then(function (couponStatus) {
         res.json(couponStatus);
-      },
-      function (err) {
-        var message = (err instanceof Error) ? err.message : String(err);
-        var code = err && err.code;
-        console.error('ERROR: /api/billing/coupons', message);
-        res.status(500).send({error: message,code:code});
-      }
-    );
+    }).catch(res.handleError());
 };
 
 module.exports.getCouponCampains = function (req, res) {
@@ -529,15 +467,7 @@ module.exports.getCouponCampains = function (req, res) {
       var couponsCampaignBillingUuid = req.params.couponsCampaignBillingUuid || req.query.couponsCampaignBillingUuid || '';
       return billingApi.getCouponCampains(billingProviderName, couponsCampaignBillingUuid);
     })
-    .then(
-      function (couponStatus) {
+    .then(function (couponStatus) {
         res.json(couponStatus);
-      },
-      function (err) {
-        var message = (err instanceof Error) ? err.message : String(err);
-        var code = err && err.code;
-        console.error('ERROR: /api/billing/couponscampaigns', message);
-        res.status(500).send({error: message,code:code});
-      }
-    );
+    }).catch(res.handleError());
 };
