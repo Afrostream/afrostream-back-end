@@ -58,6 +58,8 @@ function generateBaseParameters(methodName, transactionId) {
  * error can contain : err.netsizeErrorCode
  */
 function requestNetsize(data) {
+  console.log('[DEBUG]: [NETSIZE]: data ' + JSON.stringify(data));
+
   var XML = js2xmlparser.parse('request', data);
 
   console.log('[INFO]: [NETSIZE]: ', JSON.stringify(XML));
@@ -319,7 +321,7 @@ module.exports.subscribe = function (req, res) {
 
       20 <=> WebApp, 21 <=> SDK
     */
-    var flowId = 20;
+    var flowId = "20";
 
     /*
       identifier given by netsize linked to a unique subscription model
