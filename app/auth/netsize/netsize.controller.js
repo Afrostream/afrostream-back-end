@@ -1,4 +1,5 @@
 var Q = require('q');
+var _ = require('lodash');
 var js2xmlparser = require('js2xmlparser');
 var request = require('request');
 var xml2js = require('xml2js');
