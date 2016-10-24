@@ -71,8 +71,9 @@ module.exports.showInternalplans = function (req, res) {
       },
       function (err) {
         var message = (err instanceof Error) ? err.message : String(err);
+        var code = err && err.code;
         console.error('ERROR: /api/billing/internalplans', message);
-        res.status(500).send({error: message});
+        res.status(500).send({error: message,code:code});
       }
     );
 };
@@ -115,8 +116,9 @@ module.exports.cancelSubscriptions = function (req, res) {
       },
       function error (err) {
         var message = (err instanceof Error) ? err.message : String(err);
+        var code = err && err.code;
         console.error('ERROR: /api/billing/cancelSubscriptions', message);
-        res.status(500).send({error: message});
+        res.status(500).send({error: message,code:code});
       }
     );
 };
@@ -159,8 +161,9 @@ module.exports.reactivateSubscriptions = function (req, res) {
       },
       function error (err) {
         var message = (err instanceof Error) ? err.message : String(err);
+        var code = err && err.code;
         console.error('ERROR: /api/billing/reactivateSubscriptions', message);
-        res.status(500).send({error: message});
+        res.status(500).send({error: message,code:code});
       }
     );
 };
@@ -262,8 +265,9 @@ module.exports.createSubscriptions = function (req, res) {
       },
       function error (err) {
         var message = (err instanceof Error) ? err.message : String(err);
+        var code = err && err.code;
         console.error('ERROR: /api/billing/createSubscriptions', message);
-        res.status(500).send({error: message});
+        res.status(500).send({error: message,code:code});
       }
     );
 };
@@ -400,8 +404,9 @@ module.exports.createGift = function (req, res) {
       },
       function error (err) {
         var message = (err instanceof Error) ? err.message : String(err);
+        var code = err && err.code;
         console.error('ERROR: /api/billing/gift', message);
-        res.status(500).send({error: message});
+        res.status(500).send({error: message,code:code});
       }
     );
 };
@@ -419,8 +424,9 @@ module.exports.validateCoupons = function (req, res) {
       },
       function (err) {
         var message = (err instanceof Error) ? err.message : String(err);
+        var code = err && err.code;
         console.error('ERROR: /api/billing/coupons', message);
-        res.status(500).send({error: message});
+        res.status(500).send({error: message,code:code});
       }
     );
 };
@@ -453,8 +459,9 @@ module.exports.listCoupons = function (req, res) {
       },
       function (err) {
         var message = (err instanceof Error) ? err.message : String(err);
+        var code = err && err.code;
         console.error('ERROR: /api/billing/coupons/list', message);
-        res.status(500).send({error: message});
+        res.status(500).send({error: message,code:code});
       }
     );
 };
@@ -508,8 +515,9 @@ module.exports.createCoupons = function (req, res) {
       },
       function (err) {
         var message = (err instanceof Error) ? err.message : String(err);
+        var code = err && err.code;
         console.error('ERROR: /api/billing/coupons', message);
-        res.status(500).send({error: message});
+        res.status(500).send({error: message,code:code});
       }
     );
 };
@@ -527,8 +535,9 @@ module.exports.getCouponCampains = function (req, res) {
       },
       function (err) {
         var message = (err instanceof Error) ? err.message : String(err);
+        var code = err && err.code;
         console.error('ERROR: /api/billing/couponscampaigns', message);
-        res.status(500).send({error: message});
+        res.status(500).send({error: message,code:code});
       }
     );
 };
