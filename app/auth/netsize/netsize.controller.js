@@ -50,6 +50,12 @@ function generateBaseParameters(methodName, transactionId) {
   return data;
 }
 
+/**
+ * request wrapper doing XML serialize / unserialize
+ * default timeout = 10 sec
+ *
+ * error can contain : err.netsizeErrorCode
+ */
 function requestNetsize(data) {
   var XML = js2xmlparser.parse('request', data);
 
@@ -75,10 +81,88 @@ function requestNetsize(data) {
     console.log('[DEBUG]: [NETSIZE]: body=', body);
     return Q.nfcall(xml2js.parseString, body);
   })
-  .then(function (json) {
+  .then(function debug(json) {
     console.log('[DEBUG]: [NETSIZE]: json=', JSON.stringify(json));
     return json;
+  })
+  .then(function handleNetsizeError(json) {
+    if (json['response']['error']) {
+      var error = new Error('netsize error');
+      try {
+        error.netsizeErrorCode = json['response']['error']['$']['code'];
+      } catch (e) { }
+      throw error;
+    }
+    return json;
   });
+}
+
+getReturnUrlFromReq = function (req) {
+  return req.query.returnUrl ||
+         req.signedCookies && req.signedCookies.netsize && req.signedCookies.netsize.returnUrl ||
+         null;
+};
+
+getTransactionIdFromReq = function (req) {
+  return req.cookieInfos && req.cookieInfos.transactionId;
+}
+
+/**
+ * specific error handler
+ * ?returnUrl=... exist or signedCookies.netsize.returnUrl => redirect.
+ */
+function handleError(req, res) {
+  return function (err, options) {
+    var message = String(err && err.message || err || 'unknown');
+    var returnUrl = getReturnUrlFromReq(req);
+    var transactionId = getTransactionIdFromReq(req);
+
+    var json = {
+      error: message,
+      message: message,
+      netsizeStatusCode: err.netsizeStatusCode,
+      netsizeErrorCode: err.netsizeErrorCode,
+      netsizeTransactionId: transactionId
+    };
+    _.merge(json, options);
+
+    console.error('[ERROR]: [NETSIZE]:' + JSON.stringify(json), err && err.stack);
+
+    if (returnUrl) {
+      console.error('[ERROR]: [NETSIZE]: redirecting to '+returnUrl);
+      redirectError(res, returnUrl, json, err.statusCode);
+    } else {
+      res.json(json);
+    }
+  }
+}
+
+function handleSuccess(req, res) {
+  return function (data) {
+    var returnUrl = getReturnUrlFromReq(req);
+    var transactionId = getTransactionIdFromReq(req);
+
+    if (returnUrl) {
+      console.log('[INFO]: [NETSIZE]: using redirect-url: '+c.cookieInfos.returnUrl);
+      redirectSuccess(res, returnUrl, data);
+    } else {
+      console.log('[INFO]: [NETSIZE]: responding json ' + JSON.stringify(data));
+      res.json(data);
+    }
+  }
+}
+
+function redirectSuccess(res, url, data) {
+  redirectWithData(res, url, { statusCode: statusCode || 200, data: data });
+}
+
+function redirectError(res, url, data, statusCode) {
+  redirectWithData(res, url, { statusCode: statusCode || 500, data: data });
+}
+
+function redirectWithData(res, url, data) {
+  url += '#' + btoa(JSON.stringify(data));
+  res.redirect(302, url);
 }
 
 function getCookieInfos(req) {
@@ -195,12 +279,20 @@ module.exports.check = function (req, res) {
       function success(netsizeUrl) {
         res.redirect(302, netsizeUrl);
       },
-      res.handleError()
+      handleError(req, res)
     );
 };
 
 module.exports.callback = function (req, res) {
-  var c = { transactionId: null, cookieInfos: null };
+  var c = {
+    transactionStatus: {
+      code: null,
+      userId: null,
+      userIdType: null
+    },
+    transactionId: null,
+    cookieInfos: null
+  };
 
   console.log('[DEBUG]: [NETSIZE]: callback - start');
   getCookieInfos(req)
@@ -210,26 +302,56 @@ module.exports.callback = function (req, res) {
       return requestNetsize(generateBaseParameters("get-status", cookieInfos.transactionId));
     })
     .then(function parse(json) {
-      console.log('[DEBUG]: [NETSIZE]: json', json);
-      var code;
-      try {
-        code = json['response']['get-status'][0]['transaction-status'][0]['$']['code']
-      } catch (e) {
-        throw new Error('no code');
+      /*
+      json= {
+        "response":{
+          "$":{"type":"get-status","version":"1.2","xmlns":"http://www.netsize.com/ns/pay/api"},
+          "get-status":[{
+            "$":{"provider-id":"208020","user-id":"#F6595DB7D8A0CFB56D1C6EB779EB6262","user-id-type":"2"},
+            "advanced-params":[""],
+            "transaction-status":[
+              {"$":{"code":"120"}}
+            ],
+            "merchant":[""]
+          }]
+        }
       }
-      return code;
+      */
+      console.log('[DEBUG]: [NETSIZE]: json', json);
+      try {
+        c.transactionStatus.code = json['response']['get-status'][0]['transaction-status'][0]['$']['code']
+        c.transactionStatus.userId = json['response']['get-status'][0]['$']['user-id'];
+        c.transactionStatus.userIdType = json['response']['get-status'][0]['$']['user-id-type'];
+      } catch (e) {
+        throw new Error('get-status: cannot harvest code or user-id or user-id-type ' + err.message);
+      }
     })
     .then(
-      function isSuccessful(code) {
+      function isSuccessful() {
+        var code = c.transactionStatus.code;
+
         console.log('[INFO]: [NETSIZE]: code='+code);
         switch (c.cookieInfos.lastCall) {
           case 'check':
-          case 'subscribe':
             if (config.netsize["initialize-authentication-success-code-list"].indexOf(code) === -1) {
               var error = new Error('error code');
               error.netsizeStatusCode = code;
               throw error;
             }
+            break;
+          case 'subscribe':
+          if (config.netsize["initialize-subscription-success-code-list"].indexOf(code) === -1) {
+            var error = new Error('error code');
+            error.netsizeStatusCode = code;
+            throw error;
+          }
+          if (!c.transactionStatus.userId) {
+            throw new Error('missing userId in get-status');
+          }
+          if (config.netsize['allowed-user-id-type'].indexOf(c.transactionStatus.userIdType) === -1) {
+            throw new Error('unallowed user-id-type :' + c.transactionStatus.userIdType);
+          }
+          break;
             break;
           default:
             throw new Error('unknown lastCall ' + c.cookieInfos.lastCall);
@@ -237,38 +359,48 @@ module.exports.callback = function (req, res) {
       }
     )
     .then(
-      function success(code) {
-        console.log('[DEBUG]: [NETSIZE]:success');
-        var json = {success: true, netsizeStatusCode: code, netsizeTransactionId: c.cookieInfos.transactionId};
-
-        if (c.cookieInfos.returnUrl) {
-          console.log('[INFO]: [NETSIZE]: cookie containing redirect-url => redirecting to '+c.cookieInfos.returnUrl);
-          // passing info to returnUrl
-          var returnUrl = c.cookieInfos.returnUrl;
-          returnUrl += '#' + btoa(JSON.stringify({statusCode:200, data: json}));
-          res.redirect(302, returnUrl);
-        } else {
-          console.log('[INFO]: [NETSIZE]: no redirect-url => displaying json ' + JSON.stringify(json));
-          res.json(json);
-        }
-      },
-      function error(err) {
-        console.log('[DEBUG]: [NETSIZE]:err', err);
-        var message = String(err && err.message || err || 'unknown');
-        var returnUrl = c.cookieInfos && c.cookieInfos.returnUrl;
-        var netsizeTransactionId = c.cookieInfos && c.cookieInfos.transactionId;
-        var json = { error: message, netsizeStatusCode: err.netsizeStatusCode, netsizeTransactionId: netsizeTransactionId };
-
-        if (returnUrl) {
-          console.error('[ERROR]: [NETSIZE]: '+ message);
-          console.error('[ERROR]: [NETSIZE]: cookie containing redirect-url => redirecting to '+returnUrl);
-          // passing info to returnUrl
-          returnUrl += '#' + btoa(JSON.stringify({statusCode:err.statusCode || 500, data: json}));
-          res.redirect(302, returnUrl);
-        } else {
-          res.handleError()(err, json);
+      function action() {
+        switch (c.cookieInfos.lastCall) {
+          case 'check':
+            // nothing to do
+            break;
+          case 'subscribe':
+            return billingApi.getOrCreateUser({
+              providerName: config.netsize.providerName,
+              userReferenceUuid: req.passport.user._id,
+              userProviderUuid: c.transactionStatus.userId,
+              userOpts: {
+                transactionId: c.cookieInfos.transactionId
+              }
+            })
+            .then(function (billingsResponse) {
+              return billing.createSubscription({
+                userBillingUuid: billingsResponse.response.user.userBillingUuid,
+                internalPlanUuid: config.netsize.internalPlanUuid,
+                subscriptionProviderUuid: c.cookieInfos.transactionId
+              });
+            });
+          break;
+            break;
+          default:
+            throw new Error('unknown lastCall ' + c.cookieInfos.lastCall);
         }
       }
+    )
+    .then(
+      function () {
+        console.log('[DEBUG]: [NETSIZE]: success');
+        var data = {
+          netsizeStatusCode: c.transactionStatus.code,
+          netsizeTransactionId: c.cookieInfos.transactionId
+        };
+        console.log('[DEBUG]: [NETSIZE]: success data ' + JSON.stringify(data));
+        return data;
+      }
+    )
+    .then(
+      handleSuccess(req, res),
+      handleError(req, res)
     );
 };
 
@@ -405,6 +537,6 @@ module.exports.subscribe = function (req, res) {
     function success(netsizeUrl) {
       res.redirect(302, netsizeUrl);
     },
-    res.handleError()
+    handleError(req, res)
   );
 };
