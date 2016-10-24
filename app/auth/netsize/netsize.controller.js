@@ -113,6 +113,7 @@ getTransactionIdFromReq = function (req) {
  */
 function handleError(req, res) {
   return function (err, options) {
+    try {
     var message = String(err && err.message || err || 'unknown');
     var returnUrl = getReturnUrlFromReq(req);
     var transactionId = getTransactionIdFromReq(req);
@@ -127,6 +128,9 @@ function handleError(req, res) {
     _.merge(json, options);
 
     console.error('[ERROR]: [NETSIZE]:' + JSON.stringify(json), err && err.stack);
+  } catch (e) {
+    console.log('[ERROR]+[DEBUG]: [NETSIZE]: '+ e.message, e.stack);
+  }
 
     if (returnUrl) {
       console.error('[ERROR]: [NETSIZE]: redirecting to '+returnUrl);
