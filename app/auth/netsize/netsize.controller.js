@@ -283,129 +283,9 @@ module.exports.check = function (req, res) {
     );
 };
 
-module.exports.callback = function (req, res) {
-  var c = {
-    transactionStatus: {
-      code: null,
-      userId: null,
-      userIdType: null
-    },
-    transactionId: null,
-    cookieInfos: null
-  };
-
-  console.log('[DEBUG]: [NETSIZE]: callback - start');
-  getCookieInfos(req)
-    .then(function success(cookieInfos) {
-      console.log('[DEBUG]: [NETSIZE]: cookieInfos', cookieInfos);
-      c.cookieInfos = cookieInfos;
-      return requestNetsize(generateBaseParameters("get-status", cookieInfos.transactionId));
-    })
-    .then(function parse(json) {
-      /*
-      json= {
-        "response":{
-          "$":{"type":"get-status","version":"1.2","xmlns":"http://www.netsize.com/ns/pay/api"},
-          "get-status":[{
-            "$":{"provider-id":"208020","user-id":"#F6595DB7D8A0CFB56D1C6EB779EB6262","user-id-type":"2"},
-            "advanced-params":[""],
-            "transaction-status":[
-              {"$":{"code":"120"}}
-            ],
-            "merchant":[""]
-          }]
-        }
-      }
-      */
-      console.log('[DEBUG]: [NETSIZE]: json', json);
-      try {
-        c.transactionStatus.code = json['response']['get-status'][0]['transaction-status'][0]['$']['code']
-        c.transactionStatus.userId = json['response']['get-status'][0]['$']['user-id'];
-        c.transactionStatus.userIdType = json['response']['get-status'][0]['$']['user-id-type'];
-      } catch (e) {
-        throw new Error('get-status: cannot harvest code or user-id or user-id-type ' + err.message);
-      }
-    })
-    .then(
-      function isSuccessful() {
-        var code = c.transactionStatus.code;
-
-        console.log('[INFO]: [NETSIZE]: code='+code);
-        switch (c.cookieInfos.lastCall) {
-          case 'check':
-            if (config.netsize["initialize-authentication-success-code-list"].indexOf(code) === -1) {
-              var error = new Error('error code');
-              error.netsizeStatusCode = code;
-              throw error;
-            }
-            break;
-          case 'subscribe':
-          if (config.netsize["initialize-subscription-success-code-list"].indexOf(code) === -1) {
-            var error = new Error('error code');
-            error.netsizeStatusCode = code;
-            throw error;
-          }
-          if (!c.transactionStatus.userId) {
-            throw new Error('missing userId in get-status');
-          }
-          if (config.netsize['allowed-user-id-type'].indexOf(c.transactionStatus.userIdType) === -1) {
-            throw new Error('unallowed user-id-type :' + c.transactionStatus.userIdType);
-          }
-          break;
-            break;
-          default:
-            throw new Error('unknown lastCall ' + c.cookieInfos.lastCall);
-        }
-      }
-    )
-    .then(
-      function action() {
-        switch (c.cookieInfos.lastCall) {
-          case 'check':
-            // nothing to do
-            break;
-          case 'subscribe':
-            return billingApi.getOrCreateUser({
-              providerName: config.netsize.providerName,
-              userReferenceUuid: req.passport.user._id,
-              userProviderUuid: c.transactionStatus.userId,
-              userOpts: {
-                transactionId: c.cookieInfos.transactionId
-              }
-            })
-            .then(function (billingsResponse) {
-              return billing.createSubscription({
-                userBillingUuid: billingsResponse.response.user.userBillingUuid,
-                internalPlanUuid: config.netsize.internalPlanUuid,
-                subscriptionProviderUuid: c.cookieInfos.transactionId
-              });
-            });
-          break;
-            break;
-          default:
-            throw new Error('unknown lastCall ' + c.cookieInfos.lastCall);
-        }
-      }
-    )
-    .then(
-      function () {
-        console.log('[DEBUG]: [NETSIZE]: success');
-        var data = {
-          netsizeStatusCode: c.transactionStatus.code,
-          netsizeTransactionId: c.cookieInfos.transactionId
-        };
-        console.log('[DEBUG]: [NETSIZE]: success data ' + JSON.stringify(data));
-        return data;
-      }
-    )
-    .then(
-      handleSuccess(req, res),
-      handleError(req, res)
-    );
-};
-
 module.exports.subscribe = function (req, res) {
   var c = { transactionId: null };
+  var methodName = "initialize-subscription";
 
   Q.all([
     getCookieInfos(req),
@@ -428,7 +308,6 @@ module.exports.subscribe = function (req, res) {
     c.transactionId = cookieInfos.transactionId;
 
     // base method parameters
-    var methodName = "initialize-subscription"
     var data = generateBaseParameters(methodName, cookieInfos.transactionId);
 
     // specific method parameters
@@ -512,9 +391,9 @@ module.exports.subscribe = function (req, res) {
   })
   .then(function parse(json) {
     // try to grab netsize redirect url :)
-    var netsizeUrl = json['response']['initialize-authentication'][0]['auth-url'][0]['$']['url'];
+    var netsizeUrl = json['response'][methodName][0]['auth-url'][0]['$']['url'];
     // try to grab transaction id
-    var netsizeTransactionId = json['response']['initialize-authentication'][0]['$']['transaction-id'];
+    var netsizeTransactionId = json['response'][methodName][0]['$']['transaction-id'];
     // netsize
     console.log('[DEBUG]: [NETSIZE]: netsizeUrl = ' + netsizeUrl);
     console.log('[DEBUG]: [NETSIZE]: netsizeTransactionId = ' + netsizeTransactionId);
@@ -539,4 +418,210 @@ module.exports.subscribe = function (req, res) {
     },
     handleError(req, res)
   );
+};
+
+module.exports.unsubscribe = function (req, res) {
+  var c = { transactionId: null, subscription: null };
+  var methodName = "close-subscription";
+
+  billingApi.getSubscriptions(req.passport.user._id)
+    .then(function (subscriptions) {
+      var netsizeSubscriptionsActive = (subscriptions || []).filter(function (subscription) {
+        return subscription && subscription.provider &&
+               subscription.provider.providerName === 'netsize' &&
+               subscription.subStatus === 'active';
+      });
+      if (!netsizeSubscriptionsActive) {
+        throw new Error('no active subscription');
+      }
+      c.subscription = updateSubscription;
+
+      /*
+        Mandatory, string
+        trigger:
+        1 Link
+        2 MO stop (if specified, close-url parameter will not be returned)
+        3 Helpdesk (if specified, close-url parameter will not be returned)
+        4 Other (if specified, close-url parameter will not be returned)
+      */
+      var triggerMethod = "1";
+      /*
+        Optionnal, string
+        The URL where the end-user will be redirected to after the finalization
+        of authentication, payment validation or subscription setup.
+        If empty, end-user will not be redirected, rather a blank page will be
+        returned with HTTP status code 200.
+      */
+      var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback';
+
+      //
+      var data = generateBaseParameters(methodName)
+      data[methodName]["trigger"] = {"#":triggerMethod};
+      data[methodName]["return-url"] = {"#":returnUrl};
+      return requestNetsize(data);
+    })
+    .then(function parse(json) {
+      // try to grab netsize redirect url :)
+      var netsizeCloseUrl = json['response'][methodName][0]['close-url'][0]['#'];
+      // try to grab transaction id
+      var netsizeTransactionId = json['response'][methodName][0]['$']['transaction-id'];
+      // netsize
+      console.log('[DEBUG]: [NETSIZE]: close-url = ' + netsizeCloseUrl);
+      console.log('[DEBUG]: [NETSIZE]: netsizeTransactionId = ' + netsizeTransactionId);
+      //
+      if (!netsizeCloseUrl || !netsizeTransactionId) {
+        throw new Error('[NETSIZE]: missing url / transaction id');
+      }
+      var cookieArgs = [
+        config.cookies.netsize.name,
+        { transactionId: netsizeTransactionId, returnUrl: req.query.returnUrl,
+          subscriptionProviderUuid: subscription.subscriptionProviderUuid,
+          subscriptionBillingUuid: subscription.subscriptionBillingUuid,
+          lastCall: 'unsubscribe' },
+        { domain: config.cookies.netsize.domain, path: '/', signed:true }
+      ];
+      console.log('[DEBUG]: [NETSIZE]: set cookie ' + JSON.stringify(cookieArgs));
+      //
+      res.cookie.apply(res, cookieArgs);
+      //
+      return netsizeCloseUrl;
+    })
+  .then(
+    function success(netsizeCloseUrl) {
+      res.redirect(302, netsizeCloseUrl);
+    },
+    handleError(req, res)
+  );
+};
+
+module.exports.callback = function (req, res) {
+  var c = {
+    transactionStatus: {
+      code: null,
+      userId: null,
+      userIdType: null
+    },
+    transactionId: null,
+    cookieInfos: null
+  };
+
+  console.log('[DEBUG]: [NETSIZE]: callback - start');
+  getCookieInfos(req)
+    .then(function success(cookieInfos) {
+      console.log('[DEBUG]: [NETSIZE]: cookieInfos', cookieInfos);
+      c.cookieInfos = cookieInfos;
+      return requestNetsize(generateBaseParameters("get-status", cookieInfos.transactionId));
+    })
+    .then(function parse(json) {
+      /*
+      json= {
+        "response":{
+          "$":{"type":"get-status","version":"1.2","xmlns":"http://www.netsize.com/ns/pay/api"},
+          "get-status":[{
+            "$":{"provider-id":"208020","user-id":"#F6595DB7D8A0CFB56D1C6EB779EB6262","user-id-type":"2"},
+            "advanced-params":[""],
+            "transaction-status":[
+              {"$":{"code":"120"}}
+            ],
+            "merchant":[""]
+          }]
+        }
+      }
+      */
+      console.log('[DEBUG]: [NETSIZE]: json', json);
+      try {
+        c.transactionStatus.code = json['response']['get-status'][0]['transaction-status'][0]['$']['code']
+        c.transactionStatus.userId = json['response']['get-status'][0]['$']['user-id'];
+        c.transactionStatus.userIdType = json['response']['get-status'][0]['$']['user-id-type'];
+      } catch (e) {
+        throw new Error('get-status: cannot harvest code or user-id or user-id-type ' + err.message);
+      }
+    })
+    .then(
+      function isSuccessful() {
+        var code = c.transactionStatus.code;
+        var error;
+
+        console.log('[INFO]: [NETSIZE]: code='+code);
+        switch (c.cookieInfos.lastCall) {
+          case 'check':
+            if (config.netsize["initialize-authentication-success-code-list"].indexOf(code) === -1) {
+              error = new Error('error code');
+              error.netsizeStatusCode = code;
+              throw error;
+            }
+            break;
+          case 'subscribe':
+            if (config.netsize["initialize-subscription-success-code-list"].indexOf(code) === -1) {
+              error = new Error('error code');
+              error.netsizeStatusCode = code;
+              throw error;
+            }
+            if (!c.transactionStatus.userId) {
+              throw new Error('missing userId in get-status');
+            }
+            if (config.netsize['allowed-user-id-type'].indexOf(c.transactionStatus.userIdType) === -1) {
+              throw new Error('unallowed user-id-type :' + c.transactionStatus.userIdType);
+            }
+            break;
+          case 'unsubscribe':
+            if (config.netsize["close-subscription-success-code-list"].indexOf(code) === -1) {
+              error = new Error('error code');
+              error.netsizeStatusCode = code;
+              throw error;
+            }
+            if (!c.cookieInfos.subscriptionBillingUuid) {
+              throw new Error('missing cookie subscriptionBillingUuid');
+            }
+            break;
+          default:
+            throw new Error('unknown lastCall ' + c.cookieInfos.lastCall);
+        }
+      }
+    )
+    .then(
+      function action() {
+        switch (c.cookieInfos.lastCall) {
+          case 'check':
+            // nothing to do
+            break;
+          case 'subscribe':
+            return billingApi.getOrCreateUser({
+              providerName: config.netsize.providerName,
+              userReferenceUuid: req.passport.user._id,
+              userProviderUuid: c.transactionStatus.userId,
+              userOpts: {
+                transactionId: c.cookieInfos.transactionId
+              }
+            })
+            .then(function (billingsResponse) {
+              return billing.createSubscription({
+                userBillingUuid: billingsResponse.response.user.userBillingUuid,
+                internalPlanUuid: config.netsize.internalPlanUuid,
+                subscriptionProviderUuid: c.cookieInfos.transactionId
+              });
+            });
+          break;
+          case 'unsubscribe':
+            return billingApi.updateSubscription(subscriptionBillingUuid, 'cancel');
+          default:
+            throw new Error('unknown lastCall ' + c.cookieInfos.lastCall);
+        }
+      }
+    )
+    .then(
+      function () {
+        console.log('[DEBUG]: [NETSIZE]: callback: last call "'+c.cookieInfos.lastCall+'" was a success');
+        var data = {
+          netsizeStatusCode: c.transactionStatus.code,
+          netsizeTransactionId: c.cookieInfos.transactionId
+        };
+        console.log('[DEBUG]: [NETSIZE]: callback: sending: ' + JSON.stringify(data));
+        return data;
+      }
+    )
+    .then(
+      handleSuccess(req, res),
+      handleError(req, res)
+    );
 };
