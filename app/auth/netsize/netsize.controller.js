@@ -378,7 +378,7 @@ module.exports.subscribe = function (req, res) {
 
     //
     data[methodName]["@"]["flow-id"] = flowId;
-    data[methodName]["@"]["@subscription-model-id"] = subscriptionModelId;
+    data[methodName]["@"]["subscription-model-id"] = subscriptionModelId;
     data[methodName]["product"] = {};
     data[methodName]["product"]["@"] = {};
     data[methodName]["product"]["@"]["name"] = productName;
