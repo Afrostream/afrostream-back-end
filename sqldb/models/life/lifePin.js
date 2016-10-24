@@ -25,7 +25,6 @@ module.exports = function (sequelize, DataTypes) {
         providerName: DataTypes.STRING,
         providerUrl: DataTypes.STRING,
         description: DataTypes.TEXT,
-        slug: DataTypes.STRING,
         body: DataTypes.TEXT,
         sort: DataTypes.INTEGER,
         active: {
