@@ -39,7 +39,8 @@ var requestBilling = function (options) {
       if (response.statusCode !== 200 || !body || body.status !== 'done') {
         console.error('WARNING: [BILLING-API]: ' + response.statusCode + ' ' + (body && body.status) + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         error = new Error(body && body.statusMessage || body && body.message || 'unknown');
-        error.statusCode = response.statusCode;
+        error.statusCode = (response.statusCode >= 200 && response.statusCode < 400 ) ? 500 : response.statusCode;
+        error.code = response.code;
         throw error;
       }
 
