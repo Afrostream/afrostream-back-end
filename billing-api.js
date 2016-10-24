@@ -40,7 +40,7 @@ var requestBilling = function (options) {
         console.error('WARNING: [BILLING-API]: ' + response.statusCode + ' ' + (body && body.status) + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         error = new Error(body && body.statusMessage || body && body.message || 'unknown');
         error.statusCode = (response.statusCode >= 200 && response.statusCode <= 400 ) ? 500 : response.statusCode;
-        error.code = body && body.statusCode || response.code;
+        error.code = body && body.statusCode || response.statusCode;
         throw error;
       }
 
