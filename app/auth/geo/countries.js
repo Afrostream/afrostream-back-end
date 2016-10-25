@@ -25,11 +25,11 @@ module.exports.authorizations = {
   "BB": false, // Barbados
   "BD": false, // Bangladesh
   "BE": true, // Belgium
-  "BF": false, // Burkina Faso
+  "BF": true, // Burkina Faso
   "BG": false, // Bulgaria
   "BH": false, // Bahrain
-  "BI": false, // Burundi
-  "BJ": false, // Benin
+  "BI": true, // Burundi
+  "BJ": true, // Benin
   "BL": false, // Saint Bartelemey
   "BM": false, // Bermuda
   "BN": false, // Brunei Darussalam
@@ -44,25 +44,25 @@ module.exports.authorizations = {
   "BZ": false, // Belize
   "CA": false, // Canada
   "CC": false, // Cocos (Keeling) Islands
-  "CD": false, // Congo, The Democratic Republic of the
-  "CF": false, // Central African Republic
-  "CG": false, // Congo
+  "CD": true, // Congo, The Democratic Republic of the
+  "CF": true, // Central African Republic
+  "CG": true, // Congo
   "CH": true, // Switzerland
   "CI": true, // Cote d'Ivoire
   "CK": false, // Cook Islands
   "CL": false, // Chile
-  "CM": false, // Cameroon
+  "CM": true, // Cameroon
   "CN": false, // China
   "CO": false, // Colombia
   "CR": false, // Costa Rica
   "CU": false, // Cuba
-  "CV": false, // Cape Verde
+  "CV": true, // Cape Verde
   "CW": false, // Curacao
   "CX": false, // Christmas Island
   "CY": false, // Cyprus
   "CZ": false, // Czech Republic
   "DE": false, // Germany
-  "DJ": false, // Djibouti
+  "DJ": true, // Djibouti
   "DK": false, // Denmark
   "DM": false, // Dominica
   "DO": false, // Dominican Republic
@@ -81,7 +81,7 @@ module.exports.authorizations = {
   "FM": false, // Micronesia, Federated States of
   "FO": false, // Faroe Islands
   "FR": true, // France
-  "GA": false, // Gabon
+  "GA": true, // Gabon
   "GB": false, // United Kingdom
   "GD": false, // Grenada
   "GE": false, // Georgia
@@ -91,14 +91,14 @@ module.exports.authorizations = {
   "GI": false, // Gibraltar
   "GL": false, // Greenland
   "GM": false, // Gambia
-  "GN": false, // Guinea
+  "GN": true, // Guinea
   "GP": true, // Guadeloupe
-  "GQ": false, // Equatorial Guinea
+  "GQ": true, // Equatorial Guinea
   "GR": false, // Greece
   "GS": false, // South Georgia and the South Sandwich Islands
   "GT": false, // Guatemala
   "GU": false, // Guam
-  "GW": false, // Guinea-Bissau
+  "GW": true, // Guinea-Bissau
   "GY": false, // Guyana
   "HK": false, // Hong Kong
   "HM": false, // Heard Island and McDonald Islands
@@ -124,7 +124,7 @@ module.exports.authorizations = {
   "KG": false, // Kyrgyzstan
   "KH": false, // Cambodia
   "KI": false, // Kiribati
-  "KM": false, // Comoros
+  "KM": true, // Comoros
   "KN": false, // Saint Kitts and Nevis
   "KP": false, // Korea, Democratic People's Republic of
   "KR": false, // Korea, Republic of
@@ -147,19 +147,19 @@ module.exports.authorizations = {
   "MD": false, // Moldova, Republic of
   "ME": false, // Montenegro
   "MF": true, // Saint Martin
-  "MG": false, // Madagascar
+  "MG": true, // Madagascar
   "MH": false, // Marshall Islands
   "MK": false, // Macedonia
-  "ML": false, // Mali
+  "ML": true, // Mali
   "MM": false, // Myanmar
   "MN": false, // Mongolia
   "MO": false, // Macao
   "MP": false, // Northern Mariana Islands
   "MQ": true, // Martinique
-  "MR": false, // Mauritania
+  "MR": true, // Mauritania
   "MS": false, // Montserrat
   "MT": false, // Malta
-  "MU": false, // Mauritius
+  "MU": true, // Mauritius
   "MV": false, // Maldives
   "MW": false, // Malawi
   "MX": false, // Mexico
@@ -167,7 +167,7 @@ module.exports.authorizations = {
   "MZ": false, // Mozambique
   "NA": false, // Namibia
   "NC": false, // New Caledonia
-  "NE": false, // Niger
+  "NE": true, // Niger
   "NF": false, // Norfolk Island
   "NG": false, // Nigeria
   "NI": false, // Nicaragua
@@ -200,7 +200,7 @@ module.exports.authorizations = {
   "RW": false, // Rwanda
   "SA": false, // Saudi Arabia
   "SB": false, // Solomon Islands
-  "SC": false, // Seychelles
+  "SC": true, // Seychelles
   "SD": false, // Sudan
   "SE": false, // Sweden
   "SG": false, // Singapore
@@ -220,9 +220,9 @@ module.exports.authorizations = {
   "SY": false, // Syrian Arab Republic
   "SZ": false, // Swaziland
   "TC": false, // Turks and Caicos Islands
-  "TD": false, // Chad
+  "TD": true, // Chad
   "TF": false, // French Southern Territories
-  "TG": false, // Togo
+  "TG": true, // Togo
   "TH": false, // Thailand
   "TJ": false, // Tajikistan
   "TK": false, // Tokelau
