@@ -40,7 +40,8 @@ function generateBaseParameters(methodName, transactionId) {
     "@": {
       // basic parameters
       "auth-key": authKey,
-      "service-id": serviceId,
+      // tempfix: disabling serviceId
+      //"service-id": serviceId,
       "country-code": countryCode
     }
   };
