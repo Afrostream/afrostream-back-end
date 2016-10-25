@@ -465,7 +465,7 @@ module.exports.unsubscribe = function (req, res) {
       if (!netsizeSubscriptionsActive) {
         throw new Error('no active subscription');
       }
-      c.subscription = updateSubscription;
+      c.subscription = netsizeSubscriptionsActive;
 
       /*
         Mandatory, string
@@ -510,8 +510,8 @@ module.exports.unsubscribe = function (req, res) {
         config.cookies.netsize.name,
         { transactionId: netsizeTransactionId,
           returnUrl: req.query.returnUrl || null,
-          subscriptionProviderUuid: subscription.subscriptionProviderUuid,
-          subscriptionBillingUuid: subscription.subscriptionBillingUuid,
+          subscriptionProviderUuid: c.subscription.subscriptionProviderUuid,
+          subscriptionBillingUuid: c.subscription.subscriptionBillingUuid,
           lastCall: 'unsubscribe' },
         { domain: config.cookies.netsize.domain, path: '/', signed:true }
       ];
