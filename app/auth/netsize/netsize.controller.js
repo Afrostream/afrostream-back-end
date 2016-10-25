@@ -216,52 +216,59 @@ function hydrateWithAdvancedParam(data, methodName, req) {
 module.exports.check = function (req, res) {
   var methodName = "initialize-authentication";
 
-  // base method parameters
-  var data = generateBaseParameters(methodName);
-  //
-  hydrateWithAdvancedParam(data, methodName, req);
+  Q()
+    .then(function () {
+      if (!req.passport.user) {
+        throw new Error('user not authentified');
+      }
 
-  // specific method parameters
-  /*
-    Mandatory, integer
-    Specifies the end user flow. This parameter will indicate to the
-    platform whom from the merchant or Netsize host payment pages.
+      // base method parameters
+      var data = generateBaseParameters(methodName);
+      //
+      hydrateWithAdvancedParam(data, methodName, req);
 
-    20 <=> WebApp, 21 <=> SDK
-  */
-  var flowId = 20;
-  /*
-    Mandatory, string
-    A 2-letters ISO code.
-  */
-  var languageCode = "FR";
-  /*
-    Mandatory, string
-    The URL where the end-user will be redirected to after the finalization
-    of authentication, payment validation or subscription setup.
-    If empty, end-user will not be redirected, rather a blank page will be
-    returned with HTTP status code 200.
-  */
-  var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback'
-  /*
-    Optionnal, integer
-    This identifier allows Netsize to customize payment pages when accurate.
-  */
-  var brandId = "FIXME";
-  /*
-    Optionnal, integer
-    Netsize Provider Identifier.
-    MCCMNC in case of mobile operator.
-    Internal identifier for credit card and other payment providers.
-  */
-  var providerId = "FIXME";
+      // specific method parameters
+      /*
+        Mandatory, integer
+        Specifies the end user flow. This parameter will indicate to the
+        platform whom from the merchant or Netsize host payment pages.
 
-  //
-  data[methodName]["@"]["flow-id"] = flowId;
-  data[methodName]["@"]["language-code"] = languageCode;
-  data[methodName]["@"]["return-url"] = returnUrl;
+        20 <=> WebApp, 21 <=> SDK
+      */
+      var flowId = 20;
+      /*
+        Mandatory, string
+        A 2-letters ISO code.
+      */
+      var languageCode = "FR";
+      /*
+        Mandatory, string
+        The URL where the end-user will be redirected to after the finalization
+        of authentication, payment validation or subscription setup.
+        If empty, end-user will not be redirected, rather a blank page will be
+        returned with HTTP status code 200.
+      */
+      var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback'
+      /*
+        Optionnal, integer
+        This identifier allows Netsize to customize payment pages when accurate.
+      */
+      var brandId = "FIXME";
+      /*
+        Optionnal, integer
+        Netsize Provider Identifier.
+        MCCMNC in case of mobile operator.
+        Internal identifier for credit card and other payment providers.
+      */
+      var providerId = "FIXME";
 
-  requestNetsize(data)
+      //
+      data[methodName]["@"]["flow-id"] = flowId;
+      data[methodName]["@"]["language-code"] = languageCode;
+      data[methodName]["@"]["return-url"] = returnUrl;
+
+      return requestNetsize(data)
+    })
     .then(function (json) {
       // try to grab netsize redirect url :)
       var netsizeUrl = json['response']['initialize-authentication'][0]['auth-url'][0]['$']['url'];
@@ -297,10 +304,16 @@ module.exports.subscribe = function (req, res) {
   var c = { transactionId: null };
   var methodName = "initialize-subscription";
 
-  Q.all([
-    getCookieInfos(req),
-    billingApi.getInternalPlan(config.netsize.internalPlanUuid)
-  ])
+  Q()
+    .then(function () {
+      if (!req.passport.user) {
+        throw new Error('user should be authentified');
+      }
+      return Q.all([
+        getCookieInfos(req),
+        billingApi.getInternalPlan(config.netsize.internalPlanUuid)
+      ]);
+    })
   .then(function success(data) {
     var cookieInfos = data[0];
     var internalPlan = data[1];
@@ -436,7 +449,13 @@ module.exports.unsubscribe = function (req, res) {
   var c = { transactionId: null, subscription: null };
   var methodName = "close-subscription";
 
-  billingApi.getSubscriptions(req.passport.user._id)
+  Q()
+    .then(function () {
+      if (!req.passport.user) {
+        throw new Error('user not authentified');
+      }
+      return billingApi.getSubscriptions(req.passport.user._id)
+    })
     .then(function (subscriptions) {
       var netsizeSubscriptionsActive = (subscriptions || []).filter(function (subscription) {
         return subscription && subscription.provider &&
