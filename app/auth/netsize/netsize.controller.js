@@ -462,12 +462,18 @@ module.exports.unsubscribe = function (req, res) {
                subscription.provider.providerName === 'netsize' &&
                subscription.subStatus === 'active';
       });
-      if (!netsizeSubscriptionsActive) {
+      if (!netsizeSubscriptionsActive.length) {
         throw new Error('no active subscription');
       }
-      c.subscription = netsizeSubscriptionsActive;
+      if (netsizeSubscriptionsActive.length > 1) {
+        console.log('[WARNING]: [NETSIZE]: multiple subscription ' + JSON.stringify(subscriptions));
+        console.Log('[WARNING]: [NETSIZE]: using first');
+      }
+      c.subscription = netsizeSubscriptionsActive[0];
 
       console.log('[DEBUG]: [NETSIZE]: subscription active ' + JSON.stringify(c.subscription));
+      console.log('[DEBUG]: [NETSIZE]: subscription.subscriptionProviderUuid: ' + c.subscription.subscriptionProviderUuid);
+      console.log('[DEBUG]: [NETSIZE]: subscription.subscriptionBillingUuid: ' + c.subscription.subscriptionBillingUuid);
 
       /*
         Mandatory, string
