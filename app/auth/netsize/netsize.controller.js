@@ -188,11 +188,37 @@ function getCookieInfos(req) {
     });
 }
 
+function hydrateWithAdvancedParam(data, methodName, req) {
+  // on ajoute sur l'env qa netsize des paramètres
+  if (process.env.NODE_ENV !== 'production' && req.query.qaScenario) {
+    data[methodName]["advanced-params"] = {
+      "advanced-param": [
+        {
+          "@": {
+            "key": "qaScenario",
+            "value": req.query.qaScenario // ex: "?qaScenario=authenticationFailed"
+          }
+        }
+      ]
+    };
+    if (req.query.qaScenarioOperator) {
+      data[methodName]["advanced-params"]["advanced-param"].push({
+        "@": {
+          "key": "qaScenarioOperator",
+          "value": req.query.qaScenarioOperator
+        }
+      });
+    }
+  }
+}
+
 module.exports.check = function (req, res) {
   var methodName = "initialize-authentication";
 
   // base method parameters
   var data = generateBaseParameters(methodName);
+  //
+  hydrateWithAdvancedParam(data, methodName, req);
 
   // specific method parameters
   /*
@@ -233,26 +259,6 @@ module.exports.check = function (req, res) {
   data[methodName]["@"]["flow-id"] = flowId;
   data[methodName]["@"]["language-code"] = languageCode;
   data[methodName]["@"]["return-url"] = returnUrl;
-
-  // on ajoute sur l'env qa netsize des paramètres
-  if (process.env.NODE_ENV !== 'production' && req.query.qaScenario) {
-    data[methodName]["advanced-params"] = {
-      "advanced-param": [
-        {
-          "@": {
-            "key": "qaScenario",
-            "value": req.query.qaScenario // ex: "?qaScenario=authenticationFailed"
-          }
-        },
-        {
-          "@": {
-            "key": "qaScenarioOperator",
-            "value": req.query.qaScenarioOperator || "208001"
-          }
-        }
-      ]
-    };
-  }
 
   requestNetsize(data)
     .then(function (json) {
@@ -312,6 +318,8 @@ module.exports.subscribe = function (req, res) {
 
     // base method parameters
     var data = generateBaseParameters(methodName, cookieInfos.transactionId);
+    //
+    hydrateWithAdvancedParam(data, methodName, req);
 
     // specific method parameters
     /*
@@ -458,7 +466,10 @@ module.exports.unsubscribe = function (req, res) {
       var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback';
 
       //
-      var data = generateBaseParameters(methodName)
+      var data = generateBaseParameters(methodName);
+      //
+      hydrateWithAdvancedParam(data, methodName, req);
+      //
       data[methodName]["trigger"] = {"#":triggerMethod};
       data[methodName]["return-url"] = {"#":returnUrl};
       return requestNetsize(data);
@@ -513,7 +524,11 @@ module.exports.callback = function (req, res) {
     .then(function success(cookieInfos) {
       console.log('[DEBUG]: [NETSIZE]: cookieInfos', cookieInfos);
       c.cookieInfos = cookieInfos;
-      return requestNetsize(generateBaseParameters("get-status", cookieInfos.transactionId));
+      //
+      var methodName = "get-status";
+      var data =generateBaseParameters(methodName, cookieInfos.transactionId);
+      hydrateWithAdvancedParam(data, methodName, req);
+      return requestNetsize(data);
     })
     .then(function parse(json) {
       /*
