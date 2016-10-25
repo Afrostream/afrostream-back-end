@@ -283,7 +283,7 @@ module.exports.check = function (req, res) {
       }
       var cookieArgs = [
         config.cookies.netsize.name,
-        { transactionId: netsizeTransactionId, returnUrl: req.query.returnUrl, lastCall: 'check' },
+        { transactionId: netsizeTransactionId, returnUrl: req.query.returnUrl || null, lastCall: 'check' },
         { domain: config.cookies.netsize.domain, path: '/', signed:true }
       ];
       console.log('[DEBUG]: [NETSIZE]: set cookie ' + JSON.stringify(cookieArgs));
@@ -428,7 +428,7 @@ module.exports.subscribe = function (req, res) {
     }
     var cookieArgs = [
       config.cookies.netsize.name,
-      { transactionId: netsizeTransactionId, returnUrl: req.query.returnUrl, lastCall: 'subscribe' },
+      { transactionId: netsizeTransactionId, returnUrl: req.query.returnUrl || null, lastCall: 'subscribe' },
       { domain: config.cookies.netsize.domain, path: '/', signed:true }
     ];
     console.log('[DEBUG]: [NETSIZE]: set cookie ' + JSON.stringify(cookieArgs));
@@ -508,7 +508,8 @@ module.exports.unsubscribe = function (req, res) {
       }
       var cookieArgs = [
         config.cookies.netsize.name,
-        { transactionId: netsizeTransactionId, returnUrl: req.query.returnUrl,
+        { transactionId: netsizeTransactionId,
+          returnUrl: req.query.returnUrl || null,
           subscriptionProviderUuid: subscription.subscriptionProviderUuid,
           subscriptionBillingUuid: subscription.subscriptionBillingUuid,
           lastCall: 'unsubscribe' },
