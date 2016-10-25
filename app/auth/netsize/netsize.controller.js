@@ -3,6 +3,7 @@ var _ = require('lodash');
 var js2xmlparser = require('js2xmlparser');
 var request = require('request');
 var xml2js = require('xml2js');
+var btoa = require('btoa');
 
 var config = rootRequire('/config');
 
