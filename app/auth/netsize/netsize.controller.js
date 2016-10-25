@@ -467,6 +467,8 @@ module.exports.unsubscribe = function (req, res) {
       }
       c.subscription = netsizeSubscriptionsActive;
 
+      console.log('[DEBUG]: [NETSIZE]: subscription active ' + JSON.stringify(c.subscription));
+
       /*
         Mandatory, string
         trigger:
