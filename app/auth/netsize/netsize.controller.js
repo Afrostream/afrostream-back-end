@@ -499,8 +499,8 @@ module.exports.unsubscribe = function (req, res) {
       //
       hydrateWithAdvancedParam(data, methodName, req);
       //
-      data[methodName]["trigger"] = {"#":triggerMethod};
-      data[methodName]["return-url"] = {"#":returnUrl};
+      data[methodName]["@"]["trigger"] = triggerMethod;
+      data[methodName]["@"]["return-url"] = returnUrl;
       return requestNetsize(data);
     })
     .then(function parse(json) {
