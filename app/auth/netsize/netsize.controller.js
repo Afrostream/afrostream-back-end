@@ -625,7 +625,7 @@ module.exports.callback = function (req, res) {
             break;
           case 'subscribe':
             return billingApi.getOrCreateUser({
-              providerName: config.netsize.providerName,
+              providerName: config.netsize.billingProviderName,
               userReferenceUuid: req.passport.user._id,
               userProviderUuid: c.transactionStatus.userId,
               userOpts: {
