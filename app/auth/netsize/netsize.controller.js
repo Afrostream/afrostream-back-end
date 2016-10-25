@@ -540,6 +540,7 @@ module.exports.callback = function (req, res) {
   };
 
   console.log('[DEBUG]: [NETSIZE]: callback - start');
+  console.log('[DEBUG]: [NETSIZE]: input headers = ', JSON.stringify(req.headers));
   getCookieInfos(req)
     .then(function success(cookieInfos) {
       console.log('[DEBUG]: [NETSIZE]: cookieInfos', cookieInfos);
