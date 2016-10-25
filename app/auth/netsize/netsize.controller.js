@@ -506,18 +506,15 @@ module.exports.unsubscribe = function (req, res) {
     .then(function parse(json) {
       // try to grab netsize redirect url :)
       var netsizeCloseUrl = json['response'][methodName][0]['$']['close-url'];
-      // try to grab transaction id
-      var netsizeTransactionId = json['response'][methodName][0]['$']['transaction-id'];
       // netsize
       console.log('[DEBUG]: [NETSIZE]: close-url = ' + netsizeCloseUrl);
-      console.log('[DEBUG]: [NETSIZE]: netsizeTransactionId = ' + netsizeTransactionId);
       //
-      if (!netsizeCloseUrl || !netsizeTransactionId) {
-        throw new Error('[NETSIZE]: missing url / transaction id');
+      if (!netsizeCloseUrl) {
+        throw new Error('[NETSIZE]: missing url');
       }
       var cookieArgs = [
         config.cookies.netsize.name,
-        { transactionId: netsizeTransactionId,
+        { transactionId: c.subscription.subscriptionProviderUuid,
           returnUrl: req.query.returnUrl || null,
           subscriptionProviderUuid: c.subscription.subscriptionProviderUuid,
           subscriptionBillingUuid: c.subscription.subscriptionBillingUuid,
