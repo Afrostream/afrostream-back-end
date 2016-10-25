@@ -486,7 +486,7 @@ module.exports.unsubscribe = function (req, res) {
       var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback';
 
       //
-      var data = generateBaseParameters(methodName);
+      var data = generateBaseParameters(methodName, c.subscription.subscriptionProviderUuid);
       //
       hydrateWithAdvancedParam(data, methodName, req);
       //
