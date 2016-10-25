@@ -633,7 +633,7 @@ module.exports.callback = function (req, res) {
               }
             })
             .then(function (billingsResponse) {
-              return billing.createSubscription({
+              return billingApi.createSubscription({
                 userBillingUuid: billingsResponse.response.user.userBillingUuid,
                 internalPlanUuid: config.netsize.internalPlanUuid,
                 subscriptionProviderUuid: c.cookieInfos.transactionId
