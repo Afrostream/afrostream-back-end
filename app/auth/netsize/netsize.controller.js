@@ -505,7 +505,7 @@ module.exports.unsubscribe = function (req, res) {
     })
     .then(function parse(json) {
       // try to grab netsize redirect url :)
-      var netsizeCloseUrl = json['response'][methodName][0]['close-url'][0]['#'];
+      var netsizeCloseUrl = json['response'][methodName][0]['$']['close-url'];
       // try to grab transaction id
       var netsizeTransactionId = json['response'][methodName][0]['$']['transaction-id'];
       // netsize
