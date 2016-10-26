@@ -147,7 +147,7 @@ function handleSuccess(req, res) {
     var transactionId = getTransactionIdFromReq(req);
 
     if (returnUrl) {
-      console.log('[INFO]: [NETSIZE]: using redirect-url: '+c.cookieInfos.returnUrl);
+      console.log('[INFO]: [NETSIZE]: using redirect-url: '+returnUrl);
       redirectSuccess(res, returnUrl, data);
     } else {
       console.log('[INFO]: [NETSIZE]: responding json ' + JSON.stringify(data));
