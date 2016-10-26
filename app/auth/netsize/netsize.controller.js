@@ -648,7 +648,7 @@ module.exports.callback = function (req, res) {
             });
           break;
           case 'unsubscribe':
-            return billingApi.updateSubscription(subscriptionBillingUuid, 'cancel');
+            return billingApi.updateSubscription(c.cookieInfos.subscriptionBillingUuid, 'cancel');
           default:
             throw new Error('unknown lastCall ' + c.cookieInfos.lastCall);
         }
