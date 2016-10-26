@@ -62,7 +62,7 @@ function updateImages (updates) {
 function updateUser (updates, req) {
     return function (entity) {
         var promises = [];
-        promises.push(entity.setUser((updates.user && updates.user._id) || req.user || null));
+        promises.push(entity.setUser((updates.user && updates.user._id) || (req.user && req.user._id) || null));
         return sqldb.Sequelize.Promise
             .all(promises)
             .then(function () {
