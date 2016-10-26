@@ -2,6 +2,7 @@
 
 var filters = rootRequire('/app/api/filters.js');
 var sqldb = rootRequire('/sqldb');
+var _ = require('lodash');
 var User = sqldb.User;
 var utils = rootRequire('/app/api/utils.js');
 var getIncludedModel = require('./lifeUser.includedModel').get;
