@@ -157,7 +157,7 @@ function handleSuccess(req, res) {
 }
 
 function redirectSuccess(res, url, data) {
-  redirectWithData(res, url, { statusCode: statusCode || 200, data: data });
+  redirectWithData(res, url, { statusCode: 200, data: data });
 }
 
 function redirectError(res, url, data, statusCode) {
