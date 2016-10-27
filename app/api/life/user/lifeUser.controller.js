@@ -51,7 +51,8 @@ exports.show = function (req, res) {
 
     User.find(queryOptions)
         .then(utils.handleEntityNotFound(res))
-        .then(filters.filterUserAttributesAll(req, 'public'))
+        //FIXME le filtre supprime aussi les models includes
+        //.then(filters.filterUserAttributes(req, 'public'))
         .then(responseWithResult(res))
         .catch(res.handleError());
 };
