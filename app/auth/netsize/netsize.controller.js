@@ -221,6 +221,9 @@ module.exports.check = function (req, res) {
       if (!req.passport.user) {
         throw new Error('user not authentified');
       }
+      if (!req.passport.accessToken) {
+        throw new Error('missing accessToken in passport');
+      }
 
       // base method parameters
       var data = generateBaseParameters(methodName);
@@ -248,7 +251,7 @@ module.exports.check = function (req, res) {
         If empty, end-user will not be redirected, rather a blank page will be
         returned with HTTP status code 200.
       */
-      var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback'
+      var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback?access_token=' + req.passport.accessToken.token;
       /*
         Optionnal, integer
         This identifier allows Netsize to customize payment pages when accurate.
@@ -308,6 +311,9 @@ module.exports.subscribe = function (req, res) {
     .then(function () {
       if (!req.passport.user) {
         throw new Error('user should be authentified');
+      }
+      if (!req.passport.accessToken) {
+        throw new Error('missing accessToken in passport');
       }
       return Q.all([
         getCookieInfos(req),
@@ -396,7 +402,7 @@ module.exports.subscribe = function (req, res) {
       returned with HTTP status code 200.
       Optional
     */
-    var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback'
+    var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback?access_token=' + req.passport.accessToken.token;
 
     //
     data[methodName]["@"]["flow-id"] = flowId;
@@ -454,6 +460,9 @@ module.exports.unsubscribe = function (req, res) {
       if (!req.passport.user) {
         throw new Error('user not authentified');
       }
+      if (!req.passport.accessToken) {
+        throw new Error('missing accessToken in passport');
+      }
       return billingApi.getSubscriptions(req.passport.user._id)
     })
     .then(function (subscriptions) {
@@ -491,7 +500,7 @@ module.exports.unsubscribe = function (req, res) {
         If empty, end-user will not be redirected, rather a blank page will be
         returned with HTTP status code 200.
       */
-      var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback';
+      var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback?access_token=' + req.passport.accessToken.token;
 
       //
       var data = generateBaseParameters(methodName, c.subscription.subscriptionProviderUuid);
