@@ -56,7 +56,12 @@ module.exports = {
     key: '368b8163dca54e64a17ec098d63d2464',
     serviceId: 1,
     productType: 121,
-    "initialize-authentication-success-code-list": [ "120" ]
+    "initialize-authentication-success-code-list": [ "120" ],
+    "initialize-subscription-success-code-list": [ "420", "421", "424" ],
+    "close-subscription-success-code-list": [ "422" ],
+    internalPlanUuid: 'nsafrostreammonthly',
+    billingProviderName: 'netsize',
+    "allowed-user-id-type": [ "1", "2", "4" ]
   },
 
   cdnselector: {
