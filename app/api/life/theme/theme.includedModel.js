@@ -4,6 +4,7 @@ var sqldb = rootRequire('/sqldb');
 var LifeSpot = sqldb.LifeSpot;
 //var LifeThemePins = sqldb.LifeThemePins;
 var LifePin = sqldb.LifePin;
+var Image = sqldb.Image;
 var User = sqldb.User;
 
 module.exports.get = function () {
@@ -13,23 +14,28 @@ module.exports.get = function () {
             model: LifePin,
             as: 'pins',
             attributes: [
+                '_id',
                 'type',
                 'title',
-                'slug',
                 'role',
                 'providerUrl',
                 'providerName',
                 'originalUrl',
                 'imageUrl',
+                'richMediaUrl',
                 'description',
                 'date'],
             required: false,
-            where: {'active': true},
             include: [
                 {
                     model: User,
                     as: 'user',
-                    attributes: ['nickname', 'facebook']
+                    required: false
+                },
+                {
+                    model: User,
+                    as: 'users',
+                    required: false
                 }
             ]
         },
@@ -37,7 +43,13 @@ module.exports.get = function () {
             model: LifeSpot,
             as: 'spots',
             required: false,
-            where: {'active': true}
+            include: [
+                {
+                    model: Image,
+                    as: 'image',
+                    required: false
+                }
+            ]
         }
     ];
 };

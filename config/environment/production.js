@@ -91,12 +91,17 @@ module.exports = {
   },
 
   netsize: {
-    callbackBaseUrl: 'https://api.afrostream.tv',
+    callbackBaseUrl: 'https://www.afrostream.tv',
     uri: 'https://pay.netsize.com/api/1.2/',
     key: 'decef8a23e764beaa5c39018e034a254',
     serviceId: 2,
     productType: 121,
-    "initialize-authentication-success-code-list": [ "120" ]
+    "initialize-authentication-success-code-list": [ "120" ],
+    "initialize-subscription-success-code-list": [ "420", "421", "424" ],
+    "close-subscription-success-code-list": [ "422" ],
+    internalPlanUuid: 'nsafrostreammonthly',
+    billingProviderName: 'netsize',
+    "allowed-user-id-type": [ "1", "2", "4" ]
   },
 
   cookies: {

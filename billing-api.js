@@ -39,7 +39,8 @@ var requestBilling = function (options) {
       if (response.statusCode !== 200 || !body || body.status !== 'done') {
         console.error('WARNING: [BILLING-API]: ' + response.statusCode + ' ' + (body && body.status) + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         error = new Error(body && body.statusMessage || body && body.message || 'unknown');
-        error.statusCode = response.statusCode;
+        error.statusCode = (response.statusCode >= 200 && response.statusCode <= 400 ) ? 500 : response.statusCode;
+        error.code = body && body.statusCode || response.statusCode;
         throw error;
       }
 
@@ -154,7 +155,7 @@ var updateSubscription = function (subscriptionBillingUuid, status) {
  */
 var getUser = function (userReferenceUuid, providerName) {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
-  assert(['stripe', 'gocardless', 'recurly', 'celery', 'bachat', 'afr', 'cashway', 'bouygues', 'orange', 'braintree'].indexOf(providerName) !== -1); // add other providers here later.
+  assert(['stripe', 'gocardless', 'recurly', 'celery', 'bachat', 'afr', 'cashway', 'bouygues', 'orange', 'braintree', 'netsize'].indexOf(providerName) !== -1); // add other providers here later.
 
   return requestBilling({
     url: config.billings.url + '/billings/api/users/'
@@ -263,6 +264,15 @@ var getInternalPlans = function (billingsData) {
     return body && body.response && body.response.internalPlans || [];
   });
 };
+
+var getInternalPlan = function (internalPlanUuid) {
+  assert(typeof internalPlanUuid === 'string' && internalPlanUuid);
+  return requestBilling({
+    url: config.billings.url + '/billings/api/internalplans/'+internalPlanUuid
+  }).then(function (body) {
+    return body && body.response && body.response.internalPlan || null;
+  });
+}
 
 var subscriptionToPlanCode = function (subscription) {
   if (subscription &&
@@ -388,11 +398,11 @@ module.exports.updateUser = updateUser;
 //module.exports.updateUser = updateUser;
 module.exports.getOrCreateUser = getOrCreateUser;
 // fetching internal infos
-module.exports.getInternalPlans = getInternalPlans;
+module.exports.getInternalPlan = getInternalPlan;
+module.exports.getInternalPlans = getInternalPlans
 // parsing subscription
 module.exports.subscriptionToPlanCode = subscriptionToPlanCode;
 module.exports.subscriptionToPromo = subscriptionToPromo;
-
 // coupon codes
 module.exports.validateCoupons = validateCoupons;
 module.exports.createCoupons = createCoupons;
