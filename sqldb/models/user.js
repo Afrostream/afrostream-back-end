@@ -110,13 +110,7 @@ module.exports = function (sequelize, DataTypes) {
                 notEmpty: true
             }
         },
-        salt: DataTypes.STRING,
-
-        //
-        active: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false
-        }
+        salt: DataTypes.STRING
     }, {
 
         /**

@@ -312,8 +312,7 @@ exports.gift = function (req, res) {
           email: c.bodyGiftedEmail,
           first_name: c.bodyGiftedFirstName,
           last_name: c.bodyGiftedLastName,
-          provider: 'local',
-          active: false
+          provider: 'local'
         });
       }).then(function (giftedUser) {
         c.giftedUser = giftedUser;
