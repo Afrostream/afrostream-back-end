@@ -7,7 +7,7 @@ var User = sqldb.User;
 var utils = rootRequire('/app/api/utils.js');
 var getIncludedModel = require('./lifeUser.includedModel').get;
 
-var index = function (req, res) {
+exports.index = function (req, res) {
     var queryOptions = {
         include: getIncludedModel(),
         limit: 100
@@ -46,6 +46,3 @@ exports.show = function (req, res) {
         .then(responseWithResult(res))
         .catch(res.handleError());
 };
-
-module.exports.index = index;
-module.exports.show = show;
