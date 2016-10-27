@@ -51,7 +51,7 @@ exports.show = function (req, res) {
 
     User.find(queryOptions)
         .then(utils.handleEntityNotFound(res))
-        .then(filters.filterUserAttributes(req, 'public'))
+        .then(filters.filterUserAttributesAll(req, 'public'))
         .then(responseWithResult(res))
         .catch(res.handleError());
 };
