@@ -30,4 +30,22 @@ var index = function (req, res) {
         .catch(res.handleError())
 };
 
+
+// Gets a single LifeTheme from the DB
+exports.show = function (req, res) {
+    var queryOptions = {
+        include: getIncludedModel(),
+        where: {
+            _id: req.params.id
+        }
+    };
+
+    User.find(queryOptions)
+        .then(utils.handleEntityNotFound(res))
+        .then(filters.filterUserAttributesl(req, 'public'))
+        .then(responseWithResult(res))
+        .catch(res.handleError());
+};
+
 module.exports.index = index;
+module.exports.show = show;

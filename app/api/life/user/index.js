@@ -9,5 +9,6 @@ var router = express.Router();
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
 router.get('/', utils.middlewareCache, controller.index);
+router.get('/:id', utils.middlewareCache, controller.show);
 
 module.exports = router;
