@@ -1,11 +1,11 @@
 'use strict';
 
 // security
-if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging' || process.env.DATABASE_URL) {
-  console.error('security: cannot mock on production / staging environment');
-  console.error('exit 1');
-  process.exit(1);
-}
+//if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging' || process.env.DATABASE_URL) {
+//  console.error('security: cannot mock on production / staging environment');
+//  console.error('exit 1');
+//  process.exit(1);
+//}
 
 var config = rootRequire('/config');
 

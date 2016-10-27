@@ -18,7 +18,7 @@ module.exports = {
   },
 
   sequelize: {
-    uri: 'postgres://postgres:root@localhost:5432/afrostream',
+    uri: 'postgres://postgres:postgres@afrostreampostgres/postgres',
     options: {
       logging: console.log,
       storage: 'dev.postgres',
@@ -99,7 +99,7 @@ module.exports = {
   },
 
   mq: {
-    endPoint: 'amqp://localhost',
+    endPoint: 'amqp://rabbitmq:rabbitmq@rabbitmq/',
     exchangeName: 'afrostream-backend',
     autoReconnect: false,
     displayErrors: false
