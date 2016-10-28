@@ -556,7 +556,13 @@ module.exports.callback = function (req, res) {
 
   console.log('[DEBUG]: [NETSIZE]: callback - start');
   console.log('[DEBUG]: [NETSIZE]: input headers = ', JSON.stringify(req.headers));
-  getCookieInfos(req)
+  Q()
+    .then(function () {
+      if (!req.passport.user) {
+        throw new Error('user not authentified');
+      }
+      return getCookieInfos(req);
+    })
     .then(function success(cookieInfos) {
       console.log('[DEBUG]: [NETSIZE]: cookieInfos', cookieInfos);
       c.cookieInfos = cookieInfos;
@@ -645,7 +651,10 @@ module.exports.callback = function (req, res) {
               userReferenceUuid: req.passport.user._id,
               userProviderUuid: c.transactionStatus.userId,
               userOpts: {
-                transactionId: c.cookieInfos.transactionId
+                transactionId: c.cookieInfos.transactionId,
+                email: req.passport.user.get('email'),
+                firstName: req.passport.user.get('first_name'),
+                lastName: req.passport.user.get('last_name')
               }
             })
             .then(function (billingsResponse) {
