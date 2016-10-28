@@ -18,6 +18,7 @@ var mailer = rootRequire('/components/mailer');
 var User = sqldb.User;
 var GiftGiver = sqldb.GiftGiver;
 var Promise = sqldb.Sequelize.Promise;
+var Q = require('q');
 recurly.setAPIKey(config.recurly.apiKey);
 
 var billingApi = rootRequire('/billing-api');
@@ -122,19 +123,18 @@ exports.cancel = function (req, res, next) {
  * }
  */
 exports.status = function (req, res) {
-  var userId = parseInt(req.param('userId'), 10) || req.user._id;
-  billingApi.getSubscriptionsStatus(userId, true)
-    .then(function (subscriptionsStatus) {
-      res.json(subscriptionsStatus);
+  Q()
+    .then(function () {
+      if (!req.passport.user) {
+        throw new Error('unauthentified');
+      }
+      return billingApi.getSubscriptionsStatus(req.passport.user.get('_id'), true)
     })
     .then(
-      function success(data) {
-        res.json(data);
+      function (subscriptionsStatus) {
+        res.json(subscriptionsStatus);
       },
-      function error(err) {
-        console.error('subscription.controller.js#status(): error: ' + err, err);
-        res.status(err.statusCode || 500).json({error: String(err)});
-      }
+      res.handleError()
     );
 };
 
