@@ -371,7 +371,6 @@ exports.gift = function (req, res) {
     //
     .then(function () {
       c.giftedUser.account_code = c.giftedUserProviderUuid;
-      c.giftedUser.active = true;
       return c.giftedUser.save();
     })
     //
