@@ -326,6 +326,15 @@ module.exports = function (sequelize, DataTypes) {
             // public infos
             getPublicInfos: function () {
                 return User.getPublicInfos(this.get({plain: true}));
+            },
+
+            toPlain: function (options) {
+              var caller = options.req && options.req.user ||
+                           options.req && options.req.passport && options.req.passport.user;
+
+              if (!caller || caller._id !== this._id) {
+                return this.getPublicInfos();
+              }
             }
         },
 

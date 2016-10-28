@@ -254,8 +254,24 @@ var filterUserAttributes = function (req, role, attr) {
     }
 };
 
-// FIXME: USER_PRIVACY: we should implement here a global output filter
+/*
+ * default output filter :
+ *  - convert objects to plain
+ */
+var filterOutput = function (options) {
+  return function (data) {
+    if (Array.isArray(data)) {
+      return data.map(function (instance) {
+        return instance.getPlain(options);
+      });
+    } else {
+      return data.getPlain(options);
+    }
+  };
+};
 
+// FIXME: USER_PRIVACY: we should implement here a global output filter
+exports.filterOutput = filterOutput;
 exports.filterQueryOptions = filterQueryOptions;
 exports.filterUserAttributesAll = filterUserAttributesAll;
 exports.filterUserAttributes = filterUserAttributes;
