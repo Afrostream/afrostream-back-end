@@ -324,8 +324,7 @@ module.exports.createGift = function (req, res) {
           email: c.bodySubOpts.gift.email,
           first_name: c.bodySubOpts.gift.firstName,
           last_name: c.bodySubOpts.gift.lastName,
-          provider: 'local',
-          active: false
+          provider: 'local'
         });
       })
     })

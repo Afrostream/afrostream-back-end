@@ -110,13 +110,7 @@ module.exports = function (sequelize, DataTypes) {
                 notEmpty: true
             }
         },
-        salt: DataTypes.STRING,
-
-        //
-        active: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false
-        }
+        salt: DataTypes.STRING
     }, {
 
         /**
@@ -332,6 +326,15 @@ module.exports = function (sequelize, DataTypes) {
             // public infos
             getPublicInfos: function () {
                 return User.getPublicInfos(this.get({plain: true}));
+            },
+
+            toPlain: function (options) {
+              var caller = options.req && options.req.user ||
+                           options.req && options.req.passport && options.req.passport.user;
+
+              if (!caller || caller._id !== this._id) {
+                return this.getPublicInfos();
+              }
             }
         },
 
@@ -339,6 +342,7 @@ module.exports = function (sequelize, DataTypes) {
             getPublicInfos: function (plainUser) {
                 plainUser = plainUser || {};
                 return {
+                    _id: plainUser._id,
                     picture: plainUser.picture,
                     nickname: plainUser.nickname,
                     facebook: plainUser.facebook ? {id: plainUser.facebook.id} : null

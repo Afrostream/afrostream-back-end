@@ -13,8 +13,7 @@ var getIncludedModel = require('../../episode/episode.includedModel.js').get;
 var index = function (req, res) {
   var queryOptions = {
     where: {
-      _id: req.user._id,
-      active: undefined
+      _id: req.user._id
     },
     include: [
       {

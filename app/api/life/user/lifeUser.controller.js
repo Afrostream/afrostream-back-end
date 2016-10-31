@@ -7,7 +7,16 @@ var User = sqldb.User;
 var utils = rootRequire('/app/api/utils.js');
 var getIncludedModel = require('./lifeUser.includedModel').get;
 
-var index = function (req, res) {
+function responseWithResult (res, statusCode) {
+    statusCode = statusCode || 200;
+    return function (entity) {
+        if (entity) {
+            res.status(statusCode).json(entity);
+        }
+    };
+}
+
+exports.index = function (req, res) {
     var queryOptions = {
         include: getIncludedModel(),
         limit: 100
@@ -30,4 +39,19 @@ var index = function (req, res) {
         .catch(res.handleError())
 };
 
-module.exports.index = index;
+
+// Gets a single LifeTheme from the DB
+exports.show = function (req, res) {
+    var queryOptions = {
+        include: getIncludedModel(),
+        where: {
+            _id: req.params.id
+        }
+    };
+
+    User.find(queryOptions)
+        .then(utils.handleEntityNotFound(res))
+        .then(filters.filterOutput({req:req}))
+        .then(responseWithResult(res))
+        .catch(res.handleError());
+};

@@ -54,7 +54,6 @@ exports.index = function (req, res) {
       'name',
       'email',
       'role',
-      'active',
       'provider'
     ]
   };
@@ -400,7 +399,6 @@ exports.verify = function (req, res) {
       if (!user) {
         return res.status(422).end();
       }
-      user.active = true;
       return user.save()
         .then(function () {
           res.json(user.getInfos());
