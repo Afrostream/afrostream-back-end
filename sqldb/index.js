@@ -341,6 +341,7 @@ db.Log = db.sequelize.import('models/logs');
 db.Movie = db.sequelize.import('models/movie');
 db.PFGroup = db.sequelize.import('models/pfGroup');
 db.PFProfile = db.sequelize.import('models/pfProfile');
+db.Press = db.sequelize.import('models/press');
 db.Post = db.sequelize.import('models/post');
 db.RefreshToken = db.sequelize.import('models/refreshToken');
 db.Season = db.sequelize.import('models/season');
