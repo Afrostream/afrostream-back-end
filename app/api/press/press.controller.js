@@ -50,7 +50,7 @@ function removeEntity (res) {
 function updateImages (updates) {
     return function (entity) {
         var promises = [];
-        promises.push(entity.setImageoster(updates.image && Image.build(updates.image) || null));
+        promises.push(entity.setImage(updates.image && Image.build(updates.image) || null));
         promises.push(entity.setPdf(updates.pdf && Image.build(updates.pdf) || null));
         return sqldb.Sequelize.Promise
             .all(promises)
