@@ -7,11 +7,9 @@ var router = express.Router();
 
 var middlewarePassport = rootRequire('/app/middlewares/middleware-passport.js');
 
-router.use(auth.middleware.restrictRoutesToAuthentified());
-
-router.get('/check', controller.check);
-router.get('/callback', controller.callback);
-router.get('/subscribe', controller.subscribe);
-router.get('/unsubscribe', controller.unsubscribe);
+router.get('/check', auth.middleware.authentify(), controller.check);
+router.get('/callback', auth.middleware.authentify(), controller.callback);
+router.get('/subscribe', auth.middleware.restrictRoutesToAuthentified(), controller.subscribe);
+router.get('/unsubscribe', auth.middleware.restrictRoutesToAuthentified(), controller.unsubscribe);
 
 module.exports = router;

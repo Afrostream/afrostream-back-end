@@ -172,5 +172,15 @@ exports.middleware = {
       .use(middlewarePassport(options.middlewarePassport))
       .use(middlewareBroadcaster())
       .use(middlewareCountry());
+  },
+
+  authentify: function (options) {
+    options = options || {};
+    options.middlewarePassport = options.middlewarePassport || { preload: true };
+
+    return compose()
+      .use(middlewarePassport(options.middlewarePassport))
+      .use(middlewareBroadcaster())
+      .use(middlewareCountry());
   }
 }

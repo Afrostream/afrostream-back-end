@@ -218,13 +218,6 @@ module.exports.check = function (req, res) {
 
   Q()
     .then(function () {
-      if (!req.passport.user) {
-        throw new Error('user not authentified');
-      }
-      if (!req.passport.accessToken) {
-        throw new Error('missing accessToken in passport');
-      }
-
       // base method parameters
       var data = generateBaseParameters(methodName);
       //
@@ -251,7 +244,7 @@ module.exports.check = function (req, res) {
         If empty, end-user will not be redirected, rather a blank page will be
         returned with HTTP status code 200.
       */
-      var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback?access_token=' + req.passport.accessToken.token;
+      var returnUrl = config.netsize.callbackBaseUrl + '/auth/netsize/callback';
       /*
         Optionnal, integer
         This identifier allows Netsize to customize payment pages when accurate.
@@ -558,14 +551,25 @@ module.exports.callback = function (req, res) {
   console.log('[DEBUG]: [NETSIZE]: input headers = ', JSON.stringify(req.headers));
   Q()
     .then(function () {
-      if (!req.passport.user) {
-        throw new Error('user not authentified');
-      }
       return getCookieInfos(req);
     })
     .then(function success(cookieInfos) {
       console.log('[DEBUG]: [NETSIZE]: cookieInfos', cookieInfos);
       c.cookieInfos = cookieInfos;
+
+      // ensure the user is authentified.
+      switch (c.cookieInfos.lastCall) {
+        case 'check':
+          break;
+        case 'subscribe':
+        case 'unsubscribe':
+          if (!req.passport.user) {
+            throw new Error('user not authentified');
+          }
+          break;
+        default:
+          throw new Error('unknown lastCall ' + c.cookieInfos.lastCall);
+      }
       //
       var methodName = "get-status";
       var data =generateBaseParameters(methodName, cookieInfos.transactionId);
