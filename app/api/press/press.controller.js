@@ -12,6 +12,7 @@
 var _ = require('lodash');
 var sqldb = rootRequire('/sqldb');
 var Press = sqldb.Press;
+var Image = sqldb.Image;
 var filters = rootRequire('/app/api/filters.js');
 var utils = rootRequire('/app/api/utils.js');
 
@@ -43,6 +44,19 @@ function removeEntity (res) {
                     res.status(204).end();
                 });
         }
+    };
+}
+
+function updateImages (updates) {
+    return function (entity) {
+        var promises = [];
+        promises.push(entity.setImageoster(updates.image && Image.build(updates.image) || null));
+        promises.push(entity.setPdf(updates.pdf && Image.build(updates.pdf) || null));
+        return sqldb.Sequelize.Promise
+            .all(promises)
+            .then(function () {
+                return entity;
+            });
     };
 }
 
@@ -103,6 +117,7 @@ exports.show = function (req, res) {
 // Creates a new post in the DB
 exports.create = function (req, res) {
     Press.create(req.body)
+        .then(updateImages(req.body))
         .then(responseWithResult(res, 201))
         .catch(res.handleError());
 };
@@ -119,6 +134,7 @@ exports.update = function (req, res) {
     })
         .then(utils.handleEntityNotFound(res))
         .then(saveUpdates(req.body))
+        .then(updateImages(req.body))
         .then(responseWithResult(res))
         .catch(res.handleError());
 };
