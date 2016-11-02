@@ -65,7 +65,6 @@ function updateImages (updates) {
 // ?slug=... (search by slug)
 exports.index = function (req, res) {
     var queryName = req.param('query'); // deprecated.
-    var slug = req.query.slug;
     var queryOptions = {
         include: getIncludedModel()
     };
@@ -81,7 +80,7 @@ exports.index = function (req, res) {
         })
     }
 
-    //queryOptions = filters.filterQueryOptions(req, queryOptions, Press);
+    queryOptions = filters.filterQueryOptions(req, queryOptions, Press);
 
     Press.findAndCountAll(queryOptions)
         .then(utils.handleEntityNotFound(res))
@@ -94,7 +93,8 @@ exports.show = function (req, res) {
     var queryOptions = {
         where: {
             _id: req.params.id
-        }
+        },
+        include: getIncludedModel()
     };
 
     queryOptions = filters.filterQueryOptions(req, queryOptions, Press);
