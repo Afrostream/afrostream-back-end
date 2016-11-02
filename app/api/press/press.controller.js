@@ -90,7 +90,7 @@ exports.index = function (req, res) {
         });
     }
 
-    queryOptions = filters.filterQueryOptions(req, queryOptions, Press);
+    //queryOptions = filters.filterQueryOptions(req, queryOptions, Press);
 
     Press.findAndCountAll(queryOptions)
         .then(utils.handleEntityNotFound(res))
