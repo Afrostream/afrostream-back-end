@@ -26,7 +26,7 @@ module.exports = function (sequelize, DataTypes) {
             length: 16
         },
         url: DataTypes.STRING,
-        sort: DataTypesd.INTEGER,
+        sort: DataTypes.INTEGER,
         active: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
