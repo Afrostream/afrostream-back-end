@@ -249,73 +249,73 @@ var db = {
 /*
  * Monkey Patching Sequelize
  */
-db.sequelize.Instance.prototype.getPlain = function(key, options) {
-  if (options === undefined && typeof key === 'object') {
-    options = key;
-    key = undefined;
-  }
+db.sequelize.Instance.prototype.getPlain = function (key, options) {
+    if (options === undefined && typeof key === 'object') {
+        options = key;
+        key = undefined;
+    }
 
-  // recuperation d'une seule property
-  if (key) {
-    // soit c'est un getter custom
-    if (this._customGetters[key]) {
-      return this._customGetters[key].call(this, key);
-    }
-    // soit c'est un include (sous modele)
-    if (this.$options.include && this.$options.includeNames.indexOf(key) !== -1) {
-      if (Array.isArray(this.dataValues[key])) {
-        return this.dataValues[key].map(function (instance) {
-          return instance.getPlain(options);
-        });
-      } else if (this.dataValues[key] instanceof Instance) {
-        return this.dataValues[key].getPlain(options);
-      } else {
-        // quel cas ?
-        return this.dataValues[key];
-      }
-    }
-    // soit c'est une property de base
-    return this.dataValues[key];
-  }
-
-  // recuperation de la liste des properties de l'instance
-  var values = {}, toPlainValues = null, _key;
-
-  if (typeof this.toPlain === 'function') {
-    // gestion manuelle de la sérialisation :
-    //   on récupère les champs/value qui peuvent être sérialisés
-    toPlainValues = this.toPlain(options);
-  }
-  if (toPlainValues) {
-    for (_key in toPlainValues) {
-      values[_key] = toPlainValues[_key];
-    }
-    // on récupère éventuellement les sous objets !
-    //   sauf si ils ont été définis (null) dans toPlain
-    for (_key in this.dataValues) {
-      if (!values.hasOwnProperty(_key) &&
-          this.dataValues.hasOwnProperty(_key) &&
-          this.$options.include && this.$options.includeNames.indexOf(_key) !== -1) {
-        values[_key] = this.getPlain(_key, options);
-      }
-    }
-  } else {
-    // recuperation des getters customs
-    if (this._hasCustomGetters) {
-      for (_key in this._customGetters) {
-        if (this._customGetters.hasOwnProperty(_key)) {
-          values[_key] = this.getPlain(_key, options);
+    // recuperation d'une seule property
+    if (key) {
+        // soit c'est un getter custom
+        if (this._customGetters[key]) {
+            return this._customGetters[key].call(this, key);
         }
-      }
+        // soit c'est un include (sous modele)
+        if (this.$options.include && this.$options.includeNames.indexOf(key) !== -1) {
+            if (Array.isArray(this.dataValues[key])) {
+                return this.dataValues[key].map(function (instance) {
+                    return instance.getPlain(options);
+                });
+            } else if (this.dataValues[key] instanceof Instance) {
+                return this.dataValues[key].getPlain(options);
+            } else {
+                // quel cas ?
+                return this.dataValues[key];
+            }
+        }
+        // soit c'est une property de base
+        return this.dataValues[key];
     }
-    // autres properties
-    for (_key in this.dataValues) {
-      if (!values.hasOwnProperty(_key) && this.dataValues.hasOwnProperty(_key)) {
-        values[_key] = this.getPlain(_key, options);
-      }
+
+    // recuperation de la liste des properties de l'instance
+    var values = {}, toPlainValues = null, _key;
+
+    if (typeof this.toPlain === 'function') {
+        // gestion manuelle de la sérialisation :
+        //   on récupère les champs/value qui peuvent être sérialisés
+        toPlainValues = this.toPlain(options);
     }
-  }
-  return values;
+    if (toPlainValues) {
+        for (_key in toPlainValues) {
+            values[_key] = toPlainValues[_key];
+        }
+        // on récupère éventuellement les sous objets !
+        //   sauf si ils ont été définis (null) dans toPlain
+        for (_key in this.dataValues) {
+            if (!values.hasOwnProperty(_key) &&
+                this.dataValues.hasOwnProperty(_key) &&
+                this.$options.include && this.$options.includeNames.indexOf(_key) !== -1) {
+                values[_key] = this.getPlain(_key, options);
+            }
+        }
+    } else {
+        // recuperation des getters customs
+        if (this._hasCustomGetters) {
+            for (_key in this._customGetters) {
+                if (this._customGetters.hasOwnProperty(_key)) {
+                    values[_key] = this.getPlain(_key, options);
+                }
+            }
+        }
+        // autres properties
+        for (_key in this.dataValues) {
+            if (!values.hasOwnProperty(_key) && this.dataValues.hasOwnProperty(_key)) {
+                values[_key] = this.getPlain(_key, options);
+            }
+        }
+    }
+    return values;
 };
 
 module.exports = db;
@@ -472,6 +472,8 @@ db.Log.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false}
 db.Log.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', targetKey: '_id', constraints: false});
 
 db.Widget.belongsTo(db.Image, {as: 'image', constraints: false});
+db.Press.belongsTo(db.Image, {as: 'pdf', constraints: false});
+db.Press.belongsTo(db.Image, {as: 'image', constraints: false});
 
 ///// HELPERS FUNCTIONS /////
 
