@@ -190,6 +190,7 @@ router.use(function (req, res, next) {
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
 router.get('/internalplans', controller.showInternalplans);
+router.get('/internalplan/:internalPlanUuid', controller.showInternalplan);
 router.post('/subscriptions', controller.createSubscriptions);
 router.post('/gifts', controller.createGift);
 router.get('/coupons', controller.validateCoupons);
