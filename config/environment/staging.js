@@ -104,6 +104,22 @@ module.exports = {
     clientSecret: 'MIIDKTCCApKgAwIBAgIGAR9x+wRQMA0GCSqGSIb3DQEBBQUAMGAxFzAVBgNVBAoTDkZyYW5jZSBUZWxlY29tMRMwEQYDVQQDEwpUZXN0U2l0ZUlEMTAwLgYJKoZIhvcNAQkBFiFnYWVsLmdvdXJtZWxlbkBvcmFuZ2UtZnRncm91cC5jb20wHhcNMDcxMDA0MTQ0NzUzWhcNMTcxMDAxMTQ0NzUzWjBgMRcwFQYDVQQKEw5GcmFuY2UgVGVsZWNvbTETMBEGA1UEAxMKVGVzdFNpdGVJRDEwMC4GCSqGSIb3DQEJARYhZ2FlbC5nb3VybWVsZW5Ab3JhbmdlLWZ0Z3JvdXAuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUcgjaY7tqLy+dNQJMUVChHrMjzOpWEi370gOXB2Cy/xiPpSGhfDLbs9sKSn9Cpw93mublOhvwQlEWS2SwYpSfqpARiqOyFAoeclyoxCz8JTsjbZD/NsqW4gCwJfcY3t7buEaO8rwTj2DDuIadbFMZOLr7KmMezHqwd6CNiXXCeQIDAQABo4HtMIHqMBYGCWCGSAGG+EIBDQQJFgdbR0ddIENBMB0GA1UdDgQWBBT9bZlATmC57VbMjxrl2hfbna82UDCBjwYDVR0jBIGHMIGEgBT9bZlATmC57VbMjxrl2hfbna82UKFkpGIwYDEXMBUGA1UEChMORnJhbmNlIFRlbGVjb20xEzARBgNVBAMTClRlc3RTaXRlSUQxMDAuBgkqhkiG9w0BCQEWIWdhZWwuZ291cm1lbGVuQG9yYW5nZS1mdGdyb3VwLmNvbYIGAR9x+wRQMBIGA1UdEwEB/wQIMAYBAf8CAQAwCwYDVR0PBAQDAgEGMA0GCSqGSIb3DQEBBQUAA4GBAAEKb9PQR9IdSM8XRR9jaZF/FWjY7WDX17TUaehHl8JcfuNAwmoBDCiUmcc2rutw/bRKUSxGvx4UUSYzVBIONjUzJU8LHVIDotzJxOnIXG7ZQz8ymv9b9Ywhr7NGRQ8MYy6BIztlniPOr/P7VE0C0azHe+er5slu+FYtJ0qyumT3'
   },
 
+  /* tempfix: netsize: on utilise la configuration de prod ! */
+  netsize: {
+    callbackBaseUrl: 'https://staging.afrostream.tv',
+    uri: 'https://pay.netsize.com/api/1.2/',
+    key: 'decef8a23e764beaa5c39018e034a254',
+    serviceId: 2,
+    productType: 121,
+    "initialize-authentication-success-code-list": [ "120" ],
+    "initialize-subscription-success-code-list": [ "420", "421", "424" ],
+    "close-subscription-success-code-list": [ "422" ],
+    internalPlanUuid: 'nsafrostreammonthly',
+    billingProviderName: 'netsize',
+    "allowed-user-id-type": [ "1", "2", "4" ]
+  },
+
+  /* configuration staging
   netsize: {
     callbackBaseUrl: 'https://staging.afrostream.tv',
     uri: 'https://qa.pay.netsize.com/API/1.2/',
@@ -117,6 +133,7 @@ module.exports = {
     billingProviderName: 'netsize',
     "allowed-user-id-type": [ "1", "2", "4" ]
   },
+  */
 
   // tempfix
   secrets: {
@@ -127,7 +144,7 @@ module.exports = {
     secret: '2342REJIEJIZJO29J9JGZF',
     test: {
       name: 'test',
-      domain: 'afr-api-v1-staging.herokuapp.com'
+      domain: '.afrostream.tv'
     },
     netsize: {
       name: 'netsize',
