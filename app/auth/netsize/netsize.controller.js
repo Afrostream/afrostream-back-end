@@ -295,7 +295,7 @@ module.exports.check = function (req, res) {
                 if (process.env.NODE_ENV === 'staging') {
                     console.log('[WARNING]: [NETSIZE]: TEMPFIX STAGING: netsize retourne du http => on force https.');
                     netsizeUrl = netsizeUrl.replace(/^http:/, 'https:');
-                    netsizeUrl = netsizeUrl.replace(/https%3a%2f%2f/, 'https%3a%2f%2f');
+                    netsizeUrl = netsizeUrl.replace(/http%3a%2f%2f/, 'https%3a%2f%2f');
                     console.log('[DEBUG]: [NETSIZE]: TEMPFIX STAGING: netsizeUrl = ' + netsizeUrl);
                 }
                 res.redirect(302, netsizeUrl);
