@@ -290,6 +290,11 @@ module.exports.check = function (req, res) {
     })
     .then(
       function success(netsizeUrl) {
+        // tempfix staging
+        if (process.env.NODE_ENV === 'staging') {
+          console.log('[WARNING]: [NETSIZE]: TEMPFIX STAGING: netsize retourne du http => on force https.');
+          netsizeUrl = netsizeUrl.replace(/^http:/, 'https:');
+        }
         res.redirect(302, netsizeUrl);
       },
       handleError(req, res)
