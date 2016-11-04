@@ -128,7 +128,13 @@ exports.status = function (req, res) {
       if (!req.passport.user) {
         throw new Error('unauthentified');
       }
-      return billingApi.getSubscriptionsStatus(req.passport.user.get('_id'), true)
+      var userId = null;
+      if (req.passport.user.get('role') === 'admin' && req.query.userId) {
+        userId = req.query.userId;
+      } else {
+        userId = req.passport.user.get('_id');
+      }
+      return billingApi.getSubscriptionsStatus(userId, true)
     })
     .then(
       function (subscriptionsStatus) {
