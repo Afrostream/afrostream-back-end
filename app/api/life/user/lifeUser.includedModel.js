@@ -6,7 +6,16 @@ var LifePin = sqldb.LifePin;
 module.exports.get = function () {
     return [
         {
-            model: LifePin, as: 'lifePins', required: true
+            model: LifePin,
+            as: 'lifePins',
+            required: true,
+            include: [
+                {
+                    model: Image,
+                    as: 'image',
+                    required: false
+                }
+            ]
         }
     ];
 };
