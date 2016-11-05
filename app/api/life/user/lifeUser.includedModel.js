@@ -2,6 +2,7 @@
 
 var sqldb = rootRequire('/sqldb');
 var LifePin = sqldb.LifePin;
+var Image = sqldb.Image;
 
 module.exports.get = function () {
     return [
