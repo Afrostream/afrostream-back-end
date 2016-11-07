@@ -2,6 +2,11 @@
 
 process.env.NODE_ENV = 'test';
 
+if (process.version.substr(0, 5) !== 'v0.12') {
+  console.error('[ERROR]: please: nvm use 0.12');
+  process.exit(1);
+}
+
 // global
 global.__basedir = __dirname + '/..';
 global.rootRequire = function (name) { return require(global.__basedir + '/' + (name[0] === '/' ? name.substr(1) : name)); };
