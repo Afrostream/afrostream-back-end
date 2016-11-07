@@ -88,8 +88,16 @@ module.exports = function (sequelize, DataTypes) {
         facebook: DataTypes.JSON,
         orange: DataTypes.JSON,
         bouygues: DataTypes.JSON,
-        bouyguesId: DataTypes.STRING(128), // bouygues ise2 id.
-        ise2: DataTypes.STRING(128), // orange ise2 id.
+        bouyguesId: {
+          type: DataTypes.STRING(128), // bouygues ise2 id.
+          allowNull: true,
+          unique: true
+        },
+        ise2: {
+          type: DataTypes.STRING(128), // orange ise2 id.
+          allowNull: true,
+          unique: true
+        },
 
         // FRONT
         splashList: DataTypes.JSON,

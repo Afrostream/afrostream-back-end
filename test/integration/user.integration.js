@@ -10,6 +10,8 @@ var request = require('supertest');
 
 var assert = require('better-assert');
 
+var Q = require('q');
+
 describe('User API:', function() {
   var user;
 
@@ -25,10 +27,26 @@ describe('User API:', function() {
     });
   });
 
+  before(function () {
+    return User.destroy({where: { bouyguesId: 'abcdef' }});
+  })
+
+  before(function () {
+    return User.destroy({where: { bouyguesId: 'abcdef-new' }});
+  })
+
   // Clear users after testing
   after(function() {
     return User.destroy({ where: { email: 'test.integration@afrostream.tv' } });
   });
+
+  after(function () {
+    return User.destroy({where: { bouyguesId: 'abcdef' }});
+  })
+
+  after(function () {
+    return User.destroy({where: { bouyguesId: 'abcdef-new' }});
+  })
 
   describe('GET /api/users/me', function() {
     var token;
@@ -100,6 +118,7 @@ describe('User API:', function() {
       ]}});
     });
 
+    var userId=null;
     it('should create a random user using client bouygues', function (done) {
       request(app)
         .post('/api/users')
@@ -120,7 +139,50 @@ describe('User API:', function() {
             .expect(200)
             .end(function (err, res) {
               assert(res.body.email === 'test.integration+bouygues_miami@afrostream.tv');
+              assert(res.body.bouyguesId === 'abcdef');
+              userId = res.body._id;
               done(err);
+            });
+        });
+    });
+
+    it('should be able to create a user with a new bouygues id even if email already exist', function (done) {
+      request(app)
+        .post('/api/users')
+        .send({
+          access_token: bouyguesMiamiClientToken,
+          email: 'test.integration+bouygues_miami@afrostream.tv',
+          password: 'password',
+          bouyguesId: "abcdef-new"
+        })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          if (err) return done(err);
+          request(app)
+            .get('/api/users/me')
+            .set('Content-type', 'application/json')
+            .set('Authorization', 'Bearer ' + res.body.token)
+            .expect(200)
+            .end(function (err, res) {
+              assert(res.body.email === null);
+              assert(res.body._id !== userId);
+
+              if (err) { done(err); }
+
+              Q.all([
+                User.findOne({where: {_id: userId}}),
+                User.findOne({where: {_id: res.body._id}})
+              ]).then(function (data) {
+                var u1 = data[0];
+                var u2 = data[1];
+
+                assert(u1.email === 'test.integration+bouygues_miami@afrostream.tv');
+                assert(u2.email === null);
+                assert(u1.bouyguesId === 'abcdef');
+                assert(u2.bouyguesId === 'abcdef-new');
+              })
+              .then(function () { done(); }, done);
             });
         });
     });
