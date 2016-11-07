@@ -26,33 +26,17 @@ function isBoxClient(req) {
  *
  * ex: recursiveReplaceXbyY({a:"b", c:"d", d:{c:"d", o: 3} e:"f"}, {a:"c"});
  */
-function recursiveReplaceXbyY(value, replace) {
-  if (value == null ||
-      typeof value === 'number' ||
-      typeof value === 'boolean') {
-    return value;
-  } else if (typeof value === 'object') {
-    if (typeof value.toJSON === 'function') {
-      return recursiveReplaceXbyY(value.toJSON(), replace);
-    } else if (Array.isArray(value)) {
-      for (var i = 0; i < value.length; i++) {
-        recursiveReplaceXbyY(value[i], replace);
-      }
-    } else if (toString.call(value) === '[object Object]') {
-      Object.keys(replace).forEach(function (k) {
-        if (value[replace[k]]) {
-          value[k] = value[replace[k]];
-        }
-      });
-      for (var k in value) {
-        if (value.hasOwnProperty(k)) {
-          recursiveReplaceXbyY(value[k], replace);
-        }
-      }
-    }
-  }
-  return value;
-}
+ function recursiveReplaceXbyY(obj, x, y) {
+   if (obj && obj[y]) {
+     obj[x] = obj[y];
+   }
+   for (var property in obj) {
+     if (obj.hasOwnProperty(property) && typeof obj[property] === "object") {
+       recursiveReplaceXbyY(obj[property], x, y);
+     }
+   }
+   return obj;
+ }
 
 /*
  * This function takes an object body,
@@ -124,6 +108,15 @@ function rewriteInputs(req) {
   }
 }
 
+// from expressjs source code.
+function stringify(value, replacer, spaces) {
+  // v8 checks arguments.length for optimizing simple call
+  // https://bugs.chromium.org/p/v8/issues/detail?id=4730
+  return replacer || spaces
+    ? JSON.stringify(value, replacer, spaces)
+    : JSON.stringify(value);
+}
+
 /*
  * This function will monkey patch res.json()
  *  to overwrite
@@ -131,8 +124,11 @@ function rewriteInputs(req) {
 function rewriteOutputs(req, res, isBox) {
   var json = res.json.bind(res);
   // monkey patch
-  res.json = function (o) {
-    json(isBox ? recursiveReplaceXbyY(_.merge({}, o), {'_id':'__boxId'}) : strip(o, '__boxId'));
+  res.json = function (body) {
+    var replacer = req.app.get('json replacer');
+    var spaces = req.app.get('json spaces');
+    body = JSON.parse(stringify(body, replacer, spaces));
+    json((isBox) ? recursiveReplaceXbyY(body, '_id', '__boxId') : strip(body, '__boxId'));
   };
 }
 
