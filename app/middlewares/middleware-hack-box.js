@@ -28,7 +28,9 @@ function isBoxClient(req) {
  */
  function recursiveReplaceXbyY(value, replace) {
    if (typeof value === 'object') {
-     if (Array.isArray(value)) {
+     if (typeof value.toJSON === 'function') {
+      return recursiveReplaceXbyY(value.toJSON(), replace);
+     } else if (Array.isArray(value)) {
        for (var i = 0; i < value.length; i++) {
          recursiveReplaceXbyY(value[i], replace);
        }
