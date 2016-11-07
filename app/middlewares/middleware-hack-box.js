@@ -26,29 +26,33 @@ function isBoxClient(req) {
  *
  * ex: recursiveReplaceXbyY({a:"b", c:"d", d:{c:"d", o: 3} e:"f"}, {a:"c"});
  */
- function recursiveReplaceXbyY(value, replace) {
-   if (typeof value === 'object') {
-     if (typeof value.toJSON === 'function') {
+function recursiveReplaceXbyY(value, replace) {
+  if (value == null ||
+      typeof value === 'number' ||
+      typeof value === 'boolean') {
+    return value;
+  } else if (typeof value === 'object') {
+    if (typeof value.toJSON === 'function') {
       return recursiveReplaceXbyY(value.toJSON(), replace);
-     } else if (Array.isArray(value)) {
-       for (var i = 0; i < value.length; i++) {
-         recursiveReplaceXbyY(value[i], replace);
-       }
-     } else if (toString.call(value) === '[object Object]') {
-       Object.keys(replace).forEach(function (k) {
-         if (value[replace[k]]) {
-           value[k] = value[replace[k]];
-         }
-       });
-       for (var k in value) {
-         if (value.hasOwnProperty(k)) {
-           recursiveReplaceXbyY(value[k], replace);
-         }
-       }
-     }
-   }
-   return value;
- }
+    } else if (Array.isArray(value)) {
+      for (var i = 0; i < value.length; i++) {
+        recursiveReplaceXbyY(value[i], replace);
+      }
+    } else if (toString.call(value) === '[object Object]') {
+      Object.keys(replace).forEach(function (k) {
+        if (value[replace[k]]) {
+          value[k] = value[replace[k]];
+        }
+      });
+      for (var k in value) {
+        if (value.hasOwnProperty(k)) {
+          recursiveReplaceXbyY(value[k], replace);
+        }
+      }
+    }
+  }
+  return value;
+}
 
 /*
  * This function takes an object body,
