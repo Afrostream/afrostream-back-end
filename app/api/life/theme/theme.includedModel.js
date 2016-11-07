@@ -27,6 +27,7 @@ module.exports.get = function () {
                 'date'],
             required: false,
             include: [
+                {model: Image, as: 'image', required: false},
                 {
                     model: User,
                     as: 'user',
