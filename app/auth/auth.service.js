@@ -21,6 +21,7 @@ var Q = require('q');
 var middlewarePassport = rootRequire('/app/middlewares/middleware-passport.js');
 var middlewareBroadcaster = rootRequire('/app/middlewares/middleware-broadcaster.js');
 var middlewareCountry = rootRequire('/app/middlewares/middleware-country.js');
+var middlewareHackBox = rootRequire('/app/middlewares/middleware-hack-box.js');
 
 /**
  * Attaches the user object to the request if authenticated
@@ -171,7 +172,8 @@ exports.middleware = {
       .use(isAuthenticated())
       .use(middlewarePassport(options.middlewarePassport))
       .use(middlewareBroadcaster())
-      .use(middlewareCountry());
+      .use(middlewareCountry())
+      .use(middlewareHackBox());
   },
 
   authentify: function (options) {
@@ -181,6 +183,7 @@ exports.middleware = {
     return compose()
       .use(middlewarePassport(options.middlewarePassport))
       .use(middlewareBroadcaster())
-      .use(middlewareCountry());
+      .use(middlewareCountry())
+      .use(middlewareHackBox());
   }
 }

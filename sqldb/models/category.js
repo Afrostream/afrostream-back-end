@@ -9,6 +9,13 @@ module.exports = function (sequelize, DataTypes) {
       unique: true,
       autoIncrement: true
     },
+    // @see https://github.com/Afrostream/afrostream-back-end/issues/372
+    __boxId: {
+      type: DataTypes.VIRTUAL,
+      get: function () {
+        return 'box_c_'+this.getDataValue('_id');
+      }
+    },
     label: DataTypes.STRING,
     slug: DataTypes.STRING,
     sort: DataTypes.INTEGER,

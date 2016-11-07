@@ -11,6 +11,13 @@ module.exports = function (sequelize, DataTypes) {
       unique: true,
       autoIncrement: true
     },
+    // @see https://github.com/Afrostream/afrostream-back-end/issues/372
+    __boxId: {
+      type: DataTypes.VIRTUAL,
+      get: function () {
+        return 'box_m_'+this.getDataValue('_id');
+      }
+    },
     title: {
       type: DataTypes.STRING,
       defaultValue: 'title'

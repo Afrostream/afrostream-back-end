@@ -2,7 +2,7 @@
 
 // RUN the dev code with NODE_ENV=staging.
 process.env.CLOUDAMQP_URL = 'amqp://yvkmghav:Uu-J25iHVqXV7C0_60e1V2JSgb0sEQ-3@chicken.rmq.cloudamqp.com/yvkmghav';
-process.env.DATABASE_URL = 'postgres://u4fp4ad34q8qvi:pt7eht3e9v3lnehhh27m7sfeol@ec2-54-228-194-210.eu-west-1.compute.amazonaws.com:5522/d71on7act83b7i';
+process.env.DATABASE_URL = 'postgres://u4fp4ad34q8qvi:pt7eht3e9v3lnehhh27m7sfeol@ec2-79-125-120-32.eu-west-1.compute.amazonaws.com:5542/d71on7act83b7i';
 process.env.FACEBOOK_CALLBACK_DOMAIN = 'https://staging.afrostream.tv';
 process.env.FACEBOOK_ID = '828887693868980';
 process.env.FACEBOOK_SECRET = '25130290468ec21fbefd1604218cc57c';
