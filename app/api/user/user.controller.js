@@ -80,6 +80,32 @@ exports.index = function (req, res) {
 exports.create = function (req, res, next) {
   Q()
     .then(function () {
+      /*
+       * Exception bouygues MIAMI
+       */
+      if (req.passport.client &&
+          req.passport.client.isBouyguesMiami() &&
+          req.body.email &&
+          req.body.bouyguesId) {
+        // Si jamais la box miami essaye de créer un nouvel utilisateur,
+        // mais que l'email existe déjà, et est déjà reliée à un bouyguesId
+        //   alors on crée un nouvel utilisateur sans email avec le nvx bouyguesId
+        return User.find({where:{email:{$iLike: req.body.email}}})
+          .then(function (user) {
+            // l'utilisateur existe déjà en base avec un bouyguesId différent
+            //  on supprime l'email en entrée pour générer un nouvel utilisateur
+            //  pour ce bouyguesId sans risquer une erreur sur l'index unique de l'email
+            if (user && user.bouyguesId && // user existe en base
+                req.body.bouyguesId !== user.bouyguesId) { // bouyguesId différent
+              console.warn('[WARNING]: [BOUYGUES]: [USERS]: try create user ' + req.body.email + ' / ' + req.body.bouyguesId);
+              console.warn('[WARNING]: [BOUYGUES]: [USERS]: but user '+ user._id + ' / ' + user.bouyguesId + ' already exist with this email');
+              console.warn('[WARNING]: [BOUYGUES]: [USERS]: => removing email from req.body, to create new user with bouyguesId ' + req.body.bouyguesId);
+              req.body.email = null; // va permettre la création
+            }
+          });
+      }
+    })
+    .then(function () {
       var newUser = User.build(req.body);
       newUser.setDataValue('provider', 'local');
       newUser.setDataValue('role', 'user');
