@@ -3,6 +3,7 @@ var Client = rootRequire('sqldb').Client;
 var _ = require('lodash');
 
 var regexBoxId = /^box_._(\d+)$/;
+var urlRegexBoxId = /box_._(\d+)/g;
 
 function getClient(req) {
   return req.passport && req.passport.client ||
@@ -106,6 +107,8 @@ function rewriteInputs(req) {
   if (req.query) {
     req.query = rewriteInputObjectValues(req.query);
   }
+  req.originalUrl = req.originalUrl.replace(urlRegexBoxId, "$1");
+  req.url = req.url.replace(urlRegexBoxId, "$1");
 }
 
 // from expressjs source code.
