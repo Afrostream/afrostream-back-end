@@ -267,7 +267,7 @@ db.sequelize.Instance.prototype.getPlain = function (key, options) {
                 return this.dataValues[key].map(function (instance) {
                     return instance.getPlain(options);
                 });
-            } else if (this.dataValues[key] instanceof Instance) {
+            } else if (this.dataValues[key] instanceof db.sequelize.Instance) {
                 return this.dataValues[key].getPlain(options);
             } else {
                 // quel cas ?
