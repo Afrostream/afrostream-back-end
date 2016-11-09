@@ -157,6 +157,17 @@ var callback = function (req, res, next) {
         },
         function error (err) {
           console.error('[ERROR]: [AUTH]: [ORANGE]: callback: error=' + err.message, err);
+          // hotfix: when SAML contains an ERROR, there is no SAML parsing, no state parsing in passport.js
+          //  => req.signupClientType is not populated
+          //  but the data can be found in req.body.RelayState (base64 of JSON)
+          if (!req.signupClientType) {
+            try {
+              req.signupClientType = JSON.parse(
+                new Buffer(req.body.RelayState, 'base64').toString('ascii')
+              ).signupClientType;
+            } catch (e) { }
+          }
+          //
           res.handleError()(err, {signupClientType: req.signupClientType});
         });
   })(req, res, next);
