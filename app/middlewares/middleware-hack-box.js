@@ -16,12 +16,10 @@ function isBoxClient(req) {
   var client = getClient(req);
 
   // tempfix: on n'active ce patch que sur bouygues miami
-  return client && client.isBouyguesMiami();
-  /*
+  return client &&
       (client.isOrange() ||
        client.isOrangeNewbox() ||
        client.isBouyguesMiami());
-       */
 }
 
 /*
