@@ -21,10 +21,7 @@ module.exports = {
     uri: process.env.DATABASE_URL || 'postgres://postgres:root@localhost:5432/afrostream',
     options: {
       logging: false,
-      storage: 'afrostream.postgres',
-      define: {
-        timestamps: false
-      }
+      storage: 'afrostream.postgres'
     },
     hooks: {
       mqModelBlacklist: ['Logs', 'AccessToken', 'RefreshToken', 'UsersVideos'],
