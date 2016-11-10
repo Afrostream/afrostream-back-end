@@ -130,11 +130,11 @@ exports.status = function (req, res) {
       }
       var userId = null;
       if (req.passport.user.get('role') === 'admin' && req.query.userId) {
-        userId = req.query.userId;
+        userId = parseInt(req.query.userId, 10);
       } else {
         userId = req.passport.user.get('_id');
       }
-      return billingApi.getSubscriptionsStatus(userId, true)
+      return billingApi.getSubscriptionsStatus(userId);
     })
     .then(
       function (subscriptionsStatus) {
