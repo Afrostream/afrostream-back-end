@@ -26,7 +26,7 @@ function isBoxClient(req) {
  * this function recursively iterate on object value
  *  replacing value[X] by value[Y] with replace = { X: Y }
  *
- * ex: recursiveReplaceXbyY({a:"b", c:"d", d:{c:"d", o: 3} e:"f"}, {a:"c"});
+ * ex: recursiveReplaceXbyY({a:"b", c:"d", d:{c:"d", o: 3} e:"f"}, "a", "c");
  */
  function recursiveReplaceXbyY(obj, x, y) {
    if (obj && obj[y]) {
@@ -39,6 +39,27 @@ function isBoxClient(req) {
    }
    return obj;
  }
+
+ /*
+  * this function recursively iterate on object value
+  *  foreach X : F in o
+  *  replacing value[X] by value[F(value[X])]
+  */
+  function recursiveReplaceXbyF(obj, o) {
+    var x, f;
+    for (var x in o) {
+      f = o[x];
+      if (obj && typeof obj[x] !== 'undefined') {
+        obj[x] = f(obj[x]);
+      }
+    }
+    for (var property in obj) {
+      if (obj.hasOwnProperty(property) && typeof obj[property] === "object") {
+        recursiveReplaceXbyF(obj[property], o);
+      }
+    }
+    return obj;
+  }
 
 /*
  * This function takes an object body,
@@ -131,8 +152,28 @@ function rewriteOutputs(req, res, isBox) {
   res.json = function (body) {
     var replacer = req.app.get('json replacer');
     var spaces = req.app.get('json spaces');
+
     body = JSON.parse(stringify(body, replacer, spaces));
-    json((isBox) ? recursiveReplaceXbyY(body, '_id', '__boxId') : strip(body, '__boxId'));
+    if (isBox) {
+      body = recursiveReplaceXbyY(body, '_id', '__boxId')
+      body = recursiveReplaceXbyF(body, {
+        "seasonId": function (seasonId) {
+          return (seasonId && parseInt(seasonId)) ? 'box_s_' + seasonId : seasonId;
+        },
+        "movieId": function (movieId) {
+          return (movieId && parseInt(movieId)) ? 'box_m_' + movieId : movieId;
+        },
+        "episodeId": function (episodeId) {
+          return (episodeId && parseInt(episodeId)) ? 'box_e_' + episodeId : episodeId;
+        },
+        "categoryId": function (categoryId) {
+          return (categoryId && parseInt(categoryId)) ? 'box_c_' + categoryId : categoryId;
+        }
+      });
+    } else {
+      body = strip(body, '__boxId');
+    }
+    json(body);
   };
 }
 
