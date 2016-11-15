@@ -57,7 +57,7 @@ module.exports = {
       //console.log('[HOOK]: [AFTERCREATE]: send '+ JSON.stringify(message) + ' to mq');
       mq.send(message);
     } catch (e) {
-      console.error('[HOOK]: [AFTERCREATE]: ' + String(e), e.stack);
+      console.error('[HOOK]: [AFTERCREATE]: ' + e.message, e.stack, options);
     }
   },
   afterUpdate: function (instance, options) {
