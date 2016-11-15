@@ -2,7 +2,7 @@
 
 process.env.NODE_ENV = 'test';
 
-if (process.version.substr(0, 5) !== 'v0.12') {
+if (process.version.substr(0, 3) !== 'v6.') {
   console.error('[ERROR]: please: nvm use 0.12');
   process.exit(1);
 }
