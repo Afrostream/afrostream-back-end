@@ -57,7 +57,6 @@
     "pg": "^6.1.0",
     "pg-hstore": "^2.3.2",
     "q": "^1.4.1",
-    "recurring": "^2.3.3",
     "request": "^2.78.0",
     "request-promise": "^4.1.1",
     "sendgrid": "^4.7.1",
