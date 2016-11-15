@@ -14,12 +14,7 @@ router.use(function (req, res, next) {
 
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
-// disabling this route
-//  recurring is using RAM cache (leaking memory)
-//router.get('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.index);
-router.get('/cancel', controller.cancel);
+// FIXME: should be in the billing...
 router.get('/status', controller.status);
-router.post('/', controller.create);
-router.post('/gift', controller.gift);
 
 module.exports = router;
