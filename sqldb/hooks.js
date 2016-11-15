@@ -37,45 +37,47 @@ var getDataValues = function (instance, fields) {
 module.exports = {
   afterCreate: function (instance, options) {
     try {
-      var modelName = options.model.name;
+      var modelName = instance.Model.name;
       if (isModelBlacklisted(modelName)) {
         //console.log('[HOOK]: [AFTERCREATE]: skip mq message ('+modelName+' is blacklisted)');
         return;
       }
       // sending only a selection of fields to avoid mq flooding
-      var fields = _.intersection(config.sequelize.hooks.mqFields, Object.keys(options.model.attributes));
+      var fields = _.intersection(config.sequelize.hooks.mqFields, Object.keys(instance.Model.attributes));
       //
       var message = {
         id: String(Date.now())+String(Math.round(Math.random()*100000)),
         type: 'model.created',
         date: new Date().toISOString(),
         data: {
-          modelName: options.model.name,
+          modelName: instance.Model.name,
           dataValues: getDataValues(instance, fields)
         }
       };
       //console.log('[HOOK]: [AFTERCREATE]: send '+ JSON.stringify(message) + ' to mq');
       mq.send(message);
     } catch (e) {
-      console.error('[HOOK]: [AFTERCREATE]: ' + e.message, e.stack, options);
+      console.error('error ', e.message, e);
+      process.exit(1);
+      console.error('[HOOK]: [AFTERCREATE]: ' + e.message, e.stack, options, instance.Model);
     }
   },
   afterUpdate: function (instance, options) {
     try {
       var modelName;
 
-      if (!options.model) {
-        console.log('[HOOK]: [AFTERUPDATE]: missing options.model => skip (' + JSON.stringify(options) + ')');
+      if (!instance.Model) {
+        console.log('[HOOK]: [AFTERUPDATE]: missing instance.Model => skip (' + JSON.stringify(options) + ')');
         return;
       }
-      modelName = options.model.name;
+      modelName = instance.Model.name;
       if (isModelBlacklisted(modelName)) {
         //console.log('[HOOK]: [AFTERUPDATE]: skip mq message ('+modelName+' is blacklisted)');
         return;
       }
       var changed = instance.changed() || [];
       // sending only a selection of fields to avoid mq flooding + changedFields
-      var fields = _.intersection(config.sequelize.hooks.mqFields, Object.keys(options.model.attributes));
+      var fields = _.intersection(config.sequelize.hooks.mqFields, Object.keys(instance.Model.attributes));
       fields = _.union(changed, fields);
       //
       var message = {
@@ -83,7 +85,7 @@ module.exports = {
         type: 'model.updated',
         date: new Date().toISOString(),
         data: {
-          modelName: options.model.name,
+          modelName: instance.Model.name,
           changed: changed,
           previousDataValues: getPreviousValues(instance, fields),
           dataValues: getDataValues(instance, fields)
@@ -97,20 +99,20 @@ module.exports = {
   },
   afterDestroy: function (instance, options) {
     try {
-      var modelName = options.model.name;
+      var modelName = instance.Model.name;
       if (isModelBlacklisted(modelName)) {
         //console.log('[HOOK]: [AFTERDESTROY]: skip mq message ('+modelName+' is blacklisted)');
         return;
       }
       // sending only a selection of fields to avoid mq flooding
-      var fields = _.intersection(config.sequelize.hooks.mqFields, Object.keys(options.model.attributes));
+      var fields = _.intersection(config.sequelize.hooks.mqFields, Object.keys(instance.Model.attributes));
       //
       var message = {
         id: String(Date.now())+String(Math.round(Math.random()*100000)),
         type: 'model.destroyed',
         date: new Date().toISOString(),
         data: {
-          modelName: options.model.name,
+          modelName: instance.Model.name,
           dataValues: getDataValues(instance, fields)
         }
       };
