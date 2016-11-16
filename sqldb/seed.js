@@ -371,13 +371,57 @@ promises.push(
     return Broadcaster.destroy({where: {}});
   })
   .then(function () {
-    return Broadcaster.bulkCreate([{
+    return Broadcaster.bulkCreate([
+    {
       _id: "WEB",
       name: "WEB",
       fqdn: "{localhost:9000}",
       defaultCountryId: "FR",
       pfName: "AFROSTREAM"
-    }]);
+    },
+    {
+      _id: "BMIA",
+      name: "BOUYGUES_MIAMI",
+      fqdn: "{localhost:9000}",
+      defaultCountryId: "FR",
+      pfName: "BOUYGUESMIAMI"
+    },
+    {
+      _id: "EBOU",
+      name: "EXPORTS_BOUYGUES",
+      fqdn: "{localhost:9000}",
+      defaultCountryId: "FR",
+      pfName: "BOUYGUES"
+    },
+    {
+      _id: "MOBI",
+      name: "MOBILE",
+      fqdn: "{localhost:9000}",
+      defaultCountryId: "FR",
+      pfName: "AFROSTREAM"
+    },
+    {
+      _id: "OMIB",
+      name: "ORANGE_MIB4",
+      fqdn: "{localhost:9000}",
+      defaultCountryId: "FR",
+      pfName: "ORANGE"
+    },
+    {
+      _id: "ONEW",
+      name: "ORANGE_NEWBOX",
+      fqdn: "{localhost:9000}",
+      defaultCountryId: "FR",
+      pfName: "ORANGE"
+    },
+    {
+      _id: "ROKU",
+      name: "ROKU",
+      fqdn: "{localhost:9000}",
+      defaultCountryId: "FR",
+      pfName: "AFROSTREAM"
+    }
+  ]);
   })
 );
 
@@ -399,7 +443,8 @@ promises.push(
       _id: '1abf31b2-4242-4242-9fd2-f3a63bda64b4',
       secret: 'ba287044-4242-4242-a6f7-51aed34d4791',
       type: 'legacy-api.tapptic',
-      role: 'client'
+      role: 'client',
+      broadcasterId: "MOBI"
     }, {
       name: 'roku',
       _id: '84b2041b-4242-4242-9081-f6629f512edf',
@@ -412,31 +457,36 @@ promises.push(
       secret: '6bb9d594-4242-4242-ab04-d76dda10c76a',
       type: 'legacy-api.bouygues-miami',
       billingProviderName: 'bachat',
-      role: 'client'
+      role: 'client',
+      broadcasterId: "BMIA"
     }, {
       name: 'afrostream-exports-bouygues',
       _id: '5df3bb18-02a0-4a58-9a4a-4fc5ed5ea7c4',
       secret: '02694a0b-5e67-4f03-8a80-a55329ad9975',
       type: 'afrostream-exports-bouygues',
-      role: 'admin'
+      role: 'admin',
+      broadcasterId: "EBOU"
     }, {
       name: 'afrostream-exports-osearch',
       _id: 'a94343ce-5c4b-46f4-a7ce-480a41f77621',
       secret: '5f6e946a-7140-4877-9c3c-1f3456c00a7a',
       type: 'afrostream-exports-osearch',
-      role: 'admin'
+      role: 'admin',
+      broadcasterId: "EOSE"
     }, {
       name: 'orange',
       _id: '610fa4d5-05ec-4493-b9a6-e50a04f7fdcc',
       secret: "b0eee6d9-8771-4d93-8407-ee67af60408c",
       type: "legacy-api.orange",
-      role: "client"
+      role: "client",
+      broadcasterId: "OMIB"
     }, {
       name: 'orange newbox',
       _id: '6789a4d5-05ec-5555-b9a6-e50a04f7fccc',
       secret: "6789a6d9-8771-5555-8407-ee67af604ccc",
       type: "legacy-api.orange-newbox",
-      role: "client"
+      role: "client",
+      broadcasterId: "ONEW"
     }, {
       name: 'afrostream-admin',
       _id: '488d2f13-6c01-464f-bfa4-bf8c641d7063',
