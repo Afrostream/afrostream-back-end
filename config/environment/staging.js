@@ -102,6 +102,7 @@ module.exports = {
   },
 
   /* tempfix: netsize: on utilise la configuration de prod ! */
+  /*
   netsize: {
     callbackBaseUrl: 'https://staging.afrostream.tv',
     uri: 'https://pay.netsize.com/api/1.2/',
@@ -115,22 +116,23 @@ module.exports = {
     billingProviderName: 'netsize',
     "allowed-user-id-type": [ "1", "2", "4" ]
   },
+  */
 
-  /* configuration staging
+  /* configuration staging */
   netsize: {
     callbackBaseUrl: 'https://staging.afrostream.tv',
     uri: 'https://qa.pay.netsize.com/API/1.2/',
     key: '368b8163dca54e64a17ec098d63d2464',
     serviceId: 1,
     productType: 121,
-    "initialize-authentication-success-code-list": [ "120" ],
+    "initialize-authentication-success-code-list": [ "120", "130" ],
     "initialize-subscription-success-code-list": [ "420", "421", "424" ],
     "close-subscription-success-code-list": [ "422" ],
     internalPlanUuid: 'nsafrostreammonthly',
     billingProviderName: 'netsize',
     "allowed-user-id-type": [ "1", "2", "4" ]
   },
-  */
+  /* */
 
   // tempfix
   secrets: {
