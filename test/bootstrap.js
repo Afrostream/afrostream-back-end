@@ -2,6 +2,8 @@
 
 process.env.NODE_ENV = 'test';
 
+var Q = require('q');
+
 if (process.version.substr(0, 3) !== 'v6.') {
   console.error('[ERROR]: please: nvm use 0.12');
   process.exit(1);
@@ -66,31 +68,32 @@ module.exports.getTestClient = function () {
 
 module.exports.getToken = function (app) {
   var request = require('supertest');
-  var bluebird = require('bluebird');
 
-  var r = request(app)
+  var deferred = Q.defer();
+  request(app)
     .post('/auth/local')
     .send({
       email: 'test@test.com',
       password: '123456'
     })
     .expect(200)
-    .expect('Content-Type', /json/);
-  var f = bluebird.promisify(r.end, r);
-  return f().then(function (res) {
-    var token = res.body.token;
-    return token;
-  }, function (err) {
-    console.error(err);
-    throw err;
-  })
+    .expect('Content-Type', /json/)
+    .end(function (err, response) {
+      if (err) {
+        console.error(err);
+        deferred.reject(err);
+      } else {
+        deferred.resolve(response.body.token);
+      }
+    });
+  return deferred.promise;
 };
 
 module.exports.getClientToken = function (app, client) {
   var request = require('supertest');
-  var bluebird = require('bluebird');
 
-  var r = request(app)
+  var deferred = Q.defer();
+  request(app)
     .post('/auth/oauth2/token')
     .send({
       grant_type: 'client_credentials',
@@ -98,14 +101,16 @@ module.exports.getClientToken = function (app, client) {
       client_secret: client.get('secret')
     })
     .expect(200)
-    .expect('Content-Type', /json/);
-  var f = bluebird.promisify(r.end, r);
-  return f().then(function (res) {
-    return res.body.access_token;
-  }, function (err) {
-    console.error(err);
-    throw err;
-  });
+    .expect('Content-Type', /json/)
+    .end(function (err, response) {
+      if (err) {
+        console.error(err);
+        deferred.reject(err);
+      } else {
+        deferred.resolve(response.body.access_token);
+      }
+    });
+  return deferred.promise;
 };
 
 module.exports.getRandomMovie = function (app) {
