@@ -112,6 +112,10 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING,
             defaultValue: 'user'
         },
+        beta: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        },
         password: {
             type: DataTypes.STRING,
             validate: {
