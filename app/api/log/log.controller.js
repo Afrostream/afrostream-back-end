@@ -5,6 +5,7 @@ var sqldb = rootRequire('/sqldb');
 var User = sqldb.User;
 var Client = sqldb.Client;
 var Log = sqldb.Log;
+var LogsPixel = sqldb.LogsPixel;
 
 var config = rootRequire('/config');
 
@@ -43,4 +44,10 @@ exports.index = function (req, res) {
     function (result) { res.json(result); },
     res.handleError()
   );
+};
+
+exports.pixel = function (req, res) {
+  // async, might finish after response is sent, but we don't mind
+  LogsPixel.create({data:req.query});
+  res.json({});
 };
