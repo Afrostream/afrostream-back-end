@@ -63,6 +63,7 @@
     "sequelize": "^3.25.0",
     "sha1": "^1.1.1",
     "slugify": "^1.0.2",
+    "uber-statsd-client": "^1.7.3",
     "urlsafe-base64": "^1.0.0",
     "xml2js": "^0.4.17",
     "xmlbuilder": "^8.2.2"

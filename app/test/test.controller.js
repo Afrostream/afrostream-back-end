@@ -64,3 +64,33 @@ module.exports.cookies = function (req, res) {
       res.handleError()
     );
 };
+
+// test depuis heroku
+module.exports.statsd = function (req, res) {
+  //
+  res.noCache();
+  //
+  var createStatsd = require('uber-statsd-client');
+  var cluster = require('cluster');
+
+  var containerId = process.env.DYNO && String(process.env.DYNO).replace(/\./g, '-') || "0";
+
+  var nbWokers = parseInt(process.env.WEB_CONCURRENCY, 10) || 1;
+  var workerId = cluster.worker && (cluster.worker.id % nbWokers) || "0";
+
+  var env = process.env.NODE_ENV || 'development';
+
+  var key = 'afrostream-back-end.'+env+'.container.' + containerId + '.worker.' + workerId + '.route.test.statsd.hit';
+
+  if (req.query.send) {
+    var sdc = createStatsd({
+        host: 'graphite.afrostream.net'
+    });
+    sdc.increment(key);
+    sdc.close();
+  }
+
+  setTimeout(function () {
+    res.json({key:key})
+  }, 500);
+};

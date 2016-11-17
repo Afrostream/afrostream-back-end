@@ -11,5 +11,6 @@ router.put('/put', controller.dumpHeaders);
 router.post('/post', controller.dumpHeaders);
 router.delete('/delete', controller.dumpHeaders);
 router.get('/cookies', controller.cookies);
+router.get('/statsd', controller.statsd);
 
 module.exports = router;
