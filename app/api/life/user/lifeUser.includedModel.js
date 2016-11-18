@@ -9,6 +9,9 @@ module.exports.get = function () {
         {
             model: LifePin,
             as: 'lifePins',
+            where: {
+                active: true
+            },
             required: true,
             include: [
                 {
