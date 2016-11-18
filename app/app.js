@@ -11,6 +11,8 @@ var morgan = require('./middlewares/middleware-morgan.js');
 var clientIp = require('./middlewares/middleware-client-ip.js');
 var userAgent = require('./middlewares/middleware-user-agent.js');
 var cacheHandler = require('./middlewares/middleware-cachehandler.js');
+var logger = require('./middlewares/middleware-logger.js');
+var id = require('./middlewares/middleware-id.js');
 
 var cookieParser = require('cookie-parser')
 
@@ -22,6 +24,10 @@ app.set('view engine', 'jade');
 app.set('etag', false);
 app.use(require('compression')());
 app.use(cookieParser(config.cookies.secret))
+
+//
+app.use(id());
+app.use(logger());
 
 // we should never reach 500kb...
 // FIXME: add an error log entry when this limit is hit
