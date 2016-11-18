@@ -4,6 +4,7 @@
   "main": "server.js",
   "dependencies": {
     "afrostream-node-request": "git+https://afrostream-tech:d51e355769ddd0fd212084c35fb99f71ab4146b2@github.com/Afrostream/afrostream-node-request.git#v2.3.2",
+    "afrostream-node-statsd": "git+https://afrostream-tech:d51e355769ddd0fd212084c35fb99f71ab4146b2@github.com/Afrostream/afrostream-node-statsd.git#v1.0.0",
     "algoliasearch": "^3.19.1",
     "amqplib": "^0.5.1",
     "async": "^2.1.2",
@@ -63,6 +64,7 @@
     "sequelize": "^3.25.0",
     "sha1": "^1.1.1",
     "slugify": "^1.0.2",
+    "statsd-client": "^0.2.3",
     "urlsafe-base64": "^1.0.0",
     "xml2js": "^0.4.17",
     "xmlbuilder": "^8.2.2"

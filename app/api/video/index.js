@@ -29,6 +29,7 @@ var controller = require('./video.controller.js');
 var auth = rootRequire('/app/auth/auth.service');
 var utils = rootRequire('/app/api/utils.js');
 var router = express.Router();
+var middlewareStatsd = rootRequire('statsd').middleware;
 
 // all video routes cannot be cached.
 router.use(function (req, res, next) {
@@ -46,7 +47,7 @@ router.get('/importFromPfContent', utils.middlewareNoCache, auth.hasRole('admin'
 
 // video manipulation.
 router.get('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.index);
-router.get('/:id', controller.show);
+router.get('/:id', middlewareStatsd({route: 'api.video'}), controller.show);
 router.post('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.create);
 router.put('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
 router.patch('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
