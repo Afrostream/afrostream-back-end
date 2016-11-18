@@ -338,6 +338,7 @@ db.Image = db.sequelize.import('models/image');
 db.Language = db.sequelize.import('models/language');
 db.Licensor = db.sequelize.import('models/licensor');
 db.Log = db.sequelize.import('models/logs');
+db.LogsPixel = db.sequelize.import('models/logspixel');
 db.Movie = db.sequelize.import('models/movie');
 db.PFGroup = db.sequelize.import('models/pfGroup');
 db.PFProfile = db.sequelize.import('models/pfProfile');
