@@ -1,11 +1,12 @@
 'use strict';
 
 // exporting an instance
-var config = rootRequire('/config');
-var AMQP = rootRequire('/amqp');
+var config = rootRequire('config');
+var AMQP = rootRequire('amqp');
+var logger = rootRequire('logger').prefix('AMQP');
 
 // creating mq
-var mq = new AMQP(config.mq);
+var mq = new AMQP(Object.assign({}, {logger: logger}, config.mq));
 var exchangeName = config.mq.exchangeName;
 
 var localQueue = [];
