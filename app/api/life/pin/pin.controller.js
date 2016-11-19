@@ -221,7 +221,7 @@ exports.scrap = function (req, res) {
         })
         .then(responseWithResult(res, 201))
         .catch(res.handleError());
-}
+};
 // Creates a new LifePin in the DB
 exports.create = function (req, res) {
     var c = {
