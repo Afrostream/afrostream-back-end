@@ -16,7 +16,6 @@ var LifeSpot = sqldb.LifeSpot;
 var LifeTheme = sqldb.LifeTheme;
 var filters = rootRequire('/app/api/filters.js');
 var utils = rootRequire('/app/api/utils.js');
-var config = rootRequire('/config');
 
 var getIncludedModel = require('./spot.includedModel').get;
 
@@ -91,14 +90,14 @@ exports.index = function (req, res) {
             where: {
                 title: {$iLike: '%' + queryName + '%'}
             }
-        })
+        });
     }
     if (queryType) {
         queryOptions = _.merge(queryOptions, {
             where: {
                 type: {$iLike: '%' + queryType + '%'}
             }
-        })
+        });
     }
 
     queryOptions = filters.filterQueryOptions(req, queryOptions, LifeSpot);

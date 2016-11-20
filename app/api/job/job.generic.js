@@ -19,9 +19,9 @@ const logger = rootRequire('logger').prefix('JOBS');
  * @param type string     type of job
  * @param data object     job data
  * @param options obj     job options (attempts, backoff, ...)
- * @param callback func(err, result)
+ * @return promise
  */
-function create(type, data, options, callback) {
+function create(type, data, options) {
   var defaultNbRetry = 3;
   var defaultBackoffDelay = 60000; //60sec
   var defaultBackoffType ='fixed';

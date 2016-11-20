@@ -42,7 +42,7 @@ function responseWithSeasons (req, res, statusCode) {
       queryOptions = filters.filterQueryOptions(req, queryOptions, Season);
       return entity.getSeasons(queryOptions).then(function (seasons) {
         res.status(statusCode).json(seasons);
-      })
+      });
     }
   };
 }
@@ -349,7 +349,7 @@ function parseVXstY(body) {
         body.vXstY = vXstY;
         return entity;
       });
-  }
+  };
 }
 
 // Updates an existing movie in the DB
@@ -444,5 +444,5 @@ module.exports.getFirstActiveVideo = function (req, res) {
     } else {
       res.status(404).send('');
     }
-  })
+  });
 };

@@ -29,7 +29,7 @@ function emitEvent(event) {
     TagEvents.emit(event + ':' + doc._id, doc);
     TagEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 module.exports = TagEvents;

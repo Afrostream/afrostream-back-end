@@ -29,7 +29,7 @@ function emitEvent(event) {
     VideoEvents.emit(event + ':' + doc._id, doc);
     VideoEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 module.exports = VideoEvents;

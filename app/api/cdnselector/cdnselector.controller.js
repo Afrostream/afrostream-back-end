@@ -1,7 +1,5 @@
 'use strict';
 
-var config = rootRequire('/config');
-
 var cdnselector = rootRequire('/cdnselector');
 
 exports.getList = function (req, res) {

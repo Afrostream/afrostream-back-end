@@ -77,7 +77,7 @@ exports.index = function (req, res) {
             where: {
                 title: {$iLike: '%' + queryName + '%'}
             }
-        })
+        });
     }
 
     queryOptions = filters.filterQueryOptions(req, queryOptions, Press);

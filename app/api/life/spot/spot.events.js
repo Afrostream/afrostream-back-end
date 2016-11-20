@@ -29,7 +29,7 @@ function emitEvent (event) {
         LifeSpotEvents.emit(event + ':' + doc._id, doc);
         LifeSpotEvents.emit(event, doc);
         done(null);
-    }
+    };
 }
 
 module.exports = LifeSpotEvents;

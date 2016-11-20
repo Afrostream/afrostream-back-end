@@ -95,22 +95,22 @@ function requestNetsize(req, data) {
         var error = new Error('netsize error');
         try {
           error.netsizeErrorCode = json['response']['error']['$']['code'];
-        } catch (e) {}
+        } catch (e) { /* nothing */ }
         throw error;
       }
       return json;
     });
 }
 
-getReturnUrlFromReq = function(req) {
+var getReturnUrlFromReq = function(req) {
   return req.query.returnUrl ||
     req.signedCookies && req.signedCookies.netsize && req.signedCookies.netsize.returnUrl ||
     null;
 };
 
-getTransactionIdFromReq = function(req) {
+var getTransactionIdFromReq = function(req) {
   return req.cookieInfos && req.cookieInfos.transactionId;
-}
+};
 
 /**
  * specific error handler
@@ -140,14 +140,14 @@ function handleError(req, res) {
     } else {
       res.json(json);
     }
-  }
+  };
 }
 
 function handleSuccess(req, res) {
   return function(data) {
     var logger = req.logger.prefix('NETSIZE');
     var returnUrl = getReturnUrlFromReq(req);
-    var transactionId = getTransactionIdFromReq(req);
+    // var transactionId = getTransactionIdFromReq(req); // unused
 
     if (returnUrl) {
       logger.log('using redirect-url: ' + returnUrl);
@@ -156,7 +156,7 @@ function handleSuccess(req, res) {
       logger.log('responding json ' + JSON.stringify(data));
       res.json(data);
     }
-  }
+  };
 }
 
 function redirectSuccess(res, url, data) {
@@ -258,21 +258,21 @@ module.exports.check = function(req, res) {
        Optionnal, integer
        This identifier allows Netsize to customize payment pages when accurate.
        */
-      var brandId = "FIXME";
+      // var brandId = "FIXME";
       /*
        Optionnal, integer
        Netsize Provider Identifier.
        MCCMNC in case of mobile operator.
        Internal identifier for credit card and other payment providers.
        */
-      var providerId = "FIXME";
+      // var providerId = "FIXME";
 
       //
       data[methodName]["@"]["flow-id"] = flowId;
       data[methodName]["@"]["language-code"] = languageCode;
       data[methodName]["@"]["return-url"] = returnUrl;
 
-      return requestNetsize(req, data)
+      return requestNetsize(req, data);
     })
     .then(function(json) {
       // try to grab netsize redirect url :)
@@ -331,9 +331,9 @@ module.exports.subscribe = function(req, res) {
         billingApi.getInternalPlan(config.netsize.internalPlanUuid)
       ]);
     })
-    .then(function success(data) {
-      var cookieInfos = data[0];
-      var internalPlan = data[1];
+    .then(function success(result) {
+      var cookieInfos = result[0];
+      var internalPlan = result[1];
 
       if (!cookieInfos) {
         throw new Error('cannot read cookie');
@@ -426,7 +426,7 @@ module.exports.subscribe = function(req, res) {
       //data[methodName]["product"]["@"]["logo-url"] = productLogUrl;
       data[methodName]["product"]["description"] = {};
       data[methodName]["product"]["description"]["#"] = productDescription;
-      data[methodName]["@"]["language-code"] = languageCode
+      data[methodName]["@"]["language-code"] = languageCode;
       data[methodName]["@"]["return-url"] = returnUrl;
 
       return requestNetsize(req, data);
@@ -484,7 +484,7 @@ module.exports.unsubscribe = function(req, res) {
       if (!req.passport.accessToken) {
         throw new Error('missing accessToken in passport');
       }
-      return billingApi.getSubscriptions(req.passport.user._id)
+      return billingApi.getSubscriptions(req.passport.user._id);
     })
     .then(function(subscriptions) {
       var netsizeSubscriptionsActive = (subscriptions || []).filter(function(subscription) {
@@ -627,10 +627,10 @@ module.exports.callback = function(req, res) {
        */
       logger.debug('json', json);
       try {
-        c.transactionStatus.code = json['response']['get-status'][0]['transaction-status'][0]['$']['code']
+        c.transactionStatus.code = json['response']['get-status'][0]['transaction-status'][0]['$']['code'];
         c.transactionStatus.userId = json['response']['get-status'][0]['$']['user-id'];
         c.transactionStatus.userIdType = json['response']['get-status'][0]['$']['user-id-type'];
-      } catch (e) {
+      } catch (err) {
         throw new Error('get-status: cannot harvest code or user-id or user-id-type ' + err.message);
       }
     })
@@ -701,7 +701,6 @@ module.exports.callback = function(req, res) {
                   subscriptionProviderUuid: c.cookieInfos.transactionId
                 });
               });
-            break;
           case 'unsubscribe':
             return billingApi.updateSubscription(c.cookieInfos.subscriptionBillingUuid, 'cancel');
           default:

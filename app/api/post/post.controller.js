@@ -81,7 +81,7 @@ exports.index = function (req, res) {
       where: {
         title: {$iLike: '%' + queryName + '%'}
       }
-    })
+    });
   }
   if (slug) {
     queryOptions = _.merge(queryOptions, {

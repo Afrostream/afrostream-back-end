@@ -5,7 +5,6 @@ var _ = require('lodash');
 var btoa = require('btoa');
 var passport = require('passport');
 var oauth2 = require('../oauth2/oauth2');
-var config = rootRequire('/config');
 var sqldb = rootRequire('/sqldb');
 var User = sqldb.User;
 var Client = sqldb.Client;
@@ -110,7 +109,7 @@ var callback = function (req, res, next) {
         if (err) throw err;
         logger.log('callback: info=', info);
         if (info) {
-          expireIn = info.expireIn // Wat for ??
+          expireIn = info.expireIn; // Wat for ??
         }
         if (!user) throw new Error('Something went wrong, please try again.');
         logger.log('callback: userId=', user._id);
@@ -156,7 +155,7 @@ var callback = function (req, res, next) {
               req.signupClientType = JSON.parse(
                 new Buffer(req.body.RelayState, 'base64').toString('ascii')
               ).signupClientType;
-            } catch (e) { }
+            } catch (e) { /* empty */ }
           }
           //
           res.handleError()(err, {signupClientType: req.signupClientType});

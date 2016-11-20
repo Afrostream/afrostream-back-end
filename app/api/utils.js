@@ -13,7 +13,7 @@ var reqRangeToSequelizeLimit = function (req, size) {
 
   if (typeof req.range !== 'function') {
     req.logger.error('missing req.range');
-    return { limit: defaultLimit, offset: 0 }
+    return { limit: defaultLimit, offset: 0 };
   }
   range = req.range(size);
   if (range === -1 || range === -2 || !range) {
@@ -23,8 +23,8 @@ var reqRangeToSequelizeLimit = function (req, size) {
   // convert range to sequelize limit
   // assuming object : [ { start: 25, end: 50 }, type: 'items' ]
   if (!Array.isArray(range) || range.length < 1 ||
-    parseInt(range[0].start, 10) === NaN ||
-    parseInt(range[0].end, 10) === NaN) {
+    isNaN(parseInt(range[0].start, 10)) ||
+    isNaN(parseInt(range[0].end, 10))) {
     req.logger.error('unknown range result ', range);
     return { limit: defaultLimit, offset: 0 };
   }
@@ -45,7 +45,7 @@ var responseWithResultAndTotal = function (res, statusCode) {
   };
 };
 
-function handleEntityNotFound(res) {
+function handleEntityNotFound() {
   return function (entity) {
     if (!entity) {
       var error = new Error("entity not found");

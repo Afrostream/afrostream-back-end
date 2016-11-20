@@ -1,9 +1,5 @@
 'use strict';
 
-var _ = require('lodash');
-var config = rootRequire('/config');
-var sqldb = rootRequire('/sqldb');
-var User = sqldb.User;
 var Q = require('q');
 
 var billingApi = rootRequire('/billing-api');

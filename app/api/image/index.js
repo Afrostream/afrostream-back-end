@@ -14,6 +14,5 @@ router.get('/:id', utils.middlewareCache, controller.show);
 router.post('/', utils.middlewareNoCache, auth.hasRole('admin'), middlewareReadFile(), controller.create);
 router.put('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
 router.patch('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
-router.delete('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.destroy);
 
 module.exports = router;

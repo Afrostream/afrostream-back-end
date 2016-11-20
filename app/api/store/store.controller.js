@@ -71,7 +71,7 @@ function responseWithResultGEO (req, res, statusCode) {
                         'count': '1'
                     }
                 };
-                featureCollection.features.push(feature)
+                featureCollection.features.push(feature);
             });
 
             res.status(statusCode).json(featureCollection);
@@ -106,7 +106,7 @@ function interpolate (str) {
             var r = o[b];
             return typeof r === 'string' || typeof r === 'number' ? r : a;
         });
-    }
+    };
 }
 
 
@@ -138,9 +138,9 @@ function saveGeoCodedStore (store) {
                 logger.error(err.message, err.stack);
             }));
         }
-        return Promise.all(promises)
-    }
-};
+        return Promise.all(promises);
+    };
+}
 
 function geocode (loc, store) {
     loc = loc.replace(/(%20| )/g, '+').replace(/[&]/g, '%26');
@@ -154,7 +154,7 @@ function geocode (loc, store) {
         return result.results[0];
       })
       .then(saveGeoCodedStore(store));
-};
+}
 
 // Gets a list of Stores
 // ?point=... (search by point)
@@ -163,7 +163,6 @@ exports.index = function (req, res) {
     var longitude = req.param('longitude');
     var latitude = req.param('latitude');
     var distance = req.param('distance') || 1000000;
-    var zoom = req.param('zoom') || 8;
     var queryOptions = {};
 
     // pagination
@@ -201,7 +200,7 @@ exports.index = function (req, res) {
         }
         else if (queryName.match(/([1-9][0-9]*,[ ])*[1-9][0-9]*/g)) {
             var position = queryName.split(',');
-            logger.log(position)
+            logger.log(position);
             if (position.length === 2) {
                 longitude = position[0];
                 latitude = position[1];

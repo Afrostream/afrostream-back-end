@@ -28,7 +28,7 @@ router.get('/', function (req, res) {
   }
 });
 
-var middlewareRestrictAccess = function (options) {
+var middlewareRestrictAccess = function () {
   return function (req, res, next) {
     var ip = req.query.ip || req.clientIp;
     var countryCode = maxmind.getCountryCode(ip);
@@ -41,12 +41,12 @@ var middlewareRestrictAccess = function (options) {
       // default error handler.
       var error = new Error('geo forbidden');
       error.statusCode = 403;
-      res.handleError()(err);
+      res.handleError()(error);
     }
   };
 };
 
-var middlewareCountry = function (options) {
+var middlewareCountry = function () {
   return function (req, res, next) {
     var ip = req.query.ip || req.clientIp;
     var countryCode = maxmind.getCountryCode(ip);

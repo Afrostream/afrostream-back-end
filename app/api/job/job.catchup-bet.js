@@ -1,7 +1,5 @@
 'use strict';
 
-var Q = require('q');
-
 var createJob = require('./job.generic.js').create;
 
 /**

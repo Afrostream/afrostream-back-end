@@ -27,11 +27,6 @@ var updateBody = Joi.object().keys({
     {
       _id: Joi.string().required()
     }
-  )),
-  splashList: Joi.array().items(Joi.object(
-    {
-      _id: Joi.string().required()
-    }
   ))
 });
 

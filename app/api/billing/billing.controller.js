@@ -6,8 +6,6 @@ var billingApi = rootRequire('/billing-api.js');
 
 var User = rootRequire('/sqldb').User;
 
-var AccessToken = rootRequire('/sqldb').AccessToken;
-
 var mailer = rootRequire('/components/mailer');
 
 var updateUserName = function (req, c) {
@@ -63,7 +61,7 @@ module.exports.showInternalplans = function (req, res) {
             }
         })
         .then(function () {
-            return billingApi.getInternalPlans(c)
+            return billingApi.getInternalPlans(c);
         })
         .then(function (internalPlans) {
             res.json(internalPlans);
@@ -78,7 +76,7 @@ module.exports.showInternalplan = function (req, res) {
     // who is initiating this request ?
     Q()
         .then(function () {
-            return billingApi.getInternalPlan(c.internalPlanUuid)
+            return billingApi.getInternalPlan(c.internalPlanUuid);
         })
         .then(function (internalPlans) {
             res.json(internalPlans);
@@ -115,7 +113,7 @@ module.exports.cancelSubscriptions = function (req, res) {
         // we create the user in the billing-api if he doesn't exist yet
         //
         .then(function () {
-            return billingApi.updateSubscription(c.subscriptionUuid, 'cancel')
+            return billingApi.updateSubscription(c.subscriptionUuid, 'cancel');
         })
         .then(function success (subscription) {
             res.json(subscription);
@@ -152,7 +150,7 @@ module.exports.reactivateSubscriptions = function (req, res) {
         // we create the user in the billing-api if he doesn't exist yet
         //
         .then(function () {
-            return billingApi.updateSubscription(c.subscriptionUuid, 'reactivate')
+            return billingApi.updateSubscription(c.subscriptionUuid, 'reactivate');
         })
         .then(function success (subscription) {
             res.json(subscription);
@@ -341,7 +339,7 @@ module.exports.createGift = function (req, res) {
                     last_name: c.bodySubOpts.gift.lastName,
                     provider: 'local'
                 });
-            })
+            });
         })
         //
         // we create the user in the billing-api if he doesn't exist yet

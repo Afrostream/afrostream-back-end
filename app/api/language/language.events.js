@@ -29,7 +29,7 @@ function emitEvent(event) {
     LanguageEvents.emit(event + ':' + doc._id, doc);
     LanguageEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 module.exports = LanguageEvents;

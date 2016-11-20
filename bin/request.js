@@ -26,7 +26,7 @@ request(
 , function (err, response, body) {
   console.log('ERROR = ', err);
   console.log('body = ', body);
-})
+});
 
 /*
 var fetch = require('node-fetch');

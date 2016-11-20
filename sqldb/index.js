@@ -6,7 +6,6 @@
 
 var assert = require('better-assert');
 var _ = require('lodash');
-var path = require('path');
 var config = rootRequire('/config');
 
 var Sequelize = require('sequelize');
@@ -18,6 +17,8 @@ var options = _.merge({}, config.sequelize.options, {
         hooks: hooks
     }
 });
+
+var Q = require('q');
 
 var db = {
     Sequelize: Sequelize,
@@ -119,9 +120,11 @@ var db = {
         var getLinkModel = function () {
             return db[options.linkModel];
         };
+        /* never used ?
         var getDstModel = function () {
             return db[options.dstModel];
         };
+        */
 
         // take an array of function, call the functions sequentially.
         function waterfall (functions) {
@@ -173,8 +176,8 @@ var db = {
             var updateValues = {};
             var where = {};
             updateValues[linkColumnDstIndex] = dstIndex;
-            data[linkColumnSrc] = srcId;
-            data[linkColumnDst] = destId;
+            updateValues[linkColumnSrc] = srcId;
+            updateValues[linkColumnDst] = destId;
             return getLinkModel().update(
                 updateValues,
                 {where: where}
@@ -184,17 +187,17 @@ var db = {
         var moveLinks = function (srcId, movedIdList, newDstModelIdList) {
             var tasks = movedIdList.map(function createTask (movedId) {
                 return function task () {
-                    var dstIndex = newDstModelIdList.indexOf(addedId);
-                    return moveLink(srcId, addedId, dstIndex);
-                }
+                    var dstIndex = newDstModelIdList.indexOf(movedId);
+                    return moveLink(srcId, movedId, dstIndex);
+                };
             });
             return waterfall(tasks);
         };
 
         return function (dstModelList) {
             var srcModelInstance = this
-                , linkModel = getLinkModel()
-                , dstModel = getDstModel();//dstModel unused ???
+                , linkModel = getLinkModel();
+                //, dstModel = getDstModel();//dstModel unused ???
 
             // src list id
             var newDstModelIdList = dstModelList.map(dstModelToDstId);

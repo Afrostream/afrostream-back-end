@@ -5,7 +5,6 @@ var utils = require('./utils');
 var config = rootRequire('/config');
 var Client = rootRequire('/sqldb').Client;
 var User = rootRequire('/sqldb').User;
-var AuthCode = rootRequire('/sqldb').AuthCode;
 var AccessToken = rootRequire('/sqldb').AccessToken;
 var RefreshToken = rootRequire('/sqldb').RefreshToken;
 var Log = rootRequire('/sqldb').Log;
@@ -67,7 +66,7 @@ var generateTokenData = function (client, user, code, expiresIn) {
     userId: userId,
     expirationDate: expirationDate, // date
     expirationTimespan: expiresIn   // int (seconds)
-  }
+  };
 };
 
 var generateToken = function (client, user, code, userIp, userAgent, expireIn, done) {
@@ -119,11 +118,11 @@ var generateToken = function (client, user, code, userIp, userAgent, expireIn, d
           return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
         }).catch(function (err) {
         logger.error('RefreshToken', err.message);
-        return done(err)
+        return done(err);
       });
     }).catch(function (err) {
       logger.error('AccessToken', err.message);
-      return done(err)
+      return done(err);
     });
 };
 

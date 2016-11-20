@@ -9,20 +9,8 @@
 
 'use strict';
 
-var _ = require('lodash');
-var path = require('path');
 var sqldb = rootRequire('/sqldb');
-var config = rootRequire('/config');
 var Promise = sqldb.Sequelize.Promise;
-
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
 
 // Gets a list of images
 exports.index = function (req, res) {

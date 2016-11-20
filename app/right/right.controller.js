@@ -25,7 +25,7 @@ module.exports.drmtodayCallback = function (req, res, next) {
       return video;
     }).then(
       function (video) { return video; },
-      function (err) { return { _id: 'unknown', name: 'unknown' }; }
+      function () { return { _id: 'unknown', name: 'unknown' }; }
     ).then(function (video) {
       res.json({
         "accountingId": userId + ":" + video._id + ":" + video.name,
@@ -44,7 +44,7 @@ module.exports.drmtodayCallback = function (req, res, next) {
   // we check if the user exist & if the accessToken is valid.
   authenticate(req, res, next)
     .then(function checkUser(data) {
-      var user = data[0], info = data[1];
+      var user = data[0]; // info = data[1];
       // unknown user => break
       if (!user) {
         throw 'user does not exist';
@@ -57,7 +57,7 @@ module.exports.drmtodayCallback = function (req, res, next) {
       return Video.find({where: {encodingId: encodingId}}).then(function (video) {
         if (!video) throw 'unknown encodingId '+encodingId;
         return video;
-      })
+      });
     })
     .then(
       function success(video) {

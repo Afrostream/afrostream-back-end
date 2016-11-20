@@ -10,7 +10,7 @@ if (config.seedDB) {
   rootRequire('/sqldb/seed');
 }
 
-var mq = rootRequire('mq');
+rootRequire('mq');
 var sqldb = rootRequire('sqldb');
 var logger = rootRequire('logger');
 

@@ -29,7 +29,7 @@ function emitEvent (event) {
         LifePinEvents.emit(event + ':' + doc._id, doc);
         LifePinEvents.emit(event, doc);
         done(null);
-    }
+    };
 }
 
 module.exports = LifePinEvents;

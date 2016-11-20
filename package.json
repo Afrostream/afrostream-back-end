@@ -71,6 +71,7 @@
     "xmlbuilder": "^8.2.2"
   },
   "devDependencies": {
+    "eslint": "^3.10.2",
     "mocha": "^3.1.2",
     "nodemon": "^1.11.0",
     "superagent": "^2.3.0",
@@ -86,6 +87,7 @@
     "seed": "export SEED_DB=true && npm run dev",
     "cron-daily-queries": "node cron/daily-queries.js",
     "cron-stats-usersVideos": "node cron/stats-usersVideos.js",
+    "lint": "./node_modules/.bin/eslint .",
     "test": ". ~/.nvm/nvm.sh && nvm use 6.9.1 && node_modules/.bin/mocha -b test/integration/*"
   },
   "private": true

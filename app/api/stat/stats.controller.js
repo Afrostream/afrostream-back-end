@@ -1,6 +1,5 @@
 'use strict';
 
-var _ = require('lodash');
 var sqldb = rootRequire('/sqldb');
 var User = sqldb.User;
 var AccessToken = sqldb.AccessToken;

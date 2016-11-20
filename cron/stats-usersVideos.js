@@ -51,7 +51,7 @@ Q.all([
   if (Array.isArray(results[0][0]) && results[0][0].length) {
     logger.log('Top 5 du contenu (rating utilisateur) sur les 7 derniers jours : #stats');
     results[0][0].filter(function (row) {
-      return row && row.avgRatings && row.name && row.nbRatings
+      return row && row.avgRatings && row.name && row.nbRatings;
     }).forEach(function (row) {
       var sharingUrl = baseFrontEndUrl + '/sharing/video/' + row.videoId;
       logger.log(' - Rating: ' + (Math.round(row.avgRatings* 100) / 100) + ' -> ' + row.name + ' (' + row.nbRatings + ' Users) | '+sharingUrl+' #stats');

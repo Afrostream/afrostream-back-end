@@ -97,7 +97,7 @@ module.exports = {
       console.error('[HOOK]: [AFTERUPDATE]: ' + String(e), e.stack);
     }
   },
-  afterDestroy: function (instance, options) {
+  afterDestroy: function (instance) {
     try {
       var modelName = instance.Model.name;
       if (isModelBlacklisted(modelName)) {

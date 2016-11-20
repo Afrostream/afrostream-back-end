@@ -358,7 +358,7 @@ module.exports = function (sequelize, DataTypes) {
                     picture: plainUser.picture,
                     nickname: plainUser.nickname,
                     facebook: plainUser.facebook ? {id: plainUser.facebook.id} : null
-                }
+                };
             }
         }
     });

@@ -128,7 +128,7 @@ var getFirstSafe = function (ip) {
         logger.error('getFirstSafe() : error ' + e, e);
         return { authority: config.cdnselector.defaultAuthority, scheme: config.cdnselector.defaultScheme };
       }
-    )
+    );
 };
 
 module.exports.getList = getList;

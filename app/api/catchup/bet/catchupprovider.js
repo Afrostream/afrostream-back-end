@@ -14,7 +14,7 @@ var getCatchupProviderInfos = function (catchupProviderId) {
         return {
           _id: config.catchup.bet.catchupProviderId,
           expiration: config.catchup.bet.defaultExpiration
-        }
+        };
       }
     });
 };

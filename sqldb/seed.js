@@ -70,7 +70,7 @@ promises.push(
         firstName: 'Halle',
         lastName: 'Berry',
         imdbId: 'nm0000932'
-      }])
+      }]);
     })
 );
 
@@ -95,7 +95,7 @@ promises.push(
       slug: 'bet',
       active: true,
       ro: true
-    })
+    });
   })
 );
 
@@ -178,7 +178,7 @@ promises.push(
   Image.sync()
     .then(
     function () {
-      return Image.destroy({where: {}})
+      return Image.destroy({where: {}});
     })
     .then(function () {
       var images = [
@@ -518,7 +518,7 @@ Promise.all(promises).then(function () {
 
     return Promise.all(movies.map(function (movie, i) {
       movie.videoId = videos[i]._id;
-      return movie.save()
+      return movie.save();
     }));
   });
   // linking random movie 0 <-> images
@@ -558,7 +558,7 @@ Promise.all(promises).then(function () {
 
     return Promise.all(
       episodes.map(function (episode) {
-        console.log('assigning season._id' + season._id + ' to episode ' + episode.title)
+        console.log('assigning season._id' + season._id + ' to episode ' + episode.title);
         episode.seasonId = season._id;
         return episode.save();
       })
@@ -574,6 +574,6 @@ Promise.all(promises).then(function () {
 
     return movie.addActors(actors).then(function () {
       return movie.save();
-    })
+    });
   });
 });

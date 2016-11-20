@@ -1,34 +1,9 @@
 'use strict';
 
-var _ = require('lodash');
 var sqldb = rootRequire('/sqldb');
 var Video = sqldb.Video;
 
 var pf = rootRequire('/pf');
-var Q = require('q');
-
-function sortPfContents(a, b) {
-  // initialized first, followed by ready
-  if (a.state === 'initialized' && b.state !== 'initialized') {
-    return -1;
-  }
-  if (a.state === 'initialized' && b.state === 'initialized') {
-    if (a.filename === b.filename) {
-      return 0
-    }
-    if (a.filename < b.filename) {
-      return -1;
-    }
-    return 1;
-  }
-  if (a.filename === b.filename) {
-    return 0;
-  }
-  if (a.filename < b.filename) {
-    return -1;
-  }
-  return 1;
-}
 
 module.exports.contents = function (req, res) {
   var closure = {};

@@ -9,7 +9,6 @@
 
 'use strict';
 
-var _ = require('lodash');
 var sqldb = rootRequire('/sqldb');
 var Client = sqldb.Client;
 

@@ -76,7 +76,7 @@ exports.index = function (req, res) {
       where: {
         name: {$iLike: '%' + queryName + '%'}
       }
-    })
+    });
   }
 
   Licensor.findAndCountAll(paramsObj)

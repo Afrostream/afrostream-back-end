@@ -21,7 +21,6 @@ var Q = require('q');
 var Promise = sqldb.Sequelize.Promise;
 var mediaParser = require('media-parser');
 var MetaInspector = require('node-metainspector');
-var path = require('path');
 var aws = rootRequire('/aws');
 var config = rootRequire('/config');
 var fileType = require('file-type');
@@ -104,7 +103,7 @@ exports.index = function (req, res) {
             where: {
                 title: {$iLike: '%' + queryName + '%'}
             }
-        })
+        });
     }
 
     queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
@@ -168,7 +167,7 @@ exports.scrap = function (req, res) {
                     });
                     resolve(c);
                 }, 3000);
-            })
+            });
         }
         else {
             return null;
@@ -213,7 +212,7 @@ exports.scrap = function (req, res) {
         })
         .then(responseWithResult(res, 201))
         .catch(res.handleError());
-}
+};
 // Creates a new LifePin in the DB
 exports.create = function (req, res) {
     var c = {
@@ -226,7 +225,7 @@ exports.create = function (req, res) {
           if (req.body.imageUrl) {
             Q.nfcall(request, {url: req.body.imageUrl, encoding: null})
               .then(function (data) {
-                var res = data[0];
+                /*var res = data[0];*/
                 var buffer = data[1];
 
                 var typeOfFile = fileType(buffer);
@@ -259,15 +258,15 @@ exports.create = function (req, res) {
         })
         .then(function (image) {
             if (!image) {
-                return null
+                return null;
             }
-            return Image.create(image)
+            return Image.create(image);
         })
         .then(function (image) {
-            c.injectData.image = image
+            c.injectData.image = image;
         })
         .then(function () {
-            return LifePin.create(c.injectData)
+            return LifePin.create(c.injectData);
         })
         .then(updateImages(c.injectData))
         .then(updateUser(c.injectData, req))

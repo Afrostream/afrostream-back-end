@@ -1,20 +1,10 @@
 'use strict';
 
-var assert = require('assert');
-
-var _ = require('lodash');
 var passport = require('passport');
 var oauth2 = require('./oauth2/oauth2');
 var config = rootRequire('/config');
-var jwt = require('jsonwebtoken');
-var expressJwt = require('express-jwt');
 var compose = require('composable-middleware');
-var login = require('connect-ensure-login');
 var User = rootRequire('/sqldb').User;
-var validateJwt = expressJwt({
-  secret: config.secrets.session
-});
-var sqldb = rootRequire('/sqldb');
 
 var Q = require('q');
 
@@ -56,7 +46,7 @@ function isAuthenticated () {
       // FIXME: we should backup cache & trigger no-cache HERE
       // FIXME: we should restore cache functionnality after...
 
-      return passport.authenticate('bearer', {session: false}, function (err, authentified, challenge, status) {
+      return passport.authenticate('bearer', {session: false}, function (err, authentified/*, challenge, status*/) {
         if (err || !authentified){
           var error = new Error(err && err.message || 'unauthorized');
           error.statusCode = err && err.statusCode || 401;
@@ -67,7 +57,7 @@ function isAuthenticated () {
         next();
       })(req, res, next);
     }
-  }
+  };
 }
 
 function validRole (req, roleRequired) {
@@ -93,17 +83,6 @@ function hasRole (roleRequired) {
         res.status(403).send('Forbidden');
       }
     });
-}
-
-/**
- * Tels if the user of the request has a minimum role of "admin".
- * @param req
- * @returns {*}
- */
-function reqUserIsAdmin (req) {
-  var roleRequired = 'admin';
-
-  return validRole(req, roleRequired);
 }
 
 /**
@@ -186,4 +165,4 @@ exports.middleware = {
       .use(middlewareCountry())
       .use(middlewareHackBox());
   }
-}
+};

@@ -3,7 +3,6 @@
 var express = require('express');
 var controller = require('./subscription.controller.js');
 var auth = rootRequire('/app/auth/auth.service');
-var utils = rootRequire('/app/api/utils.js');
 var router = express.Router();
 
 // all subscriptions routes cannot be cached

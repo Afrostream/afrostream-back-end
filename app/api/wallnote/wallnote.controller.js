@@ -1,14 +1,11 @@
 'use strict';
 
-var _ = require('lodash');
 var sqldb = rootRequire('/sqldb');
 var WallNote = sqldb.WallNote;
 var WallNotesUsers = sqldb.WallNotesUsers;
 var User = sqldb.User;
 
 var Q = require('q');
-
-var utils = rootRequire('/app/api/utils.js');
 
 exports.index = function(req, res) {
   var limit = req.query.limit || 20;
@@ -66,7 +63,7 @@ exports.create = function(req, res) {
         active: true,
         type: req.body.type,
         content: req.body.content
-      })
+      });
     })
     .then(
       function (wallNote) { res.json(wallNote); },
@@ -88,12 +85,12 @@ exports.update = function(req, res) {
       throw new Error('missing content');
     }
     if (!wallNote) {
-      var error = new Error('not found');
+      const error = new Error('not found');
       error.statusCode = 404;
       throw error;
     }
     if (wallNote.userId !== req.user._id) {
-      var error = new Error('cannot modify another user note');
+      const error = new Error('cannot modify another user note');
       error.statusCode = 403;
       throw error;
     }
@@ -115,8 +112,6 @@ exports.update = function(req, res) {
 exports.score = function (req, res) {
   Q()
     .then(function () {
-      var error;
-
       if (typeof req.body.score === 'undefined') {
         throw new Error('missing score');
       }
@@ -137,7 +132,7 @@ exports.score = function (req, res) {
           userId: req.user._id,
           wallNoteId: req.params.id,
           score: 0
-        })
+        });
       } else {
         // update
         return wallNotesUsers.update({
@@ -175,12 +170,12 @@ exports.destroy = function(req, res) {
   })
   .then(function (wallNote) {
     if (!wallNote) {
-      var error = new Error('not found');
+      const error = new Error('not found');
       error.statusCode = 404;
       throw error;
     }
     if (wallNote.userId !== req.user._id) {
-      var error = new Error('cannot modify another user note');
+      const error = new Error('cannot modify another user note');
       error.statusCode = 403;
       throw error;
     }

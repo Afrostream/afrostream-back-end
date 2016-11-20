@@ -1,5 +1,5 @@
 'use strict';
-var sqldb = rootRequire('/sqldb');
+
 module.exports = function (sequelize, DataTypes) {
     return sequelize.define('LifeSpot', {
         _id: {

@@ -36,7 +36,7 @@ exports.index = function (req, res) {
         .then(utils.handleEntityNotFound(res))
         .then(filters.filterUserAttributesAll(req, 'public'))
         .then(utils.responseWithResultAndTotal(res))
-        .catch(res.handleError())
+        .catch(res.handleError());
 };
 
 

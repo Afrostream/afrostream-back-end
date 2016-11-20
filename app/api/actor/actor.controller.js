@@ -83,7 +83,7 @@ exports.index = function (req, res) {
       }, {
         lastName: {$iLike: '%' + queryName + '%'}
       })
-    })
+    });
   }
   //
   queryOptions = filters.filterQueryOptions(req, queryOptions, Actor);

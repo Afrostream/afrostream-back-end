@@ -3,7 +3,7 @@
 var sqldb = rootRequire('/sqldb');
 var WaitingUser = sqldb.WaitingUser;
 
-exports.create = function (req, res, next) {
+exports.create = function (req, res) {
   var newWaitingUser = WaitingUser.build(req.body);
   newWaitingUser.set('country', req.country);
   newWaitingUser.save()

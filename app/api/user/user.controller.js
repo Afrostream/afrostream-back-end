@@ -7,21 +7,14 @@ var oauth2 = rootRequire('/app/auth/oauth2/oauth2');
 
 var sqldb = rootRequire('/sqldb');
 var User = sqldb.User;
-var Client = sqldb.Client;
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;
 var Video = sqldb.Video;
 var Image = sqldb.Image;
 var UsersVideos = sqldb.UsersVideos;
-var passport = require('passport');
-var config = rootRequire('/config');
 
 var billingApi = rootRequire('/billing-api');
-
-var sha1 = require('sha1');
-
-var mailer = rootRequire('/components/mailer');
 
 var utils = require('../utils.js');
 
@@ -51,7 +44,7 @@ exports.index = function (req, res) {
       where: {
         email: {$iLike: '%' + queryName + '%'}
       }
-    })
+    });
   }
 
   User.findAndCountAll(paramsObj)
@@ -62,7 +55,7 @@ exports.index = function (req, res) {
 /**
  * Creates a new user
  */
-exports.create = function (req, res, next) {
+exports.create = function (req, res) {
   Q()
     .then(function () {
       /*
@@ -123,7 +116,7 @@ exports.create = function (req, res, next) {
     .catch(res.handleError(422));
 };
 
-exports.search = function (req, res, next) {
+exports.search = function (req, res) {
   Q()
     .then(function () {
       if (!Array.isArray(req.body.facebookIdList)) {
@@ -240,7 +233,7 @@ exports.show = function (req, res, next) {
     });
 };
 
-exports.history = function (req, res, next) {
+exports.history = function (req, res) {
   var queryOptions = {
     where: { userId: req.user._id },
     order: [ ['dateLastRead', 'desc'] ],
@@ -306,7 +299,7 @@ exports.history = function (req, res, next) {
     })
   .then(
     function (moviesEpisodes) { res.json(moviesEpisodes); },
-    function (err) { res.status(err.statusCode || 500).json({error: String(err)})}
+    function (err) { res.status(err.statusCode || 500).json({error: String(err)});}
   );
 };
 
@@ -324,7 +317,7 @@ exports.destroy = function (req, res) {
 /**
  * Change a users password
  */
-exports.auth0ChangePassword = function (req, res, next) {
+exports.auth0ChangePassword = function (req, res) {
   var userMail = req.param('email');
   var newPass = req.param('password');
 
@@ -350,7 +343,7 @@ exports.auth0ChangePassword = function (req, res, next) {
 /**
  * Change a users password
  */
-exports.changePassword = function (req, res, next) {
+exports.changePassword = function (req, res) {
   var userId = req.user._id;
   var oldPass = String(req.body.oldPassword);
   var newPass = String(req.body.newPassword);
@@ -448,6 +441,6 @@ exports.me = function (req, res) {
 /**
  * Authentication callback
  */
-exports.authCallback = function (req, res, next) {
+exports.authCallback = function (req, res) {
   res.redirect('/');
 };

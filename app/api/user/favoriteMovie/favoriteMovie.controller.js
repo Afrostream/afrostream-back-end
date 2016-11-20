@@ -4,7 +4,6 @@ var filters = rootRequire('/app/api/filters.js');
 var sqldb = rootRequire('/sqldb');
 var User = sqldb.User;
 var Movie = sqldb.Movie;
-var UsersFavoritesMovies = sqldb.UsersFavoritesMovies;
 
 var bluebird = require('bluebird');
 

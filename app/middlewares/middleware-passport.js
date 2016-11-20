@@ -1,48 +1,8 @@
 'use strict';
 
-var ip = require('ip');
-
 var Q = require('q');
 
 var AccessToken = rootRequire('/sqldb').AccessToken;
-
-/**
- * userIp searched in :
- *  - the header x-forwarded-user-ip
- *  - the leftmost x-forwarded-for non private ip (rfc 1918)
- *  - req.ip
- *
- * should work :
- *  - locally (dev env)
- *  - heroku direct call
- *  - behind fastly
- *  - behind hw
- *
- * @param req
- * @return string
- */
-function getUserIp(req) {
-  return req.get('x-forwarded-user-ip') ||
-    (req.get('x-forwarded-for') || '')
-      .split(',')
-      // trim spaces
-      .map(function (i) { return i.replace(/^\s+|\s+$/g, ''); })
-      // remove private ip
-      .filter(function (i) { return ip.isPublic(i); })
-      // leftmost x-forwarded-for or req.ip
-      .shift() ||
-    req.ip;
-}
-
-/**
- * clientIp searched in :
- *  [FIXME]
- * @param req
- * @returns null
- */
-function getClientIp(req) {
-  return null;
-}
 
 /**
  * extracting token from :
@@ -104,7 +64,7 @@ function getPassport(req) {
   // searching token
   return Q()
     .then(function () {
-      return getAccessToken(req)
+      return getAccessToken(req);
     })
     .then(function (accessToken) {
       // debug

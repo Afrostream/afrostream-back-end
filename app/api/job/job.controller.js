@@ -2,8 +2,6 @@
 
 var Q = require('q');
 
-var utils = require('../utils.js');
-
 var createJobPackCaptions = require('./job.packcaptions.js').create;
 
 var createJobCatchupBet = require('./job.catchup-bet.js').create;
@@ -51,10 +49,6 @@ exports.catchupBet = function (req, res) {
       function success(result) { res.status(200).json(result); },
       res.handleError()
     );
-};
-
-exports.cacheUsersSubscriptions = function (req, res) {
-  // connect to recurly
 };
 
 exports.packCaption = function (req, res) {

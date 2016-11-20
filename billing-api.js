@@ -7,8 +7,7 @@ var _ = require('lodash');
 var Q = require('q')
   , request = require('request');
 
-var sqldb = rootRequire('/sqldb')
-  , config = rootRequire('/config');
+var config = rootRequire('/config');
 
 if (process.env.NODE_ENV === 'development' ||
   process.env.NODE_ENV === 'test') {
@@ -274,7 +273,7 @@ var getInternalPlan = function (internalPlanUuid) {
   }).then(function (body) {
     return body && body.response && body.response.internalPlan || null;
   });
-}
+};
 
 var subscriptionToPlanCode = function (subscription) {
   if (subscription &&
@@ -401,7 +400,7 @@ module.exports.updateUser = updateUser;
 module.exports.getOrCreateUser = getOrCreateUser;
 // fetching internal infos
 module.exports.getInternalPlan = getInternalPlan;
-module.exports.getInternalPlans = getInternalPlans
+module.exports.getInternalPlans = getInternalPlans;
 // parsing subscription
 module.exports.subscriptionToPlanCode = subscriptionToPlanCode;
 module.exports.subscriptionToPromo = subscriptionToPromo;

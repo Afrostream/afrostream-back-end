@@ -29,7 +29,7 @@ function emitEvent(event) {
     RefreshTokenEvents.emit(event + ':' + doc._id, doc);
     RefreshTokenEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 module.exports = RefreshTokenEvents;

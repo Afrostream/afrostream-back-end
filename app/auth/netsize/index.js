@@ -5,8 +5,6 @@ var auth = require('../auth.service');
 var controller = require('./netsize.controller.js');
 var router = express.Router();
 
-var middlewarePassport = rootRequire('/app/middlewares/middleware-passport.js');
-
 router.get('/check', auth.middleware.authentify(), controller.check);
 router.get('/callback', auth.middleware.authentify(), controller.callback);
 router.get('/subscribe', auth.middleware.restrictRoutesToAuthentified(), controller.subscribe);

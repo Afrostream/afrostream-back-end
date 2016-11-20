@@ -59,8 +59,8 @@ var decrypt = function (k) {
       throw new Error("base64 decode error");
     }
     var inflated = URLSafeBase64.decode(k);
-    var decipher = crypto.createDecipher(cryptoAlgorithm, cryptoPassword)
-    var dec = decipher.update(inflated, 'hex', 'utf8')
+    var decipher = crypto.createDecipher(cryptoAlgorithm, cryptoPassword);
+    var dec = decipher.update(inflated, 'hex', 'utf8');
     dec += decipher.final('utf8');
     var data = JSON.parse(dec);
     var hash = getHash(data.e, data.p);
@@ -72,7 +72,7 @@ var decrypt = function (k) {
       password: data.p,
       createdAt: data.t,
       version: data.v
-    }
+    };
   } catch (e) {
     logger.error(e.message);
     return null;

@@ -18,7 +18,7 @@ function mapEntitys () {
         }
       }
     });
-  }
+  };
 }
 
 function responseWithResult (res, statusCode) {

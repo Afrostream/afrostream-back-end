@@ -1,13 +1,8 @@
 'use strict';
 
-var assert = require('better-assert');
-
-var _ = require('lodash');
-
 var Q = require('q');
 
-var sqldb = rootRequire('/sqldb')
-  , config = rootRequire('/config');
+var config = rootRequire('/config');
 
 var anr = require('afrostream-node-request');
 
@@ -15,7 +10,7 @@ var anr = require('afrostream-node-request');
 var logger = rootRequire('logger').prefix('PF');
 
 // wrapper
-var requestPF = (function (options) {
+var requestPF = (function () {
   var request = anr.create({
     name: 'REQUEST-PF',
     timeout: config.pf.timeout,
@@ -31,7 +26,7 @@ var requestPF = (function (options) {
     return request(options).then(function (data) {
       return data[1]; // body
     });
-  }
+  };
 })();
 
 function PfContent(pfMd5Hash, pfBroadcasterName) {
@@ -113,7 +108,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
     return requestPF({ uri: '/api/profiles' })
      .then(function filter(profiles) {
        if (!Array.isArray(profiles)) {
-         throw new Error("profiles format")
+         throw new Error("profiles format");
        }
        that.pfProfiles = profiles.filter(function (profile) {
          return profile.broadcaster === that.pfBroadcasterName;
@@ -256,10 +251,11 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
     .then(function (manifests) {
       that.manifests = manifests;
       return manifests;
-    })
+    });
 };
 
 var getContents = function (state) {
+  var that = this;
   return requestPF({
    uri: '/api/contents',
    qs: { state: state || 'ready' }
@@ -278,6 +274,6 @@ var getContents = function (state) {
 var pf = {
   PfContent: PfContent,
   getContents: getContents
-}
+};
 
 module.exports = pf;

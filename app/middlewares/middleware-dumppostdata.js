@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function (options) {
-  var options = options || {};
+  options = options || {};
   options.logger = options.logger || console;
 
   return function (req, res, next) {
@@ -21,7 +21,7 @@ module.exports = function (options) {
           if (body.cvv) { body.cvv = '123'; }
           (req.logger || options.logger).log('[MIDDLEWARE-DUMPPOSTDATA]: ' + req.method + ' ' + req.url + ' body=', body);
         }
-      } catch (e) { }
+      } catch (e) { /* nothing */ }
     }
     next();
   };

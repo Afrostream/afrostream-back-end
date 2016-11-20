@@ -33,20 +33,6 @@ var getIncludedModel = function () {
   ];
 };
 
-/**
- * Limit result in included model because it's not possible with Sequelize
- * @param res
- * @param statusCode
- * @returns {Function}
- */
-function limitResult(res, key, limit) {
-  return function (entity) {
-    if (entity) {
-      res.status(200).json(entity);
-    }
-  };
-}
-
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
   return function (entity) {
@@ -114,7 +100,7 @@ function responseWithAdSpot(req, res, statusCode) {
 
       return entity.getAdSpots(queryOptions).then(function (adSpots) {
         res.status(statusCode).json(adSpots);
-      })
+      });
     }
   };
 }
@@ -232,7 +218,7 @@ exports.index = function (req, res) {
       where: {
         label: {$iLike: '%' + queryName + '%'}
       }
-    })
+    });
   }
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, Category);
@@ -359,7 +345,7 @@ exports.mea = function (req, res) {
 
   Category.findAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(limitResult(res, 'movies', 30))
+    .then(responseWithResult(res))
     .catch(res.handleError());
 };
 
@@ -388,7 +374,7 @@ exports.allSpots = function (req, res) {
 
   Category.findAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(limitResult(res, 'movies', 30))
+    .then(responseWithResult(res))
     .catch(res.handleError());
 };
 

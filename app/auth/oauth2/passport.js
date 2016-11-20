@@ -60,7 +60,7 @@ function clientAuthenticate (Client, clientId, clientSecret, done) {
     });
 }
 
-exports.setup = function (Client, User, AccessToken, config) {
+exports.setup = function (Client, User, AccessToken) {
   passport.serializeUser(function (user, done) {
     done(null, user._id);
   });
@@ -132,7 +132,7 @@ exports.setup = function (Client, User, AccessToken, config) {
             return token.destroy()
               .then(function () {
                 logger.error('passport: bearer: token expired ' + accessToken);
-                done(new Error('token expired'))
+                done(new Error('token expired'));
               });
           }
           if (token.userId !== null) {
@@ -172,5 +172,5 @@ exports.setup = function (Client, User, AccessToken, config) {
           return done(err);
         });
     }
-  ))
+  ));
 };

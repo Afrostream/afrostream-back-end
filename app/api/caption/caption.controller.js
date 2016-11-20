@@ -9,12 +9,9 @@
 
 'use strict';
 
-var _ = require('lodash');
 var aws = rootRequire('/aws');
-var path = require('path');
 var sqldb = rootRequire('/sqldb');
 var Caption = sqldb.Caption;
-var Language = sqldb.Language;
 
 var utils = rootRequire('/app/api/utils.js');
 
@@ -73,7 +70,7 @@ exports.create = function (req, res) {
       var bucket = aws.getBucket('tracks.afrostream.tv');
       return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/caption/{date}/{rand}-'+file.name);
     }).then(function (data) {
-      return Caption.create({ src: data.req.url })
+      return Caption.create({ src: data.req.url });
     })
     .then(responseWithResult(res, 201))
     .catch(res.handleError());

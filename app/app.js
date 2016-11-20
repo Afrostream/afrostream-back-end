@@ -14,7 +14,7 @@ var cacheHandler = require('./middlewares/middleware-cachehandler.js');
 var logger = require('./middlewares/middleware-logger.js');
 var id = require('./middlewares/middleware-id.js');
 
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
 
 // Setup server
 var app =  require('express')();
@@ -23,7 +23,7 @@ app.set('views', config.root + '/views');
 app.set('view engine', 'jade');
 app.set('etag', false);
 app.use(require('compression')());
-app.use(cookieParser(config.cookies.secret))
+app.use(cookieParser(config.cookies.secret));
 
 //
 app.use(id());

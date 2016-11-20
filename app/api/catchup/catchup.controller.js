@@ -1,7 +1,5 @@
 'use strict';
 
-var url = require('url');
-
 var sqldb = rootRequire('/sqldb');
 var Category = sqldb.Category;
 var Episode = sqldb.Episode;
@@ -11,10 +9,6 @@ var Language = sqldb.Language;
 var Caption = sqldb.Caption;
 var Licensor = sqldb.Licensor;
 var Video = sqldb.Video;
-var CatchupProvider = sqldb.CatchupProvider;
-
-var request = require('request');
-var rp = require('request-promise');
 
 var Q = require('q');
 
@@ -107,7 +101,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
             where: { movieId: movie._id, $and: [ { dateFrom: { $gt: oneWeekAgo} }, { dateFrom: { $ne: null } } ] },
             order: [ [ 'dateFrom', 'ASC' ]],
             limit: 1
-          })
+          });
         })
         .then(function (seasons) {
           if (seasons && seasons.length && seasons[0]) {
@@ -119,10 +113,10 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
         .then(function () {
           return data;
         }, function (err) {
-          logger.error('error setting dateFrom ' + err.message)
+          logger.error('error setting dateFrom ' + err.message);
           return data;
         });
-      })
+      });
     }).spread(function (episode, season, movie) {
       logger.log('database: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id + ' video ' + video._id + ' ' +
                   'episode '+episodeNumber+' [' + episodeTitle + '] season '+seasonNumber+' [' + seriesTitle + '] #content');
@@ -131,7 +125,8 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
         episode.setVideo(video),
         episode.setSeason(season),
         season.setMovie(movie)
-      ]).then(function () { return movie; })
+      ])
+      .then(function () { return movie; });
     });
   } else {
     return sqldb.nonAtomicFindOrCreate(Movie, {
@@ -266,13 +261,13 @@ var bet = function (req, res) {
                 });
             })).then(function (captions) {
               // attach captions to the video
-              return Q.all(captions.map(function (caption) { return caption.update({videoId: video._id}); }))
+              return Q.all(captions.map(function (caption) { return caption.update({videoId: video._id}); }));
             }).then(function () {
               // create the job pack-captions.
               return createJobPackCaptions(video._id);
             }).then(function () {
               return video;
-            })
+            });
           })
           .then(function (video) {
             // FIXME: in the future, we should add theses captions to the video.
@@ -292,7 +287,7 @@ var bet = function (req, res) {
 };
 
 
-var betMovies = function (req, res, next) {
+var betMovies = function (req, res) {
   var catchupProviderId = config.catchup.bet.catchupProviderId;
 
   var getIncludedModel = require('../movie/movie.includedModel.js').get;
@@ -308,7 +303,7 @@ var betMovies = function (req, res, next) {
   );
 };
 
-var betSeasons = function (req, res, next) {
+var betSeasons = function (req, res) {
   var catchupProviderId = config.catchup.bet.catchupProviderId;
 
   var getIncludedModel = require('../season/season.includedModel.js').get;
@@ -324,7 +319,7 @@ var betSeasons = function (req, res, next) {
   );
 };
 
-var betEpisodes = function (req, res, next) {
+var betEpisodes = function (req, res) {
   var catchupProviderId = config.catchup.bet.catchupProviderId;
 
   var getIncludedModel = require('../episode/episode.includedModel.js').get;
@@ -340,7 +335,7 @@ var betEpisodes = function (req, res, next) {
   );
 };
 
-var betVideos = function (req, res, next) {
+var betVideos = function (req, res) {
   var catchupProviderId = config.catchup.bet.catchupProviderId;
 
   Video.findAll({

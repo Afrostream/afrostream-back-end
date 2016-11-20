@@ -29,7 +29,7 @@ function emitEvent(event) {
     LicensorEvents.emit(event + ':' + doc._id, doc);
     LicensorEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 module.exports = LicensorEvents;

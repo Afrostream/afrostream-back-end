@@ -2,11 +2,8 @@
 
 var _ = require('lodash');
 var Q = require('q');
-var auth = rootRequire('/app/auth/auth.service');
 var sqldb = rootRequire('/sqldb');
-var User = sqldb.User;
 var UsersVideos = sqldb.UsersVideos;
-var UsersFavoritesEpisodes = sqldb.UsersFavoritesEpisodes;
 
 module.exports.update = function (req, res) {
   var userVideoKey = { userId: req.user._id, videoId: req.params.videoId};

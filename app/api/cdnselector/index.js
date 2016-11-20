@@ -2,7 +2,6 @@
 
 var express = require('express');
 var controller = require('./cdnselector.controller.js');
-var utils = rootRequire('/app/api/utils.js');
 var router = express.Router();
 
 // all cdnselector routes cannot be cached

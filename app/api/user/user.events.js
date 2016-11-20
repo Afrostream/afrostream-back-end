@@ -29,7 +29,7 @@ function emitEvent(event) {
     UserEvents.emit(event + ':' + doc._id, doc);
     UserEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 module.exports = UserEvents;

@@ -7,7 +7,7 @@ exports.parse = function (json) {
 
   // cleaning json to create user "identity"
   var omitedKeys = _.filter(_.keys(json), function (key) {
-    return _.isUndefined(json[key])
+    return _.isUndefined(json[key]);
   });
   omitedKeys.push('getAssertionXml');
   var identity = _.omit(json, omitedKeys);

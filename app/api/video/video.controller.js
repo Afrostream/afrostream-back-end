@@ -10,10 +10,7 @@
 'use strict';
 
 var _ = require('lodash');
-var path = require('path');
-var url = require('url');
 var sqldb = rootRequire('/sqldb');
-var config = rootRequire('/config');
 var Asset = sqldb.Asset;
 var Video = sqldb.Video;
 var Movie = sqldb.Movie;
@@ -23,8 +20,6 @@ var Language = sqldb.Language;
 var Image = sqldb.Image;
 var Log = sqldb.Log;
 var Promise = sqldb.Sequelize.Promise;
-var jwt = require('jsonwebtoken');
-var auth = rootRequire('/app/auth/auth.service');
 
 var Q = require('q');
 
@@ -32,7 +27,6 @@ var utils = rootRequire('/app/api/utils.js');
 
 var billingApi = rootRequire('/billing-api.js');
 
-var getClientIp = rootRequire('/app/auth/geo').getClientIp;
 var cdnselector = rootRequire('/cdnselector');
 var pf = rootRequire('/pf');
 
@@ -58,34 +52,6 @@ function responseWithResult(res, statusCode) {
   };
 }
 
-/**
- * Tokenize videoId
- * @returns {Function}
- */
-function tokenizeResult(req, res) {
-  return function (entity) {
-    if (entity) {
-      var token = jwt.sign({_id: entity._id}, config.secrets.session, {
-        expiresInSeconds: config.secrets.videoExpire
-      });
-      var requestHost = req.get('Referrer') || req.headers.referrer || req.headers.referer || req.get('host');
-      entity.sources = _.forEach(entity.sources, function (asset) {
-        _.assign(asset, {
-          //src: '//' + path.join(requestHost, 'api', 'assets', asset._id, token, url.parse(asset.src).pathname)
-          src: path.join('/assets', asset._id, token, url.parse(asset.src).pathname)
-        });
-      });
-      entity.sources = _.forEach(entity.captions, function (caption) {
-        _.assign(caption, {
-          //src: '//' + path.join(requestHost, 'api', 'assets', asset._id, token, url.parse(asset.src).pathname)
-          src: path.join('/captions', caption._id, token, url.parse(caption.src).pathname)
-        });
-      });
-      res.status(200).json(entity);
-    }
-  };
-}
-
 function saveUpdates(updates) {
   return function (entity) {
     return entity.updateAttributes(updates);
@@ -96,7 +62,7 @@ function addCaptions(updates) {
   return function (entity) {
     return Promise.map(updates.captions || [], function (item) {
       return sqldb.nonAtomicFindOrCreate(Caption, {where: {_id: item._id}}).then(function (elem) {
-        var elem = elem[0];
+        elem = elem[0];
         if (!elem.isNewRecord) {
           return elem.updateAttributes(item);
         }
@@ -159,8 +125,8 @@ exports.index = function (req, res) {
 };
 
 function ensureAccessToVideo(req) {
-  if (!req.user instanceof User.Instance &&
-      !req.user instanceof Client.Instance) {
+  if (!(req.user instanceof User.Instance) &&
+      !(req.user instanceof Client.Instance)) {
     throw new Error('missing user/client');
   }
   if (!req.passport || !req.passport.client) {
@@ -283,7 +249,7 @@ exports.show = function (req, res) {
                   return {
                     src: source.src.replace(/^https?:\/\/[^/]+/,''),
                     type: source.type
-                  }
+                  };
                 });
               });
             }
@@ -294,7 +260,7 @@ exports.show = function (req, res) {
             ]).then(function (pfData) {
               closure.pfAssetsStreams = pfData[0];
               closure.pfManifests = pfData[1];
-            })
+            });
           })
 
         ,
@@ -309,7 +275,7 @@ exports.show = function (req, res) {
           .then(function (cdnselectorInfos) {
             closure.cdnselectorInfos = cdnselectorInfos;
           })
-      ])
+      ]);
     })
     .then(function buildingVideoObject() {
       // convert video to plain object
@@ -319,7 +285,7 @@ exports.show = function (req, res) {
         definition: 'HD', // SD, HD, 4K
         assetsStreams: closure.pfAssetsStreams
       };
-      video.sources = closure.pfManifests
+      video.sources = closure.pfManifests;
       //! FIXME: HOTFIX 10/10/2016 live bet down.
       // on hydrate l'objet vidéo avec de la data
       if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
@@ -349,7 +315,7 @@ exports.show = function (req, res) {
       }
 
       // CDN-SELECTOR
-      video.sources.forEach(function (source, i) {
+      video.sources.forEach(function (source) {
         // FIXME: to be removed
         // START REMOVE
         // hack staging cdnselector orange (testing)
@@ -437,7 +403,7 @@ exports.show = function (req, res) {
       if (closure.pfContent.randomContentProfile.broadcaster === 'ORANGE') {
         var audios = closure.pfAssetsStreams
           .filter(function (asset) { return asset.type === 'audio'; })
-          .map(function (asset) { return asset.language });
+          .map(function (asset) { return asset.language; });
         if (audios.length === 1 && audios[0] === 'fra') {
           logger.log('hack profile _ORANGE: 1 audio language=fra => no captions');
           video.captions = [];
@@ -458,7 +424,7 @@ exports.show = function (req, res) {
         return video;
       }
       //
-      if (!req.user instanceof User.Instance) {
+      if (!(req.user instanceof User.Instance)) {
         logger.warn('client ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
@@ -468,7 +434,7 @@ exports.show = function (req, res) {
         video.sources = [];
         video.name = null;
       }
-      return video
+      return video;
     })
     .then(
       function (video) {
@@ -487,7 +453,7 @@ exports.show = function (req, res) {
           function noop() { },
           function (err) {
             logger.error('[LOG]: '+err.message);
-            return
+            return;
           }
         ).then(function () { return video; });
       }
@@ -612,7 +578,7 @@ module.exports.createFromPfContent = function (pfContent) {
   logger.log('[IMPORT]: pfContent', pfContent);
 
   var duration = null; // unknown
-  var pfContentDurationSplitted = pfContent.duration.split(':')
+  var pfContentDurationSplitted = pfContent.duration.split(':');
   if (pfContentDurationSplitted.length === 3) {
     duration = parseInt(pfContentDurationSplitted[0]) * 3600 +
                parseInt(pfContentDurationSplitted[1]) * 60 +

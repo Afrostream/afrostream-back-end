@@ -1,7 +1,7 @@
 var _ = require('lodash');
 
 module.exports = function (options) {
-  var options = options || {};
+  options = options || {};
   options.logger = options.logger || console;
 
   return function (req, res, next) {
@@ -30,5 +30,5 @@ module.exports = function (options) {
       };
     };
     next();
-  }
-}
+  };
+};

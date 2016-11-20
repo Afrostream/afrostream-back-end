@@ -45,7 +45,7 @@ function addMovie(updates) {
   var movie = Movie.build(updates.movie);
   return function (entity) {
     if (!movie) {
-      return entity
+      return entity;
     }
     return entity.setMovie(movie)
       .then(function () {
@@ -85,7 +85,7 @@ function addEpisodes(updates) {
 
     return function (entity) {
       if (!episodes || !episodes.length) {
-        return entity
+        return entity;
       }
       return entity.setEpisodes(episodes)
         .then(function () {
@@ -134,7 +134,7 @@ exports.index = function (req, res) {
       where: {
         title: {$iLike: '%' + queryName + '%'}
       }
-    })
+    });
   }
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, Season);

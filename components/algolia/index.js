@@ -1,7 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
 var config = rootRequire('/config');
-var _ = require('lodash');
 var algoliasearch = require('algoliasearch');
 var client = algoliasearch(config.algolia.appId, config.algolia.apiKey);
 
@@ -27,10 +26,10 @@ exports = module.exports = {
         return saveAsync(datas).then(function (items) {
           return items;
         }).catch(function (err) {
-          logger.error(err)
+          logger.error(err);
         });
       }
-    }
+    };
   },
 
   searchIndex: function (indexName, querystring) {

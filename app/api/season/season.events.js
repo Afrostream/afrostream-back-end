@@ -29,7 +29,7 @@ function emitEvent(event) {
     SeasonEvents.emit(event + ':' + doc._id, doc);
     SeasonEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 module.exports = SeasonEvents;

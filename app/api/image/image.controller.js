@@ -10,7 +10,6 @@
 'use strict';
 
 var _ = require('lodash');
-var path = require('path');
 var sqldb = rootRequire('/sqldb');
 var Image = sqldb.Image;
 var config = rootRequire('/config');
@@ -36,26 +35,6 @@ function saveUpdates(updates) {
   };
 }
 
-function removeEntity(res) {
-  return function (entity) {
-    if (entity) {
-      var filesName = [entity.path];
-      Knox.aws.deleteMultiple(filesName, {}, function (err, response) {
-        if (err) {
-          return res.handleError()(err);
-        }
-        if (response.statusCode !== 200) {
-          return res.handleError(response.statusCode)('statusCode not 200 OK');
-        }
-        return entity.destroy()
-          .then(function () {
-            res.status(204).end();
-          });
-      });
-    }
-  };
-}
-
 // Gets a list of images
 exports.index = function (req, res) {
   var queryName = req.param('query');
@@ -70,14 +49,14 @@ exports.index = function (req, res) {
       where: {
         name: {$iLike: '%' + queryName + '%'},
       }
-    })
+    });
   }
   if (typeName) {
     paramsObj = _.merge(paramsObj, {
       where: {
         type: typeName
       }
-    })
+    });
   }
 
   Image.findAndCountAll(paramsObj)
@@ -134,18 +113,5 @@ exports.update = function (req, res) {
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
-    .catch(res.handleError());
-};
-
-// Deletes a image from the DB
-exports.destroy = function (req, res) {
-
-  Image.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(utils.handleEntityNotFound(res))
-    .then(removeEntity(res))
     .catch(res.handleError());
 };

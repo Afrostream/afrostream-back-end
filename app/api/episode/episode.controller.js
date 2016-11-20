@@ -107,7 +107,7 @@ exports.index = function (req, res) {
         where: {
           title: {$iLike: '%' + queryName + '%'}
         }
-      })
+      });
     }
   }
 
@@ -195,7 +195,7 @@ function parseVXstY(body) {
         body.vXstY = vXstY;
         return entity;
       });
-  }
+  };
 }
 
 // Updates an existing episode in the DB

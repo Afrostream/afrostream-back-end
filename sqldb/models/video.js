@@ -4,8 +4,6 @@ var config = rootRequire('/config');
 
 var Q = require('q');
 
-var pf = rootRequire('/pf.js');
-
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Video', {
     _id: {
@@ -44,7 +42,7 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     getterMethods   : {
       sharing: function()  {
-        return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/sharing/video/' + this._id }
+        return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/sharing/video/' + this._id };
       }
     },
 

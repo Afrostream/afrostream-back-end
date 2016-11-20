@@ -217,7 +217,7 @@ var filterUserAttributesAll = function (req, role, attr) {
                     promises.push(new Promise(function (resolve) {
                         var c = filterUserRecursive(entity, role, attribute);
                         resolve(c);
-                    }))
+                    }));
                 });
             }
         });
@@ -230,7 +230,7 @@ var filterUserAttributesAll = function (req, role, attr) {
                     rows: entityFiltered
                 };
             });
-    }
+    };
 };
 
 var filterUserAttributes = function (req, role, attr) {
@@ -251,7 +251,7 @@ var filterUserAttributes = function (req, role, attr) {
             return c;
         }
 
-    }
+    };
 };
 
 /*
