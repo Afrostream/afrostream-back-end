@@ -6,7 +6,7 @@ var request = require('supertest');
 
 var assert = require('better-assert');
 
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
 describe('API: /api/catchup/*', function() {
   var app = bootstrap.getApp();

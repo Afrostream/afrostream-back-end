@@ -1,6 +1,6 @@
 'use strict';
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var LifePin = sqldb.LifePin;
 var Image = sqldb.Image;
 

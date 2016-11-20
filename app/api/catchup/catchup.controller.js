@@ -1,6 +1,6 @@
 'use strict';
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Category = sqldb.Category;
 var Episode = sqldb.Episode;
 var Movie = sqldb.Movie;
@@ -12,7 +12,7 @@ var Video = sqldb.Video;
 
 var Q = require('q');
 
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
 var pf = rootRequire('pf');
 

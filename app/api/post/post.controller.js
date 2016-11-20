@@ -10,11 +10,11 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Post = sqldb.Post;
 var Image = sqldb.Image;
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
+var filters = rootRequire('app/api/filters.js');
+var utils = rootRequire('app/api/utils.js');
 
 var getIncludedModel = function () {
   return [

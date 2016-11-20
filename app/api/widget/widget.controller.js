@@ -1,10 +1,10 @@
 'use strict';
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var utils = require('../utils.js');
 var Widget = sqldb.Widget;
 var Image = sqldb.Image;
 var getIncludedModel = require('./widget.includedModel').get;
-var filters = rootRequire('/app/api/filters.js');
+var filters = rootRequire('app/api/filters.js');
 
 var _ = require('lodash');
 

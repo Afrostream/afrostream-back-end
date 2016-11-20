@@ -10,11 +10,11 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Movie = sqldb.Movie;
 var Licensor = sqldb.Licensor;
 
-var utils = rootRequire('/app/api/utils.js');
+var utils = rootRequire('app/api/utils.js');
 
 var getIncludedModel = function () {
   return [

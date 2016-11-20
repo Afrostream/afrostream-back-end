@@ -3,9 +3,9 @@
 var _ = require('lodash');
 var Q = require('q');
 
-var oauth2 = rootRequire('/app/auth/oauth2/oauth2');
+var oauth2 = rootRequire('app/auth/oauth2/oauth2');
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var User = sqldb.User;
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
@@ -14,11 +14,11 @@ var Video = sqldb.Video;
 var Image = sqldb.Image;
 var UsersVideos = sqldb.UsersVideos;
 
-var billingApi = rootRequire('/billing-api');
+var billingApi = rootRequire('billing-api');
 
 var utils = require('../utils.js');
 
-var filters = rootRequire('/app/api/filters.js');
+var filters = rootRequire('app/api/filters.js');
 
 /**
  * Get list of users

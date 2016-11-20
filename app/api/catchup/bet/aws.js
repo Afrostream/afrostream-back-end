@@ -5,7 +5,7 @@ var url = require('url');
 var Q = require('q')
   , rp = require('request-promise');
 
-var aws = rootRequire('/aws.js');
+var aws = rootRequire('aws.js');
 
 var logger = rootRequire('logger').prefix('CATCHUP');
 

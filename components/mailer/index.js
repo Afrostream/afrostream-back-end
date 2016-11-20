@@ -1,7 +1,7 @@
 'use strict';
 
 var Q = require('q');
-var config = rootRequire('/config');
+var config = rootRequire('config');
 var sendgrid = require('sendgrid')(config.sendGrid.api_key);
 var logger = rootRequire('logger').prefix('SENDGRID');
 

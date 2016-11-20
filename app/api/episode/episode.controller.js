@@ -10,14 +10,14 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var algolia = rootRequire('/components/algolia');
+var sqldb = rootRequire('sqldb');
+var algolia = rootRequire('components/algolia');
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;
 var Video = sqldb.Video;
 var Image = sqldb.Image;
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
+var filters = rootRequire('app/api/filters.js');
+var utils = rootRequire('app/api/utils.js');
 
 var getIncludedModel = require('./episode.includedModel.js').get;
 

@@ -10,10 +10,10 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Work = sqldb.Work;
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
+var filters = rootRequire('app/api/filters.js');
+var utils = rootRequire('app/api/utils.js');
 
 function responseWithResult (res, statusCode) {
   statusCode = statusCode || 200;

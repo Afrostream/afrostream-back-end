@@ -10,7 +10,7 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Category = sqldb.Category;
 var Movie = sqldb.Movie;
 var Season = sqldb.Season;
@@ -18,8 +18,8 @@ var Video = sqldb.Video;
 var Episode = sqldb.Episode;
 var Caption = sqldb.Caption;
 var Image = sqldb.Image;
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
+var filters = rootRequire('app/api/filters.js');
+var utils = rootRequire('app/api/utils.js');
 
 var getIncludedModel = function () {
   return [

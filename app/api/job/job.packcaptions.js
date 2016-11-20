@@ -2,7 +2,7 @@
 
 var Q = require('q');
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Video = sqldb.Video;
 var Caption = sqldb.Caption;
 var Language = sqldb.Language;

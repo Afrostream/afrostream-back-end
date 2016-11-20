@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var LifePin = rootRequire('/sqldb').LifePin;
+var LifePin = rootRequire('sqldb').LifePin;
 var LifePinEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

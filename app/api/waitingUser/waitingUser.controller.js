@@ -1,6 +1,6 @@
 'use strict';
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var WaitingUser = sqldb.WaitingUser;
 
 exports.create = function (req, res) {

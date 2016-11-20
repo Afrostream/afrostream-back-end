@@ -5,9 +5,9 @@ var request = require('request');
 var xml2js = require('xml2js');
 var btoa = require('btoa');
 
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
-var billingApi = rootRequire('/billing-api.js');
+var billingApi = rootRequire('billing-api.js');
 
 function generateBaseParameters(methodName, transactionId) {
   var requestVersion = "1.2";

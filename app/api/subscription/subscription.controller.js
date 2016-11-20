@@ -2,7 +2,7 @@
 
 var Q = require('q');
 
-var billingApi = rootRequire('/billing-api');
+var billingApi = rootRequire('billing-api');
 
 /**
  * response :

@@ -1,6 +1,6 @@
 'use strict';
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Movie = sqldb.Movie;
 var Episode = sqldb.Episode;
 var Season = sqldb.Season;

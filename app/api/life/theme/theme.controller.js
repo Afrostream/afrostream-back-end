@@ -10,9 +10,9 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
+var sqldb = rootRequire('sqldb');
+var filters = rootRequire('app/api/filters.js');
+var utils = rootRequire('app/api/utils.js');
 var getIncludedModel = require('./theme.includedModel.js').get;
 var LifePin = sqldb.LifePin;
 var LifeSpot = sqldb.LifeSpot;

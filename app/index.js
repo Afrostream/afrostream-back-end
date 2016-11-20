@@ -7,7 +7,7 @@ var config = rootRequire('config');
 
 // Populate databases with sample data
 if (config.seedDB) {
-  rootRequire('/sqldb/seed');
+  rootRequire('sqldb/seed');
 }
 
 rootRequire('mq');

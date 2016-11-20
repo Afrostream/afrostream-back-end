@@ -2,7 +2,7 @@
 
 var Q = require('q');
 
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
 var anr = require('afrostream-node-request');
 

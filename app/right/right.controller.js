@@ -1,6 +1,6 @@
 'use strict';
 
-var Video = rootRequire('/sqldb').Video;
+var Video = rootRequire('sqldb').Video;
 
 var authenticate = require('../auth/auth.service').authenticate;
 

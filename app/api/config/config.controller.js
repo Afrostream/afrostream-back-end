@@ -1,7 +1,7 @@
 'use strict';
-var sqldb = rootRequire('/sqldb');
-var config = rootRequire('/config');
-var utils = rootRequire('/app/api/utils.js');
+var sqldb = rootRequire('sqldb');
+var config = rootRequire('config');
+var utils = rootRequire('app/api/utils.js');
 var Config = sqldb.Config;
 
 function mapEntitys () {

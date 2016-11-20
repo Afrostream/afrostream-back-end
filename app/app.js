@@ -4,7 +4,7 @@ var express = require('express');
 var errorHandler = require('errorhandler');
 var path = require('path');
 
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
 var dumpPostData = require('./middlewares/middleware-dumppostdata.js');
 var morgan = require('./middlewares/middleware-morgan.js');
@@ -94,7 +94,7 @@ switch (process.env.NODE_ENV) {
 }
 
 // add req.passport
-var middlewarePassport = rootRequire('/app/middlewares/middleware-passport.js');
+var middlewarePassport = rootRequire('app/middlewares/middleware-passport.js');
 app.use(middlewarePassport());
 
 require('./routes')(app);

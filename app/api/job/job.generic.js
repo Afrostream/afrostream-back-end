@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
 var request = require('request');
 var btoa = require('btoa');

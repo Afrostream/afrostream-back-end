@@ -1,6 +1,6 @@
 'use strict';
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var WallNote = sqldb.WallNote;
 var WallNotesUsers = sqldb.WallNotesUsers;
 var User = sqldb.User;

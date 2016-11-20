@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var Tag = rootRequire('/sqldb').Tag;
+var Tag = rootRequire('sqldb').Tag;
 var TagEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

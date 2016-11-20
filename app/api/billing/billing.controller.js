@@ -2,11 +2,11 @@
 
 var Q = require('q');
 
-var billingApi = rootRequire('/billing-api.js');
+var billingApi = rootRequire('billing-api.js');
 
-var User = rootRequire('/sqldb').User;
+var User = rootRequire('sqldb').User;
 
-var mailer = rootRequire('/components/mailer');
+var mailer = rootRequire('components/mailer');
 
 var updateUserName = function (req, c) {
     return Q()

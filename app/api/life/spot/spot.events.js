@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var LifeSpot = rootRequire('/sqldb').LifeSpot;
+var LifeSpot = rootRequire('sqldb').LifeSpot;
 var LifeSpotEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

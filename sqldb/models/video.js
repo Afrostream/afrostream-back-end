@@ -1,6 +1,6 @@
 'use strict';
 
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
 var Q = require('q');
 

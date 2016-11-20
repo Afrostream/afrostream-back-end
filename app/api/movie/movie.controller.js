@@ -10,8 +10,8 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var algolia = rootRequire('/components/algolia');
+var sqldb = rootRequire('sqldb');
+var algolia = rootRequire('components/algolia');
 var Movie = sqldb.Movie;
 var Category = sqldb.Category;
 var Episode = sqldb.Episode;
@@ -20,8 +20,8 @@ var Image = sqldb.Image;
 var Licensor = sqldb.Licensor;
 var Video = sqldb.Video;
 var Actor = sqldb.Actor;
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
+var filters = rootRequire('app/api/filters.js');
+var utils = rootRequire('app/api/utils.js');
 
 var getIncludedModel = require('./movie.includedModel').get;
 

@@ -1,9 +1,9 @@
 'use strict';
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Config = sqldb.Config;
 
-var utils = rootRequire('/app/api/utils.js');
+var utils = rootRequire('app/api/utils.js');
 
 exports.showConfig = function (req, res) {
   Config.find({

@@ -1,7 +1,7 @@
 'use strict';
 
-var filters = rootRequire('/app/api/filters.js');
-var sqldb = rootRequire('/sqldb');
+var filters = rootRequire('app/api/filters.js');
+var sqldb = rootRequire('sqldb');
 var User = sqldb.User;
 var Movie = sqldb.Movie;
 

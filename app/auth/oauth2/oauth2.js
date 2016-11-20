@@ -2,12 +2,12 @@ var oauth2orize = require('oauth2orize');
 var passport = require('passport');
 var crypto = require('crypto');
 var utils = require('./utils');
-var config = rootRequire('/config');
-var Client = rootRequire('/sqldb').Client;
-var User = rootRequire('/sqldb').User;
-var AccessToken = rootRequire('/sqldb').AccessToken;
-var RefreshToken = rootRequire('/sqldb').RefreshToken;
-var Log = rootRequire('/sqldb').Log;
+var config = rootRequire('config');
+var Client = rootRequire('sqldb').Client;
+var User = rootRequire('sqldb').User;
+var AccessToken = rootRequire('sqldb').AccessToken;
+var RefreshToken = rootRequire('sqldb').RefreshToken;
+var Log = rootRequire('sqldb').Log;
 
 var TokenError = oauth2orize.TokenError;
 

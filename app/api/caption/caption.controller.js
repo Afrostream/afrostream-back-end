@@ -9,11 +9,11 @@
 
 'use strict';
 
-var aws = rootRequire('/aws');
-var sqldb = rootRequire('/sqldb');
+var aws = rootRequire('aws');
+var sqldb = rootRequire('sqldb');
 var Caption = sqldb.Caption;
 
-var utils = rootRequire('/app/api/utils.js');
+var utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;

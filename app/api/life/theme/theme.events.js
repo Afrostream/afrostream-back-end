@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var LifeTheme = rootRequire('/sqldb').LifeTheme;
+var LifeTheme = rootRequire('sqldb').LifeTheme;
 var LifeThemeEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

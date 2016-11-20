@@ -11,18 +11,18 @@
 
 var _ = require('lodash');
 var request = require('request');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Image = sqldb.Image;
 var LifePin = sqldb.LifePin;
 var LifeTheme = sqldb.LifeTheme;
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
+var filters = rootRequire('app/api/filters.js');
+var utils = rootRequire('app/api/utils.js');
 var Q = require('q');
 var Promise = sqldb.Sequelize.Promise;
 var mediaParser = require('media-parser');
 var MetaInspector = require('node-metainspector');
-var aws = rootRequire('/aws');
-var config = rootRequire('/config');
+var aws = rootRequire('aws');
+var config = rootRequire('config');
 var fileType = require('file-type');
 var md5 = require('md5');
 

@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 var Q = require('q');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var UsersVideos = sqldb.UsersVideos;
 
 module.exports.update = function (req, res) {

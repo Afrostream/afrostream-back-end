@@ -1,7 +1,7 @@
 'use strict';
 
 var moment = require('moment');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Log = sqldb.Log;
 var User = sqldb.User;
 var Client = sqldb.Client;

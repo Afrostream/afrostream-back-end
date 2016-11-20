@@ -1,9 +1,9 @@
 'use strict';
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Video = sqldb.Video;
 
-var pf = rootRequire('/pf');
+var pf = rootRequire('pf');
 
 module.exports.contents = function (req, res) {
   var closure = {};

@@ -1,4 +1,4 @@
-var Country = rootRequire('/sqldb').Country;
+var Country = rootRequire('sqldb').Country;
 
 module.exports = function (options) {
   options = options || {};

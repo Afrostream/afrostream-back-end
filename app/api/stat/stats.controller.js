@@ -1,6 +1,6 @@
 'use strict';
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var User = sqldb.User;
 var AccessToken = sqldb.AccessToken;
 

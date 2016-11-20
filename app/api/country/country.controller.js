@@ -9,7 +9,7 @@
 
 'use strict';
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Country = sqldb.Country;
 
 // Gets a list of comments

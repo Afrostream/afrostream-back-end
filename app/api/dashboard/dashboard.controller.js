@@ -9,7 +9,7 @@
 
 'use strict';
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Promise = sqldb.Sequelize.Promise;
 
 // Gets a list of images

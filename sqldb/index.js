@@ -6,7 +6,7 @@
 
 var assert = require('better-assert');
 var _ = require('lodash');
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
 var Sequelize = require('sequelize');
 

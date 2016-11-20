@@ -2,16 +2,16 @@
 
 var passport = require('passport');
 var oauth2 = require('./oauth2/oauth2');
-var config = rootRequire('/config');
+var config = rootRequire('config');
 var compose = require('composable-middleware');
-var User = rootRequire('/sqldb').User;
+var User = rootRequire('sqldb').User;
 
 var Q = require('q');
 
-var middlewarePassport = rootRequire('/app/middlewares/middleware-passport.js');
-var middlewareBroadcaster = rootRequire('/app/middlewares/middleware-broadcaster.js');
-var middlewareCountry = rootRequire('/app/middlewares/middleware-country.js');
-var middlewareHackBox = rootRequire('/app/middlewares/middleware-hack-box.js');
+var middlewarePassport = rootRequire('app/middlewares/middleware-passport.js');
+var middlewareBroadcaster = rootRequire('app/middlewares/middleware-broadcaster.js');
+var middlewareCountry = rootRequire('app/middlewares/middleware-country.js');
+var middlewareHackBox = rootRequire('app/middlewares/middleware-hack-box.js');
 
 /**
  * Attaches the user object to the request if authenticated

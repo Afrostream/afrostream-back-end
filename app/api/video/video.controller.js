@@ -10,7 +10,7 @@
 'use strict';
 
 var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Asset = sqldb.Asset;
 var Video = sqldb.Video;
 var Movie = sqldb.Movie;
@@ -23,12 +23,12 @@ var Promise = sqldb.Sequelize.Promise;
 
 var Q = require('q');
 
-var utils = rootRequire('/app/api/utils.js');
+var utils = rootRequire('app/api/utils.js');
 
-var billingApi = rootRequire('/billing-api.js');
+var billingApi = rootRequire('billing-api.js');
 
-var cdnselector = rootRequire('/cdnselector');
-var pf = rootRequire('/pf');
+var cdnselector = rootRequire('cdnselector');
+var pf = rootRequire('pf');
 
 var User = sqldb.User;
 var Client = sqldb.Client;

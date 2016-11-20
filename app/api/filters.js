@@ -3,7 +3,7 @@
 var assert = require('assert');
 
 var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Promise = sqldb.Sequelize.Promise;
 var utils = require('./utils.js');
 

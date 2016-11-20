@@ -1,6 +1,6 @@
 'use strict';
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var LifeSpot = sqldb.LifeSpot;
 //var LifeThemePins = sqldb.LifeThemePins;
 var LifePin = sqldb.LifePin;

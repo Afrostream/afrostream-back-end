@@ -2,7 +2,7 @@
 
 var Q = require('q');
 
-var AccessToken = rootRequire('/sqldb').AccessToken;
+var AccessToken = rootRequire('sqldb').AccessToken;
 
 /**
  * extracting token from :

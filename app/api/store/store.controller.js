@@ -11,12 +11,12 @@
 
 var _ = require('lodash');
 var assert = require('better-assert');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var Store = sqldb.Store;
 var Promise = sqldb.Sequelize.Promise;
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
-var config = rootRequire('/config');
+var filters = rootRequire('app/api/filters.js');
+var utils = rootRequire('app/api/utils.js');
+var config = rootRequire('config');
 var request = require('request');
 
 var logger = rootRequire('logger').prefix('STORE');

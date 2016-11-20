@@ -1,9 +1,9 @@
 var bluebird = require('bluebird');
 var passport = require('passport');
 var OrangeStrategy = require('./passport/');
-var billingApi = rootRequire('/billing-api.js');
+var billingApi = rootRequire('billing-api.js');
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var AccessToken = sqldb.AccessToken;
 
 /**

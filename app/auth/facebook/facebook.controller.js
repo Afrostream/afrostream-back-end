@@ -4,7 +4,7 @@ var Q = require('q');
 var _ = require('lodash');
 var passport = require('passport');
 var oauth2 = require('../oauth2/oauth2');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var User = sqldb.User;
 
 /**

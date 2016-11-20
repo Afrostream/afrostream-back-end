@@ -5,7 +5,7 @@
 'use strict';
 
 var EventEmitter = require('events').EventEmitter;
-var Language = rootRequire('/sqldb').Language;
+var Language = rootRequire('sqldb').Language;
 var LanguageEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)

@@ -7,12 +7,12 @@ var _ = require('lodash');
 var Q = require('q')
   , request = require('request');
 
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
 if (process.env.NODE_ENV === 'development' ||
   process.env.NODE_ENV === 'test') {
   // MOCKING API
-  rootRequire('/test/mock-billing-api.js');
+  rootRequire('test/mock-billing-api.js');
 }
 
 var logger = rootRequire('logger').prefix('BILLING-API');

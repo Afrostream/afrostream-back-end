@@ -1,6 +1,6 @@
 'use strict';
 
-var cdnselector = rootRequire('/cdnselector');
+var cdnselector = rootRequire('cdnselector');
 
 exports.getList = function (req, res) {
   // FIXME: to be removed
