@@ -32,18 +32,13 @@ var getIncludedModel = require('./pin.includedModel').get;
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
     return function (entity) {
-        if (entity) {
-            res.status(statusCode).json(entity);
-        }
+      res.status(statusCode).json(entity);
     };
 }
 
 function saveUpdates (updates) {
     return function (entity) {
-        return entity.updateAttributes(updates)
-            .then(function (updated) {
-                return updated;
-            });
+        return entity.updateAttributes(updates);
     };
 }
 
@@ -73,12 +68,10 @@ function updateUser (updates, req) {
 
 function removeEntity (res) {
     return function (entity) {
-        if (entity) {
-            return entity.destroy()
-                .then(function () {
-                    res.status(204).end();
-                });
-        }
+      return entity.destroy()
+          .then(function () {
+              res.status(204).end();
+          });
     };
 }
 
@@ -211,7 +204,6 @@ exports.scrap = function (req, res) {
                 });
 
                 client.on('error', function (err) {
-                    console.log(err);
                     reject(err);
                 });
 
@@ -228,27 +220,22 @@ exports.create = function (req, res) {
         injectData: req.body
     };
 
-    Q.fcall(function () {
-        //EXTRACT IMAGE
-        if (req.body.imageUrl) {
-            return new Promise(function (resolve, reject) {
-                request({url: req.body.imageUrl, encoding: null}, function (err, res, buffer) {
-                    if (err) {
-                        console.log('[ PIN ] cant extract image');
-                        reject(err)
-                    }
-                    var typeOfFile = fileType(buffer);
-                    var name = md5(buffer);
-                    resolve({name: name, buffer: buffer, mimeType: typeOfFile.mime});
+    Q()
+      .then(function () {
+          //EXTRACT IMAGE
+          if (req.body.imageUrl) {
+            Q.nfcall(request, {url: req.body.imageUrl, encoding: null})
+              .then(function (data) {
+                var res = data[0];
+                var buffer = data[1];
 
-                });
-            });
-        } else {
-            return null;
-        }
-    })
-
-
+                var typeOfFile = fileType(buffer);
+                var name = md5(buffer);
+                return {name: name, buffer: buffer, mimeType: typeOfFile.mime};
+              });
+          }
+          return null;
+      })
     //SAVE Buffer
         .then(function (file) {
             if (!file) {
@@ -269,7 +256,6 @@ exports.create = function (req, res) {
                     };
                     return c.injectData.image;
                 });
-
         })
         .then(function (image) {
             if (!image) {

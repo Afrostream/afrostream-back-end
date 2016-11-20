@@ -5,6 +5,12 @@ var _ = require('lodash');
 var algoliasearch = require('algoliasearch');
 var client = algoliasearch(config.algolia.appId, config.algolia.apiKey);
 
+var logger = rootRequire('logger').prefix('ALGOLIA');
+
+// FIXME: refactorer tout ca ...
+// les handlers d'error ne retournent rien ! (pas de fwd de l'erreur ??);
+//   ne passe pas par le handler d'error generique
+//   (etc...)
 exports = module.exports = {
   importAll: function (res, indexName) {
     return function (entitys) {
@@ -21,14 +27,8 @@ exports = module.exports = {
         return saveAsync(datas).then(function (items) {
           return items;
         }).catch(function (err) {
-          console.log(err)
+          logger.error(err)
         });
-        //}).then(function (importeds) {
-        //  console.log(importeds)
-        //  return importeds;
-        //}).catch(function (err) {
-        //  console.log(err)
-        //});
       }
     }
   },

@@ -24,6 +24,8 @@ exports.setup = function (User, config) {
       var email = profile.emails && profile.emails[0] && profile.emails[0].address;
       var bouyguesUser, state; // closures.
 
+      var logger = req.logger.prefix('AUTH').prefix('BOUYGUES').prefix('PASSPORT');
+
       bluebird.resolve(42)
         .then(function () {
           // parsing state
@@ -31,11 +33,11 @@ exports.setup = function (User, config) {
           // setting signup client type
           req.signupClientType = state.signupClientType || null;
           // logs
-          console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: state = ' + JSON.stringify(state));
-          console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: signupClientType = ' + req.signupClientType);
+          logger.log('state = ' + JSON.stringify(state));
+          logger.log('signupClientType = ' + req.signupClientType);
         })
         .then(function () {
-          console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: search bouygues user in DB using profile id = ' + profile.id);
+          logger.log('search bouygues user in DB using profile id = ' + profile.id);
           // search bouygues corresponding user in database
           return User.find({
             where: {
@@ -48,13 +50,13 @@ exports.setup = function (User, config) {
 
           // logs
           if (bouyguesUser) {
-            console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: bouyguesUser found:' + bouyguesUser._id);
+            logger.log('bouyguesUser found:' + bouyguesUser._id);
           } else {
-            console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: bouyguesUser not found');
+            logger.log('bouyguesUser not found');
           }
 
           // 3 CAS
-          console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: status='+state.status);
+          logger.log('status='+state.status);
           switch (state.status) {
             /*
              * LINK
@@ -67,7 +69,7 @@ exports.setup = function (User, config) {
               // on se sert de cet accessToken récupéré dans /auth/bouygues/callback
               // pour re-authentifier l'utilisateur
               var token = state.accessToken;
-              console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: link: accessToken='+token);
+              logger.log('link: accessToken='+token);
               if (!token) {
                 throw new Error("link: missing accessToken");
               }
@@ -76,7 +78,7 @@ exports.setup = function (User, config) {
                   if (!accessToken) {
                     throw new Error("link: cannot find accessToken " + token);
                   }
-                  console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: link: accessToken found, searching user');
+                  logger.log('link: accessToken found, searching user');
                   // l'access-token existe, on cherche l'utilisateur lié
                   return accessToken.getUser();
                 })
@@ -87,7 +89,7 @@ exports.setup = function (User, config) {
                   if (bouyguesUser && bouyguesUser._id !== user._id) {
                     throw new Error('link: Your profile is already linked to another user');
                   }
-                  console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: link: user ' + user._id + ' found, asking the billing');
+                  logger.log('link: user ' + user._id + ' found, asking the billing');
                   return user;
                 });
             /*
@@ -98,7 +100,7 @@ exports.setup = function (User, config) {
               if (!bouyguesUser) {
                 throw new Error("signin: No user found, please associate your profile after being connected'");
               }
-              console.log('[WARNING]: [AUTH]: [BOUYGUES]: passport: signin: bouygues user exist (' + bouyguesUser._id + ') => SIGNIN');
+              logger.warn('signin: bouygues user exist (' + bouyguesUser._id + ') => SIGNIN');
               return bouyguesUser;
             /*
              * SIGNUP
@@ -108,7 +110,7 @@ exports.setup = function (User, config) {
              */
             case 'signup':
               if (bouyguesUser) {
-                console.log('[WARNING]: [AUTH]: [BOUYGUES]: passport: signup: bouygues user already exist => SIGNIN');
+                logger.warn('signup: bouygues user already exist => SIGNIN');
                 return bouyguesUser;
               }
               // on le cherche en base, il existe chez nous
@@ -118,10 +120,10 @@ exports.setup = function (User, config) {
                 }
               }).then(function (user) {
                 if (user) {
-                  console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: signup: user found using email ' + email + ' => UPDATE => SIGNUP');
+                  logger.log('signup: user found using email ' + email + ' => UPDATE => SIGNUP');
                   return user;
                 } else {
-                  console.log('[INFO]: [AUTH]: [BOUYGUES]: passport: signup: user not found using email ' + email + ' => CREATE => SIGNUP');
+                  logger.log('signup: user not found using email ' + email + ' => CREATE => SIGNUP');
                   return User.create({
                     name: profile.displayName,
                     email: email,
@@ -140,8 +142,8 @@ exports.setup = function (User, config) {
         // we create the user in the billing-api if he doesn't exist yet
         //
         .then(function (user) {
-          console.log('[INFO]: [AUTH]: [BOUYGUES]: update billingApi userReferenceUuid=' + user._id);
-          console.log('[INFO]: [AUTH]: [BOUYGUES]: update billingApi userProviderUuid=' + user.bouyguesId);
+          logger.log('update billingApi userReferenceUuid=' + user._id);
+          logger.log('update billingApi userProviderUuid=' + user.bouyguesId);
           return billingApi.getOrCreateUser({
             providerName: 'bouygues',
             userReferenceUuid: user._id,
@@ -159,7 +161,7 @@ exports.setup = function (User, config) {
           switch (state.status) {
             case 'link':
             case 'signup':
-            console.log('[INFO]: [AUTH]: [BOUYGUES]: link|signup: saving cpeid, bouygues, name into user');
+            logger.log('link|signup: saving cpeid, bouygues, name into user');
               // l'utilisateur de cet accessToken existe,
               // on update les infos de compte
               user.name = user.name || profile.displayName;
@@ -173,7 +175,7 @@ exports.setup = function (User, config) {
         .then(
           function success(user) { return user; },
           function error(err) {
-            console.error('[ERROR]: [AUTH]: [BOUYGUES]: passport: '+err.message, err);
+            logger.error(err.message, err);
             throw err; // forwarding the error.
           }
         )

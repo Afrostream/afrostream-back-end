@@ -61,7 +61,7 @@ module.exports.drmtodayCallback = function (req, res, next) {
     })
     .then(
       function success(video) {
-        console.log('DRM: ' + req.originalUrl + ' granted !');
+        req.logger.log('DRM: ' + req.originalUrl + ' granted !');
         res.json({
           "accountingId": userId + ":" + video._id + ":" + video.name,
           "profile": {
@@ -74,7 +74,7 @@ module.exports.drmtodayCallback = function (req, res, next) {
         });
       },
       function error(err) {
-        console.error('DRM: ' + req.originalUrl + ' not granted with the error ', err);
+        req.logger.error('DRM: ' + req.originalUrl + ' not granted with the error ', err.message);
         res.json({
           message: 'not granted',
           redirectUrl: 'https://afrostream.tv' // FIXME.

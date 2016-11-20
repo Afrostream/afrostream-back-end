@@ -11,6 +11,9 @@ var sqldb = rootRequire('/sqldb')
 
 var anr = require('afrostream-node-request');
 
+// fixme: this dependency should be injected
+var logger = rootRequire('logger').prefix('PF');
+
 // wrapper
 var requestPF = (function (options) {
   var request = anr.create({
@@ -23,7 +26,7 @@ var requestPF = (function (options) {
   return function (options) {
     var readableQueryString = Object.keys(options.qs || []).map(function (k) { return k + '=' + options.qs[k]; }).join('&');
     var readableUrl = config.pf.url + options.uri + (readableQueryString?'?' + readableQueryString:'');
-    console.log('[INFO]: [REQUEST-PF]: ' + readableUrl);
+    logger.log(readableUrl);
 
     return request(options).then(function (data) {
       return data[1]; // body
@@ -61,7 +64,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
        throw new Error('[PF]: no content found');
      }
      if (pfContents.length > 1) {
-       console.log('[WARNING]: [PF]: multiple content (' + pfContents.length + ') found');
+       logger.warn('multiple content (' + pfContents.length + ') found');
      }
      // returning first content.
      that.pfContent = pfContents[0];
@@ -93,7 +96,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
         throw new Error('[PF]: no content found');
       }
       if (pfContents.length > 1) {
-        console.log('[WARNING]: [PF]: multiple content (' + pfContents.length + ') found');
+        logger.warn('multiple content (' + pfContents.length + ') found');
       }
       // returning first content.
       that.pfContent = pfContents[0];
@@ -242,7 +245,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
         var contentType = pfTypeToContentType[manifest.type];
 
         if (!contentType) {
-          console.error('[ERROR]: [PF]: '+that.pfContent.contentId+'|'+that.pfBroadcasterName+' unknown manifest type: ' + manifest.type, manifests);
+          logger.error(that.pfContent.contentId+'|'+that.pfBroadcasterName+' unknown manifest type: ' + manifest.type, manifests);
         }
         return {
           src: manifest.url,

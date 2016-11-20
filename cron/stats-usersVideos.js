@@ -10,7 +10,9 @@ var config = rootRequire('/config');
 var sqldb = rootRequire('/sqldb');
 var Q = require('q');
 
-console.log('[INFO]: [CRON]: stats-usersVideos start');
+var logger = rootRequire('logger').prefix('CRON').prefix('STATS-USERSVIDEOS');
+
+logger.log('start');
 
 var requireText = function (filename) {
   var fs = require('fs');
@@ -43,38 +45,38 @@ Q.all([
   sqldb.sequelize.query(queryTop5ViewsLast7Days),
   sqldb.sequelize.query(queryTop5ViewsLastDay)
 ]).then(function (results) {
-  console.log('[INFO]: [CRON]: stats-usersVideos query done');
+  logger.log('query done');
 
   // analyse query 1
   if (Array.isArray(results[0][0]) && results[0][0].length) {
-    console.log('Top 5 du contenu (rating utilisateur) sur les 7 derniers jours : #stats');
+    logger.log('Top 5 du contenu (rating utilisateur) sur les 7 derniers jours : #stats');
     results[0][0].filter(function (row) {
       return row && row.avgRatings && row.name && row.nbRatings
     }).forEach(function (row) {
       var sharingUrl = baseFrontEndUrl + '/sharing/video/' + row.videoId;
-      console.log(' - Rating: ' + (Math.round(row.avgRatings* 100) / 100) + ' -> ' + row.name + ' (' + row.nbRatings + ' Users) | '+sharingUrl+' #stats');
+      logger.log(' - Rating: ' + (Math.round(row.avgRatings* 100) / 100) + ' -> ' + row.name + ' (' + row.nbRatings + ' Users) | '+sharingUrl+' #stats');
     });
   }
   // analyse query 2
   if (Array.isArray(results[1][0]) && results[1][0].length) {
-    console.log('Top 5 des visualisations sur les 7 derniers jours : #stats');
+    logger.log('Top 5 des visualisations sur les 7 derniers jours : #stats');
     results[1][0].forEach(function (row) {
       var sharingUrl = baseFrontEndUrl + '/sharing/video/' + row.videoId;
-      console.log(' - ' + row.nbUsers + ' Users -> ' + row.name + ' | '+sharingUrl+' #stats');
+      logger.log(' - ' + row.nbUsers + ' Users -> ' + row.name + ' | '+sharingUrl+' #stats');
     });
   }
   // analyse query 2
   if (Array.isArray(results[2][0]) && results[2][0].length) {
-    console.log('Top 5 des visualisations hier : #stats');
+    logger.log('Top 5 des visualisations hier : #stats');
     results[2][0].forEach(function (row) {
       var sharingUrl = baseFrontEndUrl + '/sharing/video/' + row.videoId;
-      console.log(' - ' + row.nbUsers + ' Users -> ' + row.name + ' | '+sharingUrl+' #stats');
+      logger.log(' - ' + row.nbUsers + ' Users -> ' + row.name + ' | '+sharingUrl+' #stats');
     });
   }
 }).then(function () {
-  console.log('[INFO]: [CRON]: stats-usersVideos stop');
+  logger.log('stop');
   process.exit();
 }, function (e) {
-  console.error('[ERROR]: [CRON]: stats-usersVideos ' + e, e);
+  logger.error(e.message);
   process.exit();
 });

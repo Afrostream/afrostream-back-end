@@ -27,21 +27,6 @@ var utils = require('../utils.js');
 
 var filters = rootRequire('/app/api/filters.js');
 
-function validationError(res, statusCode) {
-  statusCode = statusCode || 422;
-  return function (err) {
-    console.error('/api/users/: error: validationError: ', err);
-    res.status(statusCode).json({error: String(err)});
-  }
-}
-
-function respondWith(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function () {
-    res.status(statusCode).end();
-  };
-}
-
 /**
  * Get list of users
  * restriction: 'admin'
@@ -97,9 +82,10 @@ exports.create = function (req, res, next) {
             //  pour ce bouyguesId sans risquer une erreur sur l'index unique de l'email
             if (user && user.bouyguesId && // user existe en base
                 req.body.bouyguesId !== user.bouyguesId) { // bouyguesId différent
-              console.warn('[WARNING]: [BOUYGUES]: [USERS]: try create user ' + req.body.email + ' / ' + req.body.bouyguesId);
-              console.warn('[WARNING]: [BOUYGUES]: [USERS]: but user '+ user._id + ' / ' + user.bouyguesId + ' already exist with this email');
-              console.warn('[WARNING]: [BOUYGUES]: [USERS]: => removing email from req.body, to create new user with bouyguesId ' + req.body.bouyguesId);
+              var logger = req.logger.prefix('USERS').prefix('BOUYGUES');
+              logger.warn('try create user ' + req.body.email + ' / ' + req.body.bouyguesId);
+              logger.warn('but user '+ user._id + ' / ' + user.bouyguesId + ' already exist with this email');
+              logger.warn('=> removing email from req.body, to create new user with bouyguesId ' + req.body.bouyguesId);
               req.body.email = null; // va permettre la création
             }
           });
@@ -134,7 +120,7 @@ exports.create = function (req, res, next) {
         });
     })
     .then(res.json.bind(res))
-    .catch(validationError(res));
+    .catch(res.handleError(422));
 };
 
 exports.search = function (req, res, next) {
@@ -229,7 +215,7 @@ exports.update = function (req, res) {
   // FIXME: security: we should ensure bouyguesId could only be updated by bouygues client.
   req.user.save()
     .then(function () { res.json(req.user.getInfos()); })
-    .catch(validationError(res));
+    .catch(res.handleError(422));
 };
 
 /**
@@ -349,18 +335,17 @@ exports.auth0ChangePassword = function (req, res, next) {
   })
     .then(function (user) {
       if (!user) {
-        return res.status(422).end();
+        throw new Error('user not found');
       }
       user.password = newPass;
-      return user.save()
-        .then(function () {
-          res.json(user.getInfos());
-        })
-        .catch(validationError(res));
+      return user.save();
     })
-    .catch(function (err) {
-      return validationError(err);
-    });
+    .then(
+      function (user) {
+        res.json(user.getInfos());
+      },
+      res.handleError(422)
+    );
 };
 /**
  * Change a users password
@@ -376,17 +361,18 @@ exports.changePassword = function (req, res, next) {
     }
   })
     .then(function (user) {
-      if (user.authenticate(oldPass)) {
-        user.password = newPass;
-        return user.save()
-          .then(function () {
-            res.status(200).end();
-          })
-          .catch(validationError(res));
-      } else {
-        return res.status(403).end();
+      if (!user.authenticate(oldPass)) {
+        var error = new Error('wrong password');
+        error.statusCode = 403;
+        throw error;
       }
-    });
+      user.password = newPass;
+      return user.save();
+    })
+    .then(
+      function () { res.status(200).end(); },
+      res.handleError(422)
+    );
 };
 
 /**
@@ -403,18 +389,20 @@ exports.changeRole = function (req, res) {
   })
     .then(function (user) {
       user.role = role;
-      return user.save()
-        .then(function () {
-          res.status(200).end();
-        })
-        .catch(validationError(res));
-    });
+      return user.save();
+    })
+    .then(
+      function () { res.status(200).end(); },
+      res.handleError(422)
+    );
 };
-/**
- * Change a users role
+
+/*
+ * FIXME: a quoi sert cette fonction ???
+ *  avant le refacto, elle ne faisait déjà rien
+ *   (user.save() d'un user non modifié)
  */
 exports.verify = function (req, res) {
-
   var userMail = req.param('email');
   User.find({
     where: {
@@ -423,17 +411,14 @@ exports.verify = function (req, res) {
   })
     .then(function (user) {
       if (!user) {
-        return res.status(422).end();
+        throw new Error('user not found');
       }
-      return user.save()
-        .then(function () {
-          res.json(user.getInfos());
-        })
-        .catch(validationError(res));
+      return user;
     })
-    .catch(function (err) {
-      return validationError(err);
-    });
+    .then(
+      function (user) { res.json(user.getInfos()); },
+      res.handleError(422)
+    );
 };
 
 /**
@@ -452,14 +437,11 @@ exports.me = function (req, res) {
       userInfos.planCode = subscriptionsStatus ? subscriptionsStatus.planCode : undefined;
     }, function () {
       // utilisateur inscrit mais non abonné
-      console.log('[INFO]: /api/users/me: user registered but no subscriptions (' + req.user._id + ')');
+      req.logger.log('[INFO]: /api/users/me: user registered but no subscriptions (' + req.user._id + ')');
     })
     .then(
     function success() { res.json(userInfos); },
-    function error(err) {
-      console.error('[ERROR]: /api/users/me: ' + err, err);
-      res.status(err.statusCode || 500).json({error:String(err)});
-    }
+    res.handleError()
   );
 };
 

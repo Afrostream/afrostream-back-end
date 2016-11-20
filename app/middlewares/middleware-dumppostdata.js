@@ -1,6 +1,9 @@
 'use strict';
 
 module.exports = function (options) {
+  var options = options || {};
+  options.logger = options.logger || console;
+
   return function (req, res, next) {
     if (req && req.body) {
       try {
@@ -16,7 +19,7 @@ module.exports = function (options) {
             if (body.month) body.month = 1;
           }
           if (body.cvv) { body.cvv = '123'; }
-          console.log('[INFO]: ' + req.method + ' ' + req.url + ' body=', body);
+          (req.logger || options.logger).log('[MIDDLEWARE-DUMPPOSTDATA]: ' + req.method + ' ' + req.url + ' body=', body);
         }
       } catch (e) { }
     }

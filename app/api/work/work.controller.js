@@ -62,7 +62,6 @@ exports.index = function (req, res) {
       }
     })
   }
-  console.log('slug:' + slug);
 
   if (slug) {
     queryOptions = _.merge(queryOptions, {

@@ -10,7 +10,9 @@ var config = rootRequire('/config');
 var sqldb = rootRequire('/sqldb');
 var Q = require('q');
 
-console.log('[INFO]: [CRON]: daily-queries start');
+logger = rootRequire('logger').prefix('CRON').prefix('DAILY-QUERIES');
+
+logger.log('start');
 
 var requireText = function (filename) {
   var fs = require('fs');
@@ -26,15 +28,15 @@ var queries = files.map(requireText);
 
 // logs
 queries.forEach(function (q, i) {
-  console.log('[INFO]: [CRON]: query ' + i + '=' + q);
+  logger.log(i + '=' + q);
 });
 
 Q.all(
   queries.map(function (q) { return sqldb.sequelize.query(q); })
 ).then(function (result) {
-  console.log('[INFO]: [CRON]: daily-queries stop');
+  logger.log('stop');
   process.exit();
 }, function (e) {
-  console.error('[ERROR]: [CRON]: daily-queries ' + e, e);
+  logger.error(e.message);
   process.exit();
 });

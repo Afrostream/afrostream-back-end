@@ -9,6 +9,8 @@ var btoa = require('btoa');
 
 var Q = require('q');
 
+const logger = rootRequire('logger').prefix('JOBS');
+
 /**
  * post a job
  *
@@ -25,7 +27,7 @@ function create(type, data, options, callback) {
   var defaultBackoffType ='fixed';
 
   // log all jobs I/O
-  console.log('JOBS: create:', type, data, options);
+  logger.log('create:', type, data, options);
   return Q.nfcall(request, {
     uri: config.client.jobs.api +'/job',
     method: 'POST',
@@ -52,8 +54,8 @@ function create(type, data, options, callback) {
       }
       return body;
     })
-    .then(function success(result) { console.log('JOBS: create: OK', result[1]); return result; },
-          function error(err) { console.error('JOBS: create: error=', err); throw err; });
+    .then(function success(result) { logger.log('create: OK', result[1]); return result; },
+          function error(err) { logger.error('create: error=', err); throw err; });
 }
 
 module.exports.create = create;

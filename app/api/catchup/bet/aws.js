@@ -7,6 +7,8 @@ var Q = require('q')
 
 var aws = rootRequire('/aws.js');
 
+var logger = rootRequire('logger').prefix('CATCHUP');
+
 /**
  * save the xml content into aws s3 bucket 'tracks.afrostream.tv'
  *   in directory  {env}/catchup/xml/{pfContentId}-{name} where name is the end of xml filename.
@@ -22,7 +24,7 @@ var saveXmlToBucket = function (catchupProviderId, pfContentId, xmlUrl) {
     var name = url.parse(xmlUrl).pathname.split('/').pop();
     return aws.putBufferIntoBucket(bucket, new Buffer(xml), 'text/xml', '{env}/catchup/xml/' + pfContentId + '-' + name)
       .then(function (awsInfos) {
-        console.log('catchup: '+catchupProviderId+': '+pfContentId+': xml '+xmlUrl+' was imported to '+awsInfos.req.url);
+        logger.log(catchupProviderId+': '+pfContentId+': xml '+xmlUrl+' was imported to '+awsInfos.req.url);
         return xml;
       });
   });
@@ -34,7 +36,7 @@ var saveCaptionToBucket = function (catchupProviderId, pfContentId, captionUrl) 
     var name = url.parse(captionUrl).pathname.split('/').pop();
     return aws.putBufferIntoBucket(bucket, new Buffer(caption), 'application/octet-stream', '{env}/catchup/captions/' + pfContentId + '-' + name)
       .then(function (awsInfos) {
-        console.log('catchup: '+catchupProviderId+': '+pfContentId+': caption '+captionUrl+' was imported to '+awsInfos.req.url);
+        logger.log(catchupProviderId+': '+pfContentId+': caption '+captionUrl+' was imported to '+awsInfos.req.url);
         return awsInfos.req.url;
       });
   });

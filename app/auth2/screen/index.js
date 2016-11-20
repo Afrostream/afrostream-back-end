@@ -21,10 +21,10 @@ var redisTouchScreen = function (screenUUID, userId) {
 rouger.get('/current',
   function debugInputs(req, res, next) {
     if (!req.cookies.screen) {
-      console.log('/auth/screens/current: no cookie');
+      req.logger.log('no cookie');
     }
     if (req.cookies.screen && req.cookies.screen.expire > Date.now()) {
-      console.log('/auth/screens/current: cookie expired');
+      req.logger.log('cookie expired');
     }
     next();
   },

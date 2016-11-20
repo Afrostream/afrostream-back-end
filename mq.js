@@ -11,13 +11,16 @@ var exchangeName = config.mq.exchangeName;
 
 var localQueue = [];
 
+// fixme: we should inject this dependency
+var logger = rootRequire('logger').prefix('MQ');
+
 mq.send = function (data) {
   try {
     mq.channel.publish(exchangeName, '', new Buffer(JSON.stringify(data)));
-    console.log('[INFO]: [MQ]: send ' + JSON.stringify(data));
+    logger.log('send ' + JSON.stringify(data));
   } catch (e) {
     if (config.mq.displayErrors) {
-      console.error('[ERROR]: [MQ]: [mq-published]: send ' + e + ', stacking message');
+      logger.error('[mq-published]: send ' + e + ', stacking message');
     }
     setImmediate(function () {
       localQueue.push(JSON.parse(JSON.stringify(data)));
@@ -33,7 +36,7 @@ mq.send = function (data) {
 mq.on('channel.opened', function () {
   mq.channel.assertExchange(exchangeName, 'fanout', { durable: true });
   // drain localQueue
-  console.log('[INFO]: [MQ]: channel.opened: draining ' + localQueue.length + ' messages');
+  logger.log('channel.opened: draining ' + localQueue.length + ' messages');
   localQueue.forEach(function (message) {
     mq.send(message);
   });

@@ -15,13 +15,9 @@ var login = function (req, res, next) {
       return auth.getOauth2UserTokens(user, req.clientIp, req.userAgent);
     })
     .then(
-    function success(tokens) {
-      res.json(tokens);
-    },
-    function error(err) {
-      console.error('/auth/local/: error: ' + err, err);
-      return res.status(401).json({message: String(err)});
-    });
+      res.json.bind(res),
+      res.handleError(401)
+    );
   })(req, res, next)
 };
 

@@ -39,7 +39,7 @@ module.exports.update = function (req, res) {
       // temp fix: translating the data.
       var translationTable = { 'fr': 'fra', 'en': 'eng' };
       if (data.playerCaption && typeof translationTable[data.playerCaption] !== 'undefined') {
-        console.log('[WARNING]: [API]: ' + req.originalUrl + ' playerCaption was translated from '+data.playerCaption+ ' to ' + translationTable[data.playerCaption]);
+        req.logger.warn(req.originalUrl + ' playerCaption was translated from '+data.playerCaption+ ' to ' + translationTable[data.playerCaption]);
         data.playerCaption = translationTable[data.playerCaption];
       }
       if (typeof data.playerCaption === 'string' && data.playerCaption.length !== 3) {

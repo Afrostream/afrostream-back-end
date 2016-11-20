@@ -3,6 +3,9 @@ var Q = require('q');
 var Country = rootRequire('/sqldb').Country;
 
 module.exports = function (options) {
+  var options = options || {};
+  options.logger = options.logger || console;
+
   return function (req, res, next) {
     /**
      * Default country is "unknown" <=> "--"
@@ -20,7 +23,7 @@ module.exports = function (options) {
         function success() { next(); },
         function error(err) {
         req.country = null;
-        console.error('[ERROR]: [MIDDLEWARE-COUNTRY]: cannot find country ' + err.message);
+        (req.logger || options.logger).error('[MIDDLEWARE-COUNTRY]: cannot find country ' + err.message);
         next();
       });
   }

@@ -20,7 +20,7 @@ var updateUserName = function (req, c) {
         .then(function (user) {
             return user;
         }, function (err) {
-            console.error('ERROR: /api/billing/#updateUserName(): ' + err, req.headers);
+            req.logger.error(err.message, req.headers);
             return null;
         });
 };

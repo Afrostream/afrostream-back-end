@@ -39,6 +39,8 @@ var pf = rootRequire('/pf');
 var User = sqldb.User;
 var Client = sqldb.Client;
 
+var logger = rootRequire('logger').prefix('VIDEO');
+
 var getIncludedModel = function () {
   return [
     {model: Movie, as: 'movie'}, // load all sources assets
@@ -239,14 +241,17 @@ exports.show = function (req, res) {
   // |- recherche du content dans la PF
   // - verification
 
+  // specific logger
+  var logger = req.logger.prefix('VIDEO');
+
   Q()
     .then(function () {
       // security & checks
       ensureAccessToVideo(req);
       //
-      console.log('[INFO]: [VIDEO]: client.type='+req.passport.client.get('type'));
-      console.log('[INFO]: [VIDEO]: broadcaster.pfName='+req.broadcaster.get('pfName'));
-      console.log('[INFO]: [VIDEO]: req.user._id=' + req.user._id);
+      logger.log('client.type='+req.passport.client.get('type'));
+      logger.log('broadcaster.pfName='+req.broadcaster.get('pfName'));
+      logger.log('req.user._id=' + req.user._id);
     })
     .then(function () {
       // READ VIDEO
@@ -272,7 +277,7 @@ exports.show = function (req, res) {
                   throw new Error('missing pfMd5Hash, cannot fallback to Assets table');
                 }
                 // on imite le retour de la pf
-                console.log('[INFO]: [VIDEO]: missing pfMd5Hash, fallback to Assets');
+                logger.log('missing pfMd5Hash, fallback to Assets');
                 closure.pfAssetsStreams = [];
                 closure.pfManifests = sources.map(function (source) {
                   return {
@@ -318,7 +323,7 @@ exports.show = function (req, res) {
       //! FIXME: HOTFIX 10/10/2016 live bet down.
       // on hydrate l'objet vidéo avec de la data
       if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
-        console.log('[WARNING]: [VIDEO]: live: faking sources');
+        logger.warn('live: faking sources');
         video.sources = [
           {
             src: "/live/betdev.isml/bet.m3u8",
@@ -350,7 +355,7 @@ exports.show = function (req, res) {
         // hack staging cdnselector orange (testing)
         if (process.env.NODE_ENV === 'staging' && req.query.from === 'afrostream-orange-staging') {
           source.src = 'https://orange-labs.cdn.afrostream.net' + source.src;
-          console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: cdn-orange: source = ' + source.src);
+          logger.log('[CDNSELECTOR]: cdn-orange: source = ' + source.src);
           return;
         }
         // END REMOVE
@@ -358,7 +363,7 @@ exports.show = function (req, res) {
         // BEGIN TEMPFIX: 2016/08/02: on bascule l'intégralité du trafic orange sur l'origine en http simple, sans passer par le cdnselector
         if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
           source.src = 'http://origin.cdn.afrostream.net' + source.src;
-          console.log('[INFO]: [VIDEO]: [CDNSELECTOR]: tempfix orange: source = ' + source.src);
+          logger.log('[CDNSELECTOR]: tempfix orange: source = ' + source.src);
           return;
         }
         // END TEMPFIX
@@ -392,7 +397,7 @@ exports.show = function (req, res) {
         });
       }
       //!FIXME: fin hotfix 11/10/2016 #361 : pb iOS
-      console.log('[INFO]: [VIDEO]: sources = ' + JSON.stringify(video.sources));
+      logger.log('sources = ' + JSON.stringify(video.sources));
       return video;
     })
     .then(function rewriteCaptions(video) {
@@ -409,7 +414,7 @@ exports.show = function (req, res) {
 
       // FIXME: shouldn't assume randomContentProfile is set.
       if (!closure.pfContent) {
-        console.log('[WARNING]: [VIDEO]: no pfContent => skip rewriteCaptions');
+        logger.warn('no pfContent => skip rewriteCaptions');
         return video;
       }
 
@@ -420,7 +425,7 @@ exports.show = function (req, res) {
       //
       // FIXME: shouldn't be "named based"
       if (closure.pfContent.randomContentProfile.name.indexOf('_SUB0FRA') !== -1) {
-        console.log('[INFO]: [VIDEO]: burnedCaptions (' + closure.pfContent.randomContentProfile.name + '), filtering on fra');
+        logger.log('burnedCaptions (' + closure.pfContent.randomContentProfile.name + '), filtering on fra');
         video.captions = (video.captions || []).filter(function (caption) {
           return caption.lang.ISO6392T === 'fra';
         });
@@ -434,7 +439,7 @@ exports.show = function (req, res) {
           .filter(function (asset) { return asset.type === 'audio'; })
           .map(function (asset) { return asset.language });
         if (audios.length === 1 && audios[0] === 'fra') {
-          console.log('[INFO]: [VIDEO]: hack profile _ORANGE: 1 audio language=fra => no captions');
+          logger.log('hack profile _ORANGE: 1 audio language=fra => no captions');
           video.captions = [];
         }
       }
@@ -454,12 +459,12 @@ exports.show = function (req, res) {
       }
       //
       if (!req.user instanceof User.Instance) {
-        console.error('[WARNING]: client ' + req.user._id + ' request video => disabling sources');
+        logger.warn('client ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
       }
       if (!closure.billingUserSubscriptionActive) {
-        console.error('[WARNING]: user subscription inactive ' + req.user._id + ' request video => disabling sources');
+        logger.warn('user subscription inactive ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
       }
@@ -481,7 +486,7 @@ exports.show = function (req, res) {
         }).then(
           function noop() { },
           function (err) {
-            console.error('[ERROR]: [VIDEO]: [LOG]: '+err.message);
+            logger.error('[LOG]: '+err.message);
             return
           }
         ).then(function () { return video; });
@@ -548,12 +553,12 @@ module.exports.upsertUsingEncodingId = function (data) {
   // create / update base on encodingId
   if (!data.encodingId) {
     // should trigger a warning
-    console.error("video: warning: shouldn't upsertUsingEncodingId without encodingId, fallback using insert");
+    logger.warn("shouldn't upsertUsingEncodingId without encodingId, fallback using insert");
     return create(data);
   }
   return Video.findOne({ where: { encodingId: data.encodingId }})
     .then(function upsert(video) {
-      console.log('video: upsertUsingEncodingId: video already exist ? ' + (video?'true':'false'));
+      logger.log('upsertUsingEncodingId: video already exist ? ' + (video?'true':'false'));
       return video ? update(data, video) : create(data);
     });
 };
@@ -562,12 +567,12 @@ module.exports.upsertUsingPfMd5Hash = function (data) {
   // create / update base on encodingId
   if (!data.pfContentId) {
     // should trigger a warning
-    console.error("video: warning: shouldn't upsertUsingEncodingId without encodingId, fallback using insert");
+    logger.warn("shouldn't upsertUsingEncodingId without encodingId, fallback using insert");
     return create(data);
   }
   return Video.findOne({ where: { encodingId: data.encodingId }})
     .then(function upsert(video) {
-      console.log('video: upsertUsingEncodingId: video already exist ? ' + (video?'true':'false'));
+      logger.log('upsertUsingEncodingId: video already exist ? ' + (video?'true':'false'));
       return video ? update(data, video) : create(data);
     });
 };
@@ -604,7 +609,7 @@ module.exports.createFromPfContent = function (pfContent) {
     throw new Error('missing pfContent.duration');
   }
 
-  console.log('[INFO]: [IMPORT]: pfContent', pfContent);
+  logger.log('[IMPORT]: pfContent', pfContent);
 
   var duration = null; // unknown
   var pfContentDurationSplitted = pfContent.duration.split(':')
@@ -627,7 +632,7 @@ module.exports.createFromPfContent = function (pfContent) {
       return video ? video.update(data) : Video.create(data);
     })
     .then(function (video) {
-      console.log('[INFO]: video '+video._id+' was inserted');
+      logger.log('video '+video._id+' was inserted');
       return video;
     });
 };

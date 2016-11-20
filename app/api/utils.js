@@ -12,12 +12,12 @@ var reqRangeToSequelizeLimit = function (req, size) {
   var range;
 
   if (typeof req.range !== 'function') {
-    console.error('missing req.range');
+    req.logger.error('missing req.range');
     return { limit: defaultLimit, offset: 0 }
   }
   range = req.range(size);
   if (range === -1 || range === -2 || !range) {
-    console.error('error parsing range header' + req.get('Range'));
+    req.logger.error('parsing range header' + req.get('Range'));
     return { limit: defaultLimit, offset: 0 };
   }
   // convert range to sequelize limit
@@ -25,7 +25,7 @@ var reqRangeToSequelizeLimit = function (req, size) {
   if (!Array.isArray(range) || range.length < 1 ||
     parseInt(range[0].start, 10) === NaN ||
     parseInt(range[0].end, 10) === NaN) {
-    console.error('unknown range result ', range);
+    req.logger.error('unknown range result ', range);
     return { limit: defaultLimit, offset: 0 };
   }
   return { offset: range[0].start, limit: range[0].end - range[0].start };

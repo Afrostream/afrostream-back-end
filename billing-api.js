@@ -16,6 +16,8 @@ if (process.env.NODE_ENV === 'development' ||
   rootRequire('/test/mock-billing-api.js');
 }
 
+var logger = rootRequire('logger').prefix('BILLING-API');
+
 var requestBilling = function (options) {
   var defaultOptions = {
     json: true,
@@ -24,7 +26,7 @@ var requestBilling = function (options) {
   };
   options = _.merge({}, defaultOptions, options);
 
-  console.log('INFO: [BILLING-API]: request ', JSON.stringify(options));
+  logger.log('request ', JSON.stringify(options));
 
   return Q.nfcall(request, options)
     .then(function (data) {
@@ -33,18 +35,18 @@ var requestBilling = function (options) {
         , error;
 
       if (!response) {
-        console.error('FATAL: [BILLING-API]: cannot request api ' + JSON.stringify(options) + " => " + JSON.stringify(body));
+        logger.error('cannot request api ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         throw new Error("cannot request billing-api");
       }
       if (response.statusCode !== 200 || !body || body.status !== 'done') {
-        console.error('WARNING: [BILLING-API]: ' + response.statusCode + ' ' + (body && body.status) + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
+        logger.warn(response.statusCode + ' ' + (body && body.status) + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
         error = new Error(body && body.statusMessage || body && body.message || 'unknown');
         error.statusCode = (response.statusCode >= 200 && response.statusCode <= 400 ) ? 500 : response.statusCode;
         error.code = body && body.statusCode || response.statusCode;
         throw error;
       }
 
-      console.log('INFO: [BILLING-API]: 200 ok' + JSON.stringify(body));
+      logger.log('200 ok' + JSON.stringify(body));
 
       return body;
     });
@@ -89,7 +91,7 @@ var someSubscriptionActiveSafe = function (userReferenceUuid) {
       return bool;
     }
     , function error (err) {
-      console.error(err);
+      logger.error(err.message);
       return false;
     }
   );
@@ -105,7 +107,7 @@ var someSubscriptionActiveSafeTrue = function (userReferenceUuid) {
       return bool;
     }
     , function error (err) {
-      console.error('[ERROR]: BILLING API DOWN => subscribed=true', err);
+      logger.error('DOWN => subscribed=true', err);
       return true;
     }
   );

@@ -9,6 +9,8 @@ var mailer = rootRequire('/components/mailer');
 var sqldb = rootRequire('/sqldb');
 var User = sqldb.User;
 
+var logger = rootRequire('logger').prefix('AUTH');
+
 var validateResetBody = function (body) {
   return function () {
     if (body &&
@@ -72,7 +74,7 @@ var decrypt = function (k) {
       version: data.v
     }
   } catch (e) {
-    console.log('error : ' + e);
+    logger.error(e.message);
     return null;
   }
 };
@@ -135,11 +137,8 @@ var reset = function (req, res) {
         // everything was ok, sending empty json object.
         res.status(200).json({});
       },
-      function error(err) {
-        // error :( log & send the error message
-        console.error('/auth/reset: error: ' + err);
-        res.status(500).json({ error: String(err) });
-      });
+      res.handleError()
+    );
 };
 
 module.exports.reset = reset;

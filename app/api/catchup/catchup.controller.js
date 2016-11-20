@@ -33,8 +33,10 @@ var createJobPackCaptions = require('../job/job.packcaptions.js').create;
 
 var slugify = require('slugify');
 
+var logger = rootRequire('logger').prefix('CATCHUP');
+
 var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
-  console.log('catchup: creating movies , seasons, episodes using infos ' + JSON.stringify(infos));
+  logger.log('creating movies , seasons, episodes using infos ' + JSON.stringify(infos));
   var episodeTitle = infos.EPISODE_TITLE_FRA || infos.EPISODE_TITLE || infos.ASSET_TITLE;
   var episodeSlug = slugify(episodeTitle);
   var episodeResume = infos.EPISODE_RESUME || '';
@@ -73,7 +75,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
         season.update({ slug: seriesSlug, dateTo: dateTo }),
         movie.update({ slug: seriesSlug, type: 'serie', dateTo: dateTo })
       ]).then(function (data) {
-        console.log('[INFO]: [CATCHUP]: begin smart dateFrom');
+        logger.log('begin smart dateFrom');
         // try to update "smart" date from for season & movie.
         var season = data[1];
         var movie = data[2];
@@ -93,7 +95,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
         .then(function (episodes) {
           if (episodes && episodes.length && episodes[0]) {
             var nextEpisode = episodes[0];
-            console.log('[INFO]: [CATCHUP]: SMART DATE FROM : season(' + season._id + ').dateFrom = ' + nextEpisode.dateFrom);
+            logger.log('SMART DATE FROM : season(' + season._id + ').dateFrom = ' + nextEpisode.dateFrom);
             return season.update({ dateFrom: nextEpisode.dateFrom });
           }
         })
@@ -110,19 +112,19 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
         .then(function (seasons) {
           if (seasons && seasons.length && seasons[0]) {
             var nextSeason = seasons[0];
-            console.log('[INFO]: [CATCHUP]: SMART DATE FROM : movie(' + movie._id + ').dateFrom = ' + nextSeason.dateFrom);
+            logger.log('SMART DATE FROM : movie(' + movie._id + ').dateFrom = ' + nextSeason.dateFrom);
             return movie.update({ dateFrom: nextSeason.dateFrom });
           }
         })
         .then(function () {
           return data;
         }, function (err) {
-          console.error('[ERROR]: [CATCHUP]: error setting dateFrom ' + err.message)
+          logger.error('error setting dateFrom ' + err.message)
           return data;
         });
       })
     }).spread(function (episode, season, movie) {
-      console.log('catchup: database: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id + ' video ' + video._id + ' ' +
+      logger.log('database: movie ' + movie._id + ' season ' + season._id + ' episode ' + episode._id + ' video ' + video._id + ' ' +
                   'episode '+episodeNumber+' [' + episodeTitle + '] season '+seasonNumber+' [' + seriesTitle + '] #content');
       // set Video in Episode
       return Q.all([
@@ -137,7 +139,7 @@ var createMovieSeasonEpisode = function (catchupProviderInfos, infos, video) {
       defaults: { synopsis: seriesResume, active: true, genre: 'BET' }
     }).then(function (movieInfos) {
       var movie = movieInfos[0];
-      console.log('catchup: database: movie ' + movie._id + ' video ' + video._id + ' ' +
+      logger.log('database: movie ' + movie._id + ' video ' + video._id + ' ' +
                   'movie [' + seriesTitle + '] #content');
       return movie.update({ slug: seriesSlug, type: 'movie', dateFrom: dateFrom, dateTo: dateTo });
     }).then(function (movie) {
@@ -151,10 +153,10 @@ var addMovieToCatchupCategory = function (catchupProviderInfos, movie) {
     return Category.findById(catchupProviderInfos.categoryId)
       .then(function (category) {
         if (!category) {
-          console.error('catchup: missing category');
+          logger.error('missing category');
         } else {
           // FIXME: order.
-          console.log('catchup: attaching movie ' + movie._id + ' to catchup category ' + category._id);
+          logger.log('attaching movie ' + movie._id + ' to catchup category ' + category._id);
           return category.addMovie(movie);
         }
       })
@@ -167,10 +169,10 @@ var linkMovieToLicensor = function (catchupProviderInfos, movie) {
     return Licensor.findById(catchupProviderInfos.licensorId)
       .then(function (licensor) {
         if (!licensor) {
-          console.error('catchup: missing licensor');
+          logger.error('missing licensor');
         } else {
           // FIXME: order.
-          console.log('catchup: attaching movie ' + movie._id + ' to licensor ' + licensor._id);
+          logger.log('attaching movie ' + movie._id + ' to licensor ' + licensor._id);
           return movie.update({licensorId: licensor._id});
         }
       })
@@ -229,7 +231,7 @@ var bet = function (req, res) {
             if (!video) {
               throw 'catchup: '+catchupProviderId+': '+pfContentId+': video import from mam failed';
             }
-            console.log('catchup: '+catchupProviderId+': '+pfContentId+': video._id =' + video._id);
+            logger.log(catchupProviderId+': '+pfContentId+': video._id =' + video._id);
             return video.update({catchupProviderId: catchupProviderInfos._id});
           })
           .then(function (video) {
@@ -239,22 +241,22 @@ var bet = function (req, res) {
             //  - launch automaticaly afrostream-job
             return Q.all(captionsInfos.map(function (captionUrl) {
               // https://s3-eu-west-1.amazonaws.com/tracks.afrostream.tv/production/caption/2015/11/58da212180a508494f47-vimeocom140051722.en.vtt
-              console.log('catchup: '+catchupProviderId+': '+pfContentId+': searching caption ' + captionUrl);
+              logger.log(catchupProviderId+': '+pfContentId+': searching caption ' + captionUrl);
               return sqldb.nonAtomicFindOrCreate(Caption, {where: {src: captionUrl, videoId: video._id}})
                 .then(function (captionInfos) {
                   var caption = captionInfos[0];
-                  console.log('catchup: '+catchupProviderId+': '+pfContentId+': attaching caption ' + captionUrl + ' id='+ caption._id + ' to video ' + video._id);
+                  logger.log(catchupProviderId+': '+pfContentId+': attaching caption ' + captionUrl + ' id='+ caption._id + ' to video ' + video._id);
                   var matches = captionUrl.match(/\.([^.]+)\.vtt/);
                   var lang = (matches && matches.length > 1) ? matches[1].toLowerCase() : '??';
 
-                  console.log('catchup: '+catchupProviderId+': '+pfContentId+': caption ' + captionUrl + ' lang='+lang);
+                  logger.log(catchupProviderId+': '+pfContentId+': caption ' + captionUrl + ' lang='+lang);
                   return Language.findOne({where: { lang: lang } })
                     .then(function (language) {
                       if (language) {
-                        console.log('catchup: ' + catchupProviderId + ': ' + pfContentId + ': caption ' + captionUrl + ' has langId ' + language._id);
+                        logger.log(catchupProviderId + ': ' + pfContentId + ': caption ' + captionUrl + ' has langId ' + language._id);
                         return language;
                       } else {
-                        console.log('catchup: '+catchupProviderId+': '+pfContentId+': caption ' + captionUrl + ' no langId found, searching "fr"');
+                        logger.log(catchupProviderId+': '+pfContentId+': caption ' + captionUrl + ' no langId found, searching "fr"');
                         return Language.findOne({where: { lang: "fr" } });
                       }
                     }).then(function (language) {
@@ -300,13 +302,10 @@ var betMovies = function (req, res, next) {
     include: getIncludedModel(),
     order: [ [ 'dateFrom', 'desc' ] ]
   })
-    .then(function (movies) {
-      res.json(movies);
-    })
-    .catch(function (err) {
-      console.error('error: ', err);
-      res.status(500).send('');
-    });
+  .then(
+    res.json.bind(res),
+    res.handleError()
+  );
 };
 
 var betSeasons = function (req, res, next) {
@@ -319,13 +318,10 @@ var betSeasons = function (req, res, next) {
     include: getIncludedModel(),
     order: [ [ 'dateFrom', 'desc' ] ]
   })
-    .then(function (seasons) {
-      res.json(seasons);
-    })
-    .catch(function (err) {
-      console.error('error: ', err);
-      res.status(500).send('');
-    });
+  .then(
+    res.json.bind(res),
+    res.handleError()
+  );
 };
 
 var betEpisodes = function (req, res, next) {
@@ -338,13 +334,10 @@ var betEpisodes = function (req, res, next) {
     include: getIncludedModel(),
     order: [ [ 'dateFrom', 'desc' ] ]
   })
-    .then(function (episodes) {
-      res.json(episodes);
-    })
-    .catch(function (err) {
-      console.error('error: ', err);
-      res.status(500).send('');
-    });
+  .then(
+    res.json.bind(res),
+    res.handleError()
+  );
 };
 
 var betVideos = function (req, res, next) {
@@ -354,13 +347,10 @@ var betVideos = function (req, res, next) {
     where: {catchupProviderId: catchupProviderId},
     order: [ [ 'name', 'asc' ] ]
   })
-    .then(function (videos) {
-      res.json(videos);
-    })
-    .catch(function (err) {
-      console.error('error: ', err);
-      res.status(500).send('');
-    });
+  .then(
+    res.json.bind(res),
+    res.handleError()
+  );
 };
 
 module.exports.bet = bet;

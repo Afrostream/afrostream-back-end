@@ -5,6 +5,9 @@ var Q = require('q');
 
 var config = require('./config');
 
+// should be injected
+var logger = rootRequire('logger').prefix('CDNSELECTOR');
+
 /**
  * a correct entry is an object { Fqdn: ..., Protocol: ... }
  * @param entry
@@ -33,7 +36,7 @@ var validateEntry = function (entry) {
 var getList = function (ip) {
   // FIXME: to be removed
   // BEGIN
-  console.log("[INFO]: [CDNSELECTOR]: getList() : ip = " + ip + ' on endpoint ' + config.cdnselector.endpoint + '/api/getFQDNList');
+  logger.log("getList() : ip = " + ip + ' on endpoint ' + config.cdnselector.endpoint + '/api/getFQDNList');
   // END
 
   return Q.nfcall(request, {
@@ -54,7 +57,7 @@ var getListSafe = function (ip) {
       var body = list[1];
       // FIXME: to be removed
       // BEGIN
-      console.log("[INFO]: [CDNSELECTOR]: getList() : body = "+JSON.stringify(body));
+      logger.log("getList() : body = "+JSON.stringify(body));
       // END
       if (!Array.isArray(body)) {
         throw "getList() : list[1] (body) should be an array (ip="+ip+")";
@@ -69,11 +72,11 @@ var getListSafe = function (ip) {
     })
     .then(
       function success(data) {
-        console.log('[INFO]: [CDNSELECTOR]: getListSafe() : success ['+ip+'] => ['+JSON.stringify(data)+']');
+        logger.log('getListSafe() : success ['+ip+'] => ['+JSON.stringify(data)+']');
         return data;
       },
       function error(e) {
-        console.error('[ERROR]: [CDNSELECTOR]: getListSafe() : error ' + e, e);
+        logger.error('getListSafe() : error ' + e, e);
         return [{ authority: config.cdnselector.defaultAuthority, scheme: config.cdnselector.defaultScheme }];
       }
     );
@@ -92,7 +95,7 @@ var getFirst = function (ip) {
       var body = list[1];
       // FIXME: to be removed
       // BEGIN
-      console.log("[INFO]: [CDNSELECTOR]: getList() : body = "+JSON.stringify(body));
+      logger.log("getList() : body = "+JSON.stringify(body));
       // END
       if (!Array.isArray(body)) {
         throw "getFirst() : list[1] (body) should be an array (ip="+ip+")";
@@ -118,11 +121,11 @@ var getFirstSafe = function (ip) {
     })
     .then(
       function success(infos) {
-        console.log('[INFO]: [CDNSELECTOR]: getFirstSafe() : success ['+ip+'] => ['+JSON.stringify(infos)+']');
+        logger.log('getFirstSafe() : success ['+ip+'] => ['+JSON.stringify(infos)+']');
         return infos;
       },
       function error(e) {
-        console.error('[ERROR]: [CDNSELECTOR]: getFirstSafe() : error ' + e, e);
+        logger.error('getFirstSafe() : error ' + e, e);
         return { authority: config.cdnselector.defaultAuthority, scheme: config.cdnselector.defaultScheme };
       }
     )

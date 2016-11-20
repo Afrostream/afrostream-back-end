@@ -6,6 +6,8 @@ var xml2js = require('xml2js');
 
 var saveXmlToBucket = require('./aws').saveXmlToBucket;
 
+var logger = rootRequire('logger').prefix('CATCHUP');
+
 var flatten = function (xml) {
   var result = {};
   var rec = function (xmlNode) {
@@ -59,12 +61,12 @@ var flatten = function (xml) {
  * @returns {*}              object   { flatten xml object }
  */
 var parseXml = function (catchupProviderId, pfContentId, xml) {
-  console.log('catchup: '+catchupProviderId+': '+pfContentId+': parsing xml = ', xml);
+  logger.log(catchupProviderId+': '+pfContentId+': parsing xml = ', xml);
   return Q.nfcall(xml2js.parseString, xml)
     .then(function (json) {
-      console.log('catchup: '+catchupProviderId+': '+pfContentId+': json =' + JSON.stringify(json));
+      logger.log(catchupProviderId+': '+pfContentId+': json =' + JSON.stringify(json));
       var flattenXml = flatten(json);
-      console.log('catchup: '+catchupProviderId+': '+pfContentId+': flatten = ' + JSON.stringify(flattenXml));
+      logger.log(catchupProviderId+': '+pfContentId+': flatten = ' + JSON.stringify(flattenXml));
       return flattenXml;
     });
 };

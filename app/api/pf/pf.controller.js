@@ -33,10 +33,10 @@ function sortPfContents(a, b) {
 module.exports.contents = function (req, res) {
   var closure = {};
 
-  console.log('[INFO]: start pf.getContents(' + req.query.state + ')');
+  req.logger.log('start pf.getContents(' + req.query.state + ')');
   pf.getContents(req.query.state)
     .then(function (pfContents) {
-      console.log('[INFO]: ' + pfContents.length + ' pfContents fetched');
+      req.logger.log(pfContents.length + ' pfContents fetched');
       closure.pfContents = pfContents || [];
       return Video.findAll({
         attributes: ["_id", "name", "duration", "encodingId", "pfMd5Hash"],

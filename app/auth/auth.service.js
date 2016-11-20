@@ -39,14 +39,15 @@ function isAuthenticated () {
         }
       }).then(function (user) {
         if (!user) {
-          console.error('missing header user-email while using bypass-auth ?');
-          return res.status(401).end();
+          var error = new Error('missing header user-email while using bypass-auth ?');
+          error.statusCode = 401;
+          throw error;
         }
         req.user = user;
-      }).then(function () {
-        next();
-      })
-        .catch(next);
+      }).then(
+        function () { next(); },
+        res.handleError()
+      );
     } else {
       //
       // PRODUCTION CODE HERE.
@@ -59,7 +60,6 @@ function isAuthenticated () {
         if (err || !authentified){
           var error = new Error(err && err.message || 'unauthorized');
           error.statusCode = err && err.statusCode || 401;
-          console.error('[ERROR]: [AUTH]:', error);
           return res.handleError()(error);
         } else {
           req.user = authentified; /// <= le fameux code ... horrible.

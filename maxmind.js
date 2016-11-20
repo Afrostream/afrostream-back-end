@@ -4,11 +4,14 @@ var maxmind = require('maxmind');
 
 var lookup = maxmind.openSync(__dirname + '/data/GeoLite2-Country.mmdb');
 
+// fixme: avoid direct dependency
+var logger = rootRequire('logger').prefix('MAXMIND');
+
 var getCountryCode = function (ip) {
   try {
     return lookup.get(ip).country.iso_code;
   } catch (e) {
-    console.error('[ERROR]: [MAXMIND]: ip='+ip, e);
+    logger.error('ip='+ip+' -> '+e.message);
     return '';
   }
 };

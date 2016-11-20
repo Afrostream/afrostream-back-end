@@ -135,7 +135,7 @@ exports.update = function (req, res) {
     // backo only security, prevent backo updates
     if (utils.isReqFromAfrostreamAdmin(req) && req.body.ro === true) {
         // warning message for log sake
-        console.warn('shouldnot try to update LifeTheme ' + req.params.id);
+        req.logger.warn('shouldnot try to update LifeTheme ' + req.params.id);
         // returning without updating
         LifeTheme.find({
             where: {

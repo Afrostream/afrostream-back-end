@@ -172,7 +172,7 @@ Strategy.prototype.authenticate = function (req, options) {
       info = info || {};
       info.expiresIn = parsedProfile.expiresIn;
 
-      console.log('profile.expiresIn', parsedProfile.expiresIn);
+      req.logger.log('profile.expiresIn', parsedProfile.expiresIn);
       self.success(user, info);
     };
 

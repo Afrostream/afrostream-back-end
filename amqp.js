@@ -49,7 +49,7 @@ AMQP.prototype.open = function () {
 
   var onError = function (err) {
     if (that.displayErrors) {
-      console.error('[ERROR]: [AMQP]: ', err);
+      that.logger.error(err.message);
     }
     that.channel = null;
     that.conn = null;

@@ -20,10 +20,10 @@ router.get('/', function (req, res) {
   var countryCode = maxmind.getCountryCode(ip);
   var authorized = isCountryAuthorized(countryCode);
   if (authorized){
-    console.log('auth/geo: authorized, ip=' + ip + ' countryCode=' + countryCode);
+    req.logger.log('authorized, ip=' + ip + ' countryCode=' + countryCode);
     res.json({authorized: true, ip: ip, countryCode: countryCode});
   } else {
-    console.log('auth/geo: FORBIDDEN, ip='+ip+' countryCode='+countryCode);
+    req.logger.log('FORBIDDEN, ip='+ip+' countryCode='+countryCode);
     res.json({authorized:false, ip:ip, countryCode:countryCode});
   }
 });
@@ -36,8 +36,12 @@ var middlewareRestrictAccess = function (options) {
     if (authorized){
       next();
     } else {
-      console.log('auth/geo: middleware: FORBIDDEN, ip=' + ip + ' countryCode=' + countryCode);
-      res.status(403).json({error:'geo forbidden'});
+      // additional log
+      req.logger.log('middleware geo: FORBIDDEN, ip=' + ip + ' countryCode=' + countryCode);
+      // default error handler.
+      var error = new Error('geo forbidden');
+      error.statusCode = 403;
+      res.handleError()(err);
     }
   };
 };

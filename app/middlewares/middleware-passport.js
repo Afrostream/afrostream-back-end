@@ -100,6 +100,7 @@ function getPassport(req) {
     userAgent: null,
     accessToken: null
   };
+  var logger = req.logger || console;
   // searching token
   return Q()
     .then(function () {
@@ -107,7 +108,7 @@ function getPassport(req) {
     })
     .then(function (accessToken) {
       // debug
-      // console.log('[INFO]: [middleware-passport]: accessToken=' + accessToken);
+      // logger.debug('[middleware-passport]: accessToken=' + accessToken);
       if (accessToken) {
         // saving the accessToken.
         passport.accessToken = accessToken;
@@ -124,14 +125,14 @@ function getPassport(req) {
     .then(
     function success() {
       // debug
-      //console.log('[INFO]: [middleware-passport]: client =',
+      //logger.debug('[middleware-passport]: client =',
       //  JSON.stringify(passport.client && passport.client.toJSON()));
-      //console.log('[INFO]: [middleware-passport]: user =',
+      //logger.debug('[middleware-passport]: user =',
       //  JSON.stringify(passport.user && passport.user.toJSON()));
       return passport;
     },
     function failure(err) {
-      console.error('[ERROR]: [middleware-passport]: '+err.message, err.stack);
+      logger.error('[MIDDLEWARE-PASSPORT]: '+err.message, err.stack);
       return passport;
     }
   );

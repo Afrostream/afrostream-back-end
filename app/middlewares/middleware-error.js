@@ -1,6 +1,9 @@
 var _ = require('lodash');
 
 module.exports = function (options) {
+  var options = options || {};
+  options.logger = options.logger || console;
+
   return function (req, res, next) {
     res.handleError = function (defaultStatusCode) {
       defaultStatusCode = defaultStatusCode || 500;
@@ -9,10 +12,11 @@ module.exports = function (options) {
         var statusCode = err && err.statusCode || defaultStatusCode;
         var stack = err && err.stack || 'no stack trace';
         var code = err && err.code || undefined;
+        var logger = req.logger || options.logger;
         if (statusCode !== 404) {
-          console.error('[ERROR] ' + message, stack, err);
+          logger.error(message, stack, err);
         } else {
-          console.error('[ERROR] ' + message); // message is enough
+          logger.error(message); // message is enough
         }
         // all errors are "no-cache", prevent HW CDN cache on error
         res.noCache();

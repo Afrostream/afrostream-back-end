@@ -19,6 +19,10 @@ var utils = rootRequire('/app/api/utils.js');
 var config = rootRequire('/config');
 var request = require('request');
 
+var logger = rootRequire('logger').prefix('STORE');
+
+var Q = require('q');
+
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
     return function (entity) {
@@ -117,7 +121,7 @@ function saveGeoCodedStore (store) {
                     mid: store.mid
                 }
             }).then(function (stores) {
-                console.log('[STORE] saveGeoCodedStore :', geocodeResult);
+                logger.log('saveGeoCodedStore :', geocodeResult);
                 var entity = stores[0];
                 entity.mid = store.mid;
                 entity.name = store.name;
@@ -128,10 +132,10 @@ function saveGeoCodedStore (store) {
                 entity.geometry = [geocodeResult.geometry.location.lng, geocodeResult.geometry.location.lat];
                 return entity.save();
             }).then(function (entity) {
-                console.log('[Store] success save', entity.geometry && entity.geometry.coordinates);
+                logger.log('success save', entity.geometry && entity.geometry.coordinates);
                 return entity;
             }, function (err) {
-                console.error('[Store] erreur ' + err.message, err.stack);
+                logger.error(err.message, err.stack);
             }));
         }
         return Promise.all(promises)
@@ -142,24 +146,14 @@ function geocode (loc, store) {
     loc = loc.replace(/(%20| )/g, '+').replace(/[&]/g, '%26');
     var options = _.extend({sensor: false, address: loc, key: config.google.cloudKey}, {});
     var uri = 'https://maps.googleapis.com/maps/api/geocode/json';
-    console.log('[STORE] try getgeo :', loc);
-    return new Promise(function (resolve, reject) {
-        request({
-            uri: uri,
-            qs: options
-        }, function (err, resp, body) {
-            if (err) return reject(err);
-            var result;
-            try {
-                result = JSON.parse(body);
-
-                console.log('[STORE] getgeo :', result);
-            } catch (err) {
-                return reject(err);
-            }
-            resolve(result.results[0]);
-        });
-    }).then(saveGeoCodedStore(store));
+    logger.log('try getgeo :', loc);
+    return Q.nfcall(request, { uri: uri, qs: options })
+      .then(function (data) {
+        var result = JSON.parse(data[1]);
+        logger.log('getgeo :', result);
+        return result.results[0];
+      })
+      .then(saveGeoCodedStore(store));
 };
 
 // Gets a list of Stores
@@ -207,7 +201,7 @@ exports.index = function (req, res) {
         }
         else if (queryName.match(/([1-9][0-9]*,[ ])*[1-9][0-9]*/g)) {
             var position = queryName.split(',');
-            console.log(position)
+            logger.log(position)
             if (position.length === 2) {
                 longitude = position[0];
                 latitude = position[1];
