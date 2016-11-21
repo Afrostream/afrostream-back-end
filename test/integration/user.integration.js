@@ -226,7 +226,7 @@ describe('User API:', function() {
           bouyguesId: "abcdef"
         }).expect(422)
         .end(function (err, res) {
-          assert(res.body.error.indexOf('SequelizeUniqueConstraintError') !== -1);
+          assert(res.body.code === 'SequelizeUniqueConstraintError');
           done(err);
         });
     });
@@ -342,7 +342,7 @@ describe('User API:', function() {
           ise2: "PARTNR-200-2Hy2e/PCQ1Y/NPKQPhSeKG3JbZfxQYKk+beCgch2vUQ="
         }).expect(422)
         .end(function (err, res) {
-          assert(res.body.error.indexOf('SequelizeUniqueConstraintError') !== -1);
+          assert(res.body.code === 'SequelizeUniqueConstraintError');
           done(err);
         });
     });

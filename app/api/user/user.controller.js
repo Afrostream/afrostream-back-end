@@ -90,24 +90,26 @@ exports.create = (req, res) => {
       newUser.setDataValue('role', 'user');
       return newUser.save();
     })
-    .then(user => // everything went ok, we send an oauth2 access token
-  Q.ninvoke(oauth2, "generateToken",
-    req.passport.client || null,
-    user,
-    null, // code
-    req.clientIp,
-    req.userAgent,
-    null
-  ).then(data => {
-      const accessToken = data[0], refreshToken = data[1], info = data[2];
+    .then(user => {
+      // everything went ok, we send an oauth2 access token
+      return Q.ninvoke(oauth2, "generateToken",
+        req.passport.client || null,
+        user,
+        null, // code
+        req.clientIp,
+        req.userAgent,
+        null
+      ).then(data => {
+        const accessToken = data[0], refreshToken = data[1], info = data[2];
 
-      return {
-        token: accessToken, // backward compatibility
-        access_token:accessToken,
-        refresh_token:refreshToken,
-        expires_in:info.expires_in
-      };
-    }))
+        return {
+          token: accessToken, // backward compatibility
+          access_token:accessToken,
+          refresh_token:refreshToken,
+          expires_in:info.expires_in
+        };
+      });
+    })
     .then(res.json.bind(res))
     .catch(res.handleError(422));
 };

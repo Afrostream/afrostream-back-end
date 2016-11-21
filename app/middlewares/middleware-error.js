@@ -11,7 +11,7 @@ module.exports = function (options) {
         var message = String(err && err.message || err || 'unknown');
         var statusCode = err && err.statusCode || defaultStatusCode;
         var stack = err && err.stack || 'no stack trace';
-        var code = err && err.code || undefined;
+        var code = err && err.code || err && err.name || undefined;
         var logger = req.logger || options.logger;
         if (statusCode !== 404) {
           logger.error(message, stack, err);
