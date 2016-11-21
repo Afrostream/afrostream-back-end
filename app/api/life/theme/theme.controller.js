@@ -59,7 +59,7 @@ exports.index = (req, res) => {
     var queryName = req.param('query');
     var queryOptions = {
         include: getIncludedModel(),
-        order: [['sort', 'ASC']]
+        order: [['sort', 'ASC'], ['date', 'DESC']]
     };
     // pagination
     utils.mergeReqRange(queryOptions, req);
@@ -102,7 +102,7 @@ exports.show = (req, res) => {
 
     LifeTheme.find(queryOptions)
         .then(utils.handleEntityNotFound(res))
-        .then(filters.filterOutput({req:req}))
+        .then(filters.filterOutput({req: req}))
         .then(responseWithResult(res))
         .catch(res.handleError());
 };

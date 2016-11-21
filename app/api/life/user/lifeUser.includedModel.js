@@ -8,6 +8,9 @@ module.exports.get = () => [
     {
         model: LifePin,
         as: 'lifePins',
+        where: {
+            active: true
+        },
         required: true,
         include: [
             {
