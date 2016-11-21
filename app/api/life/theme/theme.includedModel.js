@@ -1,11 +1,11 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var LifeSpot = sqldb.LifeSpot;
+const sqldb = rootRequire('sqldb');
+const LifeSpot = sqldb.LifeSpot;
 //var LifeThemePins = sqldb.LifeThemePins;
-var LifePin = sqldb.LifePin;
-var Image = sqldb.Image;
-var User = sqldb.User;
+const LifePin = sqldb.LifePin;
+const Image = sqldb.Image;
+const User = sqldb.User;
 
 module.exports.get = () => [
     //{model: LifeThemePins, all: true},

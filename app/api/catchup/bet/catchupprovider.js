@@ -1,11 +1,11 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var CatchupProvider = sqldb.CatchupProvider;
+const sqldb = rootRequire('sqldb');
+const CatchupProvider = sqldb.CatchupProvider;
 
-var config = rootRequire('config');
+const config = rootRequire('config');
 
-var getCatchupProviderInfos = catchupProviderId => CatchupProvider.find({where: { _id: catchupProviderId } })
+const getCatchupProviderInfos = catchupProviderId => CatchupProvider.find({where: { _id: catchupProviderId } })
   .then(catchupProvider => {
     if (catchupProvider) {
       return catchupProvider.dataValues;

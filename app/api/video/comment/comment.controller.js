@@ -1,8 +1,8 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var User = sqldb.User;
-var VideosComments = sqldb.VideosComments;
+const sqldb = rootRequire('sqldb');
+const User = sqldb.User;
+const VideosComments = sqldb.VideosComments;
 
 module.exports.index = (req, res) => {
   VideosComments.findAll({
@@ -17,7 +17,7 @@ module.exports.index = (req, res) => {
     })
     .then(comments => // FIXME: USER_PRIVACY: we should implement a privacy filter in a single place
   (comments || []).map(comment => {
-    var c = comment.get({plain: true});
+    const c = comment.get({plain: true});
     c.user = comment.user.getPublicInfos();
     return c;
   }))
@@ -43,7 +43,7 @@ module.exports.create = (req, res) => {
 module.exports.update = (req, res) => {
   VideosComments.findById(req.params.commentId)
     .then(comment => {
-      var error;
+      let error;
 
       if (!comment) {
         error = new Error('unknown comment');
@@ -55,7 +55,7 @@ module.exports.update = (req, res) => {
         error.statusCode = 403;
         throw error;
       }
-      var updatedData = {};
+      const updatedData = {};
       if (typeof req.body.timecode !== 'undefined') {
         updatedData.timecode = req.body.timecode;
       }
@@ -74,7 +74,7 @@ module.exports.show = (req, res) => {
   VideosComments.findById(req.params.commentId)
     .then(comment => {
       if (!comment) {
-        var error = new Error('unknown comment');
+        const error = new Error('unknown comment');
         error.statusCode = 404;
         throw error;
       }

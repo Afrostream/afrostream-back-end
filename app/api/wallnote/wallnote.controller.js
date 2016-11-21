@@ -1,15 +1,15 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var WallNote = sqldb.WallNote;
-var WallNotesUsers = sqldb.WallNotesUsers;
-var User = sqldb.User;
+const sqldb = rootRequire('sqldb');
+const WallNote = sqldb.WallNote;
+const WallNotesUsers = sqldb.WallNotesUsers;
+const User = sqldb.User;
 
-var Q = require('q');
+const Q = require('q');
 
 exports.index = (req, res) => {
-  var limit = req.query.limit || 20;
-  var offset = req.query.offset || 0;
+  const limit = req.query.limit || 20;
+  const offset = req.query.offset || 0;
 
   WallNote.findAll({
     order: [['updatedAt', 'DESC']],
@@ -36,7 +36,7 @@ exports.show = (req, res) => {
   })
   .then(wallNote => {
     if (!wallNote) {
-      var error = new Error('not found');
+      const error = new Error('not found');
       error.statusCode = 404;
       throw error;
     }

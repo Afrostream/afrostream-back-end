@@ -1,13 +1,13 @@
 'use strict';
 
-var createJob = require('./job.generic.js').create;
+const createJob = require('./job.generic.js').create;
 
 /**
  * default job configuration : 27 attempts, backoff of 20 min (~= 9h of retry)
  * @param data object { xml: ..., pfContentId: ..., caption: [ string, string ] }
  * @return Promise
  */
-var create = data => createJob(
+const create = data => createJob(
   'catchup-bet',
   data,
   {

@@ -1,9 +1,9 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var User = sqldb.User;
-var Image = sqldb.Image;
-var LifeTheme = sqldb.LifeTheme;
+const sqldb = rootRequire('sqldb');
+const User = sqldb.User;
+const Image = sqldb.Image;
+const LifeTheme = sqldb.LifeTheme;
 
 module.exports.get = () => [
     //{model: LifeThemePins, all: true},

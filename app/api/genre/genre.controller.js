@@ -1,10 +1,10 @@
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var Genre = sqldb.Genre;
-var filters = rootRequire('app/api/filters.js');
-var utils = rootRequire('app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Genre = sqldb.Genre;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -17,9 +17,9 @@ function responseWithResult(res, statusCode) {
 
 // Gets a list of episodes
 exports.index = (req, res) => {
-  var queryName = req.param('query');
+  const queryName = req.param('query');
 
-  var queryOptions = {};
+  let queryOptions = {};
 
   // pagination
   utils.mergeReqRange(queryOptions, req);
@@ -42,7 +42,7 @@ exports.index = (req, res) => {
 
 // Gets a single episode from the DB
 exports.show = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     where: {
       _id: req.params.id
     }

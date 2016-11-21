@@ -9,11 +9,11 @@
 
 'use strict';
 
-var aws = rootRequire('aws');
-var sqldb = rootRequire('sqldb');
-var Caption = sqldb.Caption;
+const aws = rootRequire('aws');
+const sqldb = rootRequire('sqldb');
+const Caption = sqldb.Caption;
 
-var utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -62,7 +62,7 @@ exports.show = (req, res) => {
 exports.create = (req, res) => {
   req.readFile()
     .then(file => {
-      var bucket = aws.getBucket('tracks.afrostream.tv');
+      const bucket = aws.getBucket('tracks.afrostream.tv');
       return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/caption/{date}/{rand}-'+file.name);
     }).then(data => Caption.create({ src: data.req.url }))
     .then(responseWithResult(res, 201))

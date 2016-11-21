@@ -1,13 +1,13 @@
 'use strict';
 
-var _ = require('lodash');
+const _ = require('lodash');
 
-var config = rootRequire('config');
+const config = rootRequire('config');
 
-var request = require('request');
-var btoa = require('btoa');
+const request = require('request');
+const btoa = require('btoa');
 
-var Q = require('q');
+const Q = require('q');
 
 const logger = rootRequire('logger').prefix('JOBS');
 
@@ -22,9 +22,9 @@ const logger = rootRequire('logger').prefix('JOBS');
  * @return promise
  */
 function create(type, data, options) {
-  var defaultNbRetry = 3;
-  var defaultBackoffDelay = 60000; //60sec
-  var defaultBackoffType ='fixed';
+  const defaultNbRetry = 3;
+  const defaultBackoffDelay = 60000; //60sec
+  const defaultBackoffType ='fixed';
 
   // log all jobs I/O
   logger.log('create:', type, data, options);
@@ -48,7 +48,7 @@ function create(type, data, options) {
     json: true
   })
     .then(result => {
-      var response = result[0], body = result[1];
+      const response = result[0], body = result[1];
       if (response.statusCode !== 200) {
         throw "status="+response.statusCode+", body="+body;
       }

@@ -1,24 +1,24 @@
 'use strict';
 
-var moment = require('moment');
-var sqldb = rootRequire('sqldb');
-var Log = sqldb.Log;
-var User = sqldb.User;
-var Client = sqldb.Client;
+const moment = require('moment');
+const sqldb = rootRequire('sqldb');
+const Log = sqldb.Log;
+const User = sqldb.User;
+const Client = sqldb.Client;
 
 // Gets a list of captions
 exports.orange = (req, res) => {
-  var day = (req.query.day) ? moment(req.query.day, "YYYYMMDD") : moment().subtract(1, 'days');
+  const day = (req.query.day) ? moment(req.query.day, "YYYYMMDD") : moment().subtract(1, 'days');
   req.logger.log('[ORANGE]: day = ', day.toDate());
-  var dateFrom = day.clone().startOf('day').toDate();
-  var dateTo = day.clone().endOf('day').toDate();
+  const dateFrom = day.clone().startOf('day').toDate();
+  const dateTo = day.clone().endOf('day').toDate();
   req.logger.log('[ORANGE]: dateFrom=' + dateFrom + ' dateTo=' + dateTo);
 
   /*
    * searching stats of UsersVideos for users having a ise2 (orange id), having browsed yesterday
    *
    */
-  var queryOptions = {
+  const queryOptions = {
     attributes: ['createdAt', 'userId', 'clientId', 'data'],
     include: [
       { model: User, as: 'user', required: true, where: { ise2: { $ne: null } }, attributes: [ 'ise2'] },

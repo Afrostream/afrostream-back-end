@@ -9,8 +9,8 @@
 
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var Promise = sqldb.Sequelize.Promise;
+const sqldb = rootRequire('sqldb');
+const Promise = sqldb.Sequelize.Promise;
 
 // Gets a list of images
 exports.index = (req, res) => Promise.map([sqldb.Licensor, sqldb.User, sqldb.Category, sqldb.Movie, sqldb.Season, sqldb.Episode, sqldb.Video, sqldb.Client], sequelise => sequelise.count({}).then(results => ({

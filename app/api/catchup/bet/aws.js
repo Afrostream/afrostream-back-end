@@ -1,13 +1,12 @@
 'use strict';
 
-var url = require('url');
+const url = require('url');
 
-var Q = require('q')
-  , rp = require('request-promise');
+const Q = require('q'), rp = require('request-promise');
 
-var aws = rootRequire('aws.js');
+const aws = rootRequire('aws.js');
 
-var logger = rootRequire('logger').prefix('CATCHUP');
+const logger = rootRequire('logger').prefix('CATCHUP');
 
 /**
  * save the xml content into aws s3 bucket 'tracks.afrostream.tv'
@@ -18,9 +17,9 @@ var logger = rootRequire('logger').prefix('CATCHUP');
  * @param xmlUrl             string   url containing the xml file
  * @returns {*}              string   xml content
  */
-var saveXmlToBucket = (catchupProviderId, pfContentId, xmlUrl) => rp(xmlUrl).then(xml => {
-  var bucket = aws.getBucket('tracks.afrostream.tv');
-  var name = url.parse(xmlUrl).pathname.split('/').pop();
+const saveXmlToBucket = (catchupProviderId, pfContentId, xmlUrl) => rp(xmlUrl).then(xml => {
+  const bucket = aws.getBucket('tracks.afrostream.tv');
+  const name = url.parse(xmlUrl).pathname.split('/').pop();
   return aws.putBufferIntoBucket(bucket, new Buffer(xml), 'text/xml', '{env}/catchup/xml/' + pfContentId + '-' + name)
     .then(awsInfos => {
       logger.log(catchupProviderId+': '+pfContentId+': xml '+xmlUrl+' was imported to '+awsInfos.req.url);
@@ -28,9 +27,9 @@ var saveXmlToBucket = (catchupProviderId, pfContentId, xmlUrl) => rp(xmlUrl).the
     });
 });
 
-var saveCaptionToBucket = (catchupProviderId, pfContentId, captionUrl) => rp(captionUrl).then(caption => {
-  var bucket = aws.getBucket('tracks.afrostream.tv');
-  var name = url.parse(captionUrl).pathname.split('/').pop();
+const saveCaptionToBucket = (catchupProviderId, pfContentId, captionUrl) => rp(captionUrl).then(caption => {
+  const bucket = aws.getBucket('tracks.afrostream.tv');
+  const name = url.parse(captionUrl).pathname.split('/').pop();
   return aws.putBufferIntoBucket(bucket, new Buffer(caption), 'application/octet-stream', '{env}/catchup/captions/' + pfContentId + '-' + name)
     .then(awsInfos => {
       logger.log(catchupProviderId+': '+pfContentId+': caption '+captionUrl+' was imported to '+awsInfos.req.url);
@@ -38,7 +37,7 @@ var saveCaptionToBucket = (catchupProviderId, pfContentId, captionUrl) => rp(cap
     });
 });
 
-var saveCaptionsToBucket = (catchupProviderId, pfContentId, captionsUrls) => Q.all(captionsUrls.map(captionUrl => saveCaptionToBucket(catchupProviderId, pfContentId, captionUrl)));
+const saveCaptionsToBucket = (catchupProviderId, pfContentId, captionsUrls) => Q.all(captionsUrls.map(captionUrl => saveCaptionToBucket(catchupProviderId, pfContentId, captionUrl)));
 
 module.exports.saveXmlToBucket = saveXmlToBucket;
 module.exports.saveCaptionsToBucket = saveCaptionsToBucket;

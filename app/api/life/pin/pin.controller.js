@@ -9,24 +9,24 @@
 
 'use strict';
 
-var _ = require('lodash');
-var request = require('request');
-var sqldb = rootRequire('sqldb');
-var Image = sqldb.Image;
-var LifePin = sqldb.LifePin;
-var LifeTheme = sqldb.LifeTheme;
-var filters = rootRequire('app/api/filters.js');
-var utils = rootRequire('app/api/utils.js');
-var Q = require('q');
-var Promise = sqldb.Sequelize.Promise;
-var mediaParser = require('media-parser');
-var MetaInspector = require('node-metainspector');
-var aws = rootRequire('aws');
-var config = rootRequire('config');
-var fileType = require('file-type');
-var md5 = require('md5');
+const _ = require('lodash');
+const request = require('request');
+const sqldb = rootRequire('sqldb');
+const Image = sqldb.Image;
+const LifePin = sqldb.LifePin;
+const LifeTheme = sqldb.LifeTheme;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
+const Q = require('q');
+const Promise = sqldb.Sequelize.Promise;
+const mediaParser = require('media-parser');
+const MetaInspector = require('node-metainspector');
+const aws = rootRequire('aws');
+const config = rootRequire('config');
+const fileType = require('file-type');
+const md5 = require('md5');
 
-var getIncludedModel = require('./pin.includedModel').get;
+const getIncludedModel = require('./pin.includedModel').get;
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
@@ -41,7 +41,7 @@ function saveUpdates (updates) {
 
 function updateImages (updates) {
     return entity => {
-        var promises = [];
+        const promises = [];
         promises.push(entity.setImage(updates.image && updates.image.dataValues && Image.build(updates.image.dataValues) || updates.image && Image.build(updates.image) || null));
         return sqldb.Sequelize.Promise
             .all(promises)
@@ -51,7 +51,7 @@ function updateImages (updates) {
 
 function updateUser (updates, req) {
     return entity => {
-        var promises = [];
+        const promises = [];
         promises.push(entity.setUser((updates.user && updates.user._id) || (req.user && req.user._id) || null));
         return sqldb.Sequelize.Promise
             .all(promises)
@@ -67,7 +67,7 @@ function removeEntity (res) {
 }
 
 function addThemes (updates) {
-    var themes = LifeTheme.build(_.map(updates.themes || [], _.partialRight(_.pick, '_id')));
+    const themes = LifeTheme.build(_.map(updates.themes || [], _.partialRight(_.pick, '_id')));
     return entity => {
         if (!themes || !themes.length) {
             return entity;
@@ -80,8 +80,8 @@ function addThemes (updates) {
 // Gets a list of life/pins
 // ?query=... (search in the title)
 exports.index = (req, res) => {
-    var queryName = req.param('query'); // deprecated.
-    var queryOptions = {
+    const queryName = req.param('query'); // deprecated.
+    let queryOptions = {
         include: getIncludedModel(),
         order: [['date', 'DESC']]
     };
@@ -115,7 +115,7 @@ exports.index = (req, res) => {
 
 // Gets a single LifePin from the DB
 exports.show = (req, res) => {
-    var queryOptions = {
+    let queryOptions = {
         where: {
             _id: req.params.id
         },
@@ -132,7 +132,7 @@ exports.show = (req, res) => {
 
 // Scrapp wep url and return medias
 exports.scrap = (req, res) => {
-    var c = {
+    const c = {
         role: 'free',
         originalUrl: req.body.scrapUrl
     };
@@ -146,7 +146,7 @@ exports.scrap = (req, res) => {
                     if (!data || !data.raw) {
                         resolve(null);
                     }
-                    var rawdata = data.raw;
+                    const rawdata = data.raw;
                     _.merge(c, {
                         title: rawdata.title,
                         type: rawdata.type,
@@ -169,11 +169,11 @@ exports.scrap = (req, res) => {
                 return data;
             }
             return new Promise((resolve, reject) => {
-                var client = new MetaInspector(c.originalUrl, {timeout: 5000});
+                const client = new MetaInspector(c.originalUrl, {timeout: 5000});
 
                 client.on('fetch', () => {
 
-                    var imagesList = _.pick(client.images || [], (value, key) => parseInt(key));
+                    const imagesList = _.pick(client.images || [], (value, key) => parseInt(key));
 
                     //imagesList = _.take(imagesList, 5);
 
@@ -203,7 +203,7 @@ exports.scrap = (req, res) => {
 };
 // Creates a new LifePin in the DB
 exports.create = (req, res) => {
-    var c = {
+    const c = {
         injectData: req.body
     };
 
@@ -214,10 +214,10 @@ exports.create = (req, res) => {
             Q.nfcall(request, {url: req.body.imageUrl, encoding: null})
               .then(data => {
                 /*var res = data[0];*/
-                var buffer = data[1];
+                const buffer = data[1];
 
-                var typeOfFile = fileType(buffer);
-                var name = md5(buffer);
+                const typeOfFile = fileType(buffer);
+                const name = md5(buffer);
                 return {name: name, buffer: buffer, mimeType: typeOfFile.mime};
               });
           }
@@ -228,8 +228,8 @@ exports.create = (req, res) => {
             if (!file) {
                 return;
             }
-            var bucket = aws.getBucket('afrostream-img');
-            var type = 'pin';
+            const bucket = aws.getBucket('afrostream-img');
+            const type = 'pin';
             return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/' + type + '/{date}/{rand}-' + file.name)
                 .then(data => {
                     c.injectData.image = {

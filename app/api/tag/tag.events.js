@@ -4,23 +4,23 @@
 
 'use strict';
 
-var EventEmitter = require('events').EventEmitter;
-var Tag = rootRequire('sqldb').Tag;
-var TagEvents = new EventEmitter();
+const EventEmitter = require('events').EventEmitter;
+const Tag = rootRequire('sqldb').Tag;
+const TagEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)
 TagEvents.setMaxListeners(0);
 
 // Model events
-var events = {
+const events = {
   'afterCreate': 'save',
   'afterUpdate': 'save',
   'afterDestroy': 'remove'
 };
 
 // Register the event emitter to the model events
-for (var e in events) {
-  var event = events[e];
+for (const e in events) {
+  const event = events[e];
   Tag.hook(e, emitEvent(event));
 }
 

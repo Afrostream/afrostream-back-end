@@ -1,8 +1,8 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var LifePin = sqldb.LifePin;
-var Image = sqldb.Image;
+const sqldb = rootRequire('sqldb');
+const LifePin = sqldb.LifePin;
+const Image = sqldb.Image;
 
 module.exports.get = () => [
     {

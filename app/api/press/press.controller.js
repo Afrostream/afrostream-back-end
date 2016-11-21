@@ -9,14 +9,14 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var Press = sqldb.Press;
-var Image = sqldb.Image;
-var filters = rootRequire('app/api/filters.js');
-var utils = rootRequire('app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Press = sqldb.Press;
+const Image = sqldb.Image;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = require('./press.includedModel').get;
+const getIncludedModel = require('./press.includedModel').get;
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
@@ -44,7 +44,7 @@ function removeEntity (res) {
 
 function updateImages (updates) {
     return entity => {
-        var promises = [];
+        const promises = [];
         promises.push(entity.setImage(updates.image && Image.build(updates.image) || null));
         promises.push(entity.setPdf(updates.pdf && Image.build(updates.pdf) || null));
         return sqldb.Sequelize.Promise
@@ -57,8 +57,8 @@ function updateImages (updates) {
 // ?query=... (search in the title)
 // ?slug=... (search by slug)
 exports.index = (req, res) => {
-    var queryName = req.param('query'); // deprecated.
-    var queryOptions = {
+    const queryName = req.param('query'); // deprecated.
+    let queryOptions = {
         include: getIncludedModel()
     };
 
@@ -83,7 +83,7 @@ exports.index = (req, res) => {
 
 // Gets a single post from the DB
 exports.show = (req, res) => {
-    var queryOptions = {
+    let queryOptions = {
         where: {
             _id: req.params.id
         },

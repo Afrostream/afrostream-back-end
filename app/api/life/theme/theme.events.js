@@ -4,23 +4,23 @@
 
 'use strict';
 
-var EventEmitter = require('events').EventEmitter;
-var LifeTheme = rootRequire('sqldb').LifeTheme;
-var LifeThemeEvents = new EventEmitter();
+const EventEmitter = require('events').EventEmitter;
+const LifeTheme = rootRequire('sqldb').LifeTheme;
+const LifeThemeEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)
 LifeThemeEvents.setMaxListeners(0);
 
 // Model events
-var events = {
+const events = {
     'afterCreate': 'save',
     'afterUpdate': 'save',
     'afterDestroy': 'remove'
 };
 
 // Register the event emitter to the model events
-for (var e in events) {
-    var event = events[e];
+for (const e in events) {
+    const event = events[e];
     LifeTheme.hook(e, emitEvent(event));
 }
 

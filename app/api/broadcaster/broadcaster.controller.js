@@ -1,9 +1,9 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var Movie = sqldb.Movie;
-var Episode = sqldb.Episode;
-var Season = sqldb.Season;
+const sqldb = rootRequire('sqldb');
+const Movie = sqldb.Movie;
+const Episode = sqldb.Episode;
+const Season = sqldb.Season;
 
 /*
  * retourne la liste des épisodes disponibles pour un broadcaster

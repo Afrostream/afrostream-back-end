@@ -175,10 +175,10 @@
  *     "error": "whatever"
  *   }
  */
-var express = require('express');
-var controller = require('./billing.controller.js');
-var auth = rootRequire('app/auth/auth.service');
-var router = express.Router();
+const express = require('express');
+const controller = require('./billing.controller.js');
+const auth = rootRequire('app/auth/auth.service');
+const router = express.Router();
 
 // all billing routes cannot be cached.
 router.use((req, res, next) => {

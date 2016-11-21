@@ -1,16 +1,16 @@
 'use strict';
-var sqldb = rootRequire('sqldb');
-var utils = require('../utils.js');
-var Widget = sqldb.Widget;
-var Image = sqldb.Image;
-var getIncludedModel = require('./widget.includedModel').get;
-var filters = rootRequire('app/api/filters.js');
+const sqldb = rootRequire('sqldb');
+const utils = require('../utils.js');
+const Widget = sqldb.Widget;
+const Image = sqldb.Image;
+const getIncludedModel = require('./widget.includedModel').get;
+const filters = rootRequire('app/api/filters.js');
 
-var _ = require('lodash');
+const _ = require('lodash');
 
 function updateImages (updates) {
   return entity => {
-    var promises = [];
+    const promises = [];
     promises.push(entity.setImage(updates.image && Image.build(updates.image) || null));
     return sqldb.Sequelize.Promise
       .all(promises)
@@ -25,9 +25,9 @@ function saveUpdates (updates) {
 // Gets a list of clients
 exports.index = (req, res) => {
 
-  var queryName = req.param('query');
+  const queryName = req.param('query');
 
-  var queryOptions = {
+  let queryOptions = {
     include: getIncludedModel()
   };
 
@@ -64,7 +64,7 @@ exports.index = (req, res) => {
 
 // Gets a single widget from the DB
 exports.show = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     where: {
       _id: req.params.id
     },

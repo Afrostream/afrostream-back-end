@@ -1,22 +1,22 @@
-var Joi = require('joi');
+const Joi = require('joi');
 
-var assert = require('better-assert');
+const assert = require('better-assert');
 
-var createBody = Joi.object().keys({
+const createBody = Joi.object().keys({
   email: Joi.string().max(255).email().required(),
   password: Joi.string().max(50).min(6).required()
 });
 
-var createBodyBouygues = Joi.object().keys({
+const createBodyBouygues = Joi.object().keys({
   email: Joi.string().max(255).email(),
   bouyguesId: Joi.string().required()
 });
 
-var createBodyOrange = Joi.object().keys({
+const createBodyOrange = Joi.object().keys({
   ise2: Joi.string().required()
 });
 
-var updateBody = Joi.object().keys({
+const updateBody = Joi.object().keys({
   email: Joi.string().max(255).email(),
   name: Joi.string().max(255),
   first_name: Joi.string().max(255),
@@ -33,7 +33,7 @@ var updateBody = Joi.object().keys({
 module.exports.validateCreateBody = (req, res, next) => {
   assert(req.passport);
 
-  var schema;
+  let schema;
   if (req.passport.client && req.passport.client.isBouyguesMiami()) {
     schema = createBodyBouygues;
   } else if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {

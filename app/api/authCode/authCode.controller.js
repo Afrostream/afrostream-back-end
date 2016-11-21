@@ -9,10 +9,10 @@
 
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var AuthCode = sqldb.AuthCode;
+const sqldb = rootRequire('sqldb');
+const AuthCode = sqldb.AuthCode;
 
-var utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;

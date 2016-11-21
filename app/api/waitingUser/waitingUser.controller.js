@@ -1,10 +1,10 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var WaitingUser = sqldb.WaitingUser;
+const sqldb = rootRequire('sqldb');
+const WaitingUser = sqldb.WaitingUser;
 
 exports.create = (req, res) => {
-  var newWaitingUser = WaitingUser.build(req.body);
+  const newWaitingUser = WaitingUser.build(req.body);
   newWaitingUser.set('country', req.country);
   newWaitingUser.save()
     .then(waitingUser => {

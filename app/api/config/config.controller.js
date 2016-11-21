@@ -1,13 +1,13 @@
 'use strict';
-var sqldb = rootRequire('sqldb');
-var config = rootRequire('config');
-var utils = rootRequire('app/api/utils.js');
-var Config = sqldb.Config;
+const sqldb = rootRequire('sqldb');
+const config = rootRequire('config');
+const utils = rootRequire('app/api/utils.js');
+const Config = sqldb.Config;
 
 function mapEntitys () {
   return entity => {
     //Map values
-    var mxVals = entity.map(r => r.dataValues.maximum);
+    const mxVals = entity.map(r => r.dataValues.maximum);
 
     return Config.findAll({
       where: {
@@ -47,7 +47,7 @@ exports.client = (req, res) => {
 // Gets a list of clients
 exports.index = (req, res) => {
 
-  var paramsObj = utils.mergeReqRange({
+  const paramsObj = utils.mergeReqRange({
     attributes: [[
       sqldb.sequelize.fn('max', sqldb.sequelize.col('_id')), 'maximum']],
     group: ['target']

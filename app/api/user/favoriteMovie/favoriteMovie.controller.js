@@ -1,16 +1,16 @@
 'use strict';
 
-var filters = rootRequire('app/api/filters.js');
-var sqldb = rootRequire('sqldb');
-var User = sqldb.User;
-var Movie = sqldb.Movie;
+const filters = rootRequire('app/api/filters.js');
+const sqldb = rootRequire('sqldb');
+const User = sqldb.User;
+const Movie = sqldb.Movie;
 
-var bluebird = require('bluebird');
+const bluebird = require('bluebird');
 
-var getIncludedModel = require('../../movie/movie.includedModel.js').get;
+const getIncludedModel = require('../../movie/movie.includedModel.js').get;
 
-var index = (req, res) => {
-  var queryOptions = {
+const index = (req, res) => {
+  let queryOptions = {
     where: {
       _id: req.user._id
     },
@@ -38,7 +38,7 @@ var index = (req, res) => {
     .catch(res.handleError(500));
 };
 
-var add = (req, res) => {
+const add = (req, res) => {
   if (!req.body._id) {
     return res.handleError(500)('missing movie _id');
   }
@@ -61,7 +61,7 @@ var add = (req, res) => {
     .catch(res.handleError(500));
 };
 
-var remove = (req, res) => {
+const remove = (req, res) => {
   User.find({
     where: {
       _id: req.user._id
@@ -76,7 +76,7 @@ var remove = (req, res) => {
       if (!user) {
         return res.status(401).end();
       }
-      var movie = Movie.build({_id: req.params.movieId});
+      const movie = Movie.build({_id: req.params.movieId});
       return user.removeFavoritesMovies(movie).then(() => {
         res.json({});
       });

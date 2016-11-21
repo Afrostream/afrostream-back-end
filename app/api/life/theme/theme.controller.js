@@ -9,14 +9,14 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var filters = rootRequire('app/api/filters.js');
-var utils = rootRequire('app/api/utils.js');
-var getIncludedModel = require('./theme.includedModel.js').get;
-var LifePin = sqldb.LifePin;
-var LifeSpot = sqldb.LifeSpot;
-var LifeTheme = sqldb.LifeTheme;
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
+const getIncludedModel = require('./theme.includedModel.js').get;
+const LifePin = sqldb.LifePin;
+const LifeSpot = sqldb.LifeSpot;
+const LifeTheme = sqldb.LifeTheme;
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
@@ -32,13 +32,13 @@ function saveUpdates (updates) {
 }
 
 function addLifePins (updates) {
-    var pins = LifePin.build(_.map(updates.pins || [], _.partialRight(_.pick, '_id')));
+    const pins = LifePin.build(_.map(updates.pins || [], _.partialRight(_.pick, '_id')));
     return entity => entity.setPins(pins)
         .then(() => entity);
 }
 
 function addLifeSpots (updates) {
-    var spots = LifeSpot.build(_.map(updates.spots || [], _.partialRight(_.pick, '_id')));
+    const spots = LifeSpot.build(_.map(updates.spots || [], _.partialRight(_.pick, '_id')));
     return entity => entity.setSpots(spots)
         .then(() => entity);
 }
@@ -56,8 +56,8 @@ function removeEntity (res) {
 
 // Gets a list of themes
 exports.index = (req, res) => {
-    var queryName = req.param('query');
-    var queryOptions = {
+    const queryName = req.param('query');
+    let queryOptions = {
         include: getIncludedModel(),
         order: [['sort', 'ASC'], ['date', 'DESC']]
     };
@@ -91,7 +91,7 @@ exports.index = (req, res) => {
 
 // Gets a single LifeTheme from the DB
 exports.show = (req, res) => {
-    var queryOptions = {
+    let queryOptions = {
         include: getIncludedModel(),
         where: {
             _id: req.params.id

@@ -9,19 +9,19 @@
 
 'use strict';
 
-var _ = require('lodash');
-var assert = require('better-assert');
-var sqldb = rootRequire('sqldb');
-var Store = sqldb.Store;
-var Promise = sqldb.Sequelize.Promise;
-var filters = rootRequire('app/api/filters.js');
-var utils = rootRequire('app/api/utils.js');
-var config = rootRequire('config');
-var request = require('request');
+const _ = require('lodash');
+const assert = require('better-assert');
+const sqldb = rootRequire('sqldb');
+const Store = sqldb.Store;
+const Promise = sqldb.Sequelize.Promise;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
+const config = rootRequire('config');
+const request = require('request');
 
-var logger = rootRequire('logger').prefix('STORE');
+const logger = rootRequire('logger').prefix('STORE');
 
-var Q = require('q');
+const Q = require('q');
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
@@ -55,10 +55,10 @@ function responseWithResultGEO (req, res, statusCode) {
                 return res.status(statusCode).json(result);
             }
 
-            var featureCollection = new FeatureCollection();
+            const featureCollection = new FeatureCollection();
             _.forEach(result, row => {
 
-                var feature = {
+                const feature = {
                     'type': 'Feature',
                     'geometry': row.geometry,
                     'properties': {
@@ -98,7 +98,7 @@ function removeEntity (res) {
 function interpolate (str) {
     return function interpolate (o) {
         return str.replace(/{([^{}]*)}/g, (a, b) => {
-            var r = o[b];
+            const r = o[b];
             return typeof r === 'string' || typeof r === 'number' ? r : a;
         });
     };
@@ -107,7 +107,7 @@ function interpolate (str) {
 
 function saveGeoCodedStore (store) {
     return geocodeResult => {
-        var promises = [];
+        const promises = [];
 
         if (geocodeResult && geocodeResult.geometry) {
             promises.push(sqldb.nonAtomicFindOrCreate(Store, {
@@ -117,7 +117,7 @@ function saveGeoCodedStore (store) {
                 }
             }).then(stores => {
                 logger.log('saveGeoCodedStore :', geocodeResult);
-                var entity = stores[0];
+                const entity = stores[0];
                 entity.mid = store.mid;
                 entity.name = store.name;
                 entity.adresse = store.adresse;
@@ -139,12 +139,12 @@ function saveGeoCodedStore (store) {
 
 function geocode (loc, store) {
     loc = loc.replace(/(%20| )/g, '+').replace(/[&]/g, '%26');
-    var options = _.extend({sensor: false, address: loc, key: config.google.cloudKey}, {});
-    var uri = 'https://maps.googleapis.com/maps/api/geocode/json';
+    const options = _.extend({sensor: false, address: loc, key: config.google.cloudKey}, {});
+    const uri = 'https://maps.googleapis.com/maps/api/geocode/json';
     logger.log('try getgeo :', loc);
     return Q.nfcall(request, { uri: uri, qs: options })
       .then(data => {
-        var result = JSON.parse(data[1]);
+        const result = JSON.parse(data[1]);
         logger.log('getgeo :', result);
         return result.results[0];
       })
@@ -154,11 +154,11 @@ function geocode (loc, store) {
 // Gets a list of Stores
 // ?point=... (search by point)
 exports.index = (req, res) => {
-    var queryName = req.param('query');
-    var longitude = req.param('longitude');
-    var latitude = req.param('latitude');
-    var distance = req.param('distance') || 1000000;
-    var queryOptions = {};
+    const queryName = req.param('query');
+    let longitude = req.param('longitude');
+    let latitude = req.param('latitude');
+    const distance = req.param('distance') || 1000000;
+    let queryOptions = {};
 
     // pagination
     utils.mergeReqRange(queryOptions, req);
@@ -194,7 +194,7 @@ exports.index = (req, res) => {
 
         }
         else if (queryName.match(/([1-9][0-9]*,[ ])*[1-9][0-9]*/g)) {
-            var position = queryName.split(',');
+            const position = queryName.split(',');
             logger.log(position);
             if (position.length === 2) {
                 longitude = position[0];
@@ -232,7 +232,7 @@ exports.index = (req, res) => {
 
 // Gets a single Store from the DB
 exports.show = (req, res) => {
-    var queryOptions = {
+    let queryOptions = {
         where: {
             _id: req.params.id
         }
@@ -258,9 +258,9 @@ exports.import = (req, res) => {
     assert(req.body && req.body.location);
     assert(req.body.location && typeof req.body.location === 'string');
     assert(req.body.storeList && typeof req.body.storeList === 'object');
-    var promises = [];
+    const promises = [];
     _.forEach(req.body.storeList, store => {
-        var location = interpolate(req.body.location)(store);
+        const location = interpolate(req.body.location)(store);
         promises.push(geocode(location, store));
     });
     return Promise.all(promises)

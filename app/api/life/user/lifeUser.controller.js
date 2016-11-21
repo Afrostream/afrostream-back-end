@@ -1,11 +1,11 @@
 'use strict';
 
-var filters = rootRequire('app/api/filters.js');
-var sqldb = rootRequire('sqldb');
-var _ = require('lodash');
-var User = sqldb.User;
-var utils = rootRequire('app/api/utils.js');
-var getIncludedModel = require('./lifeUser.includedModel').get;
+const filters = rootRequire('app/api/filters.js');
+const sqldb = rootRequire('sqldb');
+const _ = require('lodash');
+const User = sqldb.User;
+const utils = rootRequire('app/api/utils.js');
+const getIncludedModel = require('./lifeUser.includedModel').get;
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
@@ -17,7 +17,7 @@ function responseWithResult (res, statusCode) {
 }
 
 exports.index = (req, res) => {
-    var queryOptions = {
+    let queryOptions = {
         include: getIncludedModel(),
         limit: 100
     };
@@ -42,7 +42,7 @@ exports.index = (req, res) => {
 
 // Gets a single LifeTheme from the DB
 exports.show = (req, res) => {
-    var queryOptions = {
+    const queryOptions = {
         include: getIncludedModel(),
         where: {
             _id: req.params.id

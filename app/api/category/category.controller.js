@@ -9,19 +9,19 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var Category = sqldb.Category;
-var Movie = sqldb.Movie;
-var Season = sqldb.Season;
-var Video = sqldb.Video;
-var Episode = sqldb.Episode;
-var Caption = sqldb.Caption;
-var Image = sqldb.Image;
-var filters = rootRequire('app/api/filters.js');
-var utils = rootRequire('app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Category = sqldb.Category;
+const Movie = sqldb.Movie;
+const Season = sqldb.Season;
+const Video = sqldb.Video;
+const Episode = sqldb.Episode;
+const Caption = sqldb.Caption;
+const Image = sqldb.Image;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = () => [
+const getIncludedModel = () => [
   {
     model: Movie, as: 'movies',
     order: [['sort', 'ASC']]
@@ -46,7 +46,7 @@ function responseWithAdSpot(req, res, statusCode) {
   statusCode = statusCode || 200;
   return entity => {
     if (entity) {
-      var queryOptions = {
+      let queryOptions = {
         order: [['sort', 'ASC']],
         include: [
           {
@@ -108,13 +108,13 @@ function saveUpdates(updates) {
 }
 
 function addMovies(updates) {
-  var movies = Movie.build(_.map(updates.movies || [], _.partialRight(_.pick, '_id')));
+  const movies = Movie.build(_.map(updates.movies || [], _.partialRight(_.pick, '_id')));
   return entity => entity.setMovies(movies)
     .then(() => entity);
 }
 
 function addAdSpots(updates) {
-  var movies = Movie.build(_.map(updates.adSpots || [], _.partialRight(_.pick, '_id')));
+  const movies = Movie.build(_.map(updates.adSpots || [], _.partialRight(_.pick, '_id')));
   return entity => entity.setAdSpots(movies)
     .then(() => entity);
 }
@@ -132,12 +132,12 @@ function removeEntity(res) {
 
 // Gets a list of categorys
 exports.index = (req, res) => {
-  var queryName = req.param('query');
-  var populate = req.query.populate || 'movies,adSpots';
+  const queryName = req.param('query');
+  const populate = req.query.populate || 'movies,adSpots';
 
-  var queryOptions = {order: [['sort', 'ASC']]};
+  let queryOptions = {order: [['sort', 'ASC']]};
 
-  var moviesIncludes = [];
+  const moviesIncludes = [];
   if (populate.indexOf('movies.categorys') !== -1) {
     moviesIncludes.push({model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']});
   }
@@ -161,7 +161,7 @@ exports.index = (req, res) => {
     });
   }
 
-  var adSpotsIncludes = [];
+  const adSpotsIncludes = [];
   if (populate.indexOf('adSpots.categorys') !== -1) {
     adSpotsIncludes.push({model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']});
   }
@@ -237,7 +237,7 @@ exports.index = (req, res) => {
 
 // Gets a single category from the DB
 exports.show = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     where: {
       _id: req.params.id
     },
@@ -277,7 +277,7 @@ exports.show = (req, res) => {
 
 // Gets all AdSpots in selected category
 exports.adSpot = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     where: {
       _id: req.params.id
     }
@@ -293,7 +293,7 @@ exports.adSpot = (req, res) => {
 
 // Gets all categorys for menu
 exports.menu = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     order: [['sort', 'ASC']]
   };
 
@@ -308,7 +308,7 @@ exports.menu = (req, res) => {
 
 // Gets all submovies limited
 exports.mea = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     order: [['sort', 'ASC']],
     include: [
       {
@@ -335,7 +335,7 @@ exports.mea = (req, res) => {
 };
 
 exports.allSpots = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     order: [
       ['sort', 'ASC'],
       [{model: Movie, as: 'adSpots'}, 'sort'] // wtf.. is this sort field.

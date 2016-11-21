@@ -9,8 +9,8 @@
 
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var Country = sqldb.Country;
+const sqldb = rootRequire('sqldb');
+const Country = sqldb.Country;
 
 // Gets a list of comments
 exports.index = (req, res) => {

@@ -9,33 +9,33 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var Asset = sqldb.Asset;
-var Video = sqldb.Video;
-var Movie = sqldb.Movie;
-var Episode = sqldb.Episode;
-var Caption = sqldb.Caption;
-var Language = sqldb.Language;
-var Image = sqldb.Image;
-var Log = sqldb.Log;
-var Promise = sqldb.Sequelize.Promise;
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Asset = sqldb.Asset;
+const Video = sqldb.Video;
+const Movie = sqldb.Movie;
+const Episode = sqldb.Episode;
+const Caption = sqldb.Caption;
+const Language = sqldb.Language;
+const Image = sqldb.Image;
+const Log = sqldb.Log;
+const Promise = sqldb.Sequelize.Promise;
 
-var Q = require('q');
+const Q = require('q');
 
-var utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/utils.js');
 
-var billingApi = rootRequire('billing-api.js');
+const billingApi = rootRequire('billing-api.js');
 
-var cdnselector = rootRequire('cdnselector');
-var pf = rootRequire('pf');
+const cdnselector = rootRequire('cdnselector');
+const pf = rootRequire('pf');
 
-var User = sqldb.User;
-var Client = sqldb.Client;
+const User = sqldb.User;
+const Client = sqldb.Client;
 
-var logger = rootRequire('logger').prefix('VIDEO');
+const logger = rootRequire('logger').prefix('VIDEO');
 
-var getIncludedModel = () => [
+const getIncludedModel = () => [
   {model: Movie, as: 'movie'}, // load all sources assets
   {model: Episode, as: 'episode'}, // load all sources assets
   {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]} // load all sources captions
@@ -83,8 +83,8 @@ function removeEntity(res) {
 
 // Gets a list of videos
 exports.index = (req, res) => {
-  var queryName = req.param('query');
-  var paramsObj = {
+  const queryName = req.param('query');
+  let paramsObj = {
     include: getIncludedModel(),
     order: [ ['name'] ]
   };
@@ -155,7 +155,7 @@ function readVideo(videoId) {
   })
   .then(video => {
     if (!video) {
-      var error = new Error('entity not found');
+      const error = new Error('entity not found');
       error.statusCode = 404;
       throw error;
     }
@@ -176,7 +176,7 @@ function getCdnselectorInfos(userIp) {
 
 // Gets a single video from the DB
 exports.show = (req, res) => {
-  var closure = {
+  const closure = {
     billingUserSubscriptionActive: true, // default to true: if the billing is down
                                          // users can still watch videos.. ! :)
     //
@@ -198,7 +198,7 @@ exports.show = (req, res) => {
   // - verification
 
   // specific logger
-  var logger = req.logger.prefix('VIDEO');
+  const logger = req.logger.prefix('VIDEO');
 
   Q()
     .then(() => {
@@ -265,7 +265,7 @@ exports.show = (req, res) => {
   ]))
     .then(function buildingVideoObject() {
       // convert video to plain object
-      var video = closure.video.get({plain: true});
+      const video = closure.video.get({plain: true});
       // hydrate data from PF.
       video.pf = {
         definition: 'HD', // SD, HD, 4K
@@ -385,7 +385,7 @@ exports.show = (req, res) => {
       // spécificité orange, on supprime le sous titre fra, si 1 audio fra unique
       //
       if (closure.pfContent.randomContentProfile.broadcaster === 'ORANGE') {
-        var audios = closure.pfAssetsStreams
+        const audios = closure.pfAssetsStreams
           .filter(asset => asset.type === 'audio')
           .map(asset => asset.language);
         if (audios.length === 1 && audios[0] === 'fra') {
@@ -481,10 +481,10 @@ exports.destroy = (req, res) => {
     .catch(res.handleError());
 };
 
-var create = data => Video.create(data)
+const create = data => Video.create(data)
   .then(addCaptions(data));
 
-var update = (data, video) => saveUpdates(data)(video)
+const update = (data, video) => saveUpdates(data)(video)
   .then(addCaptions(data));
 
 //
@@ -528,7 +528,7 @@ module.exports.importFromPfContent = (req, res) => {
         throw new Error('missing pfContentId');
       }
       //
-      var pfContent = new (pf.PfContent)();
+      const pfContent = new (pf.PfContent)();
       return pfContent.getContentById(req.query.pfContentId)
           .then(module.exports.createFromPfContent);
     })
@@ -555,15 +555,15 @@ module.exports.createFromPfContent = pfContent => {
 
   logger.log('[IMPORT]: pfContent', pfContent);
 
-  var duration = null; // unknown
-  var pfContentDurationSplitted = pfContent.duration.split(':');
+  let duration = null; // unknown
+  const pfContentDurationSplitted = pfContent.duration.split(':');
   if (pfContentDurationSplitted.length === 3) {
     duration = parseInt(pfContentDurationSplitted[0]) * 3600 +
                parseInt(pfContentDurationSplitted[1]) * 60 +
                parseInt(pfContentDurationSplitted[2]);
   }
 
-  var data = {
+  const data = {
     pfMd5Hash: pfContent.md5Hash,
     encodingId: pfContent.uuid,
     name: pfContent.filename,

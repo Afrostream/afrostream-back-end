@@ -9,11 +9,11 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var Work = sqldb.Work;
-var filters = rootRequire('app/api/filters.js');
-var utils = rootRequire('app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Work = sqldb.Work;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
 function responseWithResult (res, statusCode) {
   statusCode = statusCode || 200;
@@ -25,8 +25,7 @@ function responseWithResult (res, statusCode) {
 }
 
 function saveUpdates (updates) {
-  return entity => entity.updateAttributes(updates)
-    .then(updated => updated);
+  return entity => entity.updateAttributes(updates);
 }
 
 function removeEntity (res) {
@@ -44,9 +43,9 @@ function removeEntity (res) {
 // ?query=... (search in the title)
 // ?slug=... (search by slug)
 exports.index = (req, res) => {
-  var queryName = req.param('query'); // deprecated.
-  var slug = req.query.slug;
-  var queryOptions = {};
+  const queryName = req.param('query'); // deprecated.
+  const slug = req.query.slug;
+  let queryOptions = {};
 
   // pagination
   utils.mergeReqRange(queryOptions, req);
@@ -77,7 +76,7 @@ exports.index = (req, res) => {
 
 // Gets a single post from the DB
 exports.show = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     where: {
       _id: req.params.id
     }

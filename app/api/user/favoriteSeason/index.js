@@ -34,19 +34,19 @@
  * @apiParam (Header) {BearerToken} authorization only authentified user can access this
  */
 
-var express = require('express');
-var controller = require('./favoriteSeason.controller.js');
-var auth = rootRequire('app/auth/auth.service');
-var router = express.Router({mergeParams:true});
+const express = require('express');
+const controller = require('./favoriteSeason.controller.js');
+const auth = rootRequire('app/auth/auth.service');
+const router = express.Router({mergeParams:true});
 
-var convertUserIdMeToUserId = (req, res, next) => {
+const convertUserIdMeToUserId = (req, res, next) => {
   if (req.params && req.params.userId === 'me' && req.user) {
     req.params.userId = String(req.user._id);
   }
   next();
 };
 
-var tokenUserMatchParamUser = (req, res, next) => {
+const tokenUserMatchParamUser = (req, res, next) => {
   if (String(req.params.userId) === String(req.user._id)) {
     next();
   } else {

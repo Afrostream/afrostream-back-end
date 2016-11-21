@@ -1,9 +1,9 @@
 'use strict';
 
-var express = require('express');
-var controller = require('./subscription.controller.js');
-var auth = rootRequire('app/auth/auth.service');
-var router = express.Router();
+const express = require('express');
+const controller = require('./subscription.controller.js');
+const auth = rootRequire('app/auth/auth.service');
+const router = express.Router();
 
 // all subscriptions routes cannot be cached
 router.use((req, res, next) => {

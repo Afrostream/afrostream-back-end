@@ -9,15 +9,15 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var Image = sqldb.Image;
-var LifeSpot = sqldb.LifeSpot;
-var LifeTheme = sqldb.LifeTheme;
-var filters = rootRequire('app/api/filters.js');
-var utils = rootRequire('app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Image = sqldb.Image;
+const LifeSpot = sqldb.LifeSpot;
+const LifeTheme = sqldb.LifeTheme;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = require('./spot.includedModel').get;
+const getIncludedModel = require('./spot.includedModel').get;
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
@@ -34,7 +34,7 @@ function saveUpdates (updates) {
 
 function updateImages (updates) {
     return entity => {
-        var promises = [];
+        const promises = [];
         promises.push(entity.setImage(updates.image && updates.image.dataValues && Image.build(updates.image.dataValues) || updates.image && Image.build(updates.image) || null));
         return sqldb.Sequelize.Promise
             .all(promises)
@@ -54,7 +54,7 @@ function removeEntity (res) {
 }
 
 function addThemes (updates) {
-    var themes = LifeTheme.build(_.map(updates.themes || [], _.partialRight(_.pick, '_id')));
+    const themes = LifeTheme.build(_.map(updates.themes || [], _.partialRight(_.pick, '_id')));
     return entity => {
         if (!themes || !themes.length) {
             return entity;
@@ -67,9 +67,9 @@ function addThemes (updates) {
 // Gets a list of life/spots
 // ?query=... (search in the title)
 exports.index = (req, res) => {
-    var queryName = req.param('query'); // deprecated.
-    var queryType = req.param('type'); // deprecated.
-    var queryOptions = {
+    const queryName = req.param('query'); // deprecated.
+    const queryType = req.param('type'); // deprecated.
+    let queryOptions = {
         include: getIncludedModel()
     };
 
@@ -101,7 +101,7 @@ exports.index = (req, res) => {
 
 // Gets a single LifeSpot from the DB
 exports.show = (req, res) => {
-    var queryOptions = {
+    let queryOptions = {
         where: {
             _id: req.params.id
         },

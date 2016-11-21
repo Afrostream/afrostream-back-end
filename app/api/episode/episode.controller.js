@@ -9,17 +9,17 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var algolia = rootRequire('components/algolia');
-var Episode = sqldb.Episode;
-var Season = sqldb.Season;
-var Video = sqldb.Video;
-var Image = sqldb.Image;
-var filters = rootRequire('app/api/filters.js');
-var utils = rootRequire('app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const algolia = rootRequire('components/algolia');
+const Episode = sqldb.Episode;
+const Season = sqldb.Season;
+const Video = sqldb.Video;
+const Image = sqldb.Image;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = require('./episode.includedModel.js').get;
+const getIncludedModel = require('./episode.includedModel.js').get;
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -35,7 +35,7 @@ function saveUpdates(updates) {
 }
 
 function addSeason(updates) {
-  var season = Season.build(updates.season);
+  const season = Season.build(updates.season);
   return entity => entity.setSeason(season)
     .then(() => entity);
 }
@@ -47,7 +47,7 @@ function updateVideo(updates) {
 
 function updateImages(updates) {
   return entity => {
-    var promises = [];
+    const promises = [];
     promises.push(entity.setPoster(updates.poster && Image.build(updates.poster) || null));
     promises.push(entity.setThumb(updates.thumb && Image.build(updates.thumb) || null));
     return sqldb.Sequelize.Promise
@@ -69,8 +69,8 @@ function removeEntity(res) {
 
 // Gets a list of episodes
 exports.index = (req, res) => {
-  var queryName = req.param('query');
-  var queryOptions = {
+  const queryName = req.param('query');
+  let queryOptions = {
     include: getIncludedModel()
   };
 
@@ -110,7 +110,7 @@ exports.index = (req, res) => {
 
 // Gets a single episode from the DB
 exports.show = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     where: {
       _id: req.params.id
     },
@@ -136,14 +136,14 @@ exports.create = (req, res) => {
 };
 
 exports.search = (req, res) => {
-  var query = req.body.query || '';
+  const query = req.body.query || '';
 
   algolia.searchIndex('episodes', query)
     .then(result => {
       if (!result) {
         throw new Error('no result from algolia');
       }
-      var queryOptions = {
+      let queryOptions = {
         where: { _id: {
           $in: (result.hits || []).map(episode => episode._id)
         } },
@@ -203,7 +203,7 @@ exports.update = (req, res) => {
 };
 // Updates an existing episode in the DB
 exports.algolia = (req, res) => {
-  var now = new Date();
+  const now = new Date();
 
   Episode.findAll({
     include: getIncludedModel(),

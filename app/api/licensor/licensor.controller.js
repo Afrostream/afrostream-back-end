@@ -9,14 +9,14 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var Movie = sqldb.Movie;
-var Licensor = sqldb.Licensor;
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Movie = sqldb.Movie;
+const Licensor = sqldb.Licensor;
 
-var utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = () => [
+const getIncludedModel = () => [
   {model: Movie, as: 'movies'} // load all movies
 ];
 
@@ -34,7 +34,7 @@ function saveUpdates(updates) {
 }
 
 function addMovies(updates) {
-  var movies = Movie.build(_.map(updates.movies || [], _.partialRight(_.pick, '_id')));
+  const movies = Movie.build(_.map(updates.movies || [], _.partialRight(_.pick, '_id')));
   return entity => entity.setMovies(movies);
 }
 
@@ -51,8 +51,8 @@ function removeEntity(res) {
 
 // Gets a list of licensors
 exports.index = (req, res) => {
-  var queryName = req.param('query');
-  var paramsObj = {
+  const queryName = req.param('query');
+  let paramsObj = {
     include: getIncludedModel()
   };
 

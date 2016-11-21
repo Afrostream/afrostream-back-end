@@ -1,16 +1,16 @@
 'use strict';
 
-var filters = rootRequire('app/api/filters.js');
-var sqldb = rootRequire('sqldb');
-var User = sqldb.User;
-var Episode = sqldb.Episode;
+const filters = rootRequire('app/api/filters.js');
+const sqldb = rootRequire('sqldb');
+const User = sqldb.User;
+const Episode = sqldb.Episode;
 
-var bluebird = require('bluebird');
+const bluebird = require('bluebird');
 
-var getIncludedModel = require('../../episode/episode.includedModel.js').get;
+const getIncludedModel = require('../../episode/episode.includedModel.js').get;
 
-var index = (req, res) => {
-  var queryOptions = {
+const index = (req, res) => {
+  let queryOptions = {
     where: {
       _id: req.user._id
     },
@@ -38,7 +38,7 @@ var index = (req, res) => {
     .catch(res.handleError(500));
 };
 
-var add = (req, res) => {
+const add = (req, res) => {
   if (!req.body._id) {
     return res.handleError(500)('missing episode _id');
   }
@@ -61,7 +61,7 @@ var add = (req, res) => {
     .catch(res.handleError(500));
 };
 
-var remove = (req, res) => {
+const remove = (req, res) => {
   User.find({
     where: {
       _id: req.user._id
@@ -76,7 +76,7 @@ var remove = (req, res) => {
       if (!user) {
         return res.status(401).end();
       }
-      var episode = Episode.build({_id: req.params.episodeId});
+      const episode = Episode.build({_id: req.params.episodeId});
       return user.removeFavoritesEpisodes(episode).then(() => {
         res.json({});
       });

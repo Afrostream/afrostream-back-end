@@ -1,12 +1,12 @@
 'use strict';
 
-var fs = require('fs');
-var legals = fs.readFileSync(__dirname + '/legals.html').toString();
-var legalsOrange = fs.readFileSync(__dirname + '/legals-orange.html').toString();
+const fs = require('fs');
+const legals = fs.readFileSync(__dirname + '/legals.html').toString();
+const legalsOrange = fs.readFileSync(__dirname + '/legals-orange.html').toString();
 
 module.exports.index = (req, res) => {
-  var client = req.passport.client;
-  var clientLegals = legals;
+  const client = req.passport.client;
+  let clientLegals = legals;
   if (client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
     clientLegals = legalsOrange;
   }

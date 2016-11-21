@@ -1,8 +1,8 @@
 'use strict';
 
-var Q = require('q');
+const Q = require('q');
 
-var billingApi = rootRequire('billing-api');
+const billingApi = rootRequire('billing-api');
 
 /**
  * response :
@@ -21,7 +21,7 @@ exports.status = (req, res) => {
       if (!req.passport.user) {
         throw new Error('unauthentified');
       }
-      var userId = null;
+      let userId = null;
       if (req.passport.user.get('role') === 'admin' && req.query.userId) {
         userId = parseInt(req.query.userId, 10);
       } else {

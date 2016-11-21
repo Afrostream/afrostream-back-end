@@ -4,23 +4,23 @@
 
 'use strict';
 
-var EventEmitter = require('events').EventEmitter;
-var LifePin = rootRequire('sqldb').LifePin;
-var LifePinEvents = new EventEmitter();
+const EventEmitter = require('events').EventEmitter;
+const LifePin = rootRequire('sqldb').LifePin;
+const LifePinEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)
 LifePinEvents.setMaxListeners(0);
 
 // Model events
-var events = {
+const events = {
     'afterCreate': 'save',
     'afterUpdate': 'save',
     'afterDestroy': 'remove'
 };
 
 // Register the event emitter to the model events
-for (var e in events) {
-    var event = events[e];
+for (const e in events) {
+    const event = events[e];
     LifePin.hook(e, emitEvent(event));
 }
 

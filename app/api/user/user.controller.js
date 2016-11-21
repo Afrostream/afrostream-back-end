@@ -1,32 +1,32 @@
 'use strict';
 
-var _ = require('lodash');
-var Q = require('q');
+const _ = require('lodash');
+const Q = require('q');
 
-var oauth2 = rootRequire('app/auth/oauth2/oauth2');
+const oauth2 = rootRequire('app/auth/oauth2/oauth2');
 
-var sqldb = rootRequire('sqldb');
-var User = sqldb.User;
-var Movie = sqldb.Movie;
-var Episode = sqldb.Episode;
-var Season = sqldb.Season;
-var Video = sqldb.Video;
-var Image = sqldb.Image;
-var UsersVideos = sqldb.UsersVideos;
+const sqldb = rootRequire('sqldb');
+const User = sqldb.User;
+const Movie = sqldb.Movie;
+const Episode = sqldb.Episode;
+const Season = sqldb.Season;
+const Video = sqldb.Video;
+const Image = sqldb.Image;
+const UsersVideos = sqldb.UsersVideos;
 
-var billingApi = rootRequire('billing-api');
+const billingApi = rootRequire('billing-api');
 
-var utils = require('../utils.js');
+const utils = require('../utils.js');
 
-var filters = rootRequire('app/api/filters.js');
+const filters = rootRequire('app/api/filters.js');
 
 /**
  * Get list of users
  * restriction: 'admin'
  */
 exports.index = (req, res) => {
-  var queryName = req.param('query');
-  var paramsObj = {
+  const queryName = req.param('query');
+  let paramsObj = {
     attributes: [
       '_id',
       'name',
@@ -75,7 +75,7 @@ exports.create = (req, res) => {
             //  pour ce bouyguesId sans risquer une erreur sur l'index unique de l'email
             if (user && user.bouyguesId && // user existe en base
                 req.body.bouyguesId !== user.bouyguesId) { // bouyguesId différent
-              var logger = req.logger.prefix('USERS').prefix('BOUYGUES');
+              const logger = req.logger.prefix('USERS').prefix('BOUYGUES');
               logger.warn('try create user ' + req.body.email + ' / ' + req.body.bouyguesId);
               logger.warn('but user '+ user._id + ' / ' + user.bouyguesId + ' already exist with this email');
               logger.warn('=> removing email from req.body, to create new user with bouyguesId ' + req.body.bouyguesId);
@@ -85,7 +85,7 @@ exports.create = (req, res) => {
       }
     })
     .then(() => {
-      var newUser = User.build(req.body);
+      const newUser = User.build(req.body);
       newUser.setDataValue('provider', 'local');
       newUser.setDataValue('role', 'user');
       return newUser.save();
@@ -99,9 +99,7 @@ exports.create = (req, res) => {
     req.userAgent,
     null
   ).then(data => {
-      var accessToken = data[0]
-        , refreshToken = data[1]
-        , info = data[2];
+      const accessToken = data[0], refreshToken = data[1], info = data[2];
 
       return {
         token: accessToken, // backward compatibility
@@ -155,7 +153,7 @@ exports.search = (req, res) => {
  */
 exports.update = (req, res) => {
   // FIXME : use joi.
-  var updateableFields = [
+  const updateableFields = [
     /* 'email', */ // FIXME_023 Please read the comment above before changing this.
     'name',
     'first_name',
@@ -209,7 +207,7 @@ exports.update = (req, res) => {
  * Get a single user
  */
 exports.show = (req, res, next) => {
-  var userId = req.params.id;
+  const userId = req.params.id;
 
   User.find({
     where: {
@@ -226,7 +224,7 @@ exports.show = (req, res, next) => {
 };
 
 exports.history = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     where: { userId: req.user._id },
     order: [ ['dateLastRead', 'desc'] ],
     include: [{
@@ -302,8 +300,8 @@ exports.destroy = (req, res) => {
  * Change a users password
  */
 exports.auth0ChangePassword = (req, res) => {
-  var userMail = req.param('email');
-  var newPass = req.param('password');
+  const userMail = req.param('email');
+  const newPass = req.param('password');
 
   User.find({
     where: {
@@ -328,9 +326,9 @@ exports.auth0ChangePassword = (req, res) => {
  * Change a users password
  */
 exports.changePassword = (req, res) => {
-  var userId = req.user._id;
-  var oldPass = String(req.body.oldPassword);
-  var newPass = String(req.body.newPassword);
+  const userId = req.user._id;
+  const oldPass = String(req.body.oldPassword);
+  const newPass = String(req.body.newPassword);
 
   User.find({
     where: {
@@ -339,7 +337,7 @@ exports.changePassword = (req, res) => {
   })
     .then(user => {
       if (!user.authenticate(oldPass)) {
-        var error = new Error('wrong password');
+        const error = new Error('wrong password');
         error.statusCode = 403;
         throw error;
       }
@@ -356,8 +354,8 @@ exports.changePassword = (req, res) => {
  * Change a users role
  */
 exports.changeRole = (req, res) => {
-  var userId = req.user._id;
-  var role = String(req.body.role);
+  const userId = req.user._id;
+  const role = String(req.body.role);
 
   User.find({
     where: {
@@ -380,7 +378,7 @@ exports.changeRole = (req, res) => {
  *   (user.save() d'un user non modifié)
  */
 exports.verify = (req, res) => {
-  var userMail = req.param('email');
+  const userMail = req.param('email');
   User.find({
     where: {
       email: userMail
@@ -404,7 +402,7 @@ exports.verify = (req, res) => {
  *  profile.planCode
  */
 exports.me = (req, res) => {
-  var userInfos = req.user.getInfos();
+  const userInfos = req.user.getInfos();
 
   // on enrichi le profile avec des infos de souscriptions
   billingApi.getSubscriptionsStatus(req.user._id)

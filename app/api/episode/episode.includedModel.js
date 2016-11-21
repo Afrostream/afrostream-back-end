@@ -1,9 +1,9 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var Season = sqldb.Season;
-var Video = sqldb.Video;
-var Image = sqldb.Image;
+const sqldb = rootRequire('sqldb');
+const Season = sqldb.Season;
+const Video = sqldb.Video;
+const Image = sqldb.Image;
 
 module.exports.get = () => [
   {

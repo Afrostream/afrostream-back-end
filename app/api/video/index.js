@@ -24,12 +24,12 @@
  * @apiSampleRequest https://legacy-api.afrostream.tv/api/users/4711
  */
 
-var express = require('express');
-var controller = require('./video.controller.js');
-var auth = rootRequire('app/auth/auth.service');
-var utils = rootRequire('app/api/utils.js');
-var router = express.Router();
-var middlewareStatsd = rootRequire('statsd').middleware;
+const express = require('express');
+const controller = require('./video.controller.js');
+const auth = rootRequire('app/auth/auth.service');
+const utils = rootRequire('app/api/utils.js');
+const router = express.Router();
+const middlewareStatsd = rootRequire('statsd').middleware;
 
 // all video routes cannot be cached.
 router.use((req, res, next) => {

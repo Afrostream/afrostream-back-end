@@ -1,10 +1,10 @@
 'use strict';
 
-var express = require('express');
-var controller = require('./catchup.controller');
-var auth = rootRequire('app/auth/auth.service');
-var utils = rootRequire('app/api/utils.js');
-var router = express.Router();
+const express = require('express');
+const controller = require('./catchup.controller');
+const auth = rootRequire('app/auth/auth.service');
+const utils = rootRequire('app/api/utils.js');
+const router = express.Router();
 
 router.post('/bet', utils.middlewareNoCache, controller.bet);
 router.get('/bet/movies', utils.middlewareNoCache, auth.hasRole('admin'), controller.betMovies);

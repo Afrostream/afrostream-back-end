@@ -1,50 +1,51 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var Category = sqldb.Category;
-var Episode = sqldb.Episode;
-var Movie = sqldb.Movie;
-var Season = sqldb.Season;
-var Language = sqldb.Language;
-var Caption = sqldb.Caption;
-var Licensor = sqldb.Licensor;
-var Video = sqldb.Video;
+const sqldb = rootRequire('sqldb');
+const Category = sqldb.Category;
+const Episode = sqldb.Episode;
+const Movie = sqldb.Movie;
+const Season = sqldb.Season;
+const Language = sqldb.Language;
+const Caption = sqldb.Caption;
+const Licensor = sqldb.Licensor;
+const Video = sqldb.Video;
 
-var Q = require('q');
+const Q = require('q');
 
-var config = rootRequire('config');
+const config = rootRequire('config');
 
-var pf = rootRequire('pf');
+const pf = rootRequire('pf');
 
 // convert mamItem to video
-var createVideoFromPfContent = require('../video/video.controller.js').createFromPfContent;
+const createVideoFromPfContent = require('../video/video.controller.js').createFromPfContent;
 
-var saveAndParseXml = require('./bet/xml').saveAndParseXml;
-var getCatchupProviderInfos = require('./bet/catchupprovider').getInfos;
-var saveCaptionsToBucket = require('./bet/aws').saveCaptionsToBucket;
+const saveAndParseXml = require('./bet/xml').saveAndParseXml;
+const getCatchupProviderInfos = require('./bet/catchupprovider').getInfos;
+const saveCaptionsToBucket = require('./bet/aws').saveCaptionsToBucket;
 
-var createJobPackCaptions = require('../job/job.packcaptions.js').create;
+const createJobPackCaptions = require('../job/job.packcaptions.js').create;
 
-var slugify = require('slugify');
+const slugify = require('slugify');
 
-var logger = rootRequire('logger').prefix('CATCHUP');
+const logger = rootRequire('logger').prefix('CATCHUP');
 
-var createMovieSeasonEpisode = (catchupProviderInfos, infos, video) => {
+const createMovieSeasonEpisode = (catchupProviderInfos, infos, video) => {
   logger.log('creating movies , seasons, episodes using infos ' + JSON.stringify(infos));
-  var episodeTitle = infos.EPISODE_TITLE_FRA || infos.EPISODE_TITLE || infos.ASSET_TITLE;
-  var episodeSlug = slugify(episodeTitle);
-  var episodeResume = infos.EPISODE_RESUME || '';
-  var seriesTitle = infos.SERIES_TITLE_FRA || episodeTitle || 'Unknown';
-  var seriesResume = infos.SERIES_RESUME || episodeResume;
-  var seriesSlug = slugify(seriesTitle);
+  const episodeTitle = infos.EPISODE_TITLE_FRA || infos.EPISODE_TITLE || infos.ASSET_TITLE;
+  const episodeSlug = slugify(episodeTitle);
+  const episodeResume = infos.EPISODE_RESUME || '';
+  const seriesTitle = infos.SERIES_TITLE_FRA || episodeTitle || 'Unknown';
+  const seriesResume = infos.SERIES_RESUME || episodeResume;
+  const seriesSlug = slugify(seriesTitle);
 
-  var txShedDate = infos.TX_SCHED_DATE_PARSED || new Date();
-  var dateFrom = new Date(txShedDate.getTime() + 24 * 3600 * 1000) // day + 1.
-    , dateTo = new Date(txShedDate.getTime() + 24 * 3600 * 1000 + 1000 * catchupProviderInfos.expiration);
+  const txShedDate = infos.TX_SCHED_DATE_PARSED || new Date();
+  const // day + 1.
+        dateFrom = new Date(txShedDate.getTime() + 24 * 3600 * 1000),
+        dateTo = new Date(txShedDate.getTime() + 24 * 3600 * 1000 + 1000 * catchupProviderInfos.expiration);
 
   if (!Number.isNaN(parseInt(infos.EPISODE_NUMBER, 10)) && !Number.isNaN(parseInt(infos.SEASON_NUMBER, 10))) {
-    var episodeNumber = parseInt(infos.EPISODE_NUMBER, 10) || 1;
-    var seasonNumber = parseInt(infos.SEASON_NUMBER, 10) || 1;
+    const episodeNumber = parseInt(infos.EPISODE_NUMBER, 10) || 1;
+    const seasonNumber = parseInt(infos.SEASON_NUMBER, 10) || 1;
 
     return Q.all([
       sqldb.nonAtomicFindOrCreate(Episode, {
@@ -60,9 +61,7 @@ var createMovieSeasonEpisode = (catchupProviderInfos, infos, video) => {
         defaults: { synopsis: seriesResume, dateFrom: dateFrom, active: true, genre: 'BET' } // FIXME: should not be hardcoded...
       })
     ]).spread((episodeInfos, seasonInfos, movieInfos) => {
-      var episode = episodeInfos[0]
-        , season = seasonInfos[0]
-        , movie = movieInfos[0];
+      const episode = episodeInfos[0], season = seasonInfos[0], movie = movieInfos[0];
 
       return Q.all([
         episode.update({  slug: episodeSlug, dateTo: dateTo, dateFrom: dateFrom }), // dateFrom of episode is "simple"
@@ -71,15 +70,15 @@ var createMovieSeasonEpisode = (catchupProviderInfos, infos, video) => {
       ]).then(data => {
         logger.log('begin smart dateFrom');
         // try to update "smart" date from for season & movie.
-        var season = data[1];
-        var movie = data[2];
+        const season = data[1];
+        const movie = data[2];
 
         //
         // searching for the first episode, with dateFrom > now - 8 days (7days + 1 day to be sure)
         // if 1 episode found, assign the episode dateFrom to the season & movie.
         // it's not a perfect algorithm... but it should work.
         //
-        var oneWeekAgo = new Date(new Date().getTime() - 1000 * 3600 * 24 * 8);
+        const oneWeekAgo = new Date(new Date().getTime() - 1000 * 3600 * 24 * 8);
         return Episode.findAll({
           attributes: ['_id', 'dateFrom'],
           where: { seasonId: season._id, $and: [ { dateFrom: { $gt: oneWeekAgo} }, { dateFrom: { $ne: null } } ] },
@@ -88,7 +87,7 @@ var createMovieSeasonEpisode = (catchupProviderInfos, infos, video) => {
         })
         .then(episodes => {
           if (episodes && episodes.length && episodes[0]) {
-            var nextEpisode = episodes[0];
+            const nextEpisode = episodes[0];
             logger.log('SMART DATE FROM : season(' + season._id + ').dateFrom = ' + nextEpisode.dateFrom);
             return season.update({ dateFrom: nextEpisode.dateFrom });
           }
@@ -103,7 +102,7 @@ var createMovieSeasonEpisode = (catchupProviderInfos, infos, video) => {
         }))
         .then(seasons => {
           if (seasons && seasons.length && seasons[0]) {
-            var nextSeason = seasons[0];
+            const nextSeason = seasons[0];
             logger.log('SMART DATE FROM : movie(' + movie._id + ').dateFrom = ' + nextSeason.dateFrom);
             return movie.update({ dateFrom: nextSeason.dateFrom });
           }
@@ -129,7 +128,7 @@ var createMovieSeasonEpisode = (catchupProviderInfos, infos, video) => {
       where: { catchupProviderId: catchupProviderInfos._id, title: seriesTitle},
       defaults: { synopsis: seriesResume, active: true, genre: 'BET' }
     }).then(movieInfos => {
-      var movie = movieInfos[0];
+      const movie = movieInfos[0];
       logger.log('database: movie ' + movie._id + ' video ' + video._id + ' ' +
                   'movie [' + seriesTitle + '] #content');
       return movie.update({ slug: seriesSlug, type: 'movie', dateFrom: dateFrom, dateTo: dateTo });
@@ -137,7 +136,7 @@ var createMovieSeasonEpisode = (catchupProviderInfos, infos, video) => {
   }
 };
 
-var addMovieToCatchupCategory = (catchupProviderInfos, movie) => {
+const addMovieToCatchupCategory = (catchupProviderInfos, movie) => {
   if (catchupProviderInfos.categoryId) {
     return Category.findById(catchupProviderInfos.categoryId)
       .then(category => {
@@ -153,7 +152,7 @@ var addMovieToCatchupCategory = (catchupProviderInfos, movie) => {
   }
 };
 
-var linkMovieToLicensor = (catchupProviderInfos, movie) => {
+const linkMovieToLicensor = (catchupProviderInfos, movie) => {
   if (catchupProviderInfos.licensorId) {
     return Licensor.findById(catchupProviderInfos.licensorId)
       .then(licensor => {
@@ -187,7 +186,7 @@ var linkMovieToLicensor = (catchupProviderInfos, movie) => {
  *
  *  FIXME: needs a big refactoring.
  */
-var bet = (req, res) => {
+const bet = (req, res) => {
   Q()
     .then(function validateBody() {
       if (req.body.sharedSecret !== '62b8557f248035275f6f8219fed7e9703d59509c')  throw 'unauthentified';
@@ -196,10 +195,8 @@ var bet = (req, res) => {
       if (req.body.captions && !Array.isArray(req.body.captions)) throw 'malformed captions';
     })
     .then(() => {
-      var catchupProviderId = config.catchup.bet.catchupProviderId;
-      var pfContentId = req.body.pfContentId
-        , xmlUrl = req.body.xml
-        , captions = req.body.captions || [];
+      const catchupProviderId = config.catchup.bet.catchupProviderId;
+      const pfContentId = req.body.pfContentId, xmlUrl = req.body.xml, captions = req.body.captions || [];
 
       // parallel execution of
       return Q.all([
@@ -207,12 +204,10 @@ var bet = (req, res) => {
         getCatchupProviderInfos(catchupProviderId),
         saveCaptionsToBucket(catchupProviderId, pfContentId, captions)
       ]).then(result => {
-        var xmlInfos = result[0]
-          , catchupProviderInfos = result[1]
-          , captionsInfos = result[2];
+        const xmlInfos = result[0], catchupProviderInfos = result[1], captionsInfos = result[2];
 
         // upserting
-        var pfContent = new (pf.PfContent)();
+        const pfContent = new (pf.PfContent)();
         return pfContent.getContentById(pfContentId)
           .then(createVideoFromPfContent)
           .then(video => {
@@ -232,10 +227,10 @@ var bet = (req, res) => {
           logger.log(catchupProviderId+': '+pfContentId+': searching caption ' + captionUrl);
           return sqldb.nonAtomicFindOrCreate(Caption, {where: {src: captionUrl, videoId: video._id}})
             .then(captionInfos => {
-              var caption = captionInfos[0];
+              const caption = captionInfos[0];
               logger.log(catchupProviderId+': '+pfContentId+': attaching caption ' + captionUrl + ' id='+ caption._id + ' to video ' + video._id);
-              var matches = captionUrl.match(/\.([^.]+)\.vtt/);
-              var lang = (matches && matches.length > 1) ? matches[1].toLowerCase() : '??';
+              const matches = captionUrl.match(/\.([^.]+)\.vtt/);
+              const lang = (matches && matches.length > 1) ? matches[1].toLowerCase() : '??';
 
               logger.log(catchupProviderId+': '+pfContentId+': caption ' + captionUrl + ' lang='+lang);
               return Language.findOne({where: { lang: lang } })
@@ -248,7 +243,7 @@ var bet = (req, res) => {
                     return Language.findOne({where: { lang: "fr" } });
                   }
                 }).then(language => {
-                  var langId = language ? language._id : 1;
+                  const langId = language ? language._id : 1;
                   return caption.update({langId: langId });  // langue par defaut: 1 <=> FR. (h4rdc0d3d).
                 });
             });
@@ -267,10 +262,10 @@ var bet = (req, res) => {
 };
 
 
-var betMovies = (req, res) => {
-  var catchupProviderId = config.catchup.bet.catchupProviderId;
+const betMovies = (req, res) => {
+  const catchupProviderId = config.catchup.bet.catchupProviderId;
 
-  var getIncludedModel = require('../movie/movie.includedModel.js').get;
+  const getIncludedModel = require('../movie/movie.includedModel.js').get;
 
   Movie.findAll({
     where: {catchupProviderId: catchupProviderId},
@@ -283,10 +278,10 @@ var betMovies = (req, res) => {
   );
 };
 
-var betSeasons = (req, res) => {
-  var catchupProviderId = config.catchup.bet.catchupProviderId;
+const betSeasons = (req, res) => {
+  const catchupProviderId = config.catchup.bet.catchupProviderId;
 
-  var getIncludedModel = require('../season/season.includedModel.js').get;
+  const getIncludedModel = require('../season/season.includedModel.js').get;
 
   Season.findAll({
     where: {catchupProviderId: catchupProviderId},
@@ -299,10 +294,10 @@ var betSeasons = (req, res) => {
   );
 };
 
-var betEpisodes = (req, res) => {
-  var catchupProviderId = config.catchup.bet.catchupProviderId;
+const betEpisodes = (req, res) => {
+  const catchupProviderId = config.catchup.bet.catchupProviderId;
 
-  var getIncludedModel = require('../episode/episode.includedModel.js').get;
+  const getIncludedModel = require('../episode/episode.includedModel.js').get;
 
   Episode.findAll({
     where: {catchupProviderId: catchupProviderId},
@@ -315,8 +310,8 @@ var betEpisodes = (req, res) => {
   );
 };
 
-var betVideos = (req, res) => {
-  var catchupProviderId = config.catchup.bet.catchupProviderId;
+const betVideos = (req, res) => {
+  const catchupProviderId = config.catchup.bet.catchupProviderId;
 
   Video.findAll({
     where: {catchupProviderId: catchupProviderId},

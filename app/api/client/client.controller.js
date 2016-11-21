@@ -9,10 +9,10 @@
 
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var Client = sqldb.Client;
+const sqldb = rootRequire('sqldb');
+const Client = sqldb.Client;
 
-var utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -42,7 +42,7 @@ function removeEntity(res) {
 exports.index = (req, res) => {
 
   // pagination
-  var paramsObj = utils.mergeReqRange({}, req);
+  const paramsObj = utils.mergeReqRange({}, req);
 
   Client.findAndCountAll(paramsObj)
     .then(utils.responseWithResultAndTotal(res))

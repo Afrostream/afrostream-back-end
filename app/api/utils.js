@@ -1,15 +1,15 @@
 'use strict';
 
-var _ = require('lodash');
+const _ = require('lodash');
 
 // should be 10
 // but the auto-complete require to query in 200 episodes ...
-var defaultLimit = 500;
+const defaultLimit = 500;
 
-var reqRangeToSequelizeLimit = (req, size) => {
+const reqRangeToSequelizeLimit = (req, size) => {
   size = size || Infinity;
 
-  var range;
+  let range;
 
   if (typeof req.range !== 'function') {
     req.logger.error('missing req.range');
@@ -31,9 +31,9 @@ var reqRangeToSequelizeLimit = (req, size) => {
   return { offset: range[0].start, limit: range[0].end - range[0].start };
 };
 
-var mergeReqRange = (obj, req, size) => _.merge(obj, reqRangeToSequelizeLimit(req, size));
+const mergeReqRange = (obj, req, size) => _.merge(obj, reqRangeToSequelizeLimit(req, size));
 
-var responseWithResultAndTotal = (res, statusCode) => {
+const responseWithResultAndTotal = (res, statusCode) => {
   statusCode = statusCode || 200;
   return entity => {
     if (entity) {
@@ -46,7 +46,7 @@ var responseWithResultAndTotal = (res, statusCode) => {
 function handleEntityNotFound() {
   return entity => {
     if (!entity) {
-      var error = new Error("entity not found");
+      const error = new Error("entity not found");
       error.statusCode = 404;
       throw error;
     }
@@ -54,12 +54,12 @@ function handleEntityNotFound() {
   };
 }
 
-var middlewareCache = (req, res, next) => {
+const middlewareCache = (req, res, next) => {
    res.cache();
    next();
 };
 
-var middlewareNoCache = (req, res, next) => {
+const middlewareNoCache = (req, res, next) => {
   res.noCache();
   next();
 };

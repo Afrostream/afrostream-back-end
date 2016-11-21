@@ -9,19 +9,19 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var algolia = rootRequire('components/algolia');
-var Season = sqldb.Season;
-var Movie = sqldb.Movie;
-var Episode = sqldb.Episode;
-var Image = sqldb.Image;
-var Promise = sqldb.Sequelize.Promise;
-var slugify = require('slugify');
-var filters = rootRequire('app/api/filters.js');
-var utils = rootRequire('app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const algolia = rootRequire('components/algolia');
+const Season = sqldb.Season;
+const Movie = sqldb.Movie;
+const Episode = sqldb.Episode;
+const Image = sqldb.Image;
+const Promise = sqldb.Sequelize.Promise;
+const slugify = require('slugify');
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = require('./season.includedModel').get;
+const getIncludedModel = require('./season.includedModel').get;
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -37,7 +37,7 @@ function saveUpdates(updates) {
 }
 
 function addMovie(updates) {
-  var movie = Movie.build(updates.movie);
+  const movie = Movie.build(updates.movie);
   return entity => {
     if (!movie) {
       return entity;
@@ -49,10 +49,10 @@ function addMovie(updates) {
 
 function addEpisodes(updates) {
   if (updates.episodes !== undefined && typeof updates.episodes === 'number') {
-    var copy = _.pick(updates, ['title', 'synopsis', 'poster', 'thumb']);
-    var datas = _.range(updates.episodes).map(() => _.cloneDeep(copy));
+    const copy = _.pick(updates, ['title', 'synopsis', 'poster', 'thumb']);
+    const datas = _.range(updates.episodes).map(() => _.cloneDeep(copy));
     return entity => {
-      var itemId = 1;
+      let itemId = 1;
       return Promise.map(datas, item => {
         item.title = item.title + ' episode ' + itemId;
         item.slug = slugify(item.title);
@@ -70,7 +70,7 @@ function addEpisodes(updates) {
 
 
   } else {
-    var episodes = Episode.build(_.map(updates.episodes || [], _.partialRight(_.pick, '_id')));
+    const episodes = Episode.build(_.map(updates.episodes || [], _.partialRight(_.pick, '_id')));
 
     return entity => {
       if (!episodes || !episodes.length) {
@@ -84,7 +84,7 @@ function addEpisodes(updates) {
 
 function updateImages(updates) {
   return entity => {
-    var promises = [];
+    const promises = [];
     promises.push(entity.setPoster(updates.poster && Image.build(updates.poster) || null));
     promises.push(entity.setThumb(updates.thumb && Image.build(updates.thumb) || null));
     return sqldb.Sequelize.Promise
@@ -106,8 +106,8 @@ function removeEntity(res) {
 
 // Gets a list of seasons
 exports.index = (req, res) => {
-  var queryName = req.param('query');
-  var queryOptions = {
+  const queryName = req.param('query');
+  let queryOptions = {
     include: getIncludedModel()
   };
 
@@ -132,7 +132,7 @@ exports.index = (req, res) => {
 
 // Gets a single season from the DB
 exports.show = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     where: {
       _id: req.params.id
     },
@@ -183,14 +183,14 @@ exports.create = (req, res) => {
 };
 
 exports.search = (req, res) => {
-  var query = req.body.query || '';
+  const query = req.body.query || '';
 
   algolia.searchIndex('seasons', query)
     .then(result => {
       if (!result) {
         throw new Error('no result from algolia');
       }
-      var queryOptions = {
+      let queryOptions = {
         where: { _id: {
           $in: (result.hits || []).map(season => season._id)
         } },
@@ -214,7 +214,7 @@ exports.search = (req, res) => {
 
 // Updates an existing episode in the DB
 exports.algolia = (req, res) => {
-  var now = new Date();
+  const now = new Date();
 
   Season.findAll({
     include: getIncludedModel(),

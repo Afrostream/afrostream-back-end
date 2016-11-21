@@ -1,13 +1,13 @@
 'use strict';
 
-var _ = require('lodash');
-var Q = require('q');
-var sqldb = rootRequire('sqldb');
-var UsersVideos = sqldb.UsersVideos;
+const _ = require('lodash');
+const Q = require('q');
+const sqldb = rootRequire('sqldb');
+const UsersVideos = sqldb.UsersVideos;
 
 module.exports.update = (req, res) => {
-  var userVideoKey = { userId: req.user._id, videoId: req.params.videoId};
-  var data = _.merge({}, req.body, userVideoKey);
+  const userVideoKey = { userId: req.user._id, videoId: req.params.videoId};
+  const data = _.merge({}, req.body, userVideoKey);
 
   delete data.dateStartRead; // shouldn't overwrite model own dateStartRead.
   delete data.dateLastRead;  // should be automaticaly set (model update hook)
@@ -34,7 +34,7 @@ module.exports.update = (req, res) => {
         throw new Error('playerAudio format should be ISO6392T');
       }
       // temp fix: translating the data.
-      var translationTable = { 'fr': 'fra', 'en': 'eng' };
+      const translationTable = { 'fr': 'fra', 'en': 'eng' };
       if (data.playerCaption && typeof translationTable[data.playerCaption] !== 'undefined') {
         req.logger.warn(req.originalUrl + ' playerCaption was translated from '+data.playerCaption+ ' to ' + translationTable[data.playerCaption]);
         data.playerCaption = translationTable[data.playerCaption];
@@ -60,12 +60,12 @@ module.exports.update = (req, res) => {
 };
 
 module.exports.show = (req, res) => {
-  var userVideoKey = { userId: req.user._id, videoId: req.params.videoId};
+  const userVideoKey = { userId: req.user._id, videoId: req.params.videoId};
   UsersVideos.find({ where: userVideoKey})
     .then(
       userVideo => {
         if (!userVideo) {
-          var error = new Error('not found');
+          const error = new Error('not found');
           error.statusCode = 404;
           throw error;
         }

@@ -1,18 +1,18 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var User = sqldb.User;
-var Client = sqldb.Client;
-var Log = sqldb.Log;
-var LogsPixel = sqldb.LogsPixel;
+const sqldb = rootRequire('sqldb');
+const User = sqldb.User;
+const Client = sqldb.Client;
+const Log = sqldb.Log;
+const LogsPixel = sqldb.LogsPixel;
 
 exports.index = (req, res) => {
-  var limit = req.query.limit || 50;
-  var type = req.query.type || 'access_token';
-  var userId = req.query.userId || null;
+  const limit = req.query.limit || 50;
+  const type = req.query.type || 'access_token';
+  const userId = req.query.userId || null;
 
   // building condition.
-  var where = { type: type };
+  const where = { type: type };
   if (userId) {
     where.userId = userId;
   }

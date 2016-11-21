@@ -9,14 +9,14 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var Post = sqldb.Post;
-var Image = sqldb.Image;
-var filters = rootRequire('app/api/filters.js');
-var utils = rootRequire('app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Post = sqldb.Post;
+const Image = sqldb.Image;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = () => [
+const getIncludedModel = () => [
   {model: Image, as: 'poster'} // load poster image
 ];
 
@@ -35,7 +35,7 @@ function saveUpdates(updates) {
 
 function updateImages(updates) {
   return entity => {
-    var promises = [];
+    const promises = [];
     promises.push(entity.setPoster(updates.poster && Image.build(updates.poster) || null));
     return sqldb.Sequelize.Promise
       .all(promises)
@@ -58,9 +58,9 @@ function removeEntity(res) {
 // ?query=... (search in the title)
 // ?slug=... (search by slug)
 exports.index = (req, res) => {
-  var queryName = req.param('query'); // deprecated.
-  var slug = req.query.slug;
-  var queryOptions = {
+  const queryName = req.param('query'); // deprecated.
+  const slug = req.query.slug;
+  let queryOptions = {
     include: getIncludedModel()
   };
 
@@ -92,7 +92,7 @@ exports.index = (req, res) => {
 
 // Gets a single post from the DB
 exports.show = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     where: {
       _id: req.params.id
     },

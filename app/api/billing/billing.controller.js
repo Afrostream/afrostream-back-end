@@ -1,14 +1,14 @@
 'use strict';
 
-var Q = require('q');
+const Q = require('q');
 
-var billingApi = rootRequire('billing-api.js');
+const billingApi = rootRequire('billing-api.js');
 
-var User = rootRequire('sqldb').User;
+const User = rootRequire('sqldb').User;
 
-var mailer = rootRequire('components/mailer');
+const mailer = rootRequire('components/mailer');
 
-var updateUserName = (req, c) => {
+const updateUserName = (req, c) => {
   return Q()
     .then(() => {
         req.user.first_name = req.user.first_name || c.bodyFirstName;
@@ -22,12 +22,12 @@ var updateUserName = (req, c) => {
 };
 
 module.exports.showInternalplans = (req, res) => {
-    var c = {};
+    const c = {};
     // FIXME: should be refactored with #209
     // who is initiating this request ?
     Q()
         .then(() => {
-            var client = req.passport.client;
+            const client = req.passport.client;
             if (!client) throw new Error('unknown client');
             switch (client.type) {
                 case 'legacy-api.bouygues-miami':
@@ -35,23 +35,25 @@ module.exports.showInternalplans = (req, res) => {
                     c.providerName = client.billingProviderName;
                     break;
                 case 'front-api.front-end':
-                    var providerName = req.query.providerName || (client ? client.billingProviderName : '');
-                    var context = req.query.contextBillingUuid;
-                    var filterEnabled = req.query.filterEnabled;
-                    if (providerName) {
-                        c.providerName = providerName;
-                    }
-                    if (context) {
-                        c.contextBillingUuid = context;
-                    }
-                    if (filterEnabled) {
-                        c.filterEnabled = filterEnabled;
-                        if (req.query.country) {
-                            c.country = req.query.country;
-                        }
-                        if (req.query.filterUserReferenceUuid) {
-                            c.filterUserReferenceUuid = req.query.filterUserReferenceUuid;
-                        }
+                    {
+                      const providerName = req.query.providerName || (client ? client.billingProviderName : '');
+                      const context = req.query.contextBillingUuid;
+                      const filterEnabled = req.query.filterEnabled;
+                      if (providerName) {
+                          c.providerName = providerName;
+                      }
+                      if (context) {
+                          c.contextBillingUuid = context;
+                      }
+                      if (filterEnabled) {
+                          c.filterEnabled = filterEnabled;
+                          if (req.query.country) {
+                              c.country = req.query.country;
+                          }
+                          if (req.query.filterUserReferenceUuid) {
+                              c.filterUserReferenceUuid = req.query.filterUserReferenceUuid;
+                          }
+                      }
                     }
                     break;
                 default:
@@ -65,7 +67,7 @@ module.exports.showInternalplans = (req, res) => {
 };
 
 module.exports.showInternalplan = (req, res) => {
-    var c = {
+    const c = {
         internalPlanUuid: req.params.internalPlanUuid
     };
     // FIXME: should be refactored with #209
@@ -87,7 +89,7 @@ module.exports.showInternalplan = (req, res) => {
  * @param res
  */
 module.exports.cancelSubscriptions = (req, res) => {
-    var c = {
+    const c = {
         userId: req.user._id,
         subscriptionUuid: req.params.subscriptionUuid
     }; // closure
@@ -97,7 +99,7 @@ module.exports.cancelSubscriptions = (req, res) => {
     // grab client billingProviderName ex: recurly, bachat
     //
         .then(() => {
-            var client = req.passport.client;
+            const client = req.passport.client;
             if (!client) throw new Error('unknown client');
             if (!client.isFrontApi() && !client.isBouyguesMiami()) {
                 throw new Error('unknown subscriptionUuid for user ' + c.userId + ' client type ' + client.type);
@@ -122,7 +124,7 @@ module.exports.cancelSubscriptions = (req, res) => {
  * @param res
  */
 module.exports.reactivateSubscriptions = (req, res) => {
-    var c = {
+    const c = {
         userId: req.user._id,
         subscriptionUuid: req.params.subscriptionUuid
     }; // closure
@@ -132,7 +134,7 @@ module.exports.reactivateSubscriptions = (req, res) => {
     // grab client billingProviderName ex: recurly, bachat
     //
         .then(() => {
-            var client = req.passport.client;
+            const client = req.passport.client;
             if (!client) throw new Error('unknown client');
             if (!client.isFrontApi() && !client.isBouyguesMiami()) {
                 throw new Error('unknown subscriptionUuid for user ' + c.userId + ' client type ' + client.type);
@@ -169,7 +171,7 @@ module.exports.reactivateSubscriptions = (req, res) => {
  * @param res
  */
 module.exports.createSubscriptions = (req, res) => {
-    var c = {
+    const c = {
         userId: req.user._id,
         userEmail: req.user.email,
         userProviderUuid: null,
@@ -186,7 +188,7 @@ module.exports.createSubscriptions = (req, res) => {
     // grab client billingProviderName ex: recurly, bachat
     //
         .then(() => {
-            var client = req.passport.client;
+            const client = req.passport.client;
             if (!client) throw new Error('unknown client');
             switch (client.type) {
                 case 'legacy-api.bouygues-miami':
@@ -226,7 +228,7 @@ module.exports.createSubscriptions = (req, res) => {
         // we create the subscription in biling-api
         //
         .then(() => {
-            var subscriptionBillingData = {
+            const subscriptionBillingData = {
                 userBillingUuid: c.userBillingUuid,
                 internalPlanUuid: c.bodyInternalPlanUuid,
                 subscriptionProviderUuid: c.bodySubscriptionProviderUuid,
@@ -261,7 +263,7 @@ module.exports.createSubscriptions = (req, res) => {
  */
 module.exports.createGift = (req, res) => {
     // FIXME: we should use joy to filter req.body.
-    var c = {
+    const c = {
         userId: req.user._id,
         userEmail: req.user.email,
         userProviderUuid: null,
@@ -278,7 +280,7 @@ module.exports.createGift = (req, res) => {
     // grab client billingProviderName ex: recurly, bachat
     //
         .then(() => {
-            var client = req.passport.client;
+            const client = req.passport.client;
             if (!client) throw new Error('unknown client');
             switch (client.type) {
                 case 'front-api.front-end':
@@ -349,7 +351,7 @@ module.exports.createGift = (req, res) => {
         // we create the subscription in biling-api
         //
         .then(() => {
-            var subscriptionBillingData = {
+            const subscriptionBillingData = {
                 userBillingUuid: c.userBillingUuid,
                 internalPlanUuid: c.bodyInternalPlanUuid,
                 subscriptionProviderUuid: c.bodySubscriptionProviderUuid,
@@ -371,8 +373,8 @@ module.exports.createGift = (req, res) => {
 module.exports.validateCoupons = (req, res) => {
     Q()
         .then(() => {
-            var billingProviderName = req.query.billingProviderName || req.query.providerName;
-            var couponCode = req.query.coupon;
+            const billingProviderName = req.query.billingProviderName || req.query.providerName;
+            const couponCode = req.query.coupon;
             return billingApi.validateCoupons(billingProviderName, couponCode);
         })
         .then(couponStatus => {
@@ -382,7 +384,7 @@ module.exports.validateCoupons = (req, res) => {
 };
 
 module.exports.listCoupons = (req, res) => {
-    var c = {
+    const c = {
         userId: req.user._id,
         userBillingUuid: req.query.userBillingUuid,
         billingProviderName: req.query.billingProviderName || req.query.billingProvider,
@@ -399,8 +401,8 @@ module.exports.listCoupons = (req, res) => {
             });
         })
         .then(() => {
-            var userBillingUuid = c.userBillingUuid;
-            var couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
+            const userBillingUuid = c.userBillingUuid;
+            const couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
             return billingApi.listCoupons(userBillingUuid, couponsCampaignBillingUuid);
         })
         .then(couponsList => {
@@ -410,7 +412,7 @@ module.exports.listCoupons = (req, res) => {
 
 module.exports.createCoupons = (req, res) => {
 
-    var c = {
+    const c = {
         userId: req.user._id,
         userReferenceUuid: req.body.userReferenceUuid,
         userEmail: req.user.email,
@@ -446,9 +448,9 @@ module.exports.createCoupons = (req, res) => {
         })
 
         .then(() => {
-            var couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
-            var userBillingUuid = c.userBillingUuid;
-            var couponOpts = c.couponOpts;
+            const couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
+            const userBillingUuid = c.userBillingUuid;
+            const couponOpts = c.couponOpts;
             return billingApi.createCoupons(userBillingUuid, couponsCampaignBillingUuid, couponOpts);
         })
         .then(couponStatus => {
@@ -459,8 +461,8 @@ module.exports.createCoupons = (req, res) => {
 module.exports.getCouponCampains = (req, res) => {
     Q()
         .then(() => {
-            var billingProviderName = req.query.billingProviderName || req.query.billingProvider;
-            var couponsCampaignBillingUuid = req.params.couponsCampaignBillingUuid || req.query.couponsCampaignBillingUuid || '';
+            const billingProviderName = req.query.billingProviderName || req.query.billingProvider;
+            const couponsCampaignBillingUuid = req.params.couponsCampaignBillingUuid || req.query.couponsCampaignBillingUuid || '';
             return billingApi.getCouponCampains(billingProviderName, couponsCampaignBillingUuid);
         })
         .then(couponStatus => {

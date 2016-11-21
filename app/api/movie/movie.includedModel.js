@@ -1,12 +1,12 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var Video = sqldb.Video;
-var Category = sqldb.Category;
-var Season = sqldb.Season;
-var Image = sqldb.Image;
-var Licensor = sqldb.Licensor;
-var Actor = sqldb.Actor;
+const sqldb = rootRequire('sqldb');
+const Video = sqldb.Video;
+const Category = sqldb.Category;
+const Season = sqldb.Season;
+const Image = sqldb.Image;
+const Licensor = sqldb.Licensor;
+const Actor = sqldb.Actor;
 
 module.exports.get = () => [
   {model: Video, as: 'video', required: false},

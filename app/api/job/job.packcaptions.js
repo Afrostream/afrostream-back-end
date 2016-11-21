@@ -1,15 +1,15 @@
 'use strict';
 
-var Q = require('q');
+const Q = require('q');
 
-var sqldb = rootRequire('sqldb');
-var Video = sqldb.Video;
-var Caption = sqldb.Caption;
-var Language = sqldb.Language;
+const sqldb = rootRequire('sqldb');
+const Video = sqldb.Video;
+const Caption = sqldb.Caption;
+const Language = sqldb.Language;
 
-var createJob = require('./job.generic.js').create;
+const createJob = require('./job.generic.js').create;
 
-var create = videoId => Q()
+const create = videoId => Q()
   .then(function readVideo() {
     return Video.find({
       where: {
@@ -27,7 +27,7 @@ var create = videoId => Q()
     return video;
   })
   .then(video => {
-    var data = {
+    const data = {
       videoId: videoId,
       encodingId: video.encodingId,
       captions: video.captions.map(caption => ({

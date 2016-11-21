@@ -1,6 +1,6 @@
-var express = require('express');
-var controller = require('./broadcaster.controller.js');
-var router = express.Router();
+const express = require('express');
+const controller = require('./broadcaster.controller.js');
+const router = express.Router();
 
 // all video routes cannot be cached.
 router.use((req, res, next) => {

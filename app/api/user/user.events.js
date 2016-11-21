@@ -4,23 +4,23 @@
 
 'use strict';
 
-var EventEmitter = require('events').EventEmitter;
-var User = rootRequire('sqldb').User;
-var UserEvents = new EventEmitter();
+const EventEmitter = require('events').EventEmitter;
+const User = rootRequire('sqldb').User;
+const UserEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)
 UserEvents.setMaxListeners(0);
 
 // Model events
-var events = {
+const events = {
   'afterCreate': 'save',
   'afterUpdate': 'save',
   'afterDestroy': 'remove'
 };
 
 // Register the event emitter to the model events
-for (var e in events) {
-  var event = events[e];
+for (const e in events) {
+  const event = events[e];
   User.hook(e, emitEvent(event));
 }
 

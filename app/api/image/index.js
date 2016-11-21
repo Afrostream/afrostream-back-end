@@ -1,11 +1,11 @@
 'use strict';
 
-var express = require('express');
-var controller = require('./image.controller.js');
-var auth = rootRequire('app/auth/auth.service');
-var utils = rootRequire('app/api/utils.js');
-var middlewareReadFile = rootRequire('app/middlewares/middleware-readfile.js');
-var router = express.Router();
+const express = require('express');
+const controller = require('./image.controller.js');
+const auth = rootRequire('app/auth/auth.service');
+const utils = rootRequire('app/api/utils.js');
+const middlewareReadFile = rootRequire('app/middlewares/middleware-readfile.js');
+const router = express.Router();
 
 router.use(auth.middleware.restrictRoutesToAuthentified());
 

@@ -1,10 +1,10 @@
 'use strict';
 
-var express = require('express');
-var controller = require('./client.controller.js');
-var auth = rootRequire('app/auth/auth.service');
-var utils = rootRequire('app/api/utils.js');
-var router = express.Router();
+const express = require('express');
+const controller = require('./client.controller.js');
+const auth = rootRequire('app/auth/auth.service');
+const utils = rootRequire('app/api/utils.js');
+const router = express.Router();
 
 router.get('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.index);
 router.get('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.show);

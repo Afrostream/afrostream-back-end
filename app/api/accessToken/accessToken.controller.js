@@ -9,10 +9,10 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var AccessToken = sqldb.AccessToken;
-var utils = rootRequire('app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const AccessToken = sqldb.AccessToken;
+const utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -59,7 +59,7 @@ exports.show = (req, res) => {
 
 // Creates a new accessToken in the DB
 exports.create = (req, res) => {
-  var data = _.merge({}, req.body, { userIp: req.clientIp });
+  const data = _.merge({}, req.body, { userIp: req.clientIp });
   AccessToken.create(data)
     .then(responseWithResult(res, 201))
     .catch(res.handleError());

@@ -4,23 +4,23 @@
 
 'use strict';
 
-var EventEmitter = require('events').EventEmitter;
-var Movie = rootRequire('sqldb').Movie;
-var MovieEvents = new EventEmitter();
+const EventEmitter = require('events').EventEmitter;
+const Movie = rootRequire('sqldb').Movie;
+const MovieEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)
 MovieEvents.setMaxListeners(0);
 
 // Model events
-var events = {
+const events = {
   'afterCreate': 'save',
   'afterUpdate': 'save',
   'afterDestroy': 'remove'
 };
 
 // Register the event emitter to the model events
-for (var e in events) {
-  var event = events[e];
+for (const e in events) {
+  const event = events[e];
   Movie.hook(e, emitEvent(event));
 }
 

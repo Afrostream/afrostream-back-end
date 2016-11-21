@@ -91,13 +91,13 @@
  *   }
  */
 
-var express = require('express');
-var controller = require('./user.controller.js');
-var auth = rootRequire('app/auth/auth.service');
-var utils = rootRequire('app/api/utils.js');
-var router = express.Router();
+const express = require('express');
+const controller = require('./user.controller.js');
+const auth = rootRequire('app/auth/auth.service');
+const utils = rootRequire('app/api/utils.js');
+const router = express.Router();
 
-var validator = require('./user.validator.js');
+const validator = require('./user.validator.js');
 
 // all user routes cannot be cached.
 router.use((req, res, next) => {
@@ -123,14 +123,14 @@ if (process.env.NODE_ENV === 'staging') {
   });
 }
 
-var convertUserIdMeToUserId = (req, res, next) => {
+const convertUserIdMeToUserId = (req, res, next) => {
   if (req.params && req.params.userId === 'me' && req.user) {
     req.params.userId = String(req.user._id);
   }
   next();
 };
 
-var tokenUserMatchParamUser = (req, res, next) => {
+const tokenUserMatchParamUser = (req, res, next) => {
   if (String(req.params.userId) === String(req.user._id)) {
     next();
   } else {

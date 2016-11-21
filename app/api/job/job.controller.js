@@ -1,13 +1,13 @@
 'use strict';
 
-var Q = require('q');
+const Q = require('q');
 
-var createJobPackCaptions = require('./job.packcaptions.js').create;
+const createJobPackCaptions = require('./job.packcaptions.js').create;
 
-var createJobCatchupBet = require('./job.catchup-bet.js').create;
+const createJobCatchupBet = require('./job.catchup-bet.js').create;
 
-var sqldb = rootRequire('sqldb');
-var Video = sqldb.Video;
+const sqldb = rootRequire('sqldb');
+const Video = sqldb.Video;
 
 // Creates a new video in the DB
 exports.create = (req, res) => Q()
@@ -48,7 +48,7 @@ exports.catchupBet = (req, res) => {
 };
 
 exports.packCaption = (req, res) => {
-  var p;
+  let p;
   if (req.query.encodingId) {
     p = Video.findAll({where: { encodingId: req.query.encodingId }});
   } else if (req.query.pfMd5Hash) {

@@ -1,8 +1,8 @@
-var express = require('express');
-var controller = require('./config.controller.js');
-var auth = rootRequire('app/auth/auth.service');
-var utils = rootRequire('app/api/utils.js');
-var router = express.Router();
+const express = require('express');
+const controller = require('./config.controller.js');
+const auth = rootRequire('app/auth/auth.service');
+const utils = rootRequire('app/api/utils.js');
+const router = express.Router();
 
 router.use(auth.middleware.restrictRoutesToAuthentified());
 

@@ -1,8 +1,8 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var User = sqldb.User;
-var AccessToken = sqldb.AccessToken;
+const sqldb = rootRequire('sqldb');
+const User = sqldb.User;
+const AccessToken = sqldb.AccessToken;
 
 module.exports.countUsers = (req, res) => {
   User.count().then(result => {
@@ -11,7 +11,7 @@ module.exports.countUsers = (req, res) => {
 };
 
 module.exports.countSignin = (req, res) => {
-  var days = req.query.days || 7;
+  const days = req.query.days || 7;
 
   AccessToken.count({
     where: { userId : { $ne: null }, created: { $gt : new Date(Date.now() - (days * 24 * 3600 * 1000)) } }
@@ -31,7 +31,7 @@ module.exports.countSignup = function (req, res) {
 */
 
 module.exports.countActiveUsers = (req, res) => {
-  var days = req.query.days || 30;
+  const days = req.query.days || 30;
 
   // fixme: sequelize this...
   sqldb.sequelize.query(
@@ -41,13 +41,13 @@ module.exports.countActiveUsers = (req, res) => {
     '   WHERE "AccessToken"."userId" IS NOT NULL AND "AccessToken"."created" > \'' + new Date(Date.now() - (days * 24 * 3600 * 1000)).toISOString() + '\'' +
     '   GROUP BY "userId"' +
     ') AS foo').then(result => {
-    var count = result[0][0].count;
+    const count = result[0][0].count;
     res.json({count:Number(count), days:Number(days)});
   });
 };
 
 module.exports.countActiveUsersByDays = (req, res) => {
-  var days = req.query.days || 30;
+  const days = req.query.days || 30;
 
   sqldb.sequelize.query(
     'select "date", count("userId") FROM ( ' +

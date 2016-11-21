@@ -4,23 +4,23 @@
 
 'use strict';
 
-var EventEmitter = require('events').EventEmitter;
-var Video = rootRequire('sqldb').Video;
-var VideoEvents = new EventEmitter();
+const EventEmitter = require('events').EventEmitter;
+const Video = rootRequire('sqldb').Video;
+const VideoEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)
 VideoEvents.setMaxListeners(0);
 
 // Model events
-var events = {
+const events = {
   'afterCreate': 'save',
   'afterUpdate': 'save',
   'afterDestroy': 'remove'
 };
 
 // Register the event emitter to the model events
-for (var e in events) {
-  var event = events[e];
+for (const e in events) {
+  const event = events[e];
   Video.hook(e, emitEvent(event));
 }
 

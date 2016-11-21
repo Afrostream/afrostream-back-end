@@ -9,12 +9,12 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var Actor = sqldb.Actor;
-var Image = sqldb.Image;
-var filters = rootRequire('app/api/filters.js');
-var utils = rootRequire('app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Actor = sqldb.Actor;
+const Image = sqldb.Image;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
 function getIncludedModel() {
   return [
@@ -37,7 +37,7 @@ function saveUpdates(updates) {
 
 function updateImages(updates) {
   return entity => {
-    var promises = [];
+    const promises = [];
     promises.push(entity.setPicture(updates.picture && Image.build(updates.picture) || null));
     return sqldb.Sequelize.Promise
       .all(promises)
@@ -58,8 +58,8 @@ function removeEntity(res) {
 
 // Gets a list of actors
 exports.index = (req, res) => {
-  var queryName = req.param('query');
-  var queryOptions = {
+  const queryName = req.param('query');
+  let queryOptions = {
     include: [
       {model: Image, as: 'picture', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
     ],
@@ -89,7 +89,7 @@ exports.index = (req, res) => {
 
 // Gets a single actor from the DB
 exports.show = (req, res) => {
-  var queryOptions = {
+  let queryOptions = {
     where: {
       _id: req.params.id
     },

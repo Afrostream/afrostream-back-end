@@ -9,13 +9,13 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('sqldb');
-var Image = sqldb.Image;
-var config = rootRequire('config');
-var aws = rootRequire('aws');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Image = sqldb.Image;
+const config = rootRequire('config');
+const aws = rootRequire('aws');
 
-var utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -32,9 +32,9 @@ function saveUpdates(updates) {
 
 // Gets a list of images
 exports.index = (req, res) => {
-  var queryName = req.param('query');
-  var typeName = req.param('type');
-  var paramsObj = {};
+  const queryName = req.param('query');
+  const typeName = req.param('type');
+  let paramsObj = {};
 
   // pagination
   utils.mergeReqRange(paramsObj, req);
@@ -73,11 +73,11 @@ exports.show = (req, res) => {
 
 // Creates a new image in the DB
 exports.create = (req, res) => {
-  var type = req.param('type') || req.query.type || 'poster';
+  const type = req.param('type') || req.query.type || 'poster';
 
   req.readFile()
     .then(file => {
-      var bucket = aws.getBucket('afrostream-img');
+      const bucket = aws.getBucket('afrostream-img');
       return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/'+type+'/{date}/{rand}-'+file.name)
         .then(data => Image.create({
         type: type,

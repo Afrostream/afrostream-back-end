@@ -1,12 +1,12 @@
 'use strict';
 
-var sqldb = rootRequire('sqldb');
-var Video = sqldb.Video;
+const sqldb = rootRequire('sqldb');
+const Video = sqldb.Video;
 
-var pf = rootRequire('pf');
+const pf = rootRequire('pf');
 
 module.exports.contents = (req, res) => {
-  var closure = {};
+  const closure = {};
 
   req.logger.log('start pf.getContents(' + req.query.state + ')');
   pf.getContents(req.query.state)
@@ -22,7 +22,7 @@ module.exports.contents = (req, res) => {
     }).then(
       videos => {
         // md5Hash to videoId
-        var pfMd5HashToVideo = {};
+        const pfMd5HashToVideo = {};
 
         videos.forEach(v => {
           if (v.get('pfMd5Hash')) {
@@ -31,7 +31,7 @@ module.exports.contents = (req, res) => {
         });
         //
         closure.pfContents.forEach(pfContent => {
-          var video = pfMd5HashToVideo[pfContent.md5Hash];
+          const video = pfMd5HashToVideo[pfContent.md5Hash];
 
           if (video) {
             pfContent.video = {
