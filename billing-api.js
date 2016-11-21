@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === 'development' ||
 
 var logger = rootRequire('logger').prefix('BILLING-API');
 
-var requestBilling = function (options) {
+var requestBilling = options => {
   var defaultOptions = {
     json: true,
     timeout: 25000, // browser request timeout is 30 sec
@@ -28,7 +28,7 @@ var requestBilling = function (options) {
   logger.log('request ', JSON.stringify(options));
 
   return Q.nfcall(request, options)
-    .then(function (data) {
+    .then(data => {
       var response = data[0]
         , body = data[1]
         , error;
@@ -57,31 +57,25 @@ var requestBilling = function (options) {
  * @param user  object
  * @return FIXME
  */
-var getSubscriptions = function (userReferenceUuid) {
+var getSubscriptions = userReferenceUuid => {
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
   return requestBilling({
     url: config.billings.url + '/billings/api/subscriptions/',
     qs: {userReferenceUuid: userReferenceUuid}
-  }).then(function (body) {
-    return body && body.response && body.response.subscriptions || [];
-  });
+  }).then(body => body && body.response && body.response.subscriptions || []);
 };
 
-var someSubscriptionActive = function (userReferenceUuid) {
+var someSubscriptionActive = userReferenceUuid => {
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
   return getSubscriptions(userReferenceUuid)
-    .then(function (subscriptions) {
-      return subscriptions.some(function (subscription) {
-        return subscription.isActive === 'yes';
-      });
-    });
+    .then(subscriptions => subscriptions.some(subscription => subscription.isActive === 'yes'));
 };
 
-var someSubscriptionActiveSafe = function (userReferenceUuid) {
+var someSubscriptionActiveSafe = userReferenceUuid => {
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
@@ -96,7 +90,7 @@ var someSubscriptionActiveSafe = function (userReferenceUuid) {
   );
 };
 
-var someSubscriptionActiveSafeTrue = function (userReferenceUuid) {
+var someSubscriptionActiveSafeTrue = userReferenceUuid => {
   assert(false); // FIXME: differencier un timeout d'un 404 (user non subscribed)
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
@@ -118,16 +112,12 @@ var someSubscriptionActiveSafeTrue = function (userReferenceUuid) {
  * @param subscriptionBillingData  object
  * @return FIXME
  */
-var createSubscription = function (subscriptionBillingData) {
-  return requestBilling({
-    method: 'POST'
-    , url: config.billings.url + '/billings/api/subscriptions/'
-    , body: subscriptionBillingData
-  })
-    .then(function (body) {
-      return body && body.response && body.response.subscription || {};
-    });
-};
+var createSubscription = subscriptionBillingData => requestBilling({
+  method: 'POST'
+  , url: config.billings.url + '/billings/api/subscriptions/'
+  , body: subscriptionBillingData
+})
+  .then(body => body && body.response && body.response.subscription || {});
 
 /**
  * cancel/reactivate a subscription in the billing-api
@@ -135,15 +125,13 @@ var createSubscription = function (subscriptionBillingData) {
  * @param subscriptionBillingUuid  string
  * @return FIXME
  */
-var updateSubscription = function (subscriptionBillingUuid, status) {
+var updateSubscription = (subscriptionBillingUuid, status) => {
   assert(typeof status === 'string' && status);
   return requestBilling({
     method: 'PUT'
     , url: config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/' + status
   })
-    .then(function (body) {
-      return body && body.response && body.response.subscription || {};
-    });
+    .then(body => body && body.response && body.response.subscription || {});
 };
 
 /**
@@ -154,7 +142,7 @@ var updateSubscription = function (subscriptionBillingUuid, status) {
  * @param providerName       string  'recurly'
  * @return FIXME
  */
-var getUser = function (userReferenceUuid, providerName) {
+var getUser = (userReferenceUuid, providerName) => {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
   assert(['stripe', 'gocardless', 'recurly', 'celery', 'bachat', 'afr', 'cashway', 'bouygues', 'orange', 'braintree', 'netsize'].indexOf(providerName) !== -1); // add other providers here later.
 
@@ -170,7 +158,7 @@ var getUser = function (userReferenceUuid, providerName) {
  * @param userBillingUuid    string  billing user id
  * @param data               object
  */
-var updateUser = function (userBillingUuid, data) {
+var updateUser = (userBillingUuid, data) => {
   assert(userBillingUuid);
   assert(data && typeof data === 'object');
 
@@ -196,7 +184,7 @@ var updateUser = function (userBillingUuid, data) {
  *  }
  * @return FIXME
  */
-var createUser = function (billingsData) {
+var createUser = billingsData => {
   assert(typeof billingsData === 'object' && billingsData);
   assert(typeof billingsData.providerName === 'string');
   assert(typeof billingsData.userReferenceUuid === 'number');
@@ -225,16 +213,14 @@ var createUser = function (billingsData) {
  *  }
  * @return FIXME
  */
-var getOrCreateUser = function (billingsData) {
+var getOrCreateUser = billingsData => {
   assert(typeof billingsData === 'object' && billingsData);
   assert(typeof billingsData.providerName === 'string');
   assert(typeof billingsData.userReferenceUuid === 'number');
   assert(billingsData.userReferenceUuid);
 
   return getUser(billingsData.userReferenceUuid, billingsData.providerName)
-    .then(function (billingsResponse) {
-      return billingsResponse;
-    }, function (err) {
+    .then(billingsResponse => billingsResponse, err => {
       if (err.statusCode !== 404) {
         throw err; // unknown error
       }
@@ -256,26 +242,22 @@ var getOrCreateUser = function (billingsData) {
  };
  */
 
-var getInternalPlans = function (billingsData) {
+var getInternalPlans = billingsData => {
   assert(typeof billingsData === 'object' && billingsData);
   return requestBilling({
     url: config.billings.url + '/billings/api/internalplans/',
     qs: billingsData
-  }).then(function (body) {
-    return body && body.response && body.response.internalPlans || [];
-  });
+  }).then(body => body && body.response && body.response.internalPlans || []);
 };
 
-var getInternalPlan = function (internalPlanUuid) {
+var getInternalPlan = internalPlanUuid => {
   assert(typeof internalPlanUuid === 'string' && internalPlanUuid);
   return requestBilling({
     url: config.billings.url + '/billings/api/internalplans/'+internalPlanUuid
-  }).then(function (body) {
-    return body && body.response && body.response.internalPlan || null;
-  });
+  }).then(body => body && body.response && body.response.internalPlan || null);
 };
 
-var subscriptionToPlanCode = function (subscription) {
+var subscriptionToPlanCode = subscription => {
   if (subscription &&
     subscription.isActive === 'yes' &&
     subscription.internalPlan &&
@@ -285,7 +267,7 @@ var subscriptionToPlanCode = function (subscription) {
   return null;
 };
 
-var subscriptionToStatus = function (subscription) {
+var subscriptionToStatus = subscription => {
   if (subscription &&
     subscription.subStatus &&
     subscription.internalPlan &&
@@ -296,9 +278,7 @@ var subscriptionToStatus = function (subscription) {
 };
 
 // @see http://stackoverflow.com/questions/1353684/detecting-an-invalid-date-date-instance-in-javascript
-var isADate = function (d) {
-  return (Object.prototype.toString.call(d) === "[object Date]") ? (!isNaN(d.getTime())) : false;
-};
+var isADate = d => (Object.prototype.toString.call(d) === "[object Date]") ? (!isNaN(d.getTime())) : false;
 
 /**
  * return true si pas de souscription, ou si la date de la
@@ -307,7 +287,7 @@ var isADate = function (d) {
  * @param subscription
  * @returns {boolean}
  */
-var subscriptionToPromo = function (subscription) {
+var subscriptionToPromo = subscription => {
   if (!subscription) {
     return true;
   }
@@ -316,72 +296,52 @@ var subscriptionToPromo = function (subscription) {
     d < new Date(new Date().getTime() - config.billings.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
 };
 
-var getSubscriptionsStatus = function (userId) {
-  return getSubscriptions(userId)
-    .then(function (subscriptions) {
-      var lastSubscription = subscriptions[0];
-      var subscriptionsStatus = {
-        subscriptions: subscriptions,
-        status: subscriptionToStatus(lastSubscription),
-        planCode: subscriptionToPlanCode(lastSubscription),
-        promo: subscriptionToPromo(lastSubscription)
-      };
-      return subscriptionsStatus;
-    }, function () {
-      return {
-        promo: true
-      };
-    });
-};
+var getSubscriptionsStatus = userId => getSubscriptions(userId)
+  .then(subscriptions => {
+    var lastSubscription = subscriptions[0];
+    var subscriptionsStatus = {
+      subscriptions: subscriptions,
+      status: subscriptionToStatus(lastSubscription),
+      planCode: subscriptionToPlanCode(lastSubscription),
+      promo: subscriptionToPromo(lastSubscription)
+    };
+    return subscriptionsStatus;
+  }, () => ({
+  promo: true
+}));
 
-var validateCoupons = function (providerName, couponCode) {
-  return requestBilling({
-    url: config.billings.url + '/billings/api/coupons/',
-    qs: {
-      providerName: providerName,
-      couponCode: couponCode
-    }
-  }).then(function (body) {
-    return body && body.response && body.response || {};
-  });
-};
+var validateCoupons = (providerName, couponCode) => requestBilling({
+  url: config.billings.url + '/billings/api/coupons/',
+  qs: {
+    providerName: providerName,
+    couponCode: couponCode
+  }
+}).then(body => body && body.response && body.response || {});
 
-var listCoupons = function (userBillingUuid, couponsCampaignBillingUuid) {
-  return requestBilling({
-    url: config.billings.url + '/billings/api/coupons/list/',
-    qs: {
-      userBillingUuid: userBillingUuid,
-      couponsCampaignBillingUuid: couponsCampaignBillingUuid
-    }
-  }).then(function (body) {
-    return body && body.response && body.response || {};
-  });
-};
+var listCoupons = (userBillingUuid, couponsCampaignBillingUuid) => requestBilling({
+  url: config.billings.url + '/billings/api/coupons/list/',
+  qs: {
+    userBillingUuid: userBillingUuid,
+    couponsCampaignBillingUuid: couponsCampaignBillingUuid
+  }
+}).then(body => body && body.response && body.response || {});
 
-var createCoupons = function (userBillingUuid, couponsCampaignBillingUuid, couponOpts) {
-  return requestBilling({
-    method: 'POST',
-    url: config.billings.url + '/billings/api/coupons/',
-    body: {
-      userBillingUuid: userBillingUuid,
-      couponsCampaignBillingUuid: couponsCampaignBillingUuid,
-      couponOpts: couponOpts
-    }
-  }).then(function (body) {
-    return body && body.response && body.response || {};
-  });
-};
+var createCoupons = (userBillingUuid, couponsCampaignBillingUuid, couponOpts) => requestBilling({
+  method: 'POST',
+  url: config.billings.url + '/billings/api/coupons/',
+  body: {
+    userBillingUuid: userBillingUuid,
+    couponsCampaignBillingUuid: couponsCampaignBillingUuid,
+    couponOpts: couponOpts
+  }
+}).then(body => body && body.response && body.response || {});
 
-var getCouponCampains = function (providerName, couponsCampaignBillingUuid) {
-  return requestBilling({
-    url: config.billings.url + '/billings/api/couponscampaigns/' + couponsCampaignBillingUuid,
-    qs: {
-      providerName: providerName
-    }
-  }).then(function (body) {
-    return body && body.response && body.response || [];
-  });
-};
+var getCouponCampains = (providerName, couponsCampaignBillingUuid) => requestBilling({
+  url: config.billings.url + '/billings/api/couponscampaigns/' + couponsCampaignBillingUuid,
+  qs: {
+    providerName: providerName
+  }
+}).then(body => body && body.response && body.response || []);
 
 // very high level
 module.exports.getSubscriptionsStatus = getSubscriptionsStatus;

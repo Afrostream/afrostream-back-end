@@ -47,7 +47,7 @@ util.inherits(AMQP, EventEmitter);
 AMQP.prototype.open = function () {
   var that = this;
 
-  var onError = function (err) {
+  var onError = err => {
     if (that.displayErrors) {
       that.logger.error(err.message);
     }
@@ -64,7 +64,7 @@ AMQP.prototype.open = function () {
   //
   return amqp.connect(this.endPoint)
     .then(
-      function (conn) {
+      conn => {
         that.logger.log('connected to AMQP ' + that.endPoint);
         that.conn = conn;
         that.conn.on('error', onError);
@@ -73,7 +73,7 @@ AMQP.prototype.open = function () {
       }
     )
     .then(
-      function (channel) {
+      channel => {
         that.logger.log('channel opened');
         that.channel = channel;
         that.channel.on('error',onError);
@@ -83,9 +83,7 @@ AMQP.prototype.open = function () {
       }
     )
     .then(
-      function (channel) {
-        return channel;
-      },
+      channel => channel,
       onError
     );
 };
@@ -101,7 +99,7 @@ AMQP.prototype.reopen = function () {
     this.logger.warn('already reopening connection');
   } else {
     this.logger.warn('try to reopen connection in 500ms');
-    this.reopenId = setTimeout(function () {
+    this.reopenId = setTimeout(() => {
       that.reopenId = null;
       that.open();
     }, 500);

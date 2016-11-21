@@ -13,7 +13,7 @@ var localQueue = [];
 // fixme: we should inject this dependency
 var logger = rootRequire('logger').prefix('MQ');
 
-mq.send = function (data) {
+mq.send = data => {
   try {
     mq.channel.publish(exchangeName, '', new Buffer(JSON.stringify(data)));
     logger.log('send ' + JSON.stringify(data));
@@ -21,7 +21,7 @@ mq.send = function (data) {
     if (config.mq.displayErrors) {
       logger.error('[mq-published]: send ' + e + ', stacking message');
     }
-    setImmediate(function () {
+    setImmediate(() => {
       localQueue.push(JSON.parse(JSON.stringify(data)));
       // security: if the nb of standby events is too large, skip the old ones
       if (localQueue.length > 10000) {
@@ -32,11 +32,11 @@ mq.send = function (data) {
 };
 
 // CHANNEL OPEN => DRAIN
-mq.on('channel.opened', function () {
+mq.on('channel.opened', () => {
   mq.channel.assertExchange(exchangeName, 'fanout', { durable: true });
   // drain localQueue
   logger.log('channel.opened: draining ' + localQueue.length + ' messages');
-  localQueue.forEach(function (message) {
+  localQueue.forEach(message => {
     mq.send(message);
   });
   localQueue = []; // reset.

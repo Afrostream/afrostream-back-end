@@ -23,7 +23,7 @@ var config = require('./config');
  * @param path      string
  * @return Promise<Unknown>
  */
-module.exports.putBufferIntoBucket = function (bucket, buffer, mimeType, path) {
+module.exports.putBufferIntoBucket = (bucket, buffer, mimeType, path) => {
   assert(bucket);
   assert(buffer instanceof Buffer);
   assert(typeof mimeType === 'string');
@@ -52,7 +52,7 @@ module.exports.putBufferIntoBucket = function (bucket, buffer, mimeType, path) {
  * @param bucketName    string
  * @return object (bucket aws)
  */
-module.exports.getBucket = function (bucketName) {
+module.exports.getBucket = bucketName => {
   var client = Knox.createClient({
     key:    config.amazon.key,
     secret: config.amazon.secret,

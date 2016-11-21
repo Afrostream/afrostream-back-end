@@ -12,7 +12,7 @@ var logger = rootRequire('logger').prefix('CDNSELECTOR');
  * a correct entry is an object { Fqdn: ..., Protocol: ... }
  * @param entry
  */
-var validateEntry = function (entry) {
+var validateEntry = entry => {
   if (!entry) {
     throw "shouldn't grab empty infos";
   }
@@ -33,7 +33,7 @@ var validateEntry = function (entry) {
  * @param ip string
  * @returns array [{"Protocol":"https","Fqdn":"hw.cdn.afrostream.net"}, ...]
  */
-var getList = function (ip) {
+var getList = ip => {
   // FIXME: to be removed
   // BEGIN
   logger.log("getList() : ip = " + ip + ' on endpoint ' + config.cdnselector.endpoint + '/api/getFQDNList');
@@ -48,64 +48,60 @@ var getList = function (ip) {
   });
 };
 
-var getListSafe = function (ip) {
-  return getList(ip)
-    .then(function (list) {
-      if (!Array.isArray(list)) {
-        throw "getList() : list should be an array (ip="+ip+")";
-      }
-      var body = list[1];
-      // FIXME: to be removed
-      // BEGIN
-      logger.log("getList() : body = "+JSON.stringify(body));
-      // END
-      if (!Array.isArray(body)) {
-        throw "getList() : list[1] (body) should be an array (ip="+ip+")";
-      }
-      if (body.length === 0) {
-        throw "getList() : list shouldn't be empty (ip="+ip+")";
-      }
-      return body.map(function (entry) {
-        validateEntry(entry);
-        return { authority: entry.Fqdn, scheme: entry.Protocol };
-      });
-    })
-    .then(
-      function success(data) {
-        logger.log('getListSafe() : success ['+ip+'] => ['+JSON.stringify(data)+']');
-        return data;
-      },
-      function error(e) {
-        logger.error('getListSafe() : error ' + e, e);
-        return [{ authority: config.cdnselector.defaultAuthority, scheme: config.cdnselector.defaultScheme }];
-      }
-    );
-};
+var getListSafe = ip => getList(ip)
+  .then(list => {
+    if (!Array.isArray(list)) {
+      throw "getList() : list should be an array (ip="+ip+")";
+    }
+    var body = list[1];
+    // FIXME: to be removed
+    // BEGIN
+    logger.log("getList() : body = "+JSON.stringify(body));
+    // END
+    if (!Array.isArray(body)) {
+      throw "getList() : list[1] (body) should be an array (ip="+ip+")";
+    }
+    if (body.length === 0) {
+      throw "getList() : list shouldn't be empty (ip="+ip+")";
+    }
+    return body.map(entry => {
+      validateEntry(entry);
+      return { authority: entry.Fqdn, scheme: entry.Protocol };
+    });
+  })
+  .then(
+    function success(data) {
+      logger.log('getListSafe() : success ['+ip+'] => ['+JSON.stringify(data)+']');
+      return data;
+    },
+    function error(e) {
+      logger.error('getListSafe() : error ' + e, e);
+      return [{ authority: config.cdnselector.defaultAuthority, scheme: config.cdnselector.defaultScheme }];
+    }
+  );
 
 /**
  * @param ip string
  * @returns object {"Protocol":"https","Fqdn":"hw.cdn.afrostream.net"}
  */
-var getFirst = function (ip) {
-  return getList(ip)
-    .then(function (list) {
-      if (!Array.isArray(list)) {
-        throw "getFirst() : list should be an array (ip="+ip+")";
-      }
-      var body = list[1];
-      // FIXME: to be removed
-      // BEGIN
-      logger.log("getList() : body = "+JSON.stringify(body));
-      // END
-      if (!Array.isArray(body)) {
-        throw "getFirst() : list[1] (body) should be an array (ip="+ip+")";
-      }
-      if (body.length === 0) {
-        throw "getFirst() : list shouldn't be empty (ip="+ip+")";
-      }
-      return body[0];
-    });
-};
+var getFirst = ip => getList(ip)
+  .then(list => {
+    if (!Array.isArray(list)) {
+      throw "getFirst() : list should be an array (ip="+ip+")";
+    }
+    var body = list[1];
+    // FIXME: to be removed
+    // BEGIN
+    logger.log("getList() : body = "+JSON.stringify(body));
+    // END
+    if (!Array.isArray(body)) {
+      throw "getFirst() : list[1] (body) should be an array (ip="+ip+")";
+    }
+    if (body.length === 0) {
+      throw "getFirst() : list shouldn't be empty (ip="+ip+")";
+    }
+    return body[0];
+  });
 
 /**
  * this function will ALWAYS return something in a successfull manner...
@@ -113,23 +109,21 @@ var getFirst = function (ip) {
  * @param ip string
  * @returns object {scheme: string, authority: string}
  */
-var getFirstSafe = function (ip) {
-  return getFirst(ip)
-    .then(function parse(infos) {
-      validateEntry(infos);
-      return { authority: infos.Fqdn, scheme: infos.Protocol };
-    })
-    .then(
-      function success(infos) {
-        logger.log('getFirstSafe() : success ['+ip+'] => ['+JSON.stringify(infos)+']');
-        return infos;
-      },
-      function error(e) {
-        logger.error('getFirstSafe() : error ' + e, e);
-        return { authority: config.cdnselector.defaultAuthority, scheme: config.cdnselector.defaultScheme };
-      }
-    );
-};
+var getFirstSafe = ip => getFirst(ip)
+  .then(function parse(infos) {
+    validateEntry(infos);
+    return { authority: infos.Fqdn, scheme: infos.Protocol };
+  })
+  .then(
+    function success(infos) {
+      logger.log('getFirstSafe() : success ['+ip+'] => ['+JSON.stringify(infos)+']');
+      return infos;
+    },
+    function error(e) {
+      logger.error('getFirstSafe() : error ' + e, e);
+      return { authority: config.cdnselector.defaultAuthority, scheme: config.cdnselector.defaultScheme };
+    }
+  );
 
 module.exports.getList = getList;
 module.exports.getListSafe = getListSafe;

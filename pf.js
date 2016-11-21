@@ -10,7 +10,7 @@ var anr = require('afrostream-node-request');
 var logger = rootRequire('logger').prefix('PF');
 
 // wrapper
-var requestPF = (function () {
+var requestPF = ((() => {
   var request = anr.create({
     name: 'REQUEST-PF',
     timeout: config.pf.timeout,
@@ -18,16 +18,15 @@ var requestPF = (function () {
     filter: anr.filters['200OKNotEmpty']
   });
 
-  return function (options) {
-    var readableQueryString = Object.keys(options.qs || []).map(function (k) { return k + '=' + options.qs[k]; }).join('&');
+  return options => {
+    var readableQueryString = Object.keys(options.qs || []).map(k => k + '=' + options.qs[k]).join('&');
     var readableUrl = config.pf.url + options.uri + (readableQueryString?'?' + readableQueryString:'');
     logger.log(readableUrl);
 
-    return request(options).then(function (data) {
-      return data[1]; // body
-    });
+    return request(options).then(data => // body
+    data[1]);
   };
-})();
+}))();
 
 function PfContent(pfMd5Hash, pfBroadcasterName) {
    this.pfMd5Hash = pfMd5Hash;
@@ -47,7 +46,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
    }
    return requestPF({
      uri: '/api/contents/'+pfContentId
-   }).then(function (pfContents) {
+   }).then(pfContents => {
      // postprocessing, this api return an array of result
      if (!pfContents) {
        throw new Error('[PF]: no content associated to hash ' + that.pfMd5Hash);
@@ -79,7 +78,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
       qs: {
         md5Hash: this.pfMd5Hash
       }
-    }).then(function (pfContents) {
+    }).then(pfContents => {
       // postprocessing, this api return an array of result
       if (!pfContents) {
         throw new Error('[PF]: no content associated to hash ' + that.pfMd5Hash);
@@ -110,9 +109,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
        if (!Array.isArray(profiles)) {
          throw new Error("profiles format");
        }
-       that.pfProfiles = profiles.filter(function (profile) {
-         return profile.broadcaster === that.pfBroadcasterName;
-       });
+       that.pfProfiles = profiles.filter(profile => profile.broadcaster === that.pfBroadcasterName);
       return that.pfProfiles;
      });
  };
@@ -127,7 +124,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
      this.getContent(),
      this.getProfiles()
    ])
-    .then(function (data) {
+    .then(data => {
       var pfContent = data[0];
 
       if (!Array.isArray(pfContent.profilesIds)) {
@@ -143,9 +140,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
       var pfProfiles = data[1];
 
       // intersecting profiles & contentProfiles, pick a random profile (first one)
-      var profile = pfProfiles.filter(function (profile) {
-        return pfContent.profilesIds.indexOf(profile.profileId) !== -1;
-      })[0];
+      var profile = pfProfiles.filter(profile => pfContent.profilesIds.indexOf(profile.profileId) !== -1)[0];
       if (!profile) {
         throw new Error('[PF]: '+that.pfMd5Hash+'|'+that.pfBroadcasterName+' no intersecting profile found');
       }
@@ -162,17 +157,15 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
    }
    // we assume getContentRandomProfile loads every thing...
    return this.getContentRandomProfile()
-    .then(function (randomProfile) {
-      return requestPF({
-        uri: '/api/assetsStreams',
-        qs: {
-          md5Hash: that.pfMd5Hash,
-          profileName: randomProfile.name,
-          broadcaster: that.pfBroadcasterName
-        }
-      });
-    })
-    .then(function (assetsStreams) {
+    .then(randomProfile => requestPF({
+     uri: '/api/assetsStreams',
+     qs: {
+       md5Hash: that.pfMd5Hash,
+       profileName: randomProfile.name,
+       broadcaster: that.pfBroadcasterName
+     }
+   }))
+    .then(assetsStreams => {
       if (!Array.isArray(assetsStreams)) {
         throw new Error('[PF]: assetsStreams should be an array');
       }
@@ -190,15 +183,13 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
      return Q(this.manifests);
    }
    return this.getContent()
-    .then(function (pfContent) {
-      return requestPF({
-        uri: '/api/pfManifest',
-        qs: {
-          contentId: pfContent.contentId,
-          broadcaster: that.pfBroadcasterName
-        }
-      });
-    })
+    .then(pfContent => requestPF({
+     uri: '/api/pfManifest',
+     qs: {
+       contentId: pfContent.contentId,
+       broadcaster: that.pfBroadcasterName
+     }
+   }))
     .then(function checkResult(manifests) {
       if (!manifests) {
         throw new Error('[PF]: '+that.pfContent.contentId+'|'+that.pfBroadcasterName+' missing manifests');
@@ -236,7 +227,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
         smooth: "application/vnd.ms-sstr+xml"
       };
 
-      return manifests.manifests.map(function (manifest) {
+      return manifests.manifests.map(manifest => {
         var contentType = pfTypeToContentType[manifest.type];
 
         if (!contentType) {
@@ -248,7 +239,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
         };
       });
     })
-    .then(function (manifests) {
+    .then(manifests => {
       that.manifests = manifests;
       return manifests;
     });
@@ -259,7 +250,7 @@ var getContents = function (state) {
   return requestPF({
    uri: '/api/contents',
    qs: { state: state || 'ready' }
-  }).then(function (pfContents) {
+  }).then(pfContents => {
     // postprocessing, this api return an array of result
     if (!pfContents) {
      throw new Error('[PF]: no content associated to hash ' + that.pfMd5Hash);
