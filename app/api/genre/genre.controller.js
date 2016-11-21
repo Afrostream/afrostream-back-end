@@ -8,7 +8,7 @@ var utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -16,7 +16,7 @@ function responseWithResult(res, statusCode) {
 }
 
 // Gets a list of episodes
-exports.index = function (req, res) {
+exports.index = (req, res) => {
   var queryName = req.param('query');
 
   var queryOptions = {};
@@ -41,7 +41,7 @@ exports.index = function (req, res) {
 };
 
 // Gets a single episode from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
   var queryOptions = {
     where: {
       _id: req.params.id

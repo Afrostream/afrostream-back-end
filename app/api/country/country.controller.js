@@ -13,9 +13,9 @@ var sqldb = rootRequire('sqldb');
 var Country = sqldb.Country;
 
 // Gets a list of comments
-exports.index = function(req, res) {
+exports.index = (req, res) => {
   Country.findAll()
-    .then(function (list) {
+    .then(list => {
       res.json(list);
     }, res.handleError());
 };

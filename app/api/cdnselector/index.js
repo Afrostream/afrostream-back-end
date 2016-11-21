@@ -5,7 +5,7 @@ var controller = require('./cdnselector.controller.js');
 var router = express.Router();
 
 // all cdnselector routes cannot be cached
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   res.noCache();
   next();
 });

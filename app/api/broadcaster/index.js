@@ -3,7 +3,7 @@ var controller = require('./broadcaster.controller.js');
 var router = express.Router();
 
 // all video routes cannot be cached.
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   res.noCache();
   next();
 });

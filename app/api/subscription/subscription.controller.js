@@ -15,9 +15,9 @@ var billingApi = rootRequire('billing-api');
  *   ]
  * }
  */
-exports.status = function (req, res) {
+exports.status = (req, res) => {
   Q()
-    .then(function () {
+    .then(() => {
       if (!req.passport.user) {
         throw new Error('unauthentified');
       }
@@ -30,7 +30,7 @@ exports.status = function (req, res) {
       return billingApi.getSubscriptionsStatus(userId);
     })
     .then(
-      function (subscriptionsStatus) {
+      subscriptionsStatus => {
         res.json(subscriptionsStatus);
       },
       res.handleError()

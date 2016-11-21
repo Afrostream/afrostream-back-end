@@ -35,17 +35,15 @@ var Client = sqldb.Client;
 
 var logger = rootRequire('logger').prefix('VIDEO');
 
-var getIncludedModel = function () {
-  return [
-    {model: Movie, as: 'movie'}, // load all sources assets
-    {model: Episode, as: 'episode'}, // load all sources assets
-    {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]} // load all sources captions
-  ];
-};
+var getIncludedModel = () => [
+  {model: Movie, as: 'movie'}, // load all sources assets
+  {model: Episode, as: 'episode'}, // load all sources assets
+  {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]} // load all sources captions
+];
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -53,38 +51,30 @@ function responseWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates);
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 function addCaptions(updates) {
-  return function (entity) {
-    return Promise.map(updates.captions || [], function (item) {
-      return sqldb.nonAtomicFindOrCreate(Caption, {where: {_id: item._id}}).then(function (elem) {
-        elem = elem[0];
-        if (!elem.isNewRecord) {
-          return elem.updateAttributes(item);
-        }
-        return elem;
-      });
-    }).then(function (inserts) {
-      if (!inserts || !inserts.length) {
-        return entity;
-      }
-      return entity.setCaptions(inserts)
-        .then(function () {
-          return entity;
-        });
-    });
-  };
+  return entity => Promise.map(updates.captions || [], item => sqldb.nonAtomicFindOrCreate(Caption, {where: {_id: item._id}}).then(elem => {
+    elem = elem[0];
+    if (!elem.isNewRecord) {
+      return elem.updateAttributes(item);
+    }
+    return elem;
+  })).then(inserts => {
+    if (!inserts || !inserts.length) {
+      return entity;
+    }
+    return entity.setCaptions(inserts)
+      .then(() => entity);
+  });
 }
 
 function removeEntity(res) {
-  return function (entity) {
+  return entity => {
     if (entity) {
       return entity.destroy()
-        .then(function () {
+        .then(() => {
           res.status(204).end();
         });
     }
@@ -92,7 +82,7 @@ function removeEntity(res) {
 }
 
 // Gets a list of videos
-exports.index = function (req, res) {
+exports.index = (req, res) => {
   var queryName = req.param('query');
   var paramsObj = {
     include: getIncludedModel(),
@@ -163,7 +153,7 @@ function readVideo(videoId) {
       {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]}
     ]
   })
-  .then(function (video) {
+  .then(video => {
     if (!video) {
       var error = new Error('entity not found');
       error.statusCode = 404;
@@ -185,7 +175,7 @@ function getCdnselectorInfos(userIp) {
 }
 
 // Gets a single video from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
   var closure = {
     billingUserSubscriptionActive: true, // default to true: if the billing is down
                                          // users can still watch videos.. ! :)
@@ -211,7 +201,7 @@ exports.show = function (req, res) {
   var logger = req.logger.prefix('VIDEO');
 
   Q()
-    .then(function () {
+    .then(() => {
       // security & checks
       ensureAccessToVideo(req);
       //
@@ -219,64 +209,60 @@ exports.show = function (req, res) {
       logger.log('broadcaster.pfName='+req.broadcaster.get('pfName'));
       logger.log('req.user._id=' + req.user._id);
     })
-    .then(function () {
-      // READ VIDEO
-      //   as soon as possible, read pf infos.
-      return Q.all([
-        readVideo(req.params.id)
-          .then(function (video) {
-            closure.video = video;
-            //! FIXME: HOTFIX 10/10/2016 live bet down.
-            // on skip la recherche côté PF, car la pf ne connait pas les manifests
-            if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
-              return;
+    .then(() => // READ VIDEO
+  //   as soon as possible, read pf infos.
+  Q.all([
+    readVideo(req.params.id)
+      .then(video => {
+        closure.video = video;
+        //! FIXME: HOTFIX 10/10/2016 live bet down.
+        // on skip la recherche côté PF, car la pf ne connait pas les manifests
+        if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
+          return;
+        }
+        if (req.passport.client.isAfrostreamAdmin()) {
+          return; // skip pf part for the admin.
+        }
+        if (!video.pfMd5Hash) {
+          // fallback, on cherche les sources dans l'ancienne table Assets
+          return Asset.findAll({
+            where: { videoId: video._id }
+          }).then(sources => {
+            if (!sources || !sources.length) {
+              throw new Error('missing pfMd5Hash, cannot fallback to Assets table');
             }
-            if (req.passport.client.isAfrostreamAdmin()) {
-              return; // skip pf part for the admin.
-            }
-            if (!video.pfMd5Hash) {
-              // fallback, on cherche les sources dans l'ancienne table Assets
-              return Asset.findAll({
-                where: { videoId: video._id }
-              }).then(function (sources) {
-                if (!sources || !sources.length) {
-                  throw new Error('missing pfMd5Hash, cannot fallback to Assets table');
-                }
-                // on imite le retour de la pf
-                logger.log('missing pfMd5Hash, fallback to Assets');
-                closure.pfAssetsStreams = [];
-                closure.pfManifests = sources.map(function (source) {
-                  return {
-                    src: source.src.replace(/^https?:\/\/[^/]+/,''),
-                    type: source.type
-                  };
-                });
-              });
-            }
-            closure.pfContent = new (pf.PfContent)(video.pfMd5Hash, req.broadcaster.get('pfName'));
-            return Q.all([
-              closure.pfContent.getAssetsStreams(),
-              closure.pfContent.getManifests()
-            ]).then(function (pfData) {
-              closure.pfAssetsStreams = pfData[0];
-              closure.pfManifests = pfData[1];
-            });
-          })
+            // on imite le retour de la pf
+            logger.log('missing pfMd5Hash, fallback to Assets');
+            closure.pfAssetsStreams = [];
+            closure.pfManifests = sources.map(source => ({
+              src: source.src.replace(/^https?:\/\/[^/]+/,''),
+              type: source.type
+            }));
+          });
+        }
+        closure.pfContent = new (pf.PfContent)(video.pfMd5Hash, req.broadcaster.get('pfName'));
+        return Q.all([
+          closure.pfContent.getAssetsStreams(),
+          closure.pfContent.getManifests()
+        ]).then(pfData => {
+          closure.pfAssetsStreams = pfData[0];
+          closure.pfManifests = pfData[1];
+        });
+      })
 
-        ,
-        // BILLING INFOS
-        getBillingUserSubscriptionStatus(req.user)
-          .then(function (active) {
-            closure.billingUserSubscriptionActive = active;
-          })
-        ,
-        // CDN-SELECTOR
-        getCdnselectorInfos(req.clientIp)
-          .then(function (cdnselectorInfos) {
-            closure.cdnselectorInfos = cdnselectorInfos;
-          })
-      ]);
-    })
+    ,
+    // BILLING INFOS
+    getBillingUserSubscriptionStatus(req.user)
+      .then(active => {
+        closure.billingUserSubscriptionActive = active;
+      })
+    ,
+    // CDN-SELECTOR
+    getCdnselectorInfos(req.clientIp)
+      .then(cdnselectorInfos => {
+        closure.cdnselectorInfos = cdnselectorInfos;
+      })
+  ]))
     .then(function buildingVideoObject() {
       // convert video to plain object
       var video = closure.video.get({plain: true});
@@ -315,7 +301,7 @@ exports.show = function (req, res) {
       }
 
       // CDN-SELECTOR
-      video.sources.forEach(function (source) {
+      video.sources.forEach(source => {
         // FIXME: to be removed
         // START REMOVE
         // hack staging cdnselector orange (testing)
@@ -353,7 +339,7 @@ exports.show = function (req, res) {
       }
       */
       if (req.passport && req.passport.client && req.passport.client.isTapptic()) {
-        video.sources.forEach(function (source) {
+        video.sources.forEach(source => {
           source._id = video._id;
           source.videoId = video._id;
           source.importId = Math.round(Math.random()*10000);
@@ -392,9 +378,7 @@ exports.show = function (req, res) {
       // FIXME: shouldn't be "named based"
       if (closure.pfContent.randomContentProfile.name.indexOf('_SUB0FRA') !== -1) {
         logger.log('burnedCaptions (' + closure.pfContent.randomContentProfile.name + '), filtering on fra');
-        video.captions = (video.captions || []).filter(function (caption) {
-          return caption.lang.ISO6392T === 'fra';
-        });
+        video.captions = (video.captions || []).filter(caption => caption.lang.ISO6392T === 'fra');
       }
 
       //
@@ -402,8 +386,8 @@ exports.show = function (req, res) {
       //
       if (closure.pfContent.randomContentProfile.broadcaster === 'ORANGE') {
         var audios = closure.pfAssetsStreams
-          .filter(function (asset) { return asset.type === 'audio'; })
-          .map(function (asset) { return asset.language; });
+          .filter(asset => asset.type === 'audio')
+          .map(asset => asset.language);
         if (audios.length === 1 && audios[0] === 'fra') {
           logger.log('hack profile _ORANGE: 1 audio language=fra => no captions');
           video.captions = [];
@@ -437,33 +421,31 @@ exports.show = function (req, res) {
       return video;
     })
     .then(
-      function (video) {
-        // logs
-        return Log.create({
-          type: 'read-video',
-          clientId: req.passport && req.passport.client && req.passport && req.passport.client._id || null,
-          userId: req.passport && req.passport.user && req.passport.user._id || req.user && parseInt(req.user._id, 10) || null,
-          data: {
-            videoId: video._id,
-            userIp: req.clientIp || undefined,
-            userAgent: req.userAgent || undefined,
-            userDeviceType: req.get('X-Device-Type') || undefined
-          }
-        }).then(
-          function noop() { },
-          function (err) {
-            logger.error('[LOG]: '+err.message);
-            return;
-          }
-        ).then(function () { return video; });
-      }
+      video => // logs
+      Log.create({
+        type: 'read-video',
+        clientId: req.passport && req.passport.client && req.passport && req.passport.client._id || null,
+        userId: req.passport && req.passport.user && req.passport.user._id || req.user && parseInt(req.user._id, 10) || null,
+        data: {
+          videoId: video._id,
+          userIp: req.clientIp || undefined,
+          userAgent: req.userAgent || undefined,
+          userDeviceType: req.get('X-Device-Type') || undefined
+        }
+      }).then(
+        function noop() { },
+        err => {
+          logger.error('[LOG]: '+err.message);
+          return;
+        }
+      ).then(() => video)
     )
     .then(responseWithResult(res))
     .catch(res.handleError());
 };
 
 // Creates a new video in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
   Video.create(req.body)
     .then(addCaptions(req.body))
     .then(responseWithResult(res, 201))
@@ -471,7 +453,7 @@ exports.create = function (req, res) {
 };
 
 // Updates an existing video in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }
@@ -488,7 +470,7 @@ exports.update = function (req, res) {
 };
 
 // Deletes a video from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
   Video.find({
     where: {
       _id: req.params.id
@@ -499,15 +481,11 @@ exports.destroy = function (req, res) {
     .catch(res.handleError());
 };
 
-var create = function (data) {
-  return Video.create(data)
-    .then(addCaptions(data));
-};
+var create = data => Video.create(data)
+  .then(addCaptions(data));
 
-var update = function (data, video) {
-  return saveUpdates(data)(video)
-    .then(addCaptions(data));
-};
+var update = (data, video) => saveUpdates(data)(video)
+  .then(addCaptions(data));
 
 //
 // Update or insert a new video in the DB
@@ -515,7 +493,7 @@ var update = function (data, video) {
 //
 // @input data object
 // @return <promise>
-module.exports.upsertUsingEncodingId = function (data) {
+module.exports.upsertUsingEncodingId = data => {
   // create / update base on encodingId
   if (!data.encodingId) {
     // should trigger a warning
@@ -529,7 +507,7 @@ module.exports.upsertUsingEncodingId = function (data) {
     });
 };
 
-module.exports.upsertUsingPfMd5Hash = function (data) {
+module.exports.upsertUsingPfMd5Hash = data => {
   // create / update base on encodingId
   if (!data.pfContentId) {
     // should trigger a warning
@@ -543,9 +521,9 @@ module.exports.upsertUsingPfMd5Hash = function (data) {
     });
 };
 
-module.exports.importFromPfContent = function (req, res) {
+module.exports.importFromPfContent = (req, res) => {
   Q()
-    .then(function () {
+    .then(() => {
       if (!req.query.pfContentId) {
         throw new Error('missing pfContentId');
       }
@@ -561,7 +539,7 @@ module.exports.importFromPfContent = function (req, res) {
 };
 
 // FIXME : should be in the model
-module.exports.createFromPfContent = function (pfContent) {
+module.exports.createFromPfContent = pfContent => {
   if (!pfContent) {
     throw new Error('missing pfContent');
   }
@@ -594,10 +572,8 @@ module.exports.createFromPfContent = function (pfContent) {
   };
 
   return Video.findOne({ where: { pfMd5Hash: pfContent.md5Hash }})
-    .then(function (video) {
-      return video ? video.update(data) : Video.create(data);
-    })
-    .then(function (video) {
+    .then(video => video ? video.update(data) : Video.create(data))
+    .then(video => {
       logger.log('video '+video._id+' was inserted');
       return video;
     });

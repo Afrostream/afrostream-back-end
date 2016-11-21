@@ -9,7 +9,7 @@ var Season = sqldb.Season;
  * retourne la liste des épisodes disponibles pour un broadcaster
  * sans restriction de date, sans restriction de pays
  */
-module.exports.episodes = function (req, res) {
+module.exports.episodes = (req, res) => {
   Episode.findAll({
     where: {
       active: true,
@@ -30,7 +30,7 @@ module.exports.episodes = function (req, res) {
  * retourne la liste des films disponibles pour un broadcaster
  *  sans restriction de date, sans restriction de pays.
  */
-module.exports.movies = function (req, res) {
+module.exports.movies = (req, res) => {
   Movie.findAll({
     where: {
       active: true,

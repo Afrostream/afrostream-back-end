@@ -7,7 +7,7 @@ var User = sqldb.User;
 var Client = sqldb.Client;
 
 // Gets a list of captions
-exports.orange = function (req, res) {
+exports.orange = (req, res) => {
   var day = (req.query.day) ? moment(req.query.day, "YYYYMMDD") : moment().subtract(1, 'days');
   req.logger.log('[ORANGE]: day = ', day.toDate());
   var dateFrom = day.clone().startOf('day').toDate();

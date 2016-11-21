@@ -9,14 +9,14 @@ var getIncludedModel = require('./lifeUser.includedModel').get;
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
-    return function (entity) {
+    return entity => {
         if (entity) {
             res.status(statusCode).json(entity);
         }
     };
 }
 
-exports.index = function (req, res) {
+exports.index = (req, res) => {
     var queryOptions = {
         include: getIncludedModel(),
         limit: 100
@@ -41,7 +41,7 @@ exports.index = function (req, res) {
 
 
 // Gets a single LifeTheme from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
     var queryOptions = {
         include: getIncludedModel(),
         where: {

@@ -17,7 +17,7 @@ var utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -25,19 +25,14 @@ function responseWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 function removeEntity(res) {
-  return function (entity) {
+  return entity => {
     if (entity) {
       return entity.destroy()
-        .then(function () {
+        .then(() => {
           res.status(204).end();
         });
     }
@@ -45,14 +40,14 @@ function removeEntity(res) {
 }
 
 // Gets a list of captions
-exports.index = function (req, res) {
+exports.index = (req, res) => {
   Caption.findAll()
     .then(responseWithResult(res))
     .catch(res.handleError());
 };
 
 // Gets a single caption from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
   Caption.find({
     where: {
       _id: req.params.id
@@ -64,20 +59,18 @@ exports.show = function (req, res) {
 };
 
 // Creates a new caption in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
   req.readFile()
-    .then(function (file) {
+    .then(file => {
       var bucket = aws.getBucket('tracks.afrostream.tv');
       return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/caption/{date}/{rand}-'+file.name);
-    }).then(function (data) {
-      return Caption.create({ src: data.req.url });
-    })
+    }).then(data => Caption.create({ src: data.req.url }))
     .then(responseWithResult(res, 201))
     .catch(res.handleError());
 };
 
 // Updates an existing caption in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }
@@ -93,7 +86,7 @@ exports.update = function (req, res) {
 };
 
 // Deletes a caption from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
   Caption.find({
     where: {
       _id: req.params.id

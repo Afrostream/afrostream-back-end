@@ -31,7 +31,7 @@ var utils = require('./utils.js');
  * @param rootModel sequelize model
  * @return object new filtered options object
  */
-var filterQueryOptions = function (req, options, rootModel) {
+var filterQueryOptions = (req, options, rootModel) => {
     assert(rootModel);
 
     var isBacko = utils.isReqFromAfrostreamAdmin(req);
@@ -177,15 +177,13 @@ function filterUserRecursive (entity, role, attribute) {
     var c = entity.get({plain: true});
     if (attribute) {
         var entityR = entity[attribute];
-        c[attribute] = (entityR || []).map(function (entityD) {
+        c[attribute] = (entityR || []).map(entityD => {
             var p = entityD.get({plain: true});
             if (entityD.user) {
                 p.user = entityD.user[roleMehod]();
             }
             if (entityD.users) {
-                p.users = (entityD.users || []).map(function (user) {
-                    return user[roleMehod]();
-                });
+                p.users = (entityD.users || []).map(user => user[roleMehod]());
             }
             return p;
         });
@@ -195,26 +193,26 @@ function filterUserRecursive (entity, role, attribute) {
     }
 }
 
-var filterUserAttributesAll = function (req, role, attr) {
+var filterUserAttributesAll = (req, role, attr) => {
     assert(role);
     var attributes = attr || [];
     var isBacko = utils.isReqFromAfrostreamAdmin(req);
-    return function (entitys) {
+    return entitys => {
         if (isBacko) {
             return entitys; // no restrictions.
         }
 
         var promises = [];
         var entityList = entitys.rows || [entitys];
-        (entityList || []).map(function (entity) {
+        (entityList || []).map(entity => {
             if (!attributes.length) {
-                promises.push(new Promise(function (resolve) {
+                promises.push(new Promise(resolve => {
                     var c = filterUserRecursive(entity, role);
                     resolve(c);
                 }));
             } else {
-                _.map(attributes, function (attribute) {
-                    promises.push(new Promise(function (resolve) {
+                _.map(attributes, attribute => {
+                    promises.push(new Promise(resolve => {
                         var c = filterUserRecursive(entity, role, attribute);
                         resolve(c);
                     }));
@@ -224,20 +222,18 @@ var filterUserAttributesAll = function (req, role, attr) {
 
         return Promise
             .all(promises)
-            .then(function (entityFiltered) {
-                return {
-                    count: entityFiltered.length,
-                    rows: entityFiltered
-                };
-            });
+            .then(entityFiltered => ({
+            count: entityFiltered.length,
+            rows: entityFiltered
+        }));
     };
 };
 
-var filterUserAttributes = function (req, role, attr) {
+var filterUserAttributes = (req, role, attr) => {
     assert(role);
     var attributes = attr || [];
     var isBacko = utils.isReqFromAfrostreamAdmin(req);
-    return function (entity) {
+    return entity => {
         if (isBacko) {
             return entity; // no restrictions.
         }
@@ -245,7 +241,7 @@ var filterUserAttributes = function (req, role, attr) {
             return filterUserRecursive(entity, role);
         } else {
             var c = entity.get({plain: true});
-            _.map(attributes, function (attribute) {
+            _.map(attributes, attribute => {
                 _.merge(c, filterUserRecursive(entity, role, attribute));
             });
             return c;
@@ -258,16 +254,12 @@ var filterUserAttributes = function (req, role, attr) {
  * default output filter :
  *  - convert objects to plain
  */
-var filterOutput = function (options) {
-  return function (data) {
-    if (Array.isArray(data)) {
-      return data.map(function (instance) {
-        return instance.getPlain(options);
-      });
-    } else {
-      return data.getPlain(options);
-    }
-  };
+var filterOutput = options => data => {
+  if (Array.isArray(data)) {
+    return data.map(instance => instance.getPlain(options));
+  } else {
+    return data.getPlain(options);
+  }
 };
 
 // FIXME: USER_PRIVACY: we should implement here a global output filter

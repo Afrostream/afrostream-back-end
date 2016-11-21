@@ -2,7 +2,7 @@
 
 var cdnselector = rootRequire('cdnselector');
 
-exports.getList = function (req, res) {
+exports.getList = (req, res) => {
   // FIXME: to be removed
   // START REMOVE
   // hack staging cdnselector orange (testing)

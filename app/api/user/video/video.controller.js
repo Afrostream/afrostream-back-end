@@ -5,7 +5,7 @@ var Q = require('q');
 var sqldb = rootRequire('sqldb');
 var UsersVideos = sqldb.UsersVideos;
 
-module.exports.update = function (req, res) {
+module.exports.update = (req, res) => {
   var userVideoKey = { userId: req.user._id, videoId: req.params.videoId};
   var data = _.merge({}, req.body, userVideoKey);
 
@@ -16,7 +16,7 @@ module.exports.update = function (req, res) {
   data.lastUpdateDeviceType = String(req.get('X-Device-Type') || '').substr(0, 16); // tapptic additionnal info.
 
   Q()
-    .then(function () {
+    .then(() => {
       // some security
       if (typeof data.rating !== 'undefined' && (data.rating < 1 || data.rating > 5)) {
         throw new Error('rating must be between 1 and 5 (inclusive)');
@@ -43,9 +43,7 @@ module.exports.update = function (req, res) {
         throw new Error('playerCaption format should be ISO6392T');
       }
     })
-    .then(function () {
-      return UsersVideos.findOne({where: userVideoKey});
-    })
+    .then(() => UsersVideos.findOne({where: userVideoKey}))
     .then(function upsert(userVideo) {
       // manual upsert, non atomic, but avoid heroku posgres log
       // 2016-03-29T10:28:27Z app[postgres.24289]: [DATABASE] statement: CREATE OR REPLACE FUNCTION pg_temp.sequelize_upsert()...
@@ -56,16 +54,16 @@ module.exports.update = function (req, res) {
       }
     })
     .then(
-      function () { res.json({}); },
+      () => { res.json({}); },
       res.handleError()
     );
 };
 
-module.exports.show = function (req, res) {
+module.exports.show = (req, res) => {
   var userVideoKey = { userId: req.user._id, videoId: req.params.videoId};
   UsersVideos.find({ where: userVideoKey})
     .then(
-      function (userVideo) {
+      userVideo => {
         if (!userVideo) {
           var error = new Error('not found');
           error.statusCode = 404;
@@ -75,15 +73,15 @@ module.exports.show = function (req, res) {
       }
     )
     .then(
-      function (userVideo) { res.json(userVideo); },
+      userVideo => { res.json(userVideo); },
       res.handleError()
     );
 };
 
-module.exports.index = function (req, res) {
+module.exports.index = (req, res) => {
   UsersVideos.findAll({ where: { userId: req.user._id }, order: [ ['dateLastRead', 'desc'] ] })
     .then(
-      function (e) { res.json(e || []); },
+      e => { res.json(e || []); },
       res.handleError()
     );
 };

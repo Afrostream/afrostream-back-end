@@ -6,7 +6,7 @@ var auth = rootRequire('app/auth/auth.service');
 var router = express.Router();
 
 // all subscriptions routes cannot be cached
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   res.noCache();
   next();
 });

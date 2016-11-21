@@ -8,10 +8,10 @@ var saveXmlToBucket = require('./aws').saveXmlToBucket;
 
 var logger = rootRequire('logger').prefix('CATCHUP');
 
-var flatten = function (xml) {
+var flatten = xml => {
   var result = {};
-  var rec = function (xmlNode) {
-    Object.keys(xmlNode).forEach(function (key) {
+  var rec = xmlNode => {
+    Object.keys(xmlNode).forEach(key => {
       var val = xmlNode[key];
       switch (key) {
         case 'ASSET_CODE':
@@ -60,10 +60,10 @@ var flatten = function (xml) {
  * @param xml                string   containing the xml.
  * @returns {*}              object   { flatten xml object }
  */
-var parseXml = function (catchupProviderId, pfContentId, xml) {
+var parseXml = (catchupProviderId, pfContentId, xml) => {
   logger.log(catchupProviderId+': '+pfContentId+': parsing xml = ', xml);
   return Q.nfcall(xml2js.parseString, xml)
-    .then(function (json) {
+    .then(json => {
       logger.log(catchupProviderId+': '+pfContentId+': json =' + JSON.stringify(json));
       var flattenXml = flatten(json);
       logger.log(catchupProviderId+': '+pfContentId+': flatten = ' + JSON.stringify(flattenXml));
@@ -71,11 +71,7 @@ var parseXml = function (catchupProviderId, pfContentId, xml) {
     });
 };
 
-var saveAndParseXml = function (catchupProviderId, pfContentId, xmlUrl) {
-  return saveXmlToBucket(catchupProviderId, pfContentId, xmlUrl)
-    .then(function (xml) {
-      return parseXml(catchupProviderId, pfContentId, xml);
-    });
-};
+var saveAndParseXml = (catchupProviderId, pfContentId, xmlUrl) => saveXmlToBucket(catchupProviderId, pfContentId, xmlUrl)
+  .then(xml => parseXml(catchupProviderId, pfContentId, xml));
 
 module.exports.saveAndParseXml = saveAndParseXml;

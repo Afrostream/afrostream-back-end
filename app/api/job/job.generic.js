@@ -47,7 +47,7 @@ function create(type, data, options) {
     },
     json: true
   })
-    .then(function (result) {
+    .then(result => {
       var response = result[0], body = result[1];
       if (response.statusCode !== 200) {
         throw "status="+response.statusCode+", body="+body;

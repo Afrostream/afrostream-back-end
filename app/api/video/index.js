@@ -32,7 +32,7 @@ var router = express.Router();
 var middlewareStatsd = rootRequire('statsd').middleware;
 
 // all video routes cannot be cached.
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   res.noCache();
   next();
 });

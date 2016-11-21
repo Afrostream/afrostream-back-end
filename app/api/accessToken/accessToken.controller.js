@@ -16,7 +16,7 @@ var utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -24,19 +24,14 @@ function responseWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
-    return entity.updateAttributes(updates)
-      .then(function(updated) {
-        return updated;
-      });
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return entity => {
     if (entity) {
       return entity.destroy()
-        .then(function() {
+        .then(() => {
           res.status(204).end();
         });
     }
@@ -44,14 +39,14 @@ function removeEntity(res) {
 }
 
 // Gets a list of accessTokens
-exports.index = function(req, res) {
+exports.index = (req, res) => {
   AccessToken.findAll()
     .then(responseWithResult(res))
     .catch(res.handleError());
 };
 
 // Gets a single accessToken from the DB
-exports.show = function(req, res) {
+exports.show = (req, res) => {
   AccessToken.find({
     where: {
       _id: req.params.id
@@ -63,7 +58,7 @@ exports.show = function(req, res) {
 };
 
 // Creates a new accessToken in the DB
-exports.create = function(req, res) {
+exports.create = (req, res) => {
   var data = _.merge({}, req.body, { userIp: req.clientIp });
   AccessToken.create(data)
     .then(responseWithResult(res, 201))
@@ -71,7 +66,7 @@ exports.create = function(req, res) {
 };
 
 // Updates an existing accessToken in the DB
-exports.update = function(req, res) {
+exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }
@@ -87,7 +82,7 @@ exports.update = function(req, res) {
 };
 
 // Deletes a accessToken from the DB
-exports.destroy = function(req, res) {
+exports.destroy = (req, res) => {
   AccessToken.find({
     where: {
       _id: req.params.id

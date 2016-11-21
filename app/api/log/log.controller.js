@@ -6,7 +6,7 @@ var Client = sqldb.Client;
 var Log = sqldb.Log;
 var LogsPixel = sqldb.LogsPixel;
 
-exports.index = function (req, res) {
+exports.index = (req, res) => {
   var limit = req.query.limit || 50;
   var type = req.query.type || 'access_token';
   var userId = req.query.userId || null;
@@ -38,12 +38,12 @@ exports.index = function (req, res) {
       }
     ]
   }).then(
-    function (result) { res.json(result); },
+    result => { res.json(result); },
     res.handleError()
   );
 };
 
-exports.pixel = function (req, res) {
+exports.pixel = (req, res) => {
   // async, might finish after response is sent, but we don't mind
   LogsPixel.create({data:req.query});
   res.json({});

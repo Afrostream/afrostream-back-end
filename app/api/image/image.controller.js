@@ -19,7 +19,7 @@ var utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -27,16 +27,11 @@ function responseWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 // Gets a list of images
-exports.index = function (req, res) {
+exports.index = (req, res) => {
   var queryName = req.param('query');
   var typeName = req.param('type');
   var paramsObj = {};
@@ -65,7 +60,7 @@ exports.index = function (req, res) {
 };
 
 // Gets a single image from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
   Image.find({
     where: {
       _id: req.params.id
@@ -77,31 +72,29 @@ exports.show = function (req, res) {
 };
 
 // Creates a new image in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
   var type = req.param('type') || req.query.type || 'poster';
 
   req.readFile()
-    .then(function (file) {
+    .then(file => {
       var bucket = aws.getBucket('afrostream-img');
       return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/'+type+'/{date}/{rand}-'+file.name)
-        .then(function (data) {
-          return Image.create({
-            type: type,
-            path: data.req.path,
-            url: data.req.url,
-            mimetype: file.mimeType,
-            imgix: config.imgix.domain + data.req.path,
-            active: true,
-            name: file.name
-          });
-        });
+        .then(data => Image.create({
+        type: type,
+        path: data.req.path,
+        url: data.req.url,
+        mimetype: file.mimeType,
+        imgix: config.imgix.domain + data.req.path,
+        active: true,
+        name: file.name
+      }));
     })
     .then(responseWithResult(res, 201))
     .catch(res.handleError());
 };
 
 // Updates an existing image in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }

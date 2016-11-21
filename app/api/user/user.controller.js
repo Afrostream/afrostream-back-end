@@ -24,7 +24,7 @@ var filters = rootRequire('app/api/filters.js');
  * Get list of users
  * restriction: 'admin'
  */
-exports.index = function (req, res) {
+exports.index = (req, res) => {
   var queryName = req.param('query');
   var paramsObj = {
     attributes: [
@@ -55,9 +55,9 @@ exports.index = function (req, res) {
 /**
  * Creates a new user
  */
-exports.create = function (req, res) {
+exports.create = (req, res) => {
   Q()
-    .then(function () {
+    .then(() => {
       /*
        * Exception bouygues MIAMI
        */
@@ -69,7 +69,7 @@ exports.create = function (req, res) {
         // mais que l'email existe déjà, et est déjà reliée à un bouyguesId
         //   alors on crée un nouvel utilisateur sans email avec le nvx bouyguesId
         return User.find({where:{email:{$iLike: req.body.email}}})
-          .then(function (user) {
+          .then(user => {
             // l'utilisateur existe déjà en base avec un bouyguesId différent
             //  on supprime l'email en entrée pour générer un nouvel utilisateur
             //  pour ce bouyguesId sans risquer une erreur sur l'index unique de l'email
@@ -84,41 +84,39 @@ exports.create = function (req, res) {
           });
       }
     })
-    .then(function () {
+    .then(() => {
       var newUser = User.build(req.body);
       newUser.setDataValue('provider', 'local');
       newUser.setDataValue('role', 'user');
       return newUser.save();
     })
-    .then(function (user) {
-      // everything went ok, we send an oauth2 access token
-      return Q.ninvoke(oauth2, "generateToken",
-        req.passport.client || null,
-        user,
-        null, // code
-        req.clientIp,
-        req.userAgent,
-        null
-      ).then(function (data) {
-          var accessToken = data[0]
-            , refreshToken = data[1]
-            , info = data[2];
+    .then(user => // everything went ok, we send an oauth2 access token
+  Q.ninvoke(oauth2, "generateToken",
+    req.passport.client || null,
+    user,
+    null, // code
+    req.clientIp,
+    req.userAgent,
+    null
+  ).then(data => {
+      var accessToken = data[0]
+        , refreshToken = data[1]
+        , info = data[2];
 
-          return {
-            token: accessToken, // backward compatibility
-            access_token:accessToken,
-            refresh_token:refreshToken,
-            expires_in:info.expires_in
-          };
-        });
-    })
+      return {
+        token: accessToken, // backward compatibility
+        access_token:accessToken,
+        refresh_token:refreshToken,
+        expires_in:info.expires_in
+      };
+    }))
     .then(res.json.bind(res))
     .catch(res.handleError(422));
 };
 
-exports.search = function (req, res) {
+exports.search = (req, res) => {
   Q()
-    .then(function () {
+    .then(() => {
       if (!Array.isArray(req.body.facebookIdList)) {
         throw new Error('malformed facebookIdList');
       }
@@ -132,12 +130,8 @@ exports.search = function (req, res) {
         }
       });
     })
-    .then(function (users) {
-      // FIXME: USER_PRIVACY: we should implement a privacy filter in a single place
-      return users.map(function (user) {
-        return user.getPublicInfos();
-      });
-    })
+    .then(users => // FIXME: USER_PRIVACY: we should implement a privacy filter in a single place
+  users.map(user => user.getPublicInfos()))
     .then(res.json.bind(res))
     .catch(res.handleError());
 };
@@ -159,7 +153,7 @@ exports.search = function (req, res) {
  *     de ces informations côté billing.
  ***********************************************
  */
-exports.update = function (req, res) {
+exports.update = (req, res) => {
   // FIXME : use joi.
   var updateableFields = [
     /* 'email', */ // FIXME_023 Please read the comment above before changing this.
@@ -200,21 +194,21 @@ exports.update = function (req, res) {
     'splashList',
     'nickname'
   ];
-  updateableFields.forEach(function (field) {
+  updateableFields.forEach(field => {
     if (typeof req.body[field] !== 'undefined') {
       req.user[field] = req.body[field];
     }
   });
   // FIXME: security: we should ensure bouyguesId could only be updated by bouygues client.
   req.user.save()
-    .then(function () { res.json(req.user.getInfos()); })
+    .then(() => { res.json(req.user.getInfos()); })
     .catch(res.handleError(422));
 };
 
 /**
  * Get a single user
  */
-exports.show = function (req, res, next) {
+exports.show = (req, res, next) => {
   var userId = req.params.id;
 
   User.find({
@@ -222,18 +216,16 @@ exports.show = function (req, res, next) {
       _id: userId
     }
   })
-    .then(function (user) {
+    .then(user => {
       if (!user) {
         return res.status(404).end();
       }
       return res.json(user.getInfos());
     })
-    .catch(function (err) {
-      return next(err);
-    });
+    .catch(err => next(err));
 };
 
-exports.history = function (req, res) {
+exports.history = (req, res) => {
   var queryOptions = {
     where: { userId: req.user._id },
     order: [ ['dateLastRead', 'desc'] ],
@@ -274,32 +266,24 @@ exports.history = function (req, res) {
   //
   UsersVideos.findAll(queryOptions)
   .then(
-    function (usersVideos) {
-      return usersVideos
-        // convert sequelize result to plain object
-        .map(function (userVideo) {
-          return userVideo.toJSON();
-        })
-        // exclude malformed objects
-        .filter(function (userVideo) {
-          return userVideo.video && (userVideo.video.episode || userVideo.video.movie);
-        })
-        // extract video
-        .map(function (userVideo) {
-          return userVideo.video;
-        })
-        // return movie or episode
-        .map(function (video) {
-          if (video.episode) {
-            return video.episode;
-          } else {
-            return video.movie;
-          }
-        });
-    })
+    usersVideos => usersVideos
+      // convert sequelize result to plain object
+      .map(userVideo => userVideo.toJSON())
+      // exclude malformed objects
+      .filter(userVideo => userVideo.video && (userVideo.video.episode || userVideo.video.movie))
+      // extract video
+      .map(userVideo => userVideo.video)
+      // return movie or episode
+      .map(video => {
+        if (video.episode) {
+          return video.episode;
+        } else {
+          return video.movie;
+        }
+      }))
   .then(
-    function (moviesEpisodes) { res.json(moviesEpisodes); },
-    function (err) { res.status(err.statusCode || 500).json({error: String(err)});}
+    moviesEpisodes => { res.json(moviesEpisodes); },
+    err => { res.status(err.statusCode || 500).json({error: String(err)});}
   );
 };
 
@@ -307,9 +291,9 @@ exports.history = function (req, res) {
  * Deletes a user
  * restriction: 'admin'
  */
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
   User.destroy({where: {_id: req.params.id}})
-    .then(function () {
+    .then(() => {
       res.status(204).end();
     })
     .catch(res.handleError());
@@ -317,7 +301,7 @@ exports.destroy = function (req, res) {
 /**
  * Change a users password
  */
-exports.auth0ChangePassword = function (req, res) {
+exports.auth0ChangePassword = (req, res) => {
   var userMail = req.param('email');
   var newPass = req.param('password');
 
@@ -326,7 +310,7 @@ exports.auth0ChangePassword = function (req, res) {
       email: userMail
     }
   })
-    .then(function (user) {
+    .then(user => {
       if (!user) {
         throw new Error('user not found');
       }
@@ -334,7 +318,7 @@ exports.auth0ChangePassword = function (req, res) {
       return user.save();
     })
     .then(
-      function (user) {
+      user => {
         res.json(user.getInfos());
       },
       res.handleError(422)
@@ -343,7 +327,7 @@ exports.auth0ChangePassword = function (req, res) {
 /**
  * Change a users password
  */
-exports.changePassword = function (req, res) {
+exports.changePassword = (req, res) => {
   var userId = req.user._id;
   var oldPass = String(req.body.oldPassword);
   var newPass = String(req.body.newPassword);
@@ -353,7 +337,7 @@ exports.changePassword = function (req, res) {
       _id: userId
     }
   })
-    .then(function (user) {
+    .then(user => {
       if (!user.authenticate(oldPass)) {
         var error = new Error('wrong password');
         error.statusCode = 403;
@@ -363,7 +347,7 @@ exports.changePassword = function (req, res) {
       return user.save();
     })
     .then(
-      function () { res.status(200).end(); },
+      () => { res.status(200).end(); },
       res.handleError(422)
     );
 };
@@ -371,7 +355,7 @@ exports.changePassword = function (req, res) {
 /**
  * Change a users role
  */
-exports.changeRole = function (req, res) {
+exports.changeRole = (req, res) => {
   var userId = req.user._id;
   var role = String(req.body.role);
 
@@ -380,12 +364,12 @@ exports.changeRole = function (req, res) {
       _id: userId
     }
   })
-    .then(function (user) {
+    .then(user => {
       user.role = role;
       return user.save();
     })
     .then(
-      function () { res.status(200).end(); },
+      () => { res.status(200).end(); },
       res.handleError(422)
     );
 };
@@ -395,21 +379,21 @@ exports.changeRole = function (req, res) {
  *  avant le refacto, elle ne faisait déjà rien
  *   (user.save() d'un user non modifié)
  */
-exports.verify = function (req, res) {
+exports.verify = (req, res) => {
   var userMail = req.param('email');
   User.find({
     where: {
       email: userMail
     }
   })
-    .then(function (user) {
+    .then(user => {
       if (!user) {
         throw new Error('user not found');
       }
       return user;
     })
     .then(
-      function (user) { res.json(user.getInfos()); },
+      user => { res.json(user.getInfos()); },
       res.handleError(422)
     );
 };
@@ -419,16 +403,16 @@ exports.verify = function (req, res) {
  *  profile.subscriptionsStatus
  *  profile.planCode
  */
-exports.me = function (req, res) {
+exports.me = (req, res) => {
   var userInfos = req.user.getInfos();
 
   // on enrichi le profile avec des infos de souscriptions
   billingApi.getSubscriptionsStatus(req.user._id)
-    .then(function (subscriptionsStatus) {
+    .then(subscriptionsStatus => {
       // utilisateur inscrit
       userInfos.subscriptionsStatus = subscriptionsStatus;
       userInfos.planCode = subscriptionsStatus ? subscriptionsStatus.planCode : undefined;
-    }, function () {
+    }, () => {
       // utilisateur inscrit mais non abonné
       req.logger.log('[INFO]: /api/users/me: user registered but no subscriptions (' + req.user._id + ')');
     })
@@ -441,6 +425,6 @@ exports.me = function (req, res) {
 /**
  * Authentication callback
  */
-exports.authCallback = function (req, res) {
+exports.authCallback = (req, res) => {
   res.redirect('/');
 };

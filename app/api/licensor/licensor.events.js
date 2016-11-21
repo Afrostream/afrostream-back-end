@@ -25,7 +25,7 @@ for (var e in events) {
 }
 
 function emitEvent(event) {
-  return function(doc, options, done) {
+  return (doc, options, done) => {
     LicensorEvents.emit(event + ':' + doc._id, doc);
     LicensorEvents.emit(event, doc);
     done(null);

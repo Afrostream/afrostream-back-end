@@ -16,15 +16,13 @@ var Image = sqldb.Image;
 var filters = rootRequire('app/api/filters.js');
 var utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = function () {
-  return [
-    {model: Image, as: 'poster'} // load poster image
-  ];
-};
+var getIncludedModel = () => [
+  {model: Image, as: 'poster'} // load poster image
+];
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -32,31 +30,24 @@ function responseWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 function updateImages(updates) {
-  return function (entity) {
+  return entity => {
     var promises = [];
     promises.push(entity.setPoster(updates.poster && Image.build(updates.poster) || null));
     return sqldb.Sequelize.Promise
       .all(promises)
-      .then(function () {
-        return entity;
-      });
+      .then(() => entity);
   };
 }
 
 function removeEntity(res) {
-  return function (entity) {
+  return entity => {
     if (entity) {
       return entity.destroy()
-        .then(function () {
+        .then(() => {
           res.status(204).end();
         });
     }
@@ -66,7 +57,7 @@ function removeEntity(res) {
 // Gets a list of posts
 // ?query=... (search in the title)
 // ?slug=... (search by slug)
-exports.index = function (req, res) {
+exports.index = (req, res) => {
   var queryName = req.param('query'); // deprecated.
   var slug = req.query.slug;
   var queryOptions = {
@@ -100,7 +91,7 @@ exports.index = function (req, res) {
 };
 
 // Gets a single post from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
   var queryOptions = {
     where: {
       _id: req.params.id
@@ -117,7 +108,7 @@ exports.show = function (req, res) {
 };
 
 // Creates a new post in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
   Post.create(req.body)
     .then(updateImages(req.body))
     .then(responseWithResult(res, 201))
@@ -125,7 +116,7 @@ exports.create = function (req, res) {
 };
 
 // Updates an existing post in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }
@@ -142,7 +133,7 @@ exports.update = function (req, res) {
 };
 
 // Deletes a post from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
   Post.find({
       where: {
         _id: req.params.id

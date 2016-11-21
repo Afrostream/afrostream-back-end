@@ -100,7 +100,7 @@ var router = express.Router();
 var validator = require('./user.validator.js');
 
 // all user routes cannot be cached.
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   res.noCache();
   next();
 });
@@ -110,7 +110,7 @@ router.use(auth.middleware.restrictRoutesToAuthentified());
 
 // cross domain access to our api, staging only for tests
 if (process.env.NODE_ENV === 'staging') {
-  router.use(function (req, res, next) {
+  router.use((req, res, next) => {
     if (req.headers['referer'] && req.headers['referer'].match(/afrostream\-player(.*)\.herokuapp\.com/)) {
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -123,14 +123,14 @@ if (process.env.NODE_ENV === 'staging') {
   });
 }
 
-var convertUserIdMeToUserId = function (req, res, next) {
+var convertUserIdMeToUserId = (req, res, next) => {
   if (req.params && req.params.userId === 'me' && req.user) {
     req.params.userId = String(req.user._id);
   }
   next();
 };
 
-var tokenUserMatchParamUser = function (req, res, next) {
+var tokenUserMatchParamUser = (req, res, next) => {
   if (String(req.params.userId) === String(req.user._id)) {
     next();
   } else {

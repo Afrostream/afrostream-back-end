@@ -7,7 +7,7 @@ var utils = rootRequire('app/api/utils.js');
 var router = express.Router();
 
 // all user routes cannot be cached.
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   res.noCache();
   next();
 });

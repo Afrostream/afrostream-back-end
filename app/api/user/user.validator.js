@@ -30,7 +30,7 @@ var updateBody = Joi.object().keys({
   ))
 });
 
-module.exports.validateCreateBody = function (req, res, next) {
+module.exports.validateCreateBody = (req, res, next) => {
   assert(req.passport);
 
   var schema;
@@ -41,7 +41,7 @@ module.exports.validateCreateBody = function (req, res, next) {
   } else {
     schema = createBody;
   }
-  Joi.validate(req.body, schema, {allowUnknown: true}, function (err) {
+  Joi.validate(req.body, schema, {allowUnknown: true}, err => {
     if (err) {
       return res.handleError(422)(err);
     }
@@ -49,8 +49,8 @@ module.exports.validateCreateBody = function (req, res, next) {
   });
 };
 
-module.exports.validateUpdateBody = function (req, res, next) {
-  Joi.validate(req.body, updateBody, {allowUnknown: true}, function (err) {
+module.exports.validateUpdateBody = (req, res, next) => {
+  Joi.validate(req.body, updateBody, {allowUnknown: true}, err => {
     if (err) {
       return res.handleError(422)(err);
     }

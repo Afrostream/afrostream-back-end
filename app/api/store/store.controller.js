@@ -25,7 +25,7 @@ var Q = require('q');
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
-    return function (entity) {
+    return entity => {
         if (entity) {
             res.status(statusCode).json(entity);
         }
@@ -34,7 +34,7 @@ function responseWithResult (res, statusCode) {
 
 function responseAllPrmisesResult (res, statusCode) {
     statusCode = statusCode || 200;
-    return function (entity) {
+    return entity => {
         if (entity) {
             res.status(statusCode).json(_.flatten(entity));
         }
@@ -48,7 +48,7 @@ function FeatureCollection () {
 
 function responseWithResultGEO (req, res, statusCode) {
     statusCode = statusCode || 200;
-    return function (result) {
+    return result => {
         if (result) {
 
             if (req.user && req.user.role === 'admin') {
@@ -56,7 +56,7 @@ function responseWithResultGEO (req, res, statusCode) {
             }
 
             var featureCollection = new FeatureCollection();
-            _.forEach(result, function (row) {
+            _.forEach(result, row => {
 
                 var feature = {
                     'type': 'Feature',
@@ -80,19 +80,14 @@ function responseWithResultGEO (req, res, statusCode) {
 }
 
 function saveUpdates (updates) {
-    return function (entity) {
-        return entity.updateAttributes(updates)
-            .then(function (updated) {
-                return updated;
-            });
-    };
+    return entity => entity.updateAttributes(updates);
 }
 
 function removeEntity (res) {
-    return function (entity) {
+    return entity => {
         if (entity) {
             return entity.destroy()
-                .then(function () {
+                .then(() => {
                     res.status(204).end();
                 });
         }
@@ -102,7 +97,7 @@ function removeEntity (res) {
 // Replace stink {{øø}} like mustache template
 function interpolate (str) {
     return function interpolate (o) {
-        return str.replace(/{([^{}]*)}/g, function (a, b) {
+        return str.replace(/{([^{}]*)}/g, (a, b) => {
             var r = o[b];
             return typeof r === 'string' || typeof r === 'number' ? r : a;
         });
@@ -111,7 +106,7 @@ function interpolate (str) {
 
 
 function saveGeoCodedStore (store) {
-    return function (geocodeResult) {
+    return geocodeResult => {
         var promises = [];
 
         if (geocodeResult && geocodeResult.geometry) {
@@ -120,7 +115,7 @@ function saveGeoCodedStore (store) {
                 defaults: {
                     mid: store.mid
                 }
-            }).then(function (stores) {
+            }).then(stores => {
                 logger.log('saveGeoCodedStore :', geocodeResult);
                 var entity = stores[0];
                 entity.mid = store.mid;
@@ -131,10 +126,10 @@ function saveGeoCodedStore (store) {
                 entity.phone = store.phone;
                 entity.geometry = [geocodeResult.geometry.location.lng, geocodeResult.geometry.location.lat];
                 return entity.save();
-            }).then(function (entity) {
+            }).then(entity => {
                 logger.log('success save', entity.geometry && entity.geometry.coordinates);
                 return entity;
-            }, function (err) {
+            }, err => {
                 logger.error(err.message, err.stack);
             }));
         }
@@ -148,7 +143,7 @@ function geocode (loc, store) {
     var uri = 'https://maps.googleapis.com/maps/api/geocode/json';
     logger.log('try getgeo :', loc);
     return Q.nfcall(request, { uri: uri, qs: options })
-      .then(function (data) {
+      .then(data => {
         var result = JSON.parse(data[1]);
         logger.log('getgeo :', result);
         return result.results[0];
@@ -158,7 +153,7 @@ function geocode (loc, store) {
 
 // Gets a list of Stores
 // ?point=... (search by point)
-exports.index = function (req, res) {
+exports.index = (req, res) => {
     var queryName = req.param('query');
     var longitude = req.param('longitude');
     var latitude = req.param('latitude');
@@ -236,7 +231,7 @@ exports.index = function (req, res) {
 };
 
 // Gets a single Store from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
     var queryOptions = {
         where: {
             _id: req.params.id
@@ -252,19 +247,19 @@ exports.show = function (req, res) {
 };
 
 // Creates a new Store in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
     Store.create(req.body)
         .then(responseWithResult(res, 201))
         .catch(res.handleError());
 };
 
-exports.import = function (req, res) {
+exports.import = (req, res) => {
     assert(req.body && req.body.storeList);
     assert(req.body && req.body.location);
     assert(req.body.location && typeof req.body.location === 'string');
     assert(req.body.storeList && typeof req.body.storeList === 'object');
     var promises = [];
-    _.forEach(req.body.storeList, function (store) {
+    _.forEach(req.body.storeList, store => {
         var location = interpolate(req.body.location)(store);
         promises.push(geocode(location, store));
     });
@@ -275,7 +270,7 @@ exports.import = function (req, res) {
 };
 
 // Updates an existing Store in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
     if (req.body._id) {
         delete req.body._id;
     }
@@ -291,7 +286,7 @@ exports.update = function (req, res) {
 };
 
 // Deletes a Store from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
     Store.find({
         where: {
             _id: req.params.id

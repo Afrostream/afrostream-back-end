@@ -23,7 +23,7 @@ var getIncludedModel = require('./episode.includedModel.js').get;
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -31,51 +31,36 @@ function responseWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 function addSeason(updates) {
   var season = Season.build(updates.season);
-  return function (entity) {
-    return entity.setSeason(season)
-      .then(function () {
-        return entity;
-      });
-  };
+  return entity => entity.setSeason(season)
+    .then(() => entity);
 }
 
 function updateVideo(updates) {
-  return function (entity) {
-    return entity.setVideo(updates.video && Video.build(updates.video) || null)
-      .then(function () {
-        return entity;
-      });
-  };
+  return entity => entity.setVideo(updates.video && Video.build(updates.video) || null)
+    .then(() => entity);
 }
 
 function updateImages(updates) {
-  return function (entity) {
+  return entity => {
     var promises = [];
     promises.push(entity.setPoster(updates.poster && Image.build(updates.poster) || null));
     promises.push(entity.setThumb(updates.thumb && Image.build(updates.thumb) || null));
     return sqldb.Sequelize.Promise
       .all(promises)
-      .then(function () {
-        return entity;
-      });
+      .then(() => entity);
   };
 }
 
 function removeEntity(res) {
-  return function (entity) {
+  return entity => {
     if (entity) {
       return entity.destroy()
-        .then(function () {
+        .then(() => {
           res.status(204).end();
         });
     }
@@ -83,7 +68,7 @@ function removeEntity(res) {
 }
 
 // Gets a list of episodes
-exports.index = function (req, res) {
+exports.index = (req, res) => {
   var queryName = req.param('query');
   var queryOptions = {
     include: getIncludedModel()
@@ -124,7 +109,7 @@ exports.index = function (req, res) {
 };
 
 // Gets a single episode from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
   var queryOptions = {
     where: {
       _id: req.params.id
@@ -141,7 +126,7 @@ exports.show = function (req, res) {
 };
 
 // Creates a new episode in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
   Episode.create(req.body)
     .then(addSeason(req.body))
     .then(updateVideo(req.body))
@@ -150,17 +135,17 @@ exports.create = function (req, res) {
     .catch(res.handleError());
 };
 
-exports.search = function (req, res) {
+exports.search = (req, res) => {
   var query = req.body.query || '';
 
   algolia.searchIndex('episodes', query)
-    .then(function (result) {
+    .then(result => {
       if (!result) {
         throw new Error('no result from algolia');
       }
       var queryOptions = {
         where: { _id: {
-          $in: (result.hits || []).map(function (episode) { return episode._id; })
+          $in: (result.hits || []).map(episode => episode._id)
         } },
         include: getIncludedModel()
       };
@@ -168,7 +153,7 @@ exports.search = function (req, res) {
       queryOptions = filters.filterQueryOptions(req, queryOptions, Episode);
       //
       return Episode.findAll(queryOptions)
-        .then(function (episodes) {
+        .then(episodes => {
           result.hits = episodes;
           result.nbHits = episodes.length;
           return result;
@@ -181,17 +166,15 @@ exports.search = function (req, res) {
 };
 
 function parseVXstY(body) {
-  return function (entity) {
+  return entity => {
     // auto-determine the VD/VF/VO/VOST/VOSTFR
     if (!body.vXstY || body.vXstY !== 'auto') {
       return entity;
     }
     // mode auto
     return entity.getVideo()
-      .then(function (video) {
-        return video.computeVXstY();
-      })
-      .then(function (vXstY) {
+      .then(video => video.computeVXstY())
+      .then(vXstY => {
         body.vXstY = vXstY;
         return entity;
       });
@@ -199,7 +182,7 @@ function parseVXstY(body) {
 }
 
 // Updates an existing episode in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }
@@ -219,7 +202,7 @@ exports.update = function (req, res) {
     .catch(res.handleError());
 };
 // Updates an existing episode in the DB
-exports.algolia = function (req, res) {
+exports.algolia = (req, res) => {
   var now = new Date();
 
   Episode.findAll({
@@ -241,7 +224,7 @@ exports.algolia = function (req, res) {
 };
 
 // Deletes a episode from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
   Episode.find({
     where: {
       _id: req.params.id

@@ -25,7 +25,7 @@ for (var e in events) {
 }
 
 function emitEvent (event) {
-    return function (doc, options, done) {
+    return (doc, options, done) => {
         LifeThemeEvents.emit(event + ':' + doc._id, doc);
         LifeThemeEvents.emit(event, doc);
         done(null);

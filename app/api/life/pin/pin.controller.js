@@ -30,66 +30,56 @@ var getIncludedModel = require('./pin.includedModel').get;
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
-    return function (entity) {
+    return entity => {
       res.status(statusCode).json(entity);
     };
 }
 
 function saveUpdates (updates) {
-    return function (entity) {
-        return entity.updateAttributes(updates);
-    };
+    return entity => entity.updateAttributes(updates);
 }
 
 function updateImages (updates) {
-    return function (entity) {
+    return entity => {
         var promises = [];
         promises.push(entity.setImage(updates.image && updates.image.dataValues && Image.build(updates.image.dataValues) || updates.image && Image.build(updates.image) || null));
         return sqldb.Sequelize.Promise
             .all(promises)
-            .then(function () {
-                return entity;
-            });
+            .then(() => entity);
     };
 }
 
 function updateUser (updates, req) {
-    return function (entity) {
+    return entity => {
         var promises = [];
         promises.push(entity.setUser((updates.user && updates.user._id) || (req.user && req.user._id) || null));
         return sqldb.Sequelize.Promise
             .all(promises)
-            .then(function () {
-                return entity;
-            });
+            .then(() => entity);
     };
 }
 
 function removeEntity (res) {
-    return function (entity) {
-      return entity.destroy()
-          .then(function () {
-              res.status(204).end();
-          });
-    };
+    return entity => entity.destroy()
+        .then(() => {
+            res.status(204).end();
+        });
 }
 
 function addThemes (updates) {
     var themes = LifeTheme.build(_.map(updates.themes || [], _.partialRight(_.pick, '_id')));
-    return function (entity) {
+    return entity => {
         if (!themes || !themes.length) {
             return entity;
         }
         return entity.setThemes(themes)
-            .then(function () {
-                return entity;
-            });
+            .then(() => entity);
     };
 }
 
 // Gets a list of life/pins
 // ?query=... (search in the title)
-exports.index = function (req, res) {
+exports.index = (req, res) => {
     var queryName = req.param('query'); // deprecated.
     var queryOptions = {
         include: getIncludedModel(),
@@ -124,7 +114,7 @@ exports.index = function (req, res) {
 };
 
 // Gets a single LifePin from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
     var queryOptions = {
         where: {
             _id: req.params.id
@@ -141,18 +131,18 @@ exports.show = function (req, res) {
 };
 
 // Scrapp wep url and return medias
-exports.scrap = function (req, res) {
+exports.scrap = (req, res) => {
     var c = {
         role: 'free',
         originalUrl: req.body.scrapUrl
     };
 
     //TODO create afrostream-fetch-data project
-    Q.fcall(function () {
+    Q.fcall(() => {
         //EXTRACT VIDEO INFO PROVIDER
         if (c.originalUrl) {
-            return new Promise(function (resolve) {
-                mediaParser.parse(c.originalUrl, function (data) {
+            return new Promise(resolve => {
+                mediaParser.parse(c.originalUrl, data => {
                     if (!data || !data.raw) {
                         resolve(null);
                     }
@@ -174,18 +164,16 @@ exports.scrap = function (req, res) {
         }
     })
     //EXTRACT METADATA INFO PROVIDER
-        .then(function (data) {
+        .then(data => {
             if (data) {
                 return data;
             }
-            return new Promise(function (resolve, reject) {
+            return new Promise((resolve, reject) => {
                 var client = new MetaInspector(c.originalUrl, {timeout: 5000});
 
-                client.on('fetch', function () {
+                client.on('fetch', () => {
 
-                    var imagesList = _.pick(client.images || [], function (value, key) {
-                        return parseInt(key);
-                    });
+                    var imagesList = _.pick(client.images || [], (value, key) => parseInt(key));
 
                     //imagesList = _.take(imagesList, 5);
 
@@ -202,7 +190,7 @@ exports.scrap = function (req, res) {
                     resolve(c);
                 });
 
-                client.on('error', function (err) {
+                client.on('error', err => {
                     reject(err);
                 });
 
@@ -214,17 +202,17 @@ exports.scrap = function (req, res) {
         .catch(res.handleError());
 };
 // Creates a new LifePin in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
     var c = {
         injectData: req.body
     };
 
     Q()
-      .then(function () {
+      .then(() => {
           //EXTRACT IMAGE
           if (req.body.imageUrl) {
             Q.nfcall(request, {url: req.body.imageUrl, encoding: null})
-              .then(function (data) {
+              .then(data => {
                 /*var res = data[0];*/
                 var buffer = data[1];
 
@@ -236,14 +224,14 @@ exports.create = function (req, res) {
           return null;
       })
     //SAVE Buffer
-        .then(function (file) {
+        .then(file => {
             if (!file) {
                 return;
             }
             var bucket = aws.getBucket('afrostream-img');
             var type = 'pin';
             return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/' + type + '/{date}/{rand}-' + file.name)
-                .then(function (data) {
+                .then(data => {
                     c.injectData.image = {
                         type: type,
                         path: data.req.path,
@@ -256,18 +244,16 @@ exports.create = function (req, res) {
                     return c.injectData.image;
                 });
         })
-        .then(function (image) {
+        .then(image => {
             if (!image) {
                 return null;
             }
             return Image.create(image);
         })
-        .then(function (image) {
+        .then(image => {
             c.injectData.image = image;
         })
-        .then(function () {
-            return LifePin.create(c.injectData);
-        })
+        .then(() => LifePin.create(c.injectData))
         .then(updateImages(c.injectData))
         .then(updateUser(c.injectData, req))
         .then(addThemes(c.injectData))
@@ -276,7 +262,7 @@ exports.create = function (req, res) {
 };
 
 // Updates an existing LifePin in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
     if (req.body._id) {
         delete req.body._id;
     }
@@ -295,7 +281,7 @@ exports.update = function (req, res) {
 };
 
 // Deletes a LifePin from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
     LifePin.find({
         where: {
             _id: req.params.id

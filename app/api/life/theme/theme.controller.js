@@ -20,7 +20,7 @@ var LifeTheme = sqldb.LifeTheme;
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
-    return function (entity) {
+    return entity => {
         if (entity) {
             res.status(statusCode).json(entity);
         }
@@ -28,39 +28,26 @@ function responseWithResult (res, statusCode) {
 }
 
 function saveUpdates (updates) {
-    return function (entity) {
-        return entity.updateAttributes(updates)
-            .then(function (updated) {
-                return updated;
-            });
-    };
+    return entity => entity.updateAttributes(updates);
 }
 
 function addLifePins (updates) {
     var pins = LifePin.build(_.map(updates.pins || [], _.partialRight(_.pick, '_id')));
-    return function (entity) {
-        return entity.setPins(pins)
-            .then(function () {
-                return entity;
-            });
-    };
+    return entity => entity.setPins(pins)
+        .then(() => entity);
 }
 
 function addLifeSpots (updates) {
     var spots = LifeSpot.build(_.map(updates.spots || [], _.partialRight(_.pick, '_id')));
-    return function (entity) {
-        return entity.setSpots(spots)
-            .then(function () {
-                return entity;
-            });
-    };
+    return entity => entity.setSpots(spots)
+        .then(() => entity);
 }
 
 function removeEntity (res) {
-    return function (entity) {
+    return entity => {
         if (entity) {
             return entity.destroy()
-                .then(function () {
+                .then(() => {
                     res.status(204).end();
                 });
         }
@@ -68,7 +55,7 @@ function removeEntity (res) {
 }
 
 // Gets a list of themes
-exports.index = function (req, res) {
+exports.index = (req, res) => {
     var queryName = req.param('query');
     var queryOptions = {
         include: getIncludedModel(),
@@ -103,7 +90,7 @@ exports.index = function (req, res) {
 };
 
 // Gets a single LifeTheme from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
     var queryOptions = {
         include: getIncludedModel(),
         where: {
@@ -121,7 +108,7 @@ exports.show = function (req, res) {
 };
 
 // Creates a new LifeTheme in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
     LifeTheme.create(req.body)
         .then(saveUpdates(req.body))
         .then(addLifePins(req.body))
@@ -131,7 +118,7 @@ exports.create = function (req, res) {
 };
 
 // Updates an existing LifeTheme in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
     // backo only security, prevent backo updates
     if (utils.isReqFromAfrostreamAdmin(req) && req.body.ro === true) {
         // warning message for log sake
@@ -147,9 +134,7 @@ exports.update = function (req, res) {
             // le READ ONLY ne peut pas s'appliquer ni a active / inactive
             // aussi, on doit ajouter une exception pour le champ sort...
             //  alors que normalement le sort devrait être dans une liaison entre "Home" et "Categories".
-            .then(function (entity) {
-                return entity.updateAttributes(_.pick(req.body, ['active', 'sort']));
-            })
+            .then(entity => entity.updateAttributes(_.pick(req.body, ['active', 'sort'])))
             //
             .then(responseWithResult(res))
             .catch(res.handleError());
@@ -174,7 +159,7 @@ exports.update = function (req, res) {
 };
 
 // Deletes a LifeTheme from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
     LifeTheme.find({
         where: {
             _id: req.params.id

@@ -7,18 +7,16 @@ var createJob = require('./job.generic.js').create;
  * @param data object { xml: ..., pfContentId: ..., caption: [ string, string ] }
  * @return Promise
  */
-var create = function (data) {
-  return createJob(
-    'catchup-bet',
-    data,
-    {
-      attempts: 27, // 9h
-      backoff: {
-        delay: 20 * 60 * 1000, // 20 min
-        type: 'fixed'
-      }
+var create = data => createJob(
+  'catchup-bet',
+  data,
+  {
+    attempts: 27, // 9h
+    backoff: {
+      delay: 20 * 60 * 1000, // 20 min
+      type: 'fixed'
     }
-  );
-};
+  }
+);
 
 module.exports.create = create;

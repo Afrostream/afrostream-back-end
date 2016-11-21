@@ -4,7 +4,7 @@ var express = require('express');
 var router = express.Router();
 
 // routes cannot be cached
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   res.noCache();
   next();
 });

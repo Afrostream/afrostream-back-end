@@ -9,7 +9,7 @@ var bluebird = require('bluebird');
 
 var getIncludedModel = require('../../episode/episode.includedModel.js').get;
 
-var index = function (req, res) {
+var index = (req, res) => {
   var queryOptions = {
     where: {
       _id: req.user._id
@@ -28,7 +28,7 @@ var index = function (req, res) {
   queryOptions = sqldb.filterOptions(queryOptions, {required: false});
   //
   User.find(queryOptions)
-    .then(function (user) {
+    .then(user => {
       if (!user) {
         res.status(401).end();
       } else {
@@ -38,7 +38,7 @@ var index = function (req, res) {
     .catch(res.handleError(500));
 };
 
-var add = function (req, res) {
+var add = (req, res) => {
   if (!req.body._id) {
     return res.handleError(500)('missing episode _id');
   }
@@ -47,23 +47,21 @@ var add = function (req, res) {
     episode:  Episode.findOne({ where: { _id: req.body._id, active: true } }),
     user: User.findOne({ where: { _id: req.user._id } })
   })
-    .then(function (results) {
+    .then(results => {
       if (!results.user) {
         return res.status(401).end();
       }
       if (!results.episode) {
         return res.handleError()('unknown episode ' + req.body._id);
       }
-      return results.user.addFavoritesEpisodes(results.episode).then(function () {
-        return Episode.findOne({where: {_id: results.episode._id}, include: getIncludedModel()});
-      }).then(function (result) {
+      return results.user.addFavoritesEpisodes(results.episode).then(() => Episode.findOne({where: {_id: results.episode._id}, include: getIncludedModel()})).then(result => {
         res.json(result);
       });
     })
     .catch(res.handleError(500));
 };
 
-var remove = function (req, res) {
+var remove = (req, res) => {
   User.find({
     where: {
       _id: req.user._id
@@ -74,12 +72,12 @@ var remove = function (req, res) {
       }
     ]
   })
-    .then(function (user) {
+    .then(user => {
       if (!user) {
         return res.status(401).end();
       }
       var episode = Episode.build({_id: req.params.episodeId});
-      return user.removeFavoritesEpisodes(episode).then(function () {
+      return user.removeFavoritesEpisodes(episode).then(() => {
         res.json({});
       });
     })

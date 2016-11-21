@@ -9,25 +9,21 @@ var filters = rootRequire('app/api/filters.js');
 var _ = require('lodash');
 
 function updateImages (updates) {
-  return function (entity) {
+  return entity => {
     var promises = [];
     promises.push(entity.setImage(updates.image && Image.build(updates.image) || null));
     return sqldb.Sequelize.Promise
       .all(promises)
-      .then(function () {
-        return entity;
-      });
+      .then(() => entity);
   };
 }
 
 function saveUpdates (updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates);
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 // Gets a list of clients
-exports.index = function (req, res) {
+exports.index = (req, res) => {
 
   var queryName = req.param('query');
 
@@ -67,7 +63,7 @@ exports.index = function (req, res) {
 };
 
 // Gets a single widget from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
   var queryOptions = {
     where: {
       _id: req.params.id
@@ -86,17 +82,17 @@ exports.show = function (req, res) {
 };
 
 // Creates a new client in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
   Widget.create(req.body)
     .then(updateImages(req.body))
     .then(
-      function (entity) { res.status(201).json(entity); },
+      entity => { res.status(201).json(entity); },
       res.handleError()
     );
 };
 
 // Updates an existing movie in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }
@@ -115,7 +111,7 @@ exports.update = function (req, res) {
 };
 
 // Deletes a client from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
   Widget.find({
     where: {
       _id: req.params.id
@@ -123,12 +119,10 @@ exports.destroy = function (req, res) {
   })
     .then(utils.handleEntityNotFound(res))
     .then(
-      function (entity) {
-        return entity.destroy();
-      }
+      entity => entity.destroy()
     )
     .then(
-      function () { res.status(204).end(); },
+      () => { res.status(204).end(); },
       res.handleError()
     );
 };

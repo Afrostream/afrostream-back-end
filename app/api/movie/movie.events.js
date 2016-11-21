@@ -25,7 +25,7 @@ for (var e in events) {
 }
 
 function emitEvent(event) {
-  return function(doc, options, done) {
+  return (doc, options, done) => {
     MovieEvents.emit(event + ':' + doc._id, doc);
     MovieEvents.emit(event, doc);
     done(null);

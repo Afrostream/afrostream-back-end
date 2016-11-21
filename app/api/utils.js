@@ -6,7 +6,7 @@ var _ = require('lodash');
 // but the auto-complete require to query in 200 episodes ...
 var defaultLimit = 500;
 
-var reqRangeToSequelizeLimit = function (req, size) {
+var reqRangeToSequelizeLimit = (req, size) => {
   size = size || Infinity;
 
   var range;
@@ -31,13 +31,11 @@ var reqRangeToSequelizeLimit = function (req, size) {
   return { offset: range[0].start, limit: range[0].end - range[0].start };
 };
 
-var mergeReqRange = function (obj, req, size) {
-  return _.merge(obj, reqRangeToSequelizeLimit(req, size));
-};
+var mergeReqRange = (obj, req, size) => _.merge(obj, reqRangeToSequelizeLimit(req, size));
 
-var responseWithResultAndTotal = function (res, statusCode) {
+var responseWithResultAndTotal = (res, statusCode) => {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.set('Resource-Count', entity.count);
       res.status(statusCode).json(entity.rows);
@@ -46,7 +44,7 @@ var responseWithResultAndTotal = function (res, statusCode) {
 };
 
 function handleEntityNotFound() {
-  return function (entity) {
+  return entity => {
     if (!entity) {
       var error = new Error("entity not found");
       error.statusCode = 404;
@@ -56,12 +54,12 @@ function handleEntityNotFound() {
   };
 }
 
-var middlewareCache = function (req, res, next) {
+var middlewareCache = (req, res, next) => {
    res.cache();
    next();
 };
 
-var middlewareNoCache = function (req, res, next) {
+var middlewareNoCache = (req, res, next) => {
   res.noCache();
   next();
 };

@@ -18,35 +18,27 @@ var logger = rootRequire('logger').prefix('CATCHUP');
  * @param xmlUrl             string   url containing the xml file
  * @returns {*}              string   xml content
  */
-var saveXmlToBucket = function (catchupProviderId, pfContentId, xmlUrl) {
-  return rp(xmlUrl).then(function (xml) {
-    var bucket = aws.getBucket('tracks.afrostream.tv');
-    var name = url.parse(xmlUrl).pathname.split('/').pop();
-    return aws.putBufferIntoBucket(bucket, new Buffer(xml), 'text/xml', '{env}/catchup/xml/' + pfContentId + '-' + name)
-      .then(function (awsInfos) {
-        logger.log(catchupProviderId+': '+pfContentId+': xml '+xmlUrl+' was imported to '+awsInfos.req.url);
-        return xml;
-      });
-  });
-};
+var saveXmlToBucket = (catchupProviderId, pfContentId, xmlUrl) => rp(xmlUrl).then(xml => {
+  var bucket = aws.getBucket('tracks.afrostream.tv');
+  var name = url.parse(xmlUrl).pathname.split('/').pop();
+  return aws.putBufferIntoBucket(bucket, new Buffer(xml), 'text/xml', '{env}/catchup/xml/' + pfContentId + '-' + name)
+    .then(awsInfos => {
+      logger.log(catchupProviderId+': '+pfContentId+': xml '+xmlUrl+' was imported to '+awsInfos.req.url);
+      return xml;
+    });
+});
 
-var saveCaptionToBucket = function (catchupProviderId, pfContentId, captionUrl) {
-  return rp(captionUrl).then(function (caption) {
-    var bucket = aws.getBucket('tracks.afrostream.tv');
-    var name = url.parse(captionUrl).pathname.split('/').pop();
-    return aws.putBufferIntoBucket(bucket, new Buffer(caption), 'application/octet-stream', '{env}/catchup/captions/' + pfContentId + '-' + name)
-      .then(function (awsInfos) {
-        logger.log(catchupProviderId+': '+pfContentId+': caption '+captionUrl+' was imported to '+awsInfos.req.url);
-        return awsInfos.req.url;
-      });
-  });
-};
+var saveCaptionToBucket = (catchupProviderId, pfContentId, captionUrl) => rp(captionUrl).then(caption => {
+  var bucket = aws.getBucket('tracks.afrostream.tv');
+  var name = url.parse(captionUrl).pathname.split('/').pop();
+  return aws.putBufferIntoBucket(bucket, new Buffer(caption), 'application/octet-stream', '{env}/catchup/captions/' + pfContentId + '-' + name)
+    .then(awsInfos => {
+      logger.log(catchupProviderId+': '+pfContentId+': caption '+captionUrl+' was imported to '+awsInfos.req.url);
+      return awsInfos.req.url;
+    });
+});
 
-var saveCaptionsToBucket = function (catchupProviderId, pfContentId, captionsUrls) {
-  return Q.all(captionsUrls.map(function (captionUrl) {
-    return saveCaptionToBucket(catchupProviderId, pfContentId, captionUrl);
-  }));
-};
+var saveCaptionsToBucket = (catchupProviderId, pfContentId, captionsUrls) => Q.all(captionsUrls.map(captionUrl => saveCaptionToBucket(catchupProviderId, pfContentId, captionUrl)));
 
 module.exports.saveXmlToBucket = saveXmlToBucket;
 module.exports.saveCaptionsToBucket = saveCaptionsToBucket;
