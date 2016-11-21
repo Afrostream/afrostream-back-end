@@ -31,7 +31,7 @@ const getIncludedModel = require('./pin.includedModel').get;
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
     return entity => {
-      res.status(statusCode).json(entity);
+        res.status(statusCode).json(entity);
     };
 }
 
@@ -208,22 +208,22 @@ exports.create = (req, res) => {
     };
 
     Q()
-      .then(() => {
-          //EXTRACT IMAGE
-          if (req.body.imageUrl) {
-            Q.nfcall(request, {url: req.body.imageUrl, encoding: null})
-              .then(data => {
-                /*var res = data[0];*/
-                const buffer = data[1];
+        .then(() => {
+            //EXTRACT IMAGE
+            if (req.body.imageUrl) {
+                Q.nfcall(request, {url: req.body.imageUrl, encoding: null})
+                    .then(data => {
+                        /*var res = data[0];*/
+                        const buffer = data[1];
 
-                const typeOfFile = fileType(buffer);
-                const name = md5(buffer);
-                return {name: name, buffer: buffer, mimeType: typeOfFile.mime};
-              });
-          }
-          return null;
-      })
-    //SAVE Buffer
+                        const typeOfFile = fileType(buffer);
+                        const name = md5(buffer);
+                        return {name: name, buffer: buffer, mimeType: typeOfFile.mime};
+                    });
+            }
+            return null;
+        })
+        //SAVE Buffer
         .then(file => {
             if (!file) {
                 return;

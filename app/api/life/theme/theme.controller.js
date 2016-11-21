@@ -59,7 +59,10 @@ exports.index = (req, res) => {
     const queryName = req.param('query');
     let queryOptions = {
         include: getIncludedModel(),
-        order: [['sort', 'ASC'], ['date', 'DESC']]
+        order: [
+            ['sort', 'ASC'],
+            [{model: LifePin, as: 'pins'}, 'date', 'DESC']
+        ]
     };
     // pagination
     utils.mergeReqRange(queryOptions, req);
@@ -95,7 +98,11 @@ exports.show = (req, res) => {
         include: getIncludedModel(),
         where: {
             _id: req.params.id
-        }
+        },
+        order: [
+            ['sort', 'ASC'],
+            [{model: LifePin, as: 'pins'}, 'date', 'DESC']
+        ]
     };
 
     queryOptions = filters.filterQueryOptions(req, queryOptions, LifeTheme);
