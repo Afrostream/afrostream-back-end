@@ -16,7 +16,7 @@ module.exports.get = function () {
                 'label',
                 'slug',
                 'sort'],
-            required: true
+            required: false
         },
         {model: Image, as: 'image', required: false},
         {model: User, as: 'user', required: false},
