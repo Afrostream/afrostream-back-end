@@ -8,47 +8,45 @@ const Image = sqldb.Image;
 const User = sqldb.User;
 
 module.exports.get = () => [
-    //{model: LifeThemePins, all: true},
-    {
-        model: LifePin,
-        as: 'pins',
-        attributes: [
-            '_id',
-            'type',
-            'title',
-            'role',
-            'providerUrl',
-            'providerName',
-            'originalUrl',
-            'imageUrl',
-            'richMediaUrl',
-            'description',
-            'date'],
-        required: false,
-        include: [
-            {model: Image, as: 'image', required: false},
-            {
-                model: User,
-                as: 'user',
-                required: false
-            },
-            {
-                model: User,
-                as: 'users',
-                required: false
-            }
-        ]
-    },
-    {
-        model: LifeSpot,
-        as: 'spots',
-        required: false,
-        include: [
-            {
-                model: Image,
-                as: 'image',
-                required: false
-            }
-        ]
-    }
+  //{model: LifeThemePins, all: true},
+  {
+    model: LifePin,
+    as: 'pins',
+    attributes: [
+      '_id',
+      'type',
+      'title',
+      'role',
+      'providerUrl',
+      'providerName',
+      'originalUrl',
+      'imageUrl',
+      'richMediaUrl',
+      'description',
+      'date'
+    ],
+    required: false,
+    include: [{
+      model: Image,
+      as: 'image',
+      required: false
+    }, {
+      model: User,
+      as: 'user',
+      required: false
+    }, {
+      model: User,
+      as: 'users',
+      required: false
+    }]
+  }, {
+    model: LifeSpot,
+    as: 'spots',
+    required: false,
+    include: [{
+      model: Image,
+      as: 'image',
+      required: false
+    }]
+  }
 ];
