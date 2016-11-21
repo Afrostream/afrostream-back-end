@@ -1,11 +1,10 @@
 'use strict';
 
-var express = require('express');
-var utils = rootRequire('/app/api/utils.js');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
 // routes cannot be cached
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   res.noCache();
   next();
 });

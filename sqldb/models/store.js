@@ -1,5 +1,5 @@
 'use strict';
-var Q = require('q');
+
 module.exports = function (sequelize, DataTypes) {
     return sequelize.define('Store', {
         _id: {
@@ -36,14 +36,6 @@ module.exports = function (sequelize, DataTypes) {
                     this.setDataValue('geometry', null);
                 } else {
                     this.setDataValue('geometry', {type: 'Point', coordinates: coords});
-                }
-            },
-            validations: {
-                isCoordinateArray: function (value) {
-                    console.log('isCoordinateArray', value)
-                    if (!_.isArray(value) || value.length !== 2) {
-                        throw new Error('Must be an array with 2 elements');
-                    }
                 }
             }
         }

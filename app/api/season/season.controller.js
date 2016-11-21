@@ -9,23 +9,23 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var algolia = rootRequire('/components/algolia');
-var Season = sqldb.Season;
-var Movie = sqldb.Movie;
-var Episode = sqldb.Episode;
-var Image = sqldb.Image;
-var Promise = sqldb.Sequelize.Promise;
-var slugify = require('slugify');
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const algolia = rootRequire('components/algolia');
+const Season = sqldb.Season;
+const Movie = sqldb.Movie;
+const Episode = sqldb.Episode;
+const Image = sqldb.Image;
+const Promise = sqldb.Sequelize.Promise;
+const slugify = require('slugify');
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = require('./season.includedModel').get;
+const getIncludedModel = require('./season.includedModel').get;
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -33,86 +33,71 @@ function responseWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 function addMovie(updates) {
-  var movie = Movie.build(updates.movie);
-  return function (entity) {
+  const movie = Movie.build(updates.movie);
+  return entity => {
     if (!movie) {
-      return entity
+      return entity;
     }
     return entity.setMovie(movie)
-      .then(function () {
-        return entity;
-      });
+      .then(() => entity);
   };
 }
 
 function addEpisodes(updates) {
   if (updates.episodes !== undefined && typeof updates.episodes === 'number') {
-    var copy = _.pick(updates, ['title', 'synopsis', 'poster', 'thumb']);
-    var datas = _.range(updates.episodes).map(function () {
-      return _.cloneDeep(copy);
-    });
-    return function (entity) {
-      var itemId = 1;
-      return Promise.map(datas, function (item) {
+    const copy = _.pick(updates, ['title', 'synopsis', 'poster', 'thumb']);
+    const datas = _.range(updates.episodes).map(() => _.cloneDeep(copy));
+    return entity => {
+      let itemId = 1;
+      return Promise.map(datas, item => {
         item.title = item.title + ' episode ' + itemId;
         item.slug = slugify(item.title);
         item.episodeNumber = itemId;
         itemId++;
         return Episode.create(item).then(updateImages(copy));
-      }).then(function (inserts) {
+      }).then(inserts => {
         if (!inserts || !inserts.length) {
           return entity;
         }
         return entity.setEpisodes(inserts)
-          .then(function () {
-            return entity;
-          });
+          .then(() => entity);
       });
     };
 
 
   } else {
-    var episodes = Episode.build(_.map(updates.episodes || [], _.partialRight(_.pick, '_id')));
+    const episodes = Episode.build(_.map(updates.episodes || [], _.partialRight(_.pick, '_id')));
 
-    return function (entity) {
+    return entity => {
       if (!episodes || !episodes.length) {
-        return entity
+        return entity;
       }
       return entity.setEpisodes(episodes)
-        .then(function () {
-          return entity;
-        });
+        .then(() => entity);
     };
   }
 }
 
 function updateImages(updates) {
-  return function (entity) {
-    var promises = [];
+  return entity => {
+    const promises = [];
     promises.push(entity.setPoster(updates.poster && Image.build(updates.poster) || null));
     promises.push(entity.setThumb(updates.thumb && Image.build(updates.thumb) || null));
     return sqldb.Sequelize.Promise
       .all(promises)
-      .then(function () {
-        return entity;
-      });
+      .then(() => entity);
   };
 }
 
 function removeEntity(res) {
-  return function (entity) {
+  return entity => {
     if (entity) {
       return entity.destroy()
-        .then(function () {
+        .then(() => {
           res.status(204).end();
         });
     }
@@ -120,9 +105,9 @@ function removeEntity(res) {
 }
 
 // Gets a list of seasons
-exports.index = function (req, res) {
-  var queryName = req.param('query');
-  var queryOptions = {
+exports.index = (req, res) => {
+  const queryName = req.param('query');
+  let queryOptions = {
     include: getIncludedModel()
   };
 
@@ -134,7 +119,7 @@ exports.index = function (req, res) {
       where: {
         title: {$iLike: '%' + queryName + '%'}
       }
-    })
+    });
   }
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, Season);
@@ -146,8 +131,8 @@ exports.index = function (req, res) {
 };
 
 // Gets a single season from the DB
-exports.show = function (req, res) {
-  var queryOptions = {
+exports.show = (req, res) => {
+  let queryOptions = {
     where: {
       _id: req.params.id
     },
@@ -188,7 +173,7 @@ exports.show = function (req, res) {
 };
 
 // Creates a new season in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
   Season.create(req.body)
     .then(addEpisodes(req.body))
     .then(addMovie(req.body))
@@ -197,17 +182,17 @@ exports.create = function (req, res) {
     .catch(res.handleError());
 };
 
-exports.search = function (req, res) {
-  var query = req.body.query || '';
+exports.search = (req, res) => {
+  const query = req.body.query || '';
 
   algolia.searchIndex('seasons', query)
-    .then(function (result) {
+    .then(result => {
       if (!result) {
         throw new Error('no result from algolia');
       }
-      var queryOptions = {
+      let queryOptions = {
         where: { _id: {
-          $in: (result.hits || []).map(function (season) { return season._id; })
+          $in: (result.hits || []).map(season => season._id)
         } },
         include: getIncludedModel()
       };
@@ -215,7 +200,7 @@ exports.search = function (req, res) {
       queryOptions = filters.filterQueryOptions(req, queryOptions, Season);
       //
       return Season.findAll(queryOptions)
-        .then(function (seasons) {
+        .then(seasons => {
           result.hits = seasons;
           result.nbHits = seasons.length;
           return result;
@@ -228,8 +213,8 @@ exports.search = function (req, res) {
 };
 
 // Updates an existing episode in the DB
-exports.algolia = function (req, res) {
-  var now = new Date();
+exports.algolia = (req, res) => {
+  const now = new Date();
 
   Season.findAll({
     include: getIncludedModel(),
@@ -250,7 +235,7 @@ exports.algolia = function (req, res) {
 };
 
 // Updates an existing season in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }
@@ -270,7 +255,7 @@ exports.update = function (req, res) {
 };
 
 // Deletes a season from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
   Season.find({
     where: {
       _id: req.params.id

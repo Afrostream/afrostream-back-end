@@ -1,11 +1,9 @@
-var express = require('express');
-var controller = require('./broadcaster.controller.js');
-var auth = rootRequire('/app/auth/auth.service');
-var utils = rootRequire('/app/api/utils.js');
-var router = express.Router();
+const express = require('express');
+const controller = require('./broadcaster.controller.js');
+const router = express.Router();
 
 // all video routes cannot be cached.
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   res.noCache();
   next();
 });

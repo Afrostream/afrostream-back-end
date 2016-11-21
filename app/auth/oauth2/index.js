@@ -78,8 +78,6 @@ var express = require('express');
 var oauth2 = require('./oauth2');
 var router = express.Router();
 
-var local = require('../local/local.controller.js');
-
 // cross domain access to our api, staging only for tests
 if (process.env.NODE_ENV === 'staging') {
   router.use(function (req, res, next) {
@@ -104,7 +102,7 @@ router.post('/decision', oauth2.decision);
 
 // orange specific..
 router.get('/ise2', function (req, res) {
-  res.json({ise2: req.get('X_WASSUP_ISE2')})
+  res.json({ise2: req.get('X_WASSUP_ISE2')});
 });
 
 module.exports = router;

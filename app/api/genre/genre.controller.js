@@ -1,14 +1,14 @@
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var Genre = sqldb.Genre;
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Genre = sqldb.Genre;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -16,10 +16,10 @@ function responseWithResult(res, statusCode) {
 }
 
 // Gets a list of episodes
-exports.index = function (req, res) {
-  var queryName = req.param('query');
+exports.index = (req, res) => {
+  const queryName = req.param('query');
 
-  var queryOptions = {};
+  let queryOptions = {};
 
   // pagination
   utils.mergeReqRange(queryOptions, req);
@@ -29,7 +29,7 @@ exports.index = function (req, res) {
       where: {
         title: {$iLike: '%' + queryName + '%'}
       }
-    })
+    });
   }
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, Genre);
@@ -41,8 +41,8 @@ exports.index = function (req, res) {
 };
 
 // Gets a single episode from the DB
-exports.show = function (req, res) {
-  var queryOptions = {
+exports.show = (req, res) => {
+  let queryOptions = {
     where: {
       _id: req.params.id
     }

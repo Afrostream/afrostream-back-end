@@ -1,24 +1,25 @@
 'use strict';
 
 var Q = require('q');
-var config = rootRequire('/config');
+var config = rootRequire('config');
 var sendgrid = require('sendgrid')(config.sendGrid.api_key);
+var logger = rootRequire('logger').prefix('SENDGRID');
 
 var send = function (email) {
-  console.log('[INFO]: [SENDGRID]: sending email ' + JSON.stringify(email));
+  logger.log('sending email ' + JSON.stringify(email));
 
   if (config.sendGrid.doNotSend) {
-    console.log('[INFO]: [SENDGRID]: sending email skipped');
+    logger.log('sending email skipped');
     return Q({});
   }
   return Q.ninvoke(sendgrid, 'send', email)
     .then(
       function success(data) {
-        console.log('[INFO]: [SENDGRID]: send ', data);
+        logger.log('send ', data);
         return data;
       },
       function error(err) {
-        console.error('[ERROR]: [SENDGRID]: error ', err);
+        logger.error(err.message);
         throw err;
       }
     );

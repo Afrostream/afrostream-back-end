@@ -3,7 +3,7 @@ var crypto = require('crypto');
 var moment = require('moment');
 var path = require('path');
 var Promise = require('bluebird');
-var config = rootRequire('/config');
+var config = rootRequire('config');
 var Knox = require('knox');
 
 
@@ -86,10 +86,3 @@ exports = module.exports = {
     });
   }
 };
-
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}

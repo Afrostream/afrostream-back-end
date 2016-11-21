@@ -1,15 +1,13 @@
 'use strict';
-var sqldb = rootRequire('/sqldb');
-var config = rootRequire('/config');
-var utils = rootRequire('/app/api/utils.js');
-var Config = sqldb.Config;
+const sqldb = rootRequire('sqldb');
+const config = rootRequire('config');
+const utils = rootRequire('app/api/utils.js');
+const Config = sqldb.Config;
 
 function mapEntitys () {
-  return function (entity) {
+  return entity => {
     //Map values
-    var mxVals = entity.map(function (r) {
-      return r.dataValues.maximum;
-    });
+    const mxVals = entity.map(r => r.dataValues.maximum);
 
     return Config.findAll({
       where: {
@@ -18,12 +16,12 @@ function mapEntitys () {
         }
       }
     });
-  }
+  };
 }
 
 function responseWithResult (res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -31,10 +29,10 @@ function responseWithResult (res, statusCode) {
 }
 
 function removeEntity (res) {
-  return function (entity) {
+  return entity => {
     if (entity) {
       return entity.destroy()
-        .then(function () {
+        .then(() => {
           res.status(204).end();
         });
     }
@@ -42,14 +40,14 @@ function removeEntity (res) {
 }
 
 // Creates a new actor in the DB
-exports.client = function (req, res) {
+exports.client = (req, res) => {
   res.json(config.client);
 };
 
 // Gets a list of clients
-exports.index = function (req, res) {
+exports.index = (req, res) => {
 
-  var paramsObj = utils.mergeReqRange({
+  const paramsObj = utils.mergeReqRange({
     attributes: [[
       sqldb.sequelize.fn('max', sqldb.sequelize.col('_id')), 'maximum']],
     group: ['target']
@@ -63,7 +61,7 @@ exports.index = function (req, res) {
 };
 
 // Gets a single client from the DB
-exports.target = function (req, res) {
+exports.target = (req, res) => {
   Config.find({
       where: {
         target: req.params.target
@@ -79,14 +77,14 @@ exports.target = function (req, res) {
 };
 
 // Creates a new client in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
   Config.create(req.body)
     .then(responseWithResult(res, 201))
     .catch(res.handleError());
 };
 
 // Deletes a client from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
   Config.find({
       where: {
         _id: req.params.id

@@ -1,16 +1,13 @@
 'use strict';
 
-var _ = require('lodash');
-var Q = require('q');
-var auth = rootRequire('/app/auth/auth.service');
-var sqldb = rootRequire('/sqldb');
-var User = sqldb.User;
-var UsersVideos = sqldb.UsersVideos;
-var UsersFavoritesEpisodes = sqldb.UsersFavoritesEpisodes;
+const _ = require('lodash');
+const Q = require('q');
+const sqldb = rootRequire('sqldb');
+const UsersVideos = sqldb.UsersVideos;
 
-module.exports.update = function (req, res) {
-  var userVideoKey = { userId: req.user._id, videoId: req.params.videoId};
-  var data = _.merge({}, req.body, userVideoKey);
+module.exports.update = (req, res) => {
+  const userVideoKey = { userId: req.user._id, videoId: req.params.videoId};
+  const data = _.merge({}, req.body, userVideoKey);
 
   delete data.dateStartRead; // shouldn't overwrite model own dateStartRead.
   delete data.dateLastRead;  // should be automaticaly set (model update hook)
@@ -19,7 +16,7 @@ module.exports.update = function (req, res) {
   data.lastUpdateDeviceType = String(req.get('X-Device-Type') || '').substr(0, 16); // tapptic additionnal info.
 
   Q()
-    .then(function () {
+    .then(() => {
       // some security
       if (typeof data.rating !== 'undefined' && (data.rating < 1 || data.rating > 5)) {
         throw new Error('rating must be between 1 and 5 (inclusive)');
@@ -37,18 +34,16 @@ module.exports.update = function (req, res) {
         throw new Error('playerAudio format should be ISO6392T');
       }
       // temp fix: translating the data.
-      var translationTable = { 'fr': 'fra', 'en': 'eng' };
+      const translationTable = { 'fr': 'fra', 'en': 'eng' };
       if (data.playerCaption && typeof translationTable[data.playerCaption] !== 'undefined') {
-        console.log('[WARNING]: [API]: ' + req.originalUrl + ' playerCaption was translated from '+data.playerCaption+ ' to ' + translationTable[data.playerCaption]);
+        req.logger.warn(req.originalUrl + ' playerCaption was translated from '+data.playerCaption+ ' to ' + translationTable[data.playerCaption]);
         data.playerCaption = translationTable[data.playerCaption];
       }
       if (typeof data.playerCaption === 'string' && data.playerCaption.length !== 3) {
         throw new Error('playerCaption format should be ISO6392T');
       }
     })
-    .then(function () {
-      return UsersVideos.findOne({where: userVideoKey});
-    })
+    .then(() => UsersVideos.findOne({where: userVideoKey}))
     .then(function upsert(userVideo) {
       // manual upsert, non atomic, but avoid heroku posgres log
       // 2016-03-29T10:28:27Z app[postgres.24289]: [DATABASE] statement: CREATE OR REPLACE FUNCTION pg_temp.sequelize_upsert()...
@@ -59,18 +54,18 @@ module.exports.update = function (req, res) {
       }
     })
     .then(
-      function () { res.json({}); },
+      () => { res.json({}); },
       res.handleError()
     );
 };
 
-module.exports.show = function (req, res) {
-  var userVideoKey = { userId: req.user._id, videoId: req.params.videoId};
+module.exports.show = (req, res) => {
+  const userVideoKey = { userId: req.user._id, videoId: req.params.videoId};
   UsersVideos.find({ where: userVideoKey})
     .then(
-      function (userVideo) {
+      userVideo => {
         if (!userVideo) {
-          var error = new Error('not found');
+          const error = new Error('not found');
           error.statusCode = 404;
           throw error;
         }
@@ -78,15 +73,15 @@ module.exports.show = function (req, res) {
       }
     )
     .then(
-      function (userVideo) { res.json(userVideo); },
+      userVideo => { res.json(userVideo); },
       res.handleError()
     );
 };
 
-module.exports.index = function (req, res) {
+module.exports.index = (req, res) => {
   UsersVideos.findAll({ where: { userId: req.user._id }, order: [ ['dateLastRead', 'desc'] ] })
     .then(
-      function (e) { res.json(e || []); },
+      e => { res.json(e || []); },
       res.handleError()
     );
 };

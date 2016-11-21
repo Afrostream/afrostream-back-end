@@ -5,8 +5,7 @@ var _ = require('lodash');
 var btoa = require('btoa');
 var passport = require('passport');
 var oauth2 = require('../oauth2/oauth2');
-var config = rootRequire('/config');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var User = sqldb.User;
 var Client = sqldb.Client;
 
@@ -25,14 +24,6 @@ var strategyOptions = function (options) {
     next();
   };
 };
-
-function validationError (res, statusCode) {
-  statusCode = statusCode || 422;
-  return function (err) {
-    console.error('/auth/bouygues/: error: validationError: ', err);
-    res.status(statusCode).json({error: String(err)});
-  }
-}
 
 /**
  *
@@ -89,31 +80,33 @@ var link = function (req, res, next) {
 };
 
 var unlink = function (req, res) {
-  console.log('unlink user bouygues : ', req.user._id);
+  req.logger.log('unlink user bouygues : ', req.user._id);
   User.find({
     where: {
       _id: req.user._id
     }
   })
     .then(function (user) {
-      console.log(user._id);
+      req.logger.log(user._id);
       if (!user) {
-        return res.status(422).end();
+        throw new Error('user not found');
       }
       user.bouyguesId = null;
       user.bouygues = null;
-      return user.save()
-        .then(function () {
-          res.json(user.getInfos());
-        }).catch(validationError(res));
-    });
+      return user.save();
+    })
+    .then(
+      function (user) { res.json(user.getInfos()); },
+      res.handleError(422)
+    );
 };
 
 var callback = function (req, res, next) {
   var state = req.query.state;
+  var logger = req.logger.prefix('AUTH').prefix('BOUYGUES');
   // logs
-  console.log('[INFO]: [AUTH]: [BOUYGUES]: callback: START');
-  console.log('[INFO]: [AUTH]: [BOUYGUES]: callback: state='+state);
+  logger.log('callback: START');
+  logger.log('callback: state='+state);
   //
   passport.authenticate('bouygues', {
     state: state,
@@ -123,9 +116,9 @@ var callback = function (req, res, next) {
       .then(function () {
         if (err) throw err;
         //if (info) throw info;
-        console.log('[INFO]: [AUTH]: [BOUYGUES]: callback: info=', info);
+        logger.log('callback: info=', info);
         if (!user) throw new Error('Something went wrong, please try again.');
-        console.log('[INFO]: [AUTH]: [BOUYGUES]: callback: userId=', user._id);
+        logger.log('callback: userId=', user._id);
         return req.getPassport();
       })
       .then(function (passport) {
@@ -141,7 +134,7 @@ var callback = function (req, res, next) {
         return passport.client;
       })
       .then(function (client) {
-        console.log('[INFO]: [AUTH]: [BOUYGUES]: generate Token for client=' + client._id + ' & user=' + user._id);
+        logger.log('generate Token for client=' + client._id + ' & user=' + user._id);
         return Q.nfcall(oauth2.generateToken, client, user, null, req.clientIp, req.userAgent, null);
       })
       .then(function (tokenInfos) {
@@ -155,11 +148,10 @@ var callback = function (req, res, next) {
       })
       .then(
         function success (tokens) {
-          console.log('[INFO]: [AUTH]: [BOUYGUES]: sending tokens ' + JSON.stringify(tokens));
+          logger.log('sending tokens ' + JSON.stringify(tokens));
           res.json(tokens);
         },
         function error (err) {
-          console.error('[ERROR]: [AUTH]: [BOUYGUES]: callback: error=' + err.message, err);
           res.handleError()(err, {signupClientType: req.signupClientType});
         });
   })(req, res, next);

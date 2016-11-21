@@ -1,9 +1,9 @@
 'use strict';
 
-var express = require('express');
-var controller = require('./wallnote.controller.js');
-var auth = rootRequire('/app/auth/auth.service');
-var router = express.Router();
+const express = require('express');
+const controller = require('./wallnote.controller.js');
+const auth = rootRequire('app/auth/auth.service');
+const router = express.Router();
 
 router.get('/', controller.index);
 router.post('/:id/score', auth.middleware.restrictRoutesToAuthentified(), controller.score);

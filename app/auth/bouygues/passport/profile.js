@@ -19,7 +19,7 @@ exports.parse = function (json) {
 
 
   if (json.adress) {
-    profile.address = json.adress
+    profile.address = json.adress;
   }
 
   if (json.phone) {

@@ -18,7 +18,7 @@ var ip = require('ip');
  * @param options
  * @returns void
  */
-module.exports = function (options) {
+module.exports = function () {
   return function (req, res, next) {
     req.clientIp = req.get('x-forwarded-user-ip') ||
       (req.get('x-forwarded-for') || '')

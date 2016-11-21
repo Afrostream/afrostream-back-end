@@ -1,18 +1,16 @@
 'use strict';
 
-var assert = require('better-assert');
-
-var _ = require('lodash');
-
 var Q = require('q');
 
-var sqldb = rootRequire('/sqldb')
-  , config = rootRequire('/config');
+var config = rootRequire('config');
 
 var anr = require('afrostream-node-request');
 
+// fixme: this dependency should be injected
+var logger = rootRequire('logger').prefix('PF');
+
 // wrapper
-var requestPF = (function (options) {
+var requestPF = (function () {
   var request = anr.create({
     name: 'REQUEST-PF',
     timeout: config.pf.timeout,
@@ -23,12 +21,12 @@ var requestPF = (function (options) {
   return function (options) {
     var readableQueryString = Object.keys(options.qs || []).map(function (k) { return k + '=' + options.qs[k]; }).join('&');
     var readableUrl = config.pf.url + options.uri + (readableQueryString?'?' + readableQueryString:'');
-    console.log('[INFO]: [REQUEST-PF]: ' + readableUrl);
+    logger.log(readableUrl);
 
     return request(options).then(function (data) {
       return data[1]; // body
     });
-  }
+  };
 })();
 
 function PfContent(pfMd5Hash, pfBroadcasterName) {
@@ -61,7 +59,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
        throw new Error('[PF]: no content found');
      }
      if (pfContents.length > 1) {
-       console.log('[WARNING]: [PF]: multiple content (' + pfContents.length + ') found');
+       logger.warn('multiple content (' + pfContents.length + ') found');
      }
      // returning first content.
      that.pfContent = pfContents[0];
@@ -93,7 +91,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
         throw new Error('[PF]: no content found');
       }
       if (pfContents.length > 1) {
-        console.log('[WARNING]: [PF]: multiple content (' + pfContents.length + ') found');
+        logger.warn('multiple content (' + pfContents.length + ') found');
       }
       // returning first content.
       that.pfContent = pfContents[0];
@@ -110,7 +108,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
     return requestPF({ uri: '/api/profiles' })
      .then(function filter(profiles) {
        if (!Array.isArray(profiles)) {
-         throw new Error("profiles format")
+         throw new Error("profiles format");
        }
        that.pfProfiles = profiles.filter(function (profile) {
          return profile.broadcaster === that.pfBroadcasterName;
@@ -242,7 +240,7 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
         var contentType = pfTypeToContentType[manifest.type];
 
         if (!contentType) {
-          console.error('[ERROR]: [PF]: '+that.pfContent.contentId+'|'+that.pfBroadcasterName+' unknown manifest type: ' + manifest.type, manifests);
+          logger.error(that.pfContent.contentId+'|'+that.pfBroadcasterName+' unknown manifest type: ' + manifest.type, manifests);
         }
         return {
           src: manifest.url,
@@ -253,10 +251,11 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
     .then(function (manifests) {
       that.manifests = manifests;
       return manifests;
-    })
+    });
 };
 
 var getContents = function (state) {
+  var that = this;
   return requestPF({
    uri: '/api/contents',
    qs: { state: state || 'ready' }
@@ -275,6 +274,6 @@ var getContents = function (state) {
 var pf = {
   PfContent: PfContent,
   getContents: getContents
-}
+};
 
 module.exports = pf;

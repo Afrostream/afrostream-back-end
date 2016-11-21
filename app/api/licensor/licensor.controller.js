@@ -9,22 +9,20 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var Movie = sqldb.Movie;
-var Licensor = sqldb.Licensor;
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Movie = sqldb.Movie;
+const Licensor = sqldb.Licensor;
 
-var utils = rootRequire('/app/api/utils.js');
+const utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = function () {
-  return [
-    {model: Movie, as: 'movies'} // load all movies
-  ];
-};
+const getIncludedModel = () => [
+  {model: Movie, as: 'movies'} // load all movies
+];
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -32,29 +30,19 @@ function responseWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 function addMovies(updates) {
-  var movies = Movie.build(_.map(updates.movies || [], _.partialRight(_.pick, '_id')));
-  return function (entity) {
-    return entity.setMovies(movies)
-      .then(function (updated) {
-        return updated;
-      });
-  };
+  const movies = Movie.build(_.map(updates.movies || [], _.partialRight(_.pick, '_id')));
+  return entity => entity.setMovies(movies);
 }
 
 function removeEntity(res) {
-  return function (entity) {
+  return entity => {
     if (entity) {
       return entity.destroy()
-        .then(function () {
+        .then(() => {
           res.status(204).end();
         });
     }
@@ -62,9 +50,9 @@ function removeEntity(res) {
 }
 
 // Gets a list of licensors
-exports.index = function (req, res) {
-  var queryName = req.param('query');
-  var paramsObj = {
+exports.index = (req, res) => {
+  const queryName = req.param('query');
+  let paramsObj = {
     include: getIncludedModel()
   };
 
@@ -76,7 +64,7 @@ exports.index = function (req, res) {
       where: {
         name: {$iLike: '%' + queryName + '%'}
       }
-    })
+    });
   }
 
   Licensor.findAndCountAll(paramsObj)
@@ -85,7 +73,7 @@ exports.index = function (req, res) {
 };
 
 // Gets a single licensor from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
   Licensor.find({
     where: {
       _id: req.params.id
@@ -98,7 +86,7 @@ exports.show = function (req, res) {
 };
 
 // Creates a new licensor in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
   Licensor.create(req.body)
     .then(addMovies(req.body))
     .then(responseWithResult(res, 201))
@@ -106,7 +94,7 @@ exports.create = function (req, res) {
 };
 
 // Updates an existing licensor in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }
@@ -123,7 +111,7 @@ exports.update = function (req, res) {
 };
 
 // Deletes a licensor from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
   Licensor.find({
     where: {
       _id: req.params.id

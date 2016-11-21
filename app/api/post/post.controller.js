@@ -9,22 +9,20 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var Post = sqldb.Post;
-var Image = sqldb.Image;
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Post = sqldb.Post;
+const Image = sqldb.Image;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = function () {
-  return [
-    {model: Image, as: 'poster'} // load poster image
-  ];
-};
+const getIncludedModel = () => [
+  {model: Image, as: 'poster'} // load poster image
+];
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -32,31 +30,24 @@ function responseWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 function updateImages(updates) {
-  return function (entity) {
-    var promises = [];
+  return entity => {
+    const promises = [];
     promises.push(entity.setPoster(updates.poster && Image.build(updates.poster) || null));
     return sqldb.Sequelize.Promise
       .all(promises)
-      .then(function () {
-        return entity;
-      });
+      .then(() => entity);
   };
 }
 
 function removeEntity(res) {
-  return function (entity) {
+  return entity => {
     if (entity) {
       return entity.destroy()
-        .then(function () {
+        .then(() => {
           res.status(204).end();
         });
     }
@@ -66,10 +57,10 @@ function removeEntity(res) {
 // Gets a list of posts
 // ?query=... (search in the title)
 // ?slug=... (search by slug)
-exports.index = function (req, res) {
-  var queryName = req.param('query'); // deprecated.
-  var slug = req.query.slug;
-  var queryOptions = {
+exports.index = (req, res) => {
+  const queryName = req.param('query'); // deprecated.
+  const slug = req.query.slug;
+  let queryOptions = {
     include: getIncludedModel()
   };
 
@@ -81,10 +72,8 @@ exports.index = function (req, res) {
       where: {
         title: {$iLike: '%' + queryName + '%'}
       }
-    })
+    });
   }
-  console.log('slug:'+slug);
-
   if (slug) {
     queryOptions = _.merge(queryOptions, {
       where: {
@@ -102,8 +91,8 @@ exports.index = function (req, res) {
 };
 
 // Gets a single post from the DB
-exports.show = function (req, res) {
-  var queryOptions = {
+exports.show = (req, res) => {
+  let queryOptions = {
     where: {
       _id: req.params.id
     },
@@ -119,7 +108,7 @@ exports.show = function (req, res) {
 };
 
 // Creates a new post in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
   Post.create(req.body)
     .then(updateImages(req.body))
     .then(responseWithResult(res, 201))
@@ -127,7 +116,7 @@ exports.create = function (req, res) {
 };
 
 // Updates an existing post in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }
@@ -144,7 +133,7 @@ exports.update = function (req, res) {
 };
 
 // Deletes a post from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
   Post.find({
       where: {
         _id: req.params.id

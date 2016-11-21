@@ -7,11 +7,16 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging' 
   process.exit(1);
 }
 
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
 var nock = require('nock');
 
 console.log('mocking ' + config.pf.url);
+
+nock(config.pf.url)
+  .persist()
+  .get('/api/profiles')
+  .reply(200, [{"profileId":1,"name":"VIDEO0ENG_AUDIO0ENG_SUB0FRA","broadcaster":"BOUYGUES","acceptSubtitles":"yes","createdAt":"2016-02-24 13:53:20","updatedAt":"2016-08-29 18:20:00"},{"profileId":2,"name":"VIDEO0ENG_AUDIO0FRA","broadcaster":"AFROSTREAM","acceptSubtitles":"yes","createdAt":"2016-03-23 19:27:01","updatedAt":"2016-08-29 18:20:11"},{"profileId":3,"name":"VIDEO0ENG_AUDIO0FRA","broadcaster":"BOUYGUES","acceptSubtitles":"no","createdAt":"2016-04-15 11:37:52","updatedAt":"2016-08-29 18:20:27"},{"profileId":4,"name":"VIDEO0ENG_AUDIO0FRA_AUDIO1ENG","broadcaster":"BOUYGUES","acceptSubtitles":"no","createdAt":"2016-04-28 11:05:56","updatedAt":"2016-08-29 18:20:41"},{"profileId":5,"name":"VIDEO0ENG_AUDIO0FRA_AUDIO2ENG","broadcaster":"AFROSTREAM","acceptSubtitles":"yes","createdAt":"2016-05-10 12:20:38","updatedAt":"2016-08-29 18:21:03"},{"profileId":6,"name":"VIDEO0ENG_AUDIO0FRA_AUDIO1ENG","broadcaster":"AFROSTREAM","acceptSubtitles":"yes","createdAt":"2016-05-12 16:18:46","updatedAt":"2016-08-29 18:21:17"},{"profileId":7,"name":"VIDEO0ENG_AUDIO0ENG","broadcaster":"AFROSTREAM","acceptSubtitles":"yes","createdAt":"2016-05-12 18:03:00","updatedAt":"2016-08-29 18:21:31"},{"profileId":8,"name":"VIDEO_AUDIO_EXTRACT","broadcaster":"","acceptSubtitles":"no","createdAt":"2016-05-13 09:58:15","updatedAt":"2016-05-13 09:58:15"},{"profileId":9,"name":"VIDEO0ENG_AUDIO0FRA_AUDIO2ENG","broadcaster":"BOUYGUES","acceptSubtitles":"no","createdAt":"2016-05-19 16:49:29","updatedAt":"2016-08-29 18:21:51"},{"profileId":10,"name":"VIDEO0ENG_AUDIO0ENG_SUB0FRA","broadcaster":"ORANGE","acceptSubtitles":"yes","createdAt":"2016-05-27 15:51:24","updatedAt":"2016-08-29 18:22:03"},{"profileId":11,"name":"VIDEO0ENG_AUDIO0FRA","broadcaster":"ORANGECI","acceptSubtitles":"no","createdAt":"2016-06-01 10:30:12","updatedAt":"2016-10-25 15:53:11"},{"profileId":12,"name":"VIDEO0ENG_AUDIO0ENG_SUB0FRA","broadcaster":"ORANGECI","acceptSubtitles":"yes","createdAt":"2016-06-01 10:30:32","updatedAt":"2016-10-25 15:53:29"},{"profileId":13,"name":"VIDEO0ENG_AUDIO0FRA_AUDIO1ENG","broadcaster":"ORANGECI","acceptSubtitles":"no","createdAt":"2016-06-01 10:30:48","updatedAt":"2016-10-25 15:53:44"},{"profileId":14,"name":"VIDEO0ENG_AUDIO0FRA_AUDIO2ENG","broadcaster":"ORANGECI","acceptSubtitles":"no","createdAt":"2016-06-01 10:31:00","updatedAt":"2016-10-25 15:54:06"},{"profileId":15,"name":"VIDEO0ENG_AUDIO0FRA","broadcaster":"BOUYGUESMIAMI","acceptSubtitles":"yes","createdAt":"2016-06-01 16:11:31","updatedAt":"2016-08-29 18:22:26"},{"profileId":16,"name":"VIDEO0ENG_AUDIO0ENG","broadcaster":"BOUYGUESMIAMI","acceptSubtitles":"yes","createdAt":"2016-06-01 16:11:37","updatedAt":"2016-08-29 18:22:44"},{"profileId":17,"name":"VIDEO0ENG_AUDIO0FRA_AUDIO1ENG","broadcaster":"BOUYGUESMIAMI","acceptSubtitles":"yes","createdAt":"2016-06-01 16:12:19","updatedAt":"2016-08-29 18:23:02"},{"profileId":18,"name":"VIDEO0ENG_AUDIO0FRA_AUDIO2ENG","broadcaster":"BOUYGUESMIAMI","acceptSubtitles":"yes","createdAt":"2016-06-01 16:12:25","updatedAt":"2016-08-29 18:23:15"},{"profileId":19,"name":"VIDEO0ENG_AUDIO0FRA","broadcaster":"ORANGE","acceptSubtitles":"no","createdAt":"2016-06-06 14:51:29","updatedAt":"2016-08-29 18:23:32"},{"profileId":20,"name":"VIDEO0ENG_AUDIO0FRA_AUDIO1ENG","broadcaster":"ORANGE","acceptSubtitles":"no","createdAt":"2016-06-06 14:51:43","updatedAt":"2016-08-29 18:23:42"},{"profileId":21,"name":"VIDEO0ENG_AUDIO0FRA_AUDIO2ENG","broadcaster":"ORANGE","acceptSubtitles":"no","createdAt":"2016-06-06 14:51:46","updatedAt":"2016-08-29 18:23:53"}]);
 
 nock(config.pf.url)
   .persist()
@@ -37,6 +42,106 @@ nock(config.pf.url)
       updatedAt: "2016-09-27 18:32:19"
     }
 ])
+
+
+nock(config.pf.url)
+  .persist()
+  .get('/api/contents')
+  .query({md5Hash: '0123456789'})
+  .reply(200, [
+    {
+      profilesIds: [
+        1,
+        7,
+        10,
+        16
+      ],
+      contentId: 1316,
+      uuid: "b8ed17803e02c1fe",
+      md5Hash: "0123456789",
+      filename: "/space/videos/sources/Tundu_Wundu_Eng-VO_14_H264.mp4",
+      state: "ready",
+      size: 3218526211,
+      duration: "00:26:14",
+      uspPackage: "disabled",
+      drm: "disabled",
+      createdAt: "2016-04-13 13:39:52",
+      updatedAt: "2016-09-27 18:32:19"
+    }
+]);
+
+nock(config.pf.url)
+  .persist()
+  .get('/api/pfManifest')
+  .query({contentId: 1316,broadcaster:'AFROSTREAM'})
+  .reply(200, {"manifests":[
+    {"type":"dash","url":"/vod/MBO_101_Afrostream_V2/d82a85af21284391.ism/d82a85af21284391.mpd"},
+    {"type":"hls","url":"/vod/MBO_101_Afrostream_V2/d82a85af21284391.ism/d82a85af21284391.m3u8"},
+    {"type":"smooth","url":"/vod/MBO_101_Afrostream_V2/d82a85af21284391.ism/Manifest"}
+  ]});
+
+  nock(config.pf.url)
+    .persist()
+    .get('/api/pfManifest')
+    .query({contentId: 1316,broadcaster:'ORANGE'})
+    .reply(200, {"manifests":[
+      {"type":"dash","url":"/vod/MBO_101_Afrostream_V2/d82a85af21284391-orange.ism/d82a85af21284391.mpd"},
+      {"type":"hls","url":"/vod/MBO_101_Afrostream_V2/d82a85af21284391-orange.ism/d82a85af21284391.m3u8"},
+      {"type":"smooth","url":"/vod/MBO_101_Afrostream_V2/d82a85af21284391-orange.ism/Manifest"}
+    ]});
+
+
+  nock(config.pf.url)
+    .persist()
+    .get('/api/assetsStreams')
+    .query({md5Hash: '0123456789',profileName:'VIDEO0ENG_AUDIO0ENG',broadcaster:'AFROSTREAM'})
+    .reply(200, [
+      {
+        profilesIds: [
+          1,
+          7,
+          10,
+          16
+        ],
+        contentId: 1316,
+        uuid: "b8ed17803e02c1fe",
+        md5Hash: "0123456789",
+        filename: "/space/videos/sources/Tundu_Wundu_Eng-VO_14_H264.mp4",
+        state: "ready",
+        size: 3218526211,
+        duration: "00:26:14",
+        uspPackage: "disabled",
+        drm: "disabled",
+        createdAt: "2016-04-13 13:39:52",
+        updatedAt: "2016-09-27 18:32:19"
+      }
+  ]);
+
+  nock(config.pf.url)
+    .persist()
+    .get('/api/assetsStreams')
+    .query({md5Hash: '0123456789',profileName:'VIDEO0ENG_AUDIO0ENG_SUB0FRA',broadcaster:'ORANGE'})
+    .reply(200, [
+      {
+        profilesIds: [
+          1,
+          7,
+          10,
+          16
+        ],
+        contentId: 1316,
+        uuid: "b8ed17803e02c1fe",
+        md5Hash: "0123456789",
+        filename: "/space/videos/sources/Tundu_Wundu_Eng-VO_14_H264.mp4",
+        state: "ready",
+        size: 3218526211,
+        duration: "00:26:14",
+        uspPackage: "disabled",
+        drm: "disabled",
+        createdAt: "2016-04-13 13:39:52",
+        updatedAt: "2016-09-27 18:32:19"
+      }
+  ]);
 
 console.log('mocking ' + config.billings.url);
 

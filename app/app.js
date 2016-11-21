@@ -4,15 +4,17 @@ var express = require('express');
 var errorHandler = require('errorhandler');
 var path = require('path');
 
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
 var dumpPostData = require('./middlewares/middleware-dumppostdata.js');
 var morgan = require('./middlewares/middleware-morgan.js');
 var clientIp = require('./middlewares/middleware-client-ip.js');
 var userAgent = require('./middlewares/middleware-user-agent.js');
 var cacheHandler = require('./middlewares/middleware-cachehandler.js');
+var logger = require('./middlewares/middleware-logger.js');
+var id = require('./middlewares/middleware-id.js');
 
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
 
 // Setup server
 var app =  require('express')();
@@ -21,7 +23,11 @@ app.set('views', config.root + '/views');
 app.set('view engine', 'jade');
 app.set('etag', false);
 app.use(require('compression')());
-app.use(cookieParser(config.cookies.secret))
+app.use(cookieParser(config.cookies.secret));
+
+//
+app.use(id());
+app.use(logger());
 
 // we should never reach 500kb...
 // FIXME: add an error log entry when this limit is hit
@@ -36,9 +42,11 @@ app.use(clientIp());
 app.use(userAgent());
 app.use(cacheHandler());
 
-var middlewareAllowPreflight = require('./middlewares/middleware-allowpreflight.js');
-var middlewareAllowCrossDomain = require('./middlewares/middleware-allowcrossdomain.js');
+// statsd
+var middlewareStatsd = rootRequire('statsd').middleware;
+app.use(middlewareStatsd());
 
+// staging debug log route.
 var basicAuth = require('basic-auth-connect');
 var controllerLogs = require('./logs.controller.js');
 if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging') {
@@ -46,6 +54,9 @@ if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging'
   app.get('/logs', basicAuth(config.logs.basicAuth.user, config.logs.basicAuth.password), controllerLogs.index);
 }
 
+// CORS
+var middlewareAllowCrossDomain = require('./middlewares/middleware-allowcrossdomain.js');
+var middlewareAllowPreflight = require('./middlewares/middleware-allowpreflight.js');
 app.use(middlewareAllowCrossDomain());
 app.use(middlewareAllowPreflight());
 
@@ -83,7 +94,7 @@ switch (process.env.NODE_ENV) {
 }
 
 // add req.passport
-var middlewarePassport = rootRequire('/app/middlewares/middleware-passport.js');
+var middlewarePassport = rootRequire('app/middlewares/middleware-passport.js');
 app.use(middlewarePassport());
 
 require('./routes')(app);

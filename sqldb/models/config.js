@@ -1,7 +1,5 @@
 'use strict';
 
-var config = rootRequire('/config');
-
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Config', {
     _id: {

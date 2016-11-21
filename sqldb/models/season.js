@@ -1,6 +1,6 @@
 'use strict';
 
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('Season', {
@@ -45,7 +45,7 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     getterMethods   : {
       sharing: function()  {
-        return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/sharing/season/' + this._id }
+        return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/sharing/season/' + this._id };
       }
     }
   });

@@ -2,17 +2,59 @@
 
 var maxmind = require('maxmind');
 
-maxmind.init(__dirname + '/data/GeoIP.dat');
-maxmind.init(__dirname + '/data/GeoIPv6.dat');
+var lookup = maxmind.openSync(__dirname + '/data/GeoLite2-Country.mmdb');
+
+// fixme: avoid direct dependency
+var logger = rootRequire('logger').prefix('MAXMIND');
 
 var getCountryCode = function (ip) {
-  var country;
   try {
-    country = maxmind.getCountry(ip);
+    return lookup.get(ip).country.iso_code;
   } catch (e) {
-    console.error('maxmind error ', e);
+    logger.error('ip='+ip+' -> '+e.message);
+    return '';
   }
-  return (country && country.code) ? country.code : '';
 };
 
 module.exports.getCountryCode = getCountryCode;
+
+
+/*
+> countryLookup.get('82.228.194.109')
+{ continent:
+   { code: 'EU',
+     geoname_id: 6255148,
+     names:
+      { de: 'Europa',
+        en: 'Europe',
+        es: 'Europa',
+        fr: 'Europe',
+        ja: 'ヨーロッパ',
+        'pt-BR': 'Europa',
+        ru: 'Европа',
+        'zh-CN': '欧洲' } },
+  country:
+   { geoname_id: 3017382,
+     iso_code: 'FR',
+     names:
+      { de: 'Frankreich',
+        en: 'France',
+        es: 'Francia',
+        fr: 'France',
+        ja: 'フランス共和国',
+        'pt-BR': 'França',
+        ru: 'Франция',
+        'zh-CN': '法国' } },
+  registered_country:
+   { geoname_id: 3017382,
+     iso_code: 'FR',
+     names:
+      { de: 'Frankreich',
+        en: 'France',
+        es: 'Francia',
+        fr: 'France',
+        ja: 'フランス共和国',
+        'pt-BR': 'França',
+        ru: 'Франция',
+        'zh-CN': '法国' } } }
+*/

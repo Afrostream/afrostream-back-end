@@ -1,7 +1,5 @@
 'use strict';
 
-var assert = require('better-assert');
-
 var Q = require('q');
 
 /**
@@ -17,7 +15,7 @@ var Q = require('q');
  * @param options
  * @returns {Function} (req, res, next) middleware.
  */
-module.exports = function (options) {
+module.exports = function () {
   return function (req, res, next) {
     req.readFile = function () {
       var deferred = Q.defer();

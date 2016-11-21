@@ -9,15 +9,14 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var Language = sqldb.Language;
+const sqldb = rootRequire('sqldb');
+const Language = sqldb.Language;
 
-var utils = rootRequire('/app/api/utils.js');
+const utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -25,19 +24,14 @@ function responseWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
-    return entity.updateAttributes(updates)
-      .then(function(updated) {
-        return updated;
-      });
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return entity => {
     if (entity) {
       return entity.destroy()
-        .then(function() {
+        .then(() => {
           res.status(204).end();
         });
     }
@@ -45,10 +39,10 @@ function removeEntity(res) {
 }
 
 // Gets a list of languages
-exports.index = function(req, res) {
+exports.index = (req, res) => {
 
   // pagination
-  var paramsObj = utils.mergeReqRange({}, req);
+  const paramsObj = utils.mergeReqRange({}, req);
 
   Language.findAndCountAll(paramsObj)
     .then(utils.responseWithResultAndTotal(res))
@@ -56,7 +50,7 @@ exports.index = function(req, res) {
 };
 
 // Gets a single language from the DB
-exports.show = function(req, res) {
+exports.show = (req, res) => {
   Language.find({
     where: {
       _id: req.params.id
@@ -68,14 +62,14 @@ exports.show = function(req, res) {
 };
 
 // Creates a new language in the DB
-exports.create = function(req, res) {
+exports.create = (req, res) => {
   Language.create(req.body)
     .then(responseWithResult(res, 201))
     .catch(res.handleError());
 };
 
 // Updates an existing language in the DB
-exports.update = function(req, res) {
+exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }
@@ -91,7 +85,7 @@ exports.update = function(req, res) {
 };
 
 // Deletes a language from the DB
-exports.destroy = function(req, res) {
+exports.destroy = (req, res) => {
   Language.find({
     where: {
       _id: req.params.id

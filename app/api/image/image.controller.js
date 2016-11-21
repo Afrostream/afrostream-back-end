@@ -9,18 +9,17 @@
 
 'use strict';
 
-var _ = require('lodash');
-var path = require('path');
-var sqldb = rootRequire('/sqldb');
-var Image = sqldb.Image;
-var config = rootRequire('/config');
-var aws = rootRequire('/aws');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Image = sqldb.Image;
+const config = rootRequire('config');
+const aws = rootRequire('aws');
 
-var utils = rootRequire('/app/api/utils.js');
+const utils = rootRequire('app/api/utils.js');
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -28,39 +27,14 @@ function responseWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
-}
-
-function removeEntity(res) {
-  return function (entity) {
-    if (entity) {
-      var filesName = [entity.path];
-      Knox.aws.deleteMultiple(filesName, {}, function (err, response) {
-        if (err) {
-          return res.handleError()(err);
-        }
-        if (response.statusCode !== 200) {
-          return res.handleError(response.statusCode)('statusCode not 200 OK');
-        }
-        return entity.destroy()
-          .then(function () {
-            res.status(204).end();
-          });
-      });
-    }
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 // Gets a list of images
-exports.index = function (req, res) {
-  var queryName = req.param('query');
-  var typeName = req.param('type');
-  var paramsObj = {};
+exports.index = (req, res) => {
+  const queryName = req.param('query');
+  const typeName = req.param('type');
+  let paramsObj = {};
 
   // pagination
   utils.mergeReqRange(paramsObj, req);
@@ -70,14 +44,14 @@ exports.index = function (req, res) {
       where: {
         name: {$iLike: '%' + queryName + '%'},
       }
-    })
+    });
   }
   if (typeName) {
     paramsObj = _.merge(paramsObj, {
       where: {
         type: typeName
       }
-    })
+    });
   }
 
   Image.findAndCountAll(paramsObj)
@@ -86,7 +60,7 @@ exports.index = function (req, res) {
 };
 
 // Gets a single image from the DB
-exports.show = function (req, res) {
+exports.show = (req, res) => {
   Image.find({
     where: {
       _id: req.params.id
@@ -98,31 +72,29 @@ exports.show = function (req, res) {
 };
 
 // Creates a new image in the DB
-exports.create = function (req, res) {
-  var type = req.param('type') || req.query.type || 'poster';
+exports.create = (req, res) => {
+  const type = req.param('type') || req.query.type || 'poster';
 
   req.readFile()
-    .then(function (file) {
-      var bucket = aws.getBucket('afrostream-img');
+    .then(file => {
+      const bucket = aws.getBucket('afrostream-img');
       return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/'+type+'/{date}/{rand}-'+file.name)
-        .then(function (data) {
-          return Image.create({
-            type: type,
-            path: data.req.path,
-            url: data.req.url,
-            mimetype: file.mimeType,
-            imgix: config.imgix.domain + data.req.path,
-            active: true,
-            name: file.name
-          });
-        });
+        .then(data => Image.create({
+        type: type,
+        path: data.req.path,
+        url: data.req.url,
+        mimetype: file.mimeType,
+        imgix: config.imgix.domain + data.req.path,
+        active: true,
+        name: file.name
+      }));
     })
     .then(responseWithResult(res, 201))
     .catch(res.handleError());
 };
 
 // Updates an existing image in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }
@@ -134,18 +106,5 @@ exports.update = function (req, res) {
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
-    .catch(res.handleError());
-};
-
-// Deletes a image from the DB
-exports.destroy = function (req, res) {
-
-  Image.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(utils.handleEntityNotFound(res))
-    .then(removeEntity(res))
     .catch(res.handleError());
 };

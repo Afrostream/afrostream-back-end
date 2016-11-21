@@ -1,43 +1,41 @@
 'use strict';
 
-var _ = require('lodash');
+const _ = require('lodash');
 
 // should be 10
 // but the auto-complete require to query in 200 episodes ...
-var defaultLimit = 500;
+const defaultLimit = 500;
 
-var reqRangeToSequelizeLimit = function (req, size) {
+const reqRangeToSequelizeLimit = (req, size) => {
   size = size || Infinity;
 
-  var range;
+  let range;
 
   if (typeof req.range !== 'function') {
-    console.error('missing req.range');
-    return { limit: defaultLimit, offset: 0 }
+    req.logger.error('missing req.range');
+    return { limit: defaultLimit, offset: 0 };
   }
   range = req.range(size);
   if (range === -1 || range === -2 || !range) {
-    console.error('error parsing range header' + req.get('Range'));
+    req.logger.error('parsing range header' + req.get('Range'));
     return { limit: defaultLimit, offset: 0 };
   }
   // convert range to sequelize limit
   // assuming object : [ { start: 25, end: 50 }, type: 'items' ]
   if (!Array.isArray(range) || range.length < 1 ||
-    parseInt(range[0].start, 10) === NaN ||
-    parseInt(range[0].end, 10) === NaN) {
-    console.error('unknown range result ', range);
+    isNaN(parseInt(range[0].start, 10)) ||
+    isNaN(parseInt(range[0].end, 10))) {
+    req.logger.error('unknown range result ', range);
     return { limit: defaultLimit, offset: 0 };
   }
   return { offset: range[0].start, limit: range[0].end - range[0].start };
 };
 
-var mergeReqRange = function (obj, req, size) {
-  return _.merge(obj, reqRangeToSequelizeLimit(req, size));
-};
+const mergeReqRange = (obj, req, size) => _.merge(obj, reqRangeToSequelizeLimit(req, size));
 
-var responseWithResultAndTotal = function (res, statusCode) {
+const responseWithResultAndTotal = (res, statusCode) => {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.set('Resource-Count', entity.count);
       res.status(statusCode).json(entity.rows);
@@ -45,10 +43,10 @@ var responseWithResultAndTotal = function (res, statusCode) {
   };
 };
 
-function handleEntityNotFound(res) {
-  return function (entity) {
+function handleEntityNotFound() {
+  return entity => {
     if (!entity) {
-      var error = new Error("entity not found");
+      const error = new Error("entity not found");
       error.statusCode = 404;
       throw error;
     }
@@ -56,12 +54,12 @@ function handleEntityNotFound(res) {
   };
 }
 
-var middlewareCache = function (req, res, next) {
+const middlewareCache = (req, res, next) => {
    res.cache();
    next();
 };
 
-var middlewareNoCache = function (req, res, next) {
+const middlewareNoCache = (req, res, next) => {
   res.noCache();
   next();
 };

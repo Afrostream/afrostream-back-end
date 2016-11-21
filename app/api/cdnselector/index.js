@@ -1,12 +1,11 @@
 'use strict';
 
-var express = require('express');
-var controller = require('./cdnselector.controller.js');
-var utils = rootRequire('/app/api/utils.js');
-var router = express.Router();
+const express = require('express');
+const controller = require('./cdnselector.controller.js');
+const router = express.Router();
 
 // all cdnselector routes cannot be cached
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   res.noCache();
   next();
 });

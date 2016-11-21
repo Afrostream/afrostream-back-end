@@ -4,10 +4,12 @@ var Q = require('q');
 
 var URLSafeBase64 = require('urlsafe-base64');
 
-var mailer = rootRequire('/components/mailer');
+var mailer = rootRequire('components/mailer');
 
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var User = sqldb.User;
+
+var logger = rootRequire('logger').prefix('AUTH');
 
 var validateResetBody = function (body) {
   return function () {
@@ -57,8 +59,8 @@ var decrypt = function (k) {
       throw new Error("base64 decode error");
     }
     var inflated = URLSafeBase64.decode(k);
-    var decipher = crypto.createDecipher(cryptoAlgorithm, cryptoPassword)
-    var dec = decipher.update(inflated, 'hex', 'utf8')
+    var decipher = crypto.createDecipher(cryptoAlgorithm, cryptoPassword);
+    var dec = decipher.update(inflated, 'hex', 'utf8');
     dec += decipher.final('utf8');
     var data = JSON.parse(dec);
     var hash = getHash(data.e, data.p);
@@ -70,9 +72,9 @@ var decrypt = function (k) {
       password: data.p,
       createdAt: data.t,
       version: data.v
-    }
+    };
   } catch (e) {
-    console.log('error : ' + e);
+    logger.error(e.message);
     return null;
   }
 };
@@ -135,11 +137,8 @@ var reset = function (req, res) {
         // everything was ok, sending empty json object.
         res.status(200).json({});
       },
-      function error(err) {
-        // error :( log & send the error message
-        console.error('/auth/reset: error: ' + err);
-        res.status(500).json({ error: String(err) });
-      });
+      res.handleError()
+    );
 };
 
 module.exports.reset = reset;

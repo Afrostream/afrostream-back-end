@@ -1,21 +1,18 @@
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var User = sqldb.User;
-var Client = sqldb.Client;
-var Log = sqldb.Log;
-var LogsPixel = sqldb.LogsPixel;
+const sqldb = rootRequire('sqldb');
+const User = sqldb.User;
+const Client = sqldb.Client;
+const Log = sqldb.Log;
+const LogsPixel = sqldb.LogsPixel;
 
-var config = rootRequire('/config');
-
-exports.index = function (req, res) {
-  var limit = req.query.limit || 50;
-  var type = req.query.type || 'access_token';
-  var userId = req.query.userId || null;
+exports.index = (req, res) => {
+  const limit = req.query.limit || 50;
+  const type = req.query.type || 'access_token';
+  const userId = req.query.userId || null;
 
   // building condition.
-  var where = { type: type };
+  const where = { type: type };
   if (userId) {
     where.userId = userId;
   }
@@ -41,12 +38,12 @@ exports.index = function (req, res) {
       }
     ]
   }).then(
-    function (result) { res.json(result); },
+    result => { res.json(result); },
     res.handleError()
   );
 };
 
-exports.pixel = function (req, res) {
+exports.pixel = (req, res) => {
   // async, might finish after response is sent, but we don't mind
   LogsPixel.create({data:req.query});
   res.json({});

@@ -1,17 +1,16 @@
 'use strict';
 
-var filters = rootRequire('/app/api/filters.js');
-var sqldb = rootRequire('/sqldb');
-var User = sqldb.User;
-var Season = sqldb.Season;
-var UsersFavoritesSeasons = sqldb.UsersFavoritesSeasons;
+const filters = rootRequire('app/api/filters.js');
+const sqldb = rootRequire('sqldb');
+const User = sqldb.User;
+const Season = sqldb.Season;
 
-var bluebird = require('bluebird');
+const bluebird = require('bluebird');
 
-var getIncludedModel = require('../../season/season.includedModel.js').get;
+const getIncludedModel = require('../../season/season.includedModel.js').get;
 
-var index = function (req, res) {
-  var queryOptions = {
+const index = (req, res) => {
+  let queryOptions = {
     where: {
       _id: req.user._id
     },
@@ -29,7 +28,7 @@ var index = function (req, res) {
   queryOptions = sqldb.filterOptions(queryOptions, {required: false});
   //
   User.find(queryOptions)
-    .then(function (user) {
+    .then(user => {
       if (!user) {
         res.status(401).end();
       } else {
@@ -39,7 +38,7 @@ var index = function (req, res) {
     .catch(res.handleError(500));
 };
 
-var add = function (req, res) {
+const add = (req, res) => {
   if (!req.body._id) {
     return res.handleError(500)('missing season _id');
   }
@@ -48,23 +47,21 @@ var add = function (req, res) {
     season:  Season.findOne({ where: { _id: req.body._id, active: true } }),
     user: User.findOne({ where: { _id: req.user._id } })
   })
-    .then(function (results) {
+    .then(results => {
       if (!results.user) {
         return res.status(401).end();
       }
       if (!results.season) {
         return res.handleError()('unknown season ' + req.body._id);
       }
-      return results.user.addFavoritesSeasons(results.season).then(function () {
-        return Season.findOne({where: {_id: results.season._id}, include: getIncludedModel()});
-      }).then(function (result) {
+      return results.user.addFavoritesSeasons(results.season).then(() => Season.findOne({where: {_id: results.season._id}, include: getIncludedModel()})).then(result => {
         res.json(result);
       });
     })
     .catch(res.handleError(500));
 };
 
-var remove = function (req, res) {
+const remove = (req, res) => {
   User.find({
     where: {
       _id: req.user._id
@@ -75,12 +72,12 @@ var remove = function (req, res) {
       }
     ]
   })
-    .then(function (user) {
+    .then(user => {
       if (!user) {
         return res.status(401).end();
       }
-      var season = Season.build({_id: req.params.seasonId});
-      return user.removeFavoritesSeasons(season).then(function () {
+      const season = Season.build({_id: req.params.seasonId});
+      return user.removeFavoritesSeasons(season).then(() => {
         res.json({});
       });
     })

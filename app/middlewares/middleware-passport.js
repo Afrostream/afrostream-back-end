@@ -1,48 +1,8 @@
 'use strict';
 
-var ip = require('ip');
-
 var Q = require('q');
 
-var AccessToken = rootRequire('/sqldb').AccessToken;
-
-/**
- * userIp searched in :
- *  - the header x-forwarded-user-ip
- *  - the leftmost x-forwarded-for non private ip (rfc 1918)
- *  - req.ip
- *
- * should work :
- *  - locally (dev env)
- *  - heroku direct call
- *  - behind fastly
- *  - behind hw
- *
- * @param req
- * @return string
- */
-function getUserIp(req) {
-  return req.get('x-forwarded-user-ip') ||
-    (req.get('x-forwarded-for') || '')
-      .split(',')
-      // trim spaces
-      .map(function (i) { return i.replace(/^\s+|\s+$/g, ''); })
-      // remove private ip
-      .filter(function (i) { return ip.isPublic(i); })
-      // leftmost x-forwarded-for or req.ip
-      .shift() ||
-    req.ip;
-}
-
-/**
- * clientIp searched in :
- *  [FIXME]
- * @param req
- * @returns null
- */
-function getClientIp(req) {
-  return null;
-}
+var AccessToken = rootRequire('sqldb').AccessToken;
 
 /**
  * extracting token from :
@@ -100,14 +60,15 @@ function getPassport(req) {
     userAgent: null,
     accessToken: null
   };
+  var logger = req.logger || console;
   // searching token
   return Q()
     .then(function () {
-      return getAccessToken(req)
+      return getAccessToken(req);
     })
     .then(function (accessToken) {
       // debug
-      // console.log('[INFO]: [middleware-passport]: accessToken=' + accessToken);
+      // logger.debug('[middleware-passport]: accessToken=' + accessToken);
       if (accessToken) {
         // saving the accessToken.
         passport.accessToken = accessToken;
@@ -124,14 +85,14 @@ function getPassport(req) {
     .then(
     function success() {
       // debug
-      //console.log('[INFO]: [middleware-passport]: client =',
+      //logger.debug('[middleware-passport]: client =',
       //  JSON.stringify(passport.client && passport.client.toJSON()));
-      //console.log('[INFO]: [middleware-passport]: user =',
+      //logger.debug('[middleware-passport]: user =',
       //  JSON.stringify(passport.user && passport.user.toJSON()));
       return passport;
     },
     function failure(err) {
-      console.error('[ERROR]: [middleware-passport]: '+err.message, err.stack);
+      logger.error('[MIDDLEWARE-PASSPORT]: '+err.message, err.stack);
       return passport;
     }
   );

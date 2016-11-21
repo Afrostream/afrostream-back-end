@@ -2,8 +2,7 @@
 
 var assert = require('better-assert');
 
-var crypto = require('crypto')
-  , path = require('path');
+var crypto = require('crypto');
 
 var Q = require('q');
 

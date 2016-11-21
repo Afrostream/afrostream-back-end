@@ -2,7 +2,9 @@
 
 process.env.NODE_ENV = 'test';
 
-if (process.version.substr(0, 5) !== 'v0.12') {
+var Q = require('q');
+
+if (process.version.substr(0, 3) !== 'v6.') {
   console.error('[ERROR]: please: nvm use 0.12');
   process.exit(1);
 }
@@ -11,7 +13,7 @@ if (process.version.substr(0, 5) !== 'v0.12') {
 global.__basedir = __dirname + '/..';
 global.rootRequire = function (name) { return require(global.__basedir + '/' + (name[0] === '/' ? name.substr(1) : name)); };
 
-var config = rootRequire('/config');
+var config = rootRequire('config');
 
 if (config.env !== 'test') {
   console.error('test should only be run on test env');
@@ -19,7 +21,7 @@ if (config.env !== 'test') {
 }
 
 before(function () {
-  var User = rootRequire('/sqldb').User;
+  var User = rootRequire('sqldb').User;
   // ensure user test@test.com / test exist.
   // create a new test user at each session.
   return User.destroy({where: {email:'test@test.com'}}).then(function () {
@@ -37,15 +39,15 @@ process.on('uncaughtException', function(err) {
 });
 
 module.exports.getApp = function () {
-  return rootRequire('/app/app.js');
+  return rootRequire('app/app.js');
 };
 
 module.exports.getSqldb = function () {
-  return rootRequire('/sqldb');
+  return rootRequire('sqldb');
 };
 
 module.exports.getTestUser = function () {
-  var User = rootRequire('/sqldb').User;
+  var User = rootRequire('sqldb').User;
 
   return User.find({ where: { email: 'test@test.com' } })
     .then(function (user) {
@@ -55,7 +57,7 @@ module.exports.getTestUser = function () {
 };
 
 module.exports.getTestClient = function () {
-  var Client = rootRequire('/sqldb').Client;
+  var Client = rootRequire('sqldb').Client;
 
   return Client.find({ where: { role: 'client' }})
     .then(function (client) {
@@ -66,31 +68,32 @@ module.exports.getTestClient = function () {
 
 module.exports.getToken = function (app) {
   var request = require('supertest');
-  var bluebird = require('bluebird');
 
-  var r = request(app)
+  var deferred = Q.defer();
+  request(app)
     .post('/auth/local')
     .send({
       email: 'test@test.com',
       password: '123456'
     })
     .expect(200)
-    .expect('Content-Type', /json/);
-  var f = bluebird.promisify(r.end, r);
-  return f().then(function (res) {
-    var token = res.body.token;
-    return token;
-  }, function (err) {
-    console.error(err);
-    throw err;
-  })
+    .expect('Content-Type', /json/)
+    .end(function (err, response) {
+      if (err) {
+        console.error(err);
+        deferred.reject(err);
+      } else {
+        deferred.resolve(response.body.token);
+      }
+    });
+  return deferred.promise;
 };
 
 module.exports.getClientToken = function (app, client) {
   var request = require('supertest');
-  var bluebird = require('bluebird');
 
-  var r = request(app)
+  var deferred = Q.defer();
+  request(app)
     .post('/auth/oauth2/token')
     .send({
       grant_type: 'client_credentials',
@@ -98,19 +101,21 @@ module.exports.getClientToken = function (app, client) {
       client_secret: client.get('secret')
     })
     .expect(200)
-    .expect('Content-Type', /json/);
-  var f = bluebird.promisify(r.end, r);
-  return f().then(function (res) {
-    return res.body.access_token;
-  }, function (err) {
-    console.error(err);
-    throw err;
-  });
+    .expect('Content-Type', /json/)
+    .end(function (err, response) {
+      if (err) {
+        console.error(err);
+        deferred.reject(err);
+      } else {
+        deferred.resolve(response.body.access_token);
+      }
+    });
+  return deferred.promise;
 };
 
 module.exports.getRandomMovie = function (app) {
-  var Movie = rootRequire('/sqldb').Movie;
-  var Video = rootRequire('/sqldb').Video;
+  var Movie = rootRequire('sqldb').Movie;
+  var Video = rootRequire('sqldb').Video;
 
   return Movie.find({ where: { title: { $iLike : '%random%' } , active: true }
                     , include: [ { model: Video, as: 'video', active: true } ] })
@@ -121,7 +126,7 @@ module.exports.getRandomMovie = function (app) {
 };
 
 module.exports.getRandomInactiveMovie = function (app) {
-  var Movie = rootRequire('/sqldb').Movie;
+  var Movie = rootRequire('sqldb').Movie;
 
   return Movie.find({ where: { title: { $iLike : '%random%' }, active: false }})
     .then(function (movie) {
@@ -131,7 +136,7 @@ module.exports.getRandomInactiveMovie = function (app) {
 };
 
 module.exports.getRandomSeason = function (app) {
-  var Season = rootRequire('/sqldb').Season;
+  var Season = rootRequire('sqldb').Season;
 
   return Season.find({ where: { title: { $iLike : '%random%' }, active: true }})
     .then(function (season) {
@@ -141,7 +146,7 @@ module.exports.getRandomSeason = function (app) {
 };
 
 module.exports.getRandomInactiveSeason = function (app) {
-  var Season = rootRequire('/sqldb').Season;
+  var Season = rootRequire('sqldb').Season;
 
   return Season.find({ where: { title: { $iLike : '%random%' }, active: false }})
     .then(function (season) {
@@ -151,7 +156,7 @@ module.exports.getRandomInactiveSeason = function (app) {
 };
 
 module.exports.getRandomEpisode = function (app) {
-  var Episode = rootRequire('/sqldb').Episode;
+  var Episode = rootRequire('sqldb').Episode;
 
   return Episode.find({ where: { title: { $iLike : '%random%' }, active: true }})
     .then(function (epispode) {
@@ -161,7 +166,7 @@ module.exports.getRandomEpisode = function (app) {
 };
 
 module.exports.getRandomInactiveEpisode = function (app) {
-  var Episode = rootRequire('/sqldb').Episode;
+  var Episode = rootRequire('sqldb').Episode;
 
   return Episode.find({ where: { title: { $iLike : '%random%' }, active: false }})
     .then(function (epispode) {

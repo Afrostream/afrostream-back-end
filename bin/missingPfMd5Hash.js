@@ -203,7 +203,7 @@ var Q = require('q');
 var request = require('request');
 
 // try to know the pfMd5Hash
-encodingIdList.reduce(function (p, c, i) {
+encodingIdList.reduce(function (p, c) {
   //if (i > 5) return p;
   return p.then(function () {
     return Q.nfcall(request, { json: true, url: 'http://p-afsmsch-001.afrostream.tv:4000/api/contents?uuid=' + c });
@@ -220,5 +220,5 @@ encodingIdList.reduce(function (p, c, i) {
       console.log('-- ERROR: "'+c+'": unknown encodingId in PF ?');
     }
     //console.log('response body', body);
-  }, function (err) { console.error(err.message) });
+  }, function (err) { console.error(err.message); });
 }, Q());

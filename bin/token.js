@@ -3,8 +3,6 @@
 var request = require('request');
 var program = require('commander');
 
-var _ = require('lodash');
-
 program
   .version('0.0.1')
   .option('-c, --client [clientName]', 'client name: front, tapptic, bouygues-miami, orange-newbox ; default=front')
@@ -60,7 +58,7 @@ prodBouyguesMiami: {
   baseUrl: "https://legacy-api-bouygues.afrostream.tv",
   host: "legacy-api-bouygues.afrostream.tv"
 }
-}
+};
 
 if (typeof envsConf[env] === 'undefined') {
   console.error('unknown client, should be in ' + Object.keys(envsConf).join(', '));
@@ -69,7 +67,7 @@ if (typeof envsConf[env] === 'undefined') {
 
 // https://afr-back-end-staging.herokuapp.com/auth/oauth2/toke
 
-console.log('using env ' + env)
+console.log('using env ' + env);
 
 var options = {
   uri: envsConf[env].baseUrl + "/api/auth/oauth2/token",

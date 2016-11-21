@@ -31,7 +31,7 @@ morgan.format('afro', function afroLog(tokens, req, res) {
       ' :res[content-length] ":referrer" ":user-agent" | client-ip=:client-ip \x1b[0m');
   }
 
-  return fn(tokens, req, res)
+  return fn(tokens, req, res);
 });
 
 module.exports = morgan;

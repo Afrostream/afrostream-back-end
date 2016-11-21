@@ -1,14 +1,10 @@
 'use strict';
 
-var _ = require('lodash');
-var Q = require('q');
+const sqldb = rootRequire('sqldb');
+const User = sqldb.User;
+const VideosComments = sqldb.VideosComments;
 
-var sqldb = rootRequire('/sqldb');
-var Video = sqldb.Video;
-var User = sqldb.User;
-var VideosComments = sqldb.VideosComments;
-
-module.exports.index = function (req, res) {
+module.exports.index = (req, res) => {
   VideosComments.findAll({
       where: { videoId: req.params.videoId },
       include: [{
@@ -19,21 +15,19 @@ module.exports.index = function (req, res) {
       }],
       order: [ ['createdAt', 'asc'] ]
     })
-    .then(function (comments) {
-      // FIXME: USER_PRIVACY: we should implement a privacy filter in a single place
-      return (comments || []).map(function (comment) {
-        var c = comment.get({plain: true});
-        c.user = comment.user.getPublicInfos();
-        return c;
-      });
-    })
+    .then(comments => // FIXME: USER_PRIVACY: we should implement a privacy filter in a single place
+  (comments || []).map(comment => {
+    const c = comment.get({plain: true});
+    c.user = comment.user.getPublicInfos();
+    return c;
+  }))
     .then(
-      function (v) { res.json(v); },
+      v => { res.json(v); },
       res.handleError()
     );
 };
 
-module.exports.create = function (req, res) {
+module.exports.create = (req, res) => {
   VideosComments.create({
     userId: req.user._id,
     videoId: req.params.videoId,
@@ -41,15 +35,15 @@ module.exports.create = function (req, res) {
     text: req.body.text
   })
   .then(
-    function (comment) { res.json(comment); },
+    comment => { res.json(comment); },
     res.handleError()
   );
 };
 
-module.exports.update = function (req, res) {
+module.exports.update = (req, res) => {
   VideosComments.findById(req.params.commentId)
-    .then(function (comment) {
-      var error;
+    .then(comment => {
+      let error;
 
       if (!comment) {
         error = new Error('unknown comment');
@@ -61,7 +55,7 @@ module.exports.update = function (req, res) {
         error.statusCode = 403;
         throw error;
       }
-      var updatedData = {};
+      const updatedData = {};
       if (typeof req.body.timecode !== 'undefined') {
         updatedData.timecode = req.body.timecode;
       }
@@ -71,30 +65,30 @@ module.exports.update = function (req, res) {
       return comment.update(updatedData);
     })
     .then(
-      function (comment) { res.json(comment); },
+      comment => { res.json(comment); },
       res.handleError()
     );
 };
 
-module.exports.show = function (req, res) {
+module.exports.show = (req, res) => {
   VideosComments.findById(req.params.commentId)
-    .then(function (comment) {
+    .then(comment => {
       if (!comment) {
-        var error = new Error('unknown comment');
+        const error = new Error('unknown comment');
         error.statusCode = 404;
         throw error;
       }
       return comment;
     })
     .then(
-      function (comment) { res.json(comment); },
+      comment => { res.json(comment); },
       res.handleError()
     );
 };
 
-module.exports.delete = function (req, res) {
+module.exports.delete = (req, res) => {
   VideosComments.findById(req.params.commentId)
-    .then(function (comment) {
+    .then(comment => {
       if (!comment) {
         var error = new Error('unknown comment');
         error.statusCode = 404;
@@ -108,7 +102,7 @@ module.exports.delete = function (req, res) {
       return comment.destroy();
     })
     .then(
-      function () { res.json({}); },
+      () => { res.json({}); },
       res.handleError()
     );
 };

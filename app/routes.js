@@ -1,7 +1,6 @@
 'use strict';
 
 var errors = require('./../components/errors/index');
-var path = require('path');
 
 module.exports = function (app) {
   // authentification

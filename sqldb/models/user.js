@@ -1,7 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
-var config = rootRequire('/config');
+var config = rootRequire('config');
 var crypto = require('crypto');
 var authTypes = ['github', 'twitter', 'facebook', 'google', 'bouygues', 'orange'];
 
@@ -358,7 +358,7 @@ module.exports = function (sequelize, DataTypes) {
                     picture: plainUser.picture,
                     nickname: plainUser.nickname,
                     facebook: plainUser.facebook ? {id: plainUser.facebook.id} : null
-                }
+                };
             }
         }
     });

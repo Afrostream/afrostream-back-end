@@ -1,13 +1,13 @@
 'use strict';
 
-var express = require('express');
-var controller = require('./stats.controller.js');
-var auth = rootRequire('/app/auth/auth.service');
-var utils = rootRequire('/app/api/utils.js');
-var router = express.Router();
+const express = require('express');
+const controller = require('./stats.controller.js');
+const auth = rootRequire('app/auth/auth.service');
+const utils = rootRequire('app/api/utils.js');
+const router = express.Router();
 
 // all user routes cannot be cached.
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   res.noCache();
   next();
 });

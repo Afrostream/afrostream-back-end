@@ -9,20 +9,19 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var Image = sqldb.Image;
-var LifeSpot = sqldb.LifeSpot;
-var LifeTheme = sqldb.LifeTheme;
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
-var config = rootRequire('/config');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Image = sqldb.Image;
+const LifeSpot = sqldb.LifeSpot;
+const LifeTheme = sqldb.LifeTheme;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = require('./spot.includedModel').get;
+const getIncludedModel = require('./spot.includedModel').get;
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
-    return function (entity) {
+    return entity => {
         if (entity) {
             res.status(statusCode).json(entity);
         }
@@ -30,31 +29,24 @@ function responseWithResult (res, statusCode) {
 }
 
 function saveUpdates (updates) {
-    return function (entity) {
-        return entity.updateAttributes(updates)
-            .then(function (updated) {
-                return updated;
-            });
-    };
+    return entity => entity.updateAttributes(updates);
 }
 
 function updateImages (updates) {
-    return function (entity) {
-        var promises = [];
+    return entity => {
+        const promises = [];
         promises.push(entity.setImage(updates.image && updates.image.dataValues && Image.build(updates.image.dataValues) || updates.image && Image.build(updates.image) || null));
         return sqldb.Sequelize.Promise
             .all(promises)
-            .then(function () {
-                return entity;
-            });
+            .then(() => entity);
     };
 }
 
 function removeEntity (res) {
-    return function (entity) {
+    return entity => {
         if (entity) {
             return entity.destroy()
-                .then(function () {
+                .then(() => {
                     res.status(204).end();
                 });
         }
@@ -62,24 +54,22 @@ function removeEntity (res) {
 }
 
 function addThemes (updates) {
-    var themes = LifeTheme.build(_.map(updates.themes || [], _.partialRight(_.pick, '_id')));
-    return function (entity) {
+    const themes = LifeTheme.build(_.map(updates.themes || [], _.partialRight(_.pick, '_id')));
+    return entity => {
         if (!themes || !themes.length) {
             return entity;
         }
         return entity.setThemes(themes)
-            .then(function () {
-                return entity;
-            });
+            .then(() => entity);
     };
 }
 
 // Gets a list of life/spots
 // ?query=... (search in the title)
-exports.index = function (req, res) {
-    var queryName = req.param('query'); // deprecated.
-    var queryType = req.param('type'); // deprecated.
-    var queryOptions = {
+exports.index = (req, res) => {
+    const queryName = req.param('query'); // deprecated.
+    const queryType = req.param('type'); // deprecated.
+    let queryOptions = {
         include: getIncludedModel()
     };
 
@@ -91,14 +81,14 @@ exports.index = function (req, res) {
             where: {
                 title: {$iLike: '%' + queryName + '%'}
             }
-        })
+        });
     }
     if (queryType) {
         queryOptions = _.merge(queryOptions, {
             where: {
                 type: {$iLike: '%' + queryType + '%'}
             }
-        })
+        });
     }
 
     queryOptions = filters.filterQueryOptions(req, queryOptions, LifeSpot);
@@ -110,8 +100,8 @@ exports.index = function (req, res) {
 };
 
 // Gets a single LifeSpot from the DB
-exports.show = function (req, res) {
-    var queryOptions = {
+exports.show = (req, res) => {
+    let queryOptions = {
         where: {
             _id: req.params.id
         },
@@ -127,16 +117,14 @@ exports.show = function (req, res) {
 };
 
 // Creates a new LifeSpot in the DB
-exports.create = function (req, res) {
-    return LifeSpot.create(req.body)
-        .then(updateImages(req.body))
-        .then(addThemes(req.body))
-        .then(responseWithResult(res, 201))
-        .catch(res.handleError());
-};
+exports.create = (req, res) => LifeSpot.create(req.body)
+    .then(updateImages(req.body))
+    .then(addThemes(req.body))
+    .then(responseWithResult(res, 201))
+    .catch(res.handleError());
 
 // Updates an existing LifeSpot in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
     if (req.body._id) {
         delete req.body._id;
     }
@@ -154,7 +142,7 @@ exports.update = function (req, res) {
 };
 
 // Deletes a LifeSpot from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
     LifeSpot.find({
         where: {
             _id: req.params.id

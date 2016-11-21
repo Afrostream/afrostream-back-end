@@ -51,20 +51,19 @@
   * @apiError (500) {String} error message
   */
 
-var express = require('express');
-var controller = require('./video.controller.js');
-var auth = rootRequire('/app/auth/auth.service');
-var utils = rootRequire('/app/api/utils.js');
-var router = express.Router({mergeParams:true});
+const express = require('express');
+const controller = require('./video.controller.js');
+const auth = rootRequire('app/auth/auth.service');
+const router = express.Router({mergeParams:true});
 
-var convertUserIdMeToUserId = function (req, res, next) {
+const convertUserIdMeToUserId = (req, res, next) => {
   if (req.params && req.params.userId === 'me' && req.user) {
     req.params.userId = String(req.user._id);
   }
   next();
 };
 
-var tokenUserMatchParamUser = function (req, res, next) {
+const tokenUserMatchParamUser = (req, res, next) => {
   if (String(req.params.userId) === String(req.user._id)) {
     next();
   } else {

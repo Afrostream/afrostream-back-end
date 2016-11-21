@@ -4,8 +4,7 @@ var Q = require('q');
 var _ = require('lodash');
 var passport = require('passport');
 var oauth2 = require('../oauth2/oauth2');
-var config = rootRequire('/config');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var User = sqldb.User;
 
 /**
@@ -24,17 +23,11 @@ var strategyOptions = function (options) {
   };
 };
 
-function validationError (res, statusCode) {
-  statusCode = statusCode || 422;
-  return function (err) {
-    console.error('/auth/facebook/: error: validationError: ', err);
-    res.status(statusCode).json({error: String(err)});
-  }
-}
-
 var signin = function (req, res, next) {
   var userId = req.user ? req.user._id : null;
-  console.log('[INFO]: [FACEBOOK]: [SIGNIN]: userId='+userId);
+  var logger = req.logger.prefix('AUTH').prefix('FACEBOOK');
+
+  logger.log('userId='+userId);
   passport.authenticate('facebook', {
     display: 'popup',
     scope: scope,
@@ -44,7 +37,8 @@ var signin = function (req, res, next) {
 };
 
 var signup = function (req, res, next) {
-  console.log('[INFO]: [FACEBOOK]: [SIGNUP]: start');
+  var logger = req.logger.prefix('AUTH').prefix('FACEBOOK');
+  logger.log('start');
   passport.authenticate('facebook', {
     display: 'popup',
     scope: scope,
@@ -65,37 +59,39 @@ var unlink = function (req, res) {
         return res.status(422).end();
       }
       user.facebook = null;
-      return user.save()
-        .then(function () {
-          res.json(user.getInfos());
-        }).catch(validationError(res));
-    });
+      return user.save();
+    })
+    .then(
+      function (user) { res.json(user.getInfos()); },
+      res.handleError(422)
+    );
 };
 
 var callback = function (req, res, next) {
-  console.log('[INFO]: [FACEBOOK]: [CALLBACK]: start');
+  var logger = req.logger.prefix('AUTH').prefix('FACEBOOK');
+  logger.log('start');
   passport.authenticate('facebook', {
     display: 'popup',
     session: false
   }, function (err, user, info) {
     if (err) {
-      console.log('[INFO]: [FACEBOOK]: [CALLBACK]: authenticate done, error ' + err.message, JSON.stringify(err));
+      logger.log('authenticate done, error ' + err.message, JSON.stringify(err));
     } else {
-      console.log('[INFO]: [FACEBOOK]: [CALLBACK]: authenticate done, no error, info = ' + JSON.stringify(info));
+      logger.log('authenticate done, no error, info = ' + JSON.stringify(info));
     }
     Q()
       .then(function () {
         if (err) throw err;
         //if (info) throw info;
         if (!user) throw new Error('Something went wrong, please try again.');
-        console.log('[INFO]: [FACEBOOK]: [CALLBACK]: authenticate getOauth2UserTokens', user._id);
+        logger.log('authenticate getOauth2UserTokens', user._id);
         return req.getPassport();
       })
       .then(function (passport) {
-        console.log('[INFO]: [FACEBOOK]: [CALLBACK]: generate token with client', passport.client._id, user._id);
+        logger.log('generate token with client', passport.client._id, user._id);
         var deferred = Q.defer();
         oauth2.generateToken(passport.client, user, null, req.clientIp, req.userAgent, null, function (err, accessToken, refreshToken, info) {
-          console.log('[INFO]: [FACEBOOK]: [CALLBACK]: token generated ');
+          logger.log('token generated ');
           if (err)  return deferred.reject(err);
           return deferred.resolve({
             token: accessToken,
@@ -108,6 +104,7 @@ var callback = function (req, res, next) {
       })
       .then(
         function success (tokens) {
+          logger.log('sending tokens ' + JSON.stringify(tokens));
           res.json(tokens);
         },
         res.handleError()

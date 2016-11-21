@@ -1,8 +1,9 @@
 var Q = require('q');
 
-var Broadcaster = rootRequire('/sqldb').Broadcaster;
-
 module.exports = function (options) {
+  options = options || {};
+  options.logger = options.logger || console;
+
   return function (req, res, next) {
     Q(null)
       .then(function () {
@@ -21,8 +22,8 @@ module.exports = function (options) {
         function success() { next(); },
         function error(err) {
           req.broadcaster = null;
-          console.error('[ERROR]: [MIDDLEWARE-BROADCASTER]: ' + err.message);
+          (req.logger || options.logger).error('[MIDDLEWARE-BROADCASTER]: '+err.message);
           next();
         });
-  }
-}
+  };
+};

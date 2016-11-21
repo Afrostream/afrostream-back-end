@@ -1,7 +1,5 @@
 'use strict';
 
-var config = rootRequire('/config');
-
 module.exports = function (options) {
   options = options || {};
   var url = options.url || '*';

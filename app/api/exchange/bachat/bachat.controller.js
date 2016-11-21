@@ -1,16 +1,18 @@
 'use strict';
 
-module.exports.customers = function (req, res) {
-  console.log('[INFO]: [EXCHANGE]: [BACHAT]: customers = ' + req.body);
+const logger = rootRequire('logger').prefix('EXCHANGE', 'BACHAT');
+
+module.exports.customers = (req, res) => {
+  logger.log('customers = ' + req.body);
   res.send('');
 };
 
-module.exports.subscriptions = function (req, res) {
-  console.log('[INFO]: [EXCHANGE]: [BACHAT]: subscriptions = ' + req.body);
+module.exports.subscriptions = (req, res) => {
+  logger.log('subscriptions = ' + req.body);
   res.send('');
 };
 
-module.exports.refunds = function (req, res) {
-  console.log('[INFO]: [EXCHANGE]: [BACHAT]: refunds = ' + req.body);
+module.exports.refunds = (req, res) => {
+  logger.log('refunds = ' + req.body);
   res.send('');
 };

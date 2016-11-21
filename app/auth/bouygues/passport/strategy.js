@@ -1,9 +1,7 @@
 /**
  * Module dependencies.
  */
-var uri = require('url')
-  , crypto = require('crypto')
-  , util = require('util')
+var util = require('util')
   , OAuth2Strategy = require('passport-oauth2')
   , Profile = require('./profile')
   , InternalOAuthError = require('passport-oauth2').InternalOAuthError
@@ -51,7 +49,7 @@ function Strategy (options, verify) {
   options.customHeaders = options.customHeaders || {};
 
   if (!options.customHeaders['Authorization']) {
-    options.customHeaders['Authorization'] = 'Basic ' + new Buffer(options.clientID + ':' + options.clientSecret).toString('base64')
+    options.customHeaders['Authorization'] = 'Basic ' + new Buffer(options.clientID + ':' + options.clientSecret).toString('base64');
   }
 
   if (!options.customHeaders['User-Agent']) {
@@ -120,7 +118,7 @@ Strategy.prototype.authenticate = function (req, options) {
  *   - `phones`           the proxied or contact phones numbers granted by the user
  */
 Strategy.prototype.userProfile = function (accessToken, done) {
-  this._oauth2.get(this._userProfileURL + '/user', accessToken, function (err, body, res) {
+  this._oauth2.get(this._userProfileURL + '/user', accessToken, function (err, body) {
     var json;
 
     if (err) {
@@ -128,6 +126,7 @@ Strategy.prototype.userProfile = function (accessToken, done) {
         try {
           json = JSON.parse(err.data);
         } catch (_) {
+          /* empty */
         }
       }
 

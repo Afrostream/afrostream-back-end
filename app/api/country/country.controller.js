@@ -9,15 +9,13 @@
 
 'use strict';
 
-var _ = require('lodash');
-
-var sqldb = rootRequire('/sqldb');
-var Country = sqldb.Country;
+const sqldb = rootRequire('sqldb');
+const Country = sqldb.Country;
 
 // Gets a list of comments
-exports.index = function(req, res) {
+exports.index = (req, res) => {
   Country.findAll()
-    .then(function (list) {
+    .then(list => {
       res.json(list);
     }, res.handleError());
 };

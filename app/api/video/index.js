@@ -24,14 +24,15 @@
  * @apiSampleRequest https://legacy-api.afrostream.tv/api/users/4711
  */
 
-var express = require('express');
-var controller = require('./video.controller.js');
-var auth = rootRequire('/app/auth/auth.service');
-var utils = rootRequire('/app/api/utils.js');
-var router = express.Router();
+const express = require('express');
+const controller = require('./video.controller.js');
+const auth = rootRequire('app/auth/auth.service');
+const utils = rootRequire('app/api/utils.js');
+const router = express.Router();
+const middlewareStatsd = rootRequire('statsd').middleware;
 
 // all video routes cannot be cached.
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   res.noCache();
   next();
 });
@@ -46,7 +47,7 @@ router.get('/importFromPfContent', utils.middlewareNoCache, auth.hasRole('admin'
 
 // video manipulation.
 router.get('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.index);
-router.get('/:id', controller.show);
+router.get('/:id', middlewareStatsd({route: 'api.video'}), controller.show);
 router.post('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.create);
 router.put('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
 router.patch('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);

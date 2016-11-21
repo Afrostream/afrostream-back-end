@@ -1,23 +1,23 @@
 'use strict';
 
-var filters = rootRequire('/app/api/filters.js');
-var sqldb = rootRequire('/sqldb');
-var _ = require('lodash');
-var User = sqldb.User;
-var utils = rootRequire('/app/api/utils.js');
-var getIncludedModel = require('./lifeUser.includedModel').get;
+const filters = rootRequire('app/api/filters.js');
+const sqldb = rootRequire('sqldb');
+const _ = require('lodash');
+const User = sqldb.User;
+const utils = rootRequire('app/api/utils.js');
+const getIncludedModel = require('./lifeUser.includedModel').get;
 
 function responseWithResult (res, statusCode) {
     statusCode = statusCode || 200;
-    return function (entity) {
+    return entity => {
         if (entity) {
             res.status(statusCode).json(entity);
         }
     };
 }
 
-exports.index = function (req, res) {
-    var queryOptions = {
+exports.index = (req, res) => {
+    let queryOptions = {
         include: getIncludedModel(),
         limit: 100
     };
@@ -36,13 +36,13 @@ exports.index = function (req, res) {
         .then(utils.handleEntityNotFound(res))
         .then(filters.filterUserAttributesAll(req, 'public'))
         .then(utils.responseWithResultAndTotal(res))
-        .catch(res.handleError())
+        .catch(res.handleError());
 };
 
 
 // Gets a single LifeTheme from the DB
-exports.show = function (req, res) {
-    var queryOptions = {
+exports.show = (req, res) => {
+    const queryOptions = {
         include: getIncludedModel(),
         where: {
             _id: req.params.id

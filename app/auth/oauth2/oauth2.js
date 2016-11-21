@@ -2,19 +2,20 @@ var oauth2orize = require('oauth2orize');
 var passport = require('passport');
 var crypto = require('crypto');
 var utils = require('./utils');
-var config = rootRequire('/config');
-var Client = rootRequire('/sqldb').Client;
-var User = rootRequire('/sqldb').User;
-var AuthCode = rootRequire('/sqldb').AuthCode;
-var AccessToken = rootRequire('/sqldb').AccessToken;
-var RefreshToken = rootRequire('/sqldb').RefreshToken;
-var Log = rootRequire('/sqldb').Log;
+var config = rootRequire('config');
+var Client = rootRequire('sqldb').Client;
+var User = rootRequire('sqldb').User;
+var AccessToken = rootRequire('sqldb').AccessToken;
+var RefreshToken = rootRequire('sqldb').RefreshToken;
+var Log = rootRequire('sqldb').Log;
 
 var TokenError = oauth2orize.TokenError;
 
 // custom oauth2 exchange
 var exchangeBouygues = require('./exchange/bouygues.js');
 var exchangeIse2 = require('./exchange/ise2.js');
+
+var logger = rootRequire('logger').prefix('AUTH');
 
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
@@ -65,19 +66,20 @@ var generateTokenData = function (client, user, code, expiresIn) {
     userId: userId,
     expirationDate: expirationDate, // date
     expirationTimespan: expiresIn   // int (seconds)
-  }
+  };
 };
 
 var generateToken = function (client, user, code, userIp, userAgent, expireIn, done) {
   var tokenData = generateTokenData(client, user, code, expireIn);
 
   // log accessToken (duplicate with db)
-  console.log('[AUTH]: ' +
+  logger.log(
     'client=' + tokenData.clientId + ' ' +
     'user=' + tokenData.userId + ' ' +
     'userIp=' + userIp + ' ' +
     'userAgent=' + userAgent + ' ' +
-    'accessToken=' + tokenData.token);
+    'accessToken=' + tokenData.token
+  );
 
   // logs
   Log.create({
@@ -91,9 +93,10 @@ var generateToken = function (client, user, code, userIp, userAgent, expireIn, d
     }
   }).then(function () {
   }, function (err) {
-    console.error(err);
-  }); // can finish
-  //
+    logger.error(err.message);
+  });
+  // fixme: revoir complètement cette fonction !
+  // pas d'attente d'async, error handler incorrects, etc..
   AccessToken.create({
     token: tokenData.token,
     clientId: tokenData.clientId,
@@ -114,14 +117,13 @@ var generateToken = function (client, user, code, userIp, userAgent, expireIn, d
         .then(function (refreshTokenEntity) {
           return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
         }).catch(function (err) {
-        console.error('RefreshToken', err);
-        return done(err)
+        logger.error('RefreshToken', err.message);
+        return done(err);
       });
-
     }).catch(function (err) {
-    console.error('AccessToken', err);
-    return done(err)
-  });
+      logger.error('AccessToken', err.message);
+      return done(err);
+    });
 };
 
 var refreshAccessToken = function (client, userId) {
@@ -143,49 +145,6 @@ var refreshAccessToken = function (client, userId) {
       });
     });
 };
-
-/*
- server.grant(oauth2orize.grant.code(function (client, redirectURI, user, ares, done) {
- AuthCode.create({clientId: client._id, redirectURI: redirectURI, userId: user._id})
- .then(function (entity) {
- done(null, entity.code);
- }).catch(function (err) {
- return done(err);
- });
- }));
-
- server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
- return generateToken(client, user, null, done);
- }));
-
- server.exchange(oauth2orize.exchange.code(function (client, code, redirectURI, done) {
- AuthCode.find({
- where: {
- _id: code
- }
- }).then(function (entity) {
- if (!entity) {
- return done(404);
- }
- if (entity.code === undefined) {
- return done(null, false);
- }
- if (client._id !== entity.clientID) {
- return done(null, false);
- }
- if (redirectURI !== entity.redirectURI) {
- return done(null, false);
- }
-
- entity.destroy().then(function () {
- return generateToken(null, null, entity, done);
- })
- .catch(function (err) {
- return done(err);
- });
- });
- }));
- */
 
 server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, reqBody, done) {
   Client.find({
@@ -263,7 +222,11 @@ server.exchange(exchangeBouygues(function (client, id, scope, reqBody, done) {
     });
 }));
 
+// fixme: also refactor this function, function should nodeify
+//   there should be only thrown errors
 server.exchange(exchangeIse2(function (client, id, scope, reqBody, done) {
+  var ise2Logger = logger.prefix('ISE2');
+
   Client.find({
     where: {
       _id: client._id
@@ -271,25 +234,22 @@ server.exchange(exchangeIse2(function (client, id, scope, reqBody, done) {
   })
     .then(function (entity) {
       if (entity === null) {
-        console.error('[ERROR]: [AUTH]: [ISE2]: unknown client');
+        ise2Logger.error('unknown client');
         return done(new TokenError('unknown client', 'invalid_grant'), false);
       }
       if (entity.secret !== client.secret) {
-        console.error('[ERROR]: [AUTH]: [ISE2]: wrong secret');
+        ise2Logger.error('wrong secret');
         return done(new TokenError('wrong secret', 'invalid_grant'), false);
       }
-      User.find({
-        where: {ise2: id}
-      })
+      return User.find({
+          where: {ise2: id}
+        })
         .then(function (user) {
           if (user === null) {
-            console.error('[ERROR]: [AUTH]: [ISE2]: UNKNOWN_ISE2 ' + id + ' => invalid_grant');
+            ise2Logger.error('UNKNOWN_ISE2 ' + id + ' => invalid_grant');
             return done(new TokenError('UNKNOWN_ISE2:' + id, 'invalid_grant'), false);
           }
           return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, null, done);
-        })
-        .catch(function (err) {
-          return done(err);
         });
     })
     .catch(function (err) {

@@ -1,13 +1,15 @@
 'use strict';
 
-var _ = require('lodash');
+const _ = require('lodash');
 
-var config = rootRequire('/config');
+const config = rootRequire('config');
 
-var request = require('request');
-var btoa = require('btoa');
+const request = require('request');
+const btoa = require('btoa');
 
-var Q = require('q');
+const Q = require('q');
+
+const logger = rootRequire('logger').prefix('JOBS');
 
 /**
  * post a job
@@ -17,15 +19,15 @@ var Q = require('q');
  * @param type string     type of job
  * @param data object     job data
  * @param options obj     job options (attempts, backoff, ...)
- * @param callback func(err, result)
+ * @return promise
  */
-function create(type, data, options, callback) {
-  var defaultNbRetry = 3;
-  var defaultBackoffDelay = 60000; //60sec
-  var defaultBackoffType ='fixed';
+function create(type, data, options) {
+  const defaultNbRetry = 3;
+  const defaultBackoffDelay = 60000; //60sec
+  const defaultBackoffType ='fixed';
 
   // log all jobs I/O
-  console.log('JOBS: create:', type, data, options);
+  logger.log('create:', type, data, options);
   return Q.nfcall(request, {
     uri: config.client.jobs.api +'/job',
     method: 'POST',
@@ -45,15 +47,15 @@ function create(type, data, options, callback) {
     },
     json: true
   })
-    .then(function (result) {
-      var response = result[0], body = result[1];
+    .then(result => {
+      const response = result[0], body = result[1];
       if (response.statusCode !== 200) {
         throw "status="+response.statusCode+", body="+body;
       }
       return body;
     })
-    .then(function success(result) { console.log('JOBS: create: OK', result[1]); return result; },
-          function error(err) { console.error('JOBS: create: error=', err); throw err; });
+    .then(function success(result) { logger.log('create: OK', result[1]); return result; },
+          function error(err) { logger.error('create: error=', err); throw err; });
 }
 
 module.exports.create = create;

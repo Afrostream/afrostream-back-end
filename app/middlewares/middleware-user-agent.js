@@ -8,7 +8,7 @@
  * @param options
  * @returns void
  */
-module.exports = function (options) {
+module.exports = function () {
   return function (req, res, next) {
     // avoiding > 255char user agents...
     req.userAgent = (req.get('x-forwarded-user-agent') || req.get('User-Agent') || '').substr(0, 250);

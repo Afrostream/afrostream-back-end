@@ -17,7 +17,8 @@ describe('Video API: ', function() {
   var video;
   var assets = [];
 
-  var fakeMd5 = String(Math.round(Math.random()*1000000))+String(Math.round(Math.random()*1000000));
+  // if random => modify mock.js
+  var fakeMd5 = '0123456789'; // String(Math.round(Math.random()*1000000))+String(Math.round(Math.random()*1000000));
 
   // Creating a fake video + fake assets
   before(function() {
@@ -107,7 +108,7 @@ describe('Video API: ', function() {
           assert(res.body.pfMd5Hash === fakeMd5);
           assert(Array.isArray(res.body.sources));
           assert(res.body.sources.length === 3);
-          assert(res.body.sources[0].src.match(/d82a85af21284391\-orange\.ism/)); // <== ORANGE ! (hack hack)
+          assert(res.body.sources[0].src.match(/d82a85af21284391\-orange\.ism.*/)); // <== ORANGE ! (hack hack)
           done();
         });
     });

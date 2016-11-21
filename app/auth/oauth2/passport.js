@@ -4,6 +4,8 @@ var BasicStrategy = require('passport-http').BasicStrategy;
 var ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy;
 var BearerStrategy = require('passport-http-bearer').Strategy;
 
+var logger = rootRequire('logger').prefix('AUTH').prefix('OAUTH2');
+
 function localAuthenticate (User, email, password, done) {
   User.find({
     where: {
@@ -58,7 +60,7 @@ function clientAuthenticate (Client, clientId, clientSecret, done) {
     });
 }
 
-exports.setup = function (Client, User, AccessToken, config) {
+exports.setup = function (Client, User, AccessToken) {
   passport.serializeUser(function (user, done) {
     done(null, user._id);
   });
@@ -123,14 +125,14 @@ exports.setup = function (Client, User, AccessToken, config) {
       })
         .then(function (token) {
           if (!token) {
-            console.error('passport: bearer: cannot find token ' + accessToken);
+            logger.error('passport: bearer: cannot find token ' + accessToken);
             return done(null, false);
           }
           if (new Date() > token.expirationDate) {
             return token.destroy()
               .then(function () {
-                console.error('passport: bearer: token expired ' + accessToken);
-                done(new Error('token expired'))
+                logger.error('passport: bearer: token expired ' + accessToken);
+                done(new Error('token expired'));
               });
           }
           if (token.userId !== null) {
@@ -141,7 +143,7 @@ exports.setup = function (Client, User, AccessToken, config) {
             })
               .then(function (entity) {
                 if (!entity) {
-                  console.error('passport: bearer: cannot find user ' + token.userId);
+                  logger.error('passport: bearer: cannot find user ' + token.userId);
                   return done(null, false);
                 }
                 // no use of scopes for no
@@ -156,7 +158,7 @@ exports.setup = function (Client, User, AccessToken, config) {
             })
               .then(function (client) {
                 if (!client) {
-                  console.error('passport: bearer: cannot find client ' + token.clientId);
+                  logger.error('passport: bearer: cannot find client ' + token.clientId);
                   return done(null, false);
                 }
                 // no use of scopes for no
@@ -166,9 +168,9 @@ exports.setup = function (Client, User, AccessToken, config) {
           }
         })
         .catch(function (err) {
-          console.error('passport: bearer: unknownerror ' + err, err);
+          logger.error('passport: bearer: unknownerror ' + err, err);
           return done(err);
         });
     }
-  ))
+  ));
 };

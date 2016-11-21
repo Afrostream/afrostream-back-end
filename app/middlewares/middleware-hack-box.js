@@ -1,7 +1,5 @@
 var Client = rootRequire('sqldb').Client;
 
-var _ = require('lodash');
-
 var regexBoxId = /^box_._(\d+)$/;
 var urlRegexBoxId = /box_._(\d+)/g;
 
@@ -47,7 +45,7 @@ function isBoxClient(req) {
   */
   function recursiveReplaceXbyF(obj, o) {
     var x, f;
-    for (var x in o) {
+    for (x in o) {
       f = o[x];
       if (obj && typeof obj[x] !== 'undefined') {
         obj[x] = f(obj[x]);
@@ -155,7 +153,7 @@ function rewriteOutputs(req, res, isBox) {
 
     body = JSON.parse(stringify(body, replacer, spaces));
     if (isBox) {
-      body = recursiveReplaceXbyY(body, '_id', '__boxId')
+      body = recursiveReplaceXbyY(body, '_id', '__boxId');
       body = recursiveReplaceXbyF(body, {
         "seasonId": function (seasonId) {
           return (seasonId && parseInt(seasonId)) ? 'box_s_' + seasonId : seasonId;
@@ -178,7 +176,7 @@ function rewriteOutputs(req, res, isBox) {
 }
 
 // @see https://github.com/Afrostream/afrostream-back-end/issues/372
-module.exports = function (options) {
+module.exports = function () {
   return function (req, res, next) {
     var isBox = isBoxClient(req);
     if (isBox) {

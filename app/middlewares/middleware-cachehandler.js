@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function (options) {
+module.exports = function () {
   return function cacheHandler(req, res, next) {
     res.noCache = function () {
       // fastly exception

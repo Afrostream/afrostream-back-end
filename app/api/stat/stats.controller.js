@@ -1,22 +1,21 @@
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var User = sqldb.User;
-var AccessToken = sqldb.AccessToken;
+const sqldb = rootRequire('sqldb');
+const User = sqldb.User;
+const AccessToken = sqldb.AccessToken;
 
-module.exports.countUsers = function (req, res) {
-  User.count().then(function (result) {
+module.exports.countUsers = (req, res) => {
+  User.count().then(result => {
     res.json({count:result});
   });
 };
 
-module.exports.countSignin = function (req, res) {
-  var days = req.query.days || 7;
+module.exports.countSignin = (req, res) => {
+  const days = req.query.days || 7;
 
   AccessToken.count({
     where: { userId : { $ne: null }, created: { $gt : new Date(Date.now() - (days * 24 * 3600 * 1000)) } }
-  }).then(function (result) {
+  }).then(result => {
     res.json({count:result, days:Number(days)});
   });
 };
@@ -31,8 +30,8 @@ module.exports.countSignup = function (req, res) {
 };
 */
 
-module.exports.countActiveUsers = function (req, res) {
-  var days = req.query.days || 30;
+module.exports.countActiveUsers = (req, res) => {
+  const days = req.query.days || 30;
 
   // fixme: sequelize this...
   sqldb.sequelize.query(
@@ -41,14 +40,14 @@ module.exports.countActiveUsers = function (req, res) {
     '   SELECT count(*) AS "count" FROM "AccessTokens" AS "AccessToken" ' +
     '   WHERE "AccessToken"."userId" IS NOT NULL AND "AccessToken"."created" > \'' + new Date(Date.now() - (days * 24 * 3600 * 1000)).toISOString() + '\'' +
     '   GROUP BY "userId"' +
-    ') AS foo').then(function (result) {
-    var count = result[0][0].count;
+    ') AS foo').then(result => {
+    const count = result[0][0].count;
     res.json({count:Number(count), days:Number(days)});
   });
 };
 
-module.exports.countActiveUsersByDays = function (req, res) {
-  var days = req.query.days || 30;
+module.exports.countActiveUsersByDays = (req, res) => {
+  const days = req.query.days || 30;
 
   sqldb.sequelize.query(
     'select "date", count("userId") FROM ( ' +
@@ -56,7 +55,7 @@ module.exports.countActiveUsersByDays = function (req, res) {
     '   FROM "AccessTokens" AS "AccessToken" ' +
     '   WHERE "AccessToken"."userId" IS NOT NULL AND "AccessToken"."created" > \'' + new Date(Date.now() - (days * 24 * 3600 * 1000)).toISOString() + '\'' +
     ') AS foo ' +
-    'GROUP BY "date" ORDER BY "date" desc').then(function (result) {
+    'GROUP BY "date" ORDER BY "date" desc').then(result => {
       res.json(result[0]);
     });
 };

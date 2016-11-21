@@ -9,47 +9,31 @@
 
 'use strict';
 
-var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var Category = sqldb.Category;
-var Movie = sqldb.Movie;
-var Season = sqldb.Season;
-var Video = sqldb.Video;
-var Episode = sqldb.Episode;
-var Caption = sqldb.Caption;
-var Image = sqldb.Image;
-var filters = rootRequire('/app/api/filters.js');
-var utils = rootRequire('/app/api/utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Category = sqldb.Category;
+const Movie = sqldb.Movie;
+const Season = sqldb.Season;
+const Video = sqldb.Video;
+const Episode = sqldb.Episode;
+const Caption = sqldb.Caption;
+const Image = sqldb.Image;
+const filters = rootRequire('app/api/filters.js');
+const utils = rootRequire('app/api/utils.js');
 
-var getIncludedModel = function () {
-  return [
-    {
-      model: Movie, as: 'movies',
-      order: [['sort', 'ASC']]
-    }, {
-      model: Movie, as: 'adSpots',
-      order: [['sort', 'ASC']]
-    } // load all adSpots
-  ];
-};
-
-/**
- * Limit result in included model because it's not possible with Sequelize
- * @param res
- * @param statusCode
- * @returns {Function}
- */
-function limitResult(res, key, limit) {
-  return function (entity) {
-    if (entity) {
-      res.status(200).json(entity);
-    }
-  };
-}
+const getIncludedModel = () => [
+  {
+    model: Movie, as: 'movies',
+    order: [['sort', 'ASC']]
+  }, {
+    model: Movie, as: 'adSpots',
+    order: [['sort', 'ASC']]
+  } // load all adSpots
+];
 
 function responseWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -60,9 +44,9 @@ function responseWithResult(res, statusCode) {
 // FIXME: this code should be inlined in the adspot func.
 function responseWithAdSpot(req, res, statusCode) {
   statusCode = statusCode || 200;
-  return function (entity) {
+  return entity => {
     if (entity) {
-      var queryOptions = {
+      let queryOptions = {
         order: [['sort', 'ASC']],
         include: [
           {
@@ -112,47 +96,34 @@ function responseWithAdSpot(req, res, statusCode) {
 
       queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
 
-      return entity.getAdSpots(queryOptions).then(function (adSpots) {
+      return entity.getAdSpots(queryOptions).then(adSpots => {
         res.status(statusCode).json(adSpots);
-      })
+      });
     }
   };
 }
 
 function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(function (updated) {
-        return updated;
-      });
-  };
+  return entity => entity.updateAttributes(updates);
 }
 
 function addMovies(updates) {
-  var movies = Movie.build(_.map(updates.movies || [], _.partialRight(_.pick, '_id')));
-  return function (entity) {
-    return entity.setMovies(movies)
-      .then(function () {
-        return entity;
-      });
-  };
+  const movies = Movie.build(_.map(updates.movies || [], _.partialRight(_.pick, '_id')));
+  return entity => entity.setMovies(movies)
+    .then(() => entity);
 }
 
 function addAdSpots(updates) {
-  var movies = Movie.build(_.map(updates.adSpots || [], _.partialRight(_.pick, '_id')));
-  return function (entity) {
-    return entity.setAdSpots(movies)
-      .then(function () {
-        return entity;
-      });
-  };
+  const movies = Movie.build(_.map(updates.adSpots || [], _.partialRight(_.pick, '_id')));
+  return entity => entity.setAdSpots(movies)
+    .then(() => entity);
 }
 
 function removeEntity(res) {
-  return function (entity) {
+  return entity => {
     if (entity) {
       return entity.destroy()
-        .then(function () {
+        .then(() => {
           res.status(204).end();
         });
     }
@@ -160,13 +131,13 @@ function removeEntity(res) {
 }
 
 // Gets a list of categorys
-exports.index = function (req, res) {
-  var queryName = req.param('query');
-  var populate = req.query.populate || 'movies,adSpots';
+exports.index = (req, res) => {
+  const queryName = req.param('query');
+  const populate = req.query.populate || 'movies,adSpots';
 
-  var queryOptions = {order: [['sort', 'ASC']]};
+  let queryOptions = {order: [['sort', 'ASC']]};
 
-  var moviesIncludes = [];
+  const moviesIncludes = [];
   if (populate.indexOf('movies.categorys') !== -1) {
     moviesIncludes.push({model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']});
   }
@@ -190,7 +161,7 @@ exports.index = function (req, res) {
     });
   }
 
-  var adSpotsIncludes = [];
+  const adSpotsIncludes = [];
   if (populate.indexOf('adSpots.categorys') !== -1) {
     adSpotsIncludes.push({model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']});
   }
@@ -232,27 +203,27 @@ exports.index = function (req, res) {
       where: {
         label: {$iLike: '%' + queryName + '%'}
       }
-    })
+    });
   }
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, Category);
 
   Category.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(function (entity) {
+    .then(entity => {
       // limiting movies in categories...
       // HACKY, cannot do this with sequelize yet
       // @see https://github.com/sequelize/sequelize/issues/1897
       // we should use : include.seperate
       if (parseInt(req.query.limitMovies)) {
-        entity.rows.forEach(function (row) {
+        entity.rows.forEach(row => {
           if (row.movies) {
             row.movies.splice(parseInt(req.query.limitMovies));
           }
         });
       }
       if (parseInt(req.query.limitAdSpots)) {
-        entity.rows.forEach(function (row) {
+        entity.rows.forEach(row => {
           if (row.adSpots) {
             row.adSpots.splice(parseInt(req.query.limitAdSpots));
           }
@@ -265,8 +236,8 @@ exports.index = function (req, res) {
 };
 
 // Gets a single category from the DB
-exports.show = function (req, res) {
-  var queryOptions = {
+exports.show = (req, res) => {
+  let queryOptions = {
     where: {
       _id: req.params.id
     },
@@ -305,8 +276,8 @@ exports.show = function (req, res) {
 };
 
 // Gets all AdSpots in selected category
-exports.adSpot = function (req, res) {
-  var queryOptions = {
+exports.adSpot = (req, res) => {
+  let queryOptions = {
     where: {
       _id: req.params.id
     }
@@ -321,8 +292,8 @@ exports.adSpot = function (req, res) {
 };
 
 // Gets all categorys for menu
-exports.menu = function (req, res) {
-  var queryOptions = {
+exports.menu = (req, res) => {
+  let queryOptions = {
     order: [['sort', 'ASC']]
   };
 
@@ -336,8 +307,8 @@ exports.menu = function (req, res) {
 
 
 // Gets all submovies limited
-exports.mea = function (req, res) {
-  var queryOptions = {
+exports.mea = (req, res) => {
+  let queryOptions = {
     order: [['sort', 'ASC']],
     include: [
       {
@@ -359,12 +330,12 @@ exports.mea = function (req, res) {
 
   Category.findAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(limitResult(res, 'movies', 30))
+    .then(responseWithResult(res))
     .catch(res.handleError());
 };
 
-exports.allSpots = function (req, res) {
-  var queryOptions = {
+exports.allSpots = (req, res) => {
+  let queryOptions = {
     order: [
       ['sort', 'ASC'],
       [{model: Movie, as: 'adSpots'}, 'sort'] // wtf.. is this sort field.
@@ -388,12 +359,12 @@ exports.allSpots = function (req, res) {
 
   Category.findAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(limitResult(res, 'movies', 30))
+    .then(responseWithResult(res))
     .catch(res.handleError());
 };
 
 // Creates a new category in the DB
-exports.create = function (req, res) {
+exports.create = (req, res) => {
   Category.create(req.body)
     .then(saveUpdates(req.body))
     .then(addMovies(req.body))
@@ -403,11 +374,11 @@ exports.create = function (req, res) {
 };
 
 // Updates an existing category in the DB
-exports.update = function (req, res) {
+exports.update = (req, res) => {
   // backo only security, prevent backo updates
   if (utils.isReqFromAfrostreamAdmin(req) && req.body.ro === true) {
     // warning message for log sake
-    console.warn('shouldnot try to update category '+req.params.id);
+    req.logger.warn('shouldnot try to update category '+req.params.id);
     // returning without updating
     Category.find({
       where: {
@@ -419,9 +390,7 @@ exports.update = function (req, res) {
       // le READ ONLY ne peut pas s'appliquer ni a active / inactive
       // aussi, on doit ajouter une exception pour le champ sort...
       //  alors que normalement le sort devrait être dans une liaison entre "Home" et "Categories".
-      .then(function (entity) {
-        return entity.updateAttributes(_.pick(req.body, ['active', 'sort']));
-      })
+      .then(entity => entity.updateAttributes(_.pick(req.body, ['active', 'sort'])))
       //
       .then(responseWithResult(res))
       .catch(res.handleError());
@@ -446,7 +415,7 @@ exports.update = function (req, res) {
 };
 
 // Deletes a category from the DB
-exports.destroy = function (req, res) {
+exports.destroy = (req, res) => {
   Category.find({
     where: {
       _id: req.params.id

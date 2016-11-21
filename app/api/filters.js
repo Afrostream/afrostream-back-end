@@ -1,11 +1,11 @@
 'use strict';
 
-var assert = require('assert');
+const assert = require('assert');
 
-var _ = require('lodash');
-var sqldb = rootRequire('/sqldb');
-var Promise = sqldb.Sequelize.Promise;
-var utils = require('./utils.js');
+const _ = require('lodash');
+const sqldb = rootRequire('sqldb');
+const Promise = sqldb.Sequelize.Promise;
+const utils = require('./utils.js');
 
 /**
  * resulting query parameters will be modified as :
@@ -31,21 +31,21 @@ var utils = require('./utils.js');
  * @param rootModel sequelize model
  * @return object new filtered options object
  */
-var filterQueryOptions = function (req, options, rootModel) {
+const filterQueryOptions = (req, options, rootModel) => {
     assert(rootModel);
 
-    var isBacko = utils.isReqFromAfrostreamAdmin(req);
+    const isBacko = utils.isReqFromAfrostreamAdmin(req);
 
     // opportunistic guess... (req.passport might not be loaded)
-    var client = req.passport && req.passport.client;
-    var isAfrostreamExportsBouygues = client && client.isAfrostreamExportsBouygues();
-    var isAfrostreamExportsOsearch = client && client.isAfrostreamExportsOsearch();
-    var isBouyguesMiami = client && client.isBouyguesMiami();
-    var isOrange = client && client.isOrange();
-    var isOrangeNewbox = client && client.isOrangeNewbox();
+    const client = req.passport && req.passport.client;
+    const isAfrostreamExportsBouygues = client && client.isAfrostreamExportsBouygues();
+    const isAfrostreamExportsOsearch = client && client.isAfrostreamExportsOsearch();
+    const isBouyguesMiami = client && client.isBouyguesMiami();
+    const isOrange = client && client.isOrange();
+    const isOrangeNewbox = client && client.isOrangeNewbox();
 
     return sqldb.filterOptions(options, function filter (options, root) {
-        var model = root ? rootModel : options.model;
+        const model = root ? rootModel : options.model;
 
         if (isBacko || isAfrostreamExportsBouygues || isAfrostreamExportsOsearch) {
             // no restrictions.
@@ -125,7 +125,7 @@ var filterQueryOptions = function (req, options, rootModel) {
                     delete options.where.$or;
                 }
                 // dateFrom & dateTo generic
-                var now = new Date();
+                const now = new Date();
                 options = _.merge(options, {
                     where: {
                         // (dateFrom is null and dateTo is null) OR
@@ -170,22 +170,20 @@ var filterQueryOptions = function (req, options, rootModel) {
 };
 
 function filterUserRecursive (entity, role, attribute) {
-    var roleMehod = 'getPublicInfos';
+    let roleMehod = 'getPublicInfos';
     if (role === 'private') {
         roleMehod = 'getInfos';
     }
-    var c = entity.get({plain: true});
+    const c = entity.get({plain: true});
     if (attribute) {
-        var entityR = entity[attribute];
-        c[attribute] = (entityR || []).map(function (entityD) {
-            var p = entityD.get({plain: true});
+        const entityR = entity[attribute];
+        c[attribute] = (entityR || []).map(entityD => {
+            const p = entityD.get({plain: true});
             if (entityD.user) {
                 p.user = entityD.user[roleMehod]();
             }
             if (entityD.users) {
-                p.users = (entityD.users || []).map(function (user) {
-                    return user[roleMehod]();
-                });
+                p.users = (entityD.users || []).map(user => user[roleMehod]());
             }
             return p;
         });
@@ -195,79 +193,73 @@ function filterUserRecursive (entity, role, attribute) {
     }
 }
 
-var filterUserAttributesAll = function (req, role, attr) {
+const filterUserAttributesAll = (req, role, attr) => {
     assert(role);
-    var attributes = attr || [];
-    var isBacko = utils.isReqFromAfrostreamAdmin(req);
-    return function (entitys) {
+    const attributes = attr || [];
+    const isBacko = utils.isReqFromAfrostreamAdmin(req);
+    return entitys => {
         if (isBacko) {
             return entitys; // no restrictions.
         }
 
-        var promises = [];
-        var entityList = entitys.rows || [entitys];
-        (entityList || []).map(function (entity) {
+        const promises = [];
+        const entityList = entitys.rows || [entitys];
+        (entityList || []).map(entity => {
             if (!attributes.length) {
-                promises.push(new Promise(function (resolve) {
-                    var c = filterUserRecursive(entity, role);
+                promises.push(new Promise(resolve => {
+                    const c = filterUserRecursive(entity, role);
                     resolve(c);
                 }));
             } else {
-                _.map(attributes, function (attribute) {
-                    promises.push(new Promise(function (resolve) {
-                        var c = filterUserRecursive(entity, role, attribute);
+                _.map(attributes, attribute => {
+                    promises.push(new Promise(resolve => {
+                        const c = filterUserRecursive(entity, role, attribute);
                         resolve(c);
-                    }))
+                    }));
                 });
             }
         });
 
         return Promise
             .all(promises)
-            .then(function (entityFiltered) {
-                return {
-                    count: entityFiltered.length,
-                    rows: entityFiltered
-                };
-            });
-    }
+            .then(entityFiltered => ({
+            count: entityFiltered.length,
+            rows: entityFiltered
+        }));
+    };
 };
 
-var filterUserAttributes = function (req, role, attr) {
+const filterUserAttributes = (req, role, attr) => {
     assert(role);
-    var attributes = attr || [];
-    var isBacko = utils.isReqFromAfrostreamAdmin(req);
-    return function (entity) {
+    const attributes = attr || [];
+    const isBacko = utils.isReqFromAfrostreamAdmin(req);
+    return entity => {
         if (isBacko) {
             return entity; // no restrictions.
         }
         if (!attributes.length) {
             return filterUserRecursive(entity, role);
         } else {
-            var c = entity.get({plain: true});
-            _.map(attributes, function (attribute) {
+            const c = entity.get({plain: true});
+            _.map(attributes, attribute => {
                 _.merge(c, filterUserRecursive(entity, role, attribute));
             });
             return c;
         }
 
-    }
+    };
 };
 
 /*
  * default output filter :
  *  - convert objects to plain
  */
-var filterOutput = function (options) {
-  return function (data) {
-    if (Array.isArray(data)) {
-      return data.map(function (instance) {
-        return instance.getPlain(options);
-      });
-    } else {
-      return data.getPlain(options);
-    }
-  };
+const filterOutput = options => data => {
+  if (Array.isArray(data)) {
+    return data.map(instance => instance.getPlain(options));
+  } else {
+    return data.getPlain(options);
+  }
 };
 
 // FIXME: USER_PRIVACY: we should implement here a global output filter

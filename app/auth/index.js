@@ -1,13 +1,12 @@
 'use strict';
 
 var express = require('express');
-var passport = require('passport');
-var config = rootRequire('/config');
-var User = rootRequire('/sqldb').User;
-var Client = rootRequire('/sqldb').Client;
-var AccessToken = rootRequire('/sqldb').AccessToken;
+var config = rootRequire('config');
+var User = rootRequire('sqldb').User;
+var Client = rootRequire('sqldb').Client;
+var AccessToken = rootRequire('sqldb').AccessToken;
 
-var auth = rootRequire('/app/auth/auth.service');
+var auth = rootRequire('app/auth/auth.service');
 
 // Passport Configuration
 require('./local/passport').setup(User, config);

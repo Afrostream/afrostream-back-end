@@ -22,10 +22,11 @@ var AMQP = function (options) {
   assert(options);
   assert(options.endPoint);
 
+  this.logger = options.logger || console;
   this.autoReconnect = !(options.autoReconnect === false);
   this.displayErrors = !(options.displayErrors === false);
   if (!this.displayErrors) {
-    console.log('[WARNING]: [AMQP]: displayErrors is off, amqp will be silent');
+    this.logger.warn('displayErrors is off, amqp will be silent');
   }
   this.endPoint = options.endPoint;
   this.conn = null;
@@ -48,7 +49,7 @@ AMQP.prototype.open = function () {
 
   var onError = function (err) {
     if (that.displayErrors) {
-      console.error('[ERROR]: [AMQP]: ', err);
+      that.logger.error(err.message);
     }
     that.channel = null;
     that.conn = null;
@@ -64,7 +65,7 @@ AMQP.prototype.open = function () {
   return amqp.connect(this.endPoint)
     .then(
       function (conn) {
-        console.log('[INFO]: [AMQP]: connected to AMQP ' + that.endPoint);
+        that.logger.log('connected to AMQP ' + that.endPoint);
         that.conn = conn;
         that.conn.on('error', onError);
         that.emit('connection.opened');
@@ -73,7 +74,7 @@ AMQP.prototype.open = function () {
     )
     .then(
       function (channel) {
-        console.log('[INFO]: [AMQP]: channel opened');
+        that.logger.log('channel opened');
         that.channel = channel;
         that.channel.on('error',onError);
         that.channel.on('close', onError);
@@ -93,13 +94,13 @@ AMQP.prototype.reopen = function () {
   var that = this;
 
   if (!this.autoReconnect) {
-    console.log('[WARNING]: [AMQP]: reconnection aborded (autoreconnect is off)');
+    this.logger.warn('reconnection aborded (autoreconnect is off)');
     return this;
   }
   if (this.reopenId) {
-    console.log('[WARNING]: [AMQP]:  already reopening connection');
+    this.logger.warn('already reopening connection');
   } else {
-    console.log('[WARNING]: [AMQP]:  try to reopen connection in 500ms');
+    this.logger.warn('try to reopen connection in 500ms');
     this.reopenId = setTimeout(function () {
       that.reopenId = null;
       that.open();

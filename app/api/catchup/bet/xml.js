@@ -1,16 +1,18 @@
 'use strict';
 
-var Q = require('q');
+const Q = require('q');
 
-var xml2js = require('xml2js');
+const xml2js = require('xml2js');
 
-var saveXmlToBucket = require('./aws').saveXmlToBucket;
+const saveXmlToBucket = require('./aws').saveXmlToBucket;
 
-var flatten = function (xml) {
-  var result = {};
-  var rec = function (xmlNode) {
-    Object.keys(xmlNode).forEach(function (key) {
-      var val = xmlNode[key];
+const logger = rootRequire('logger').prefix('CATCHUP');
+
+const flatten = xml => {
+  const result = {};
+  const rec = xmlNode => {
+    Object.keys(xmlNode).forEach(key => {
+      const val = xmlNode[key];
       switch (key) {
         case 'ASSET_CODE':
         case 'ASSET_TITLE':
@@ -58,22 +60,18 @@ var flatten = function (xml) {
  * @param xml                string   containing the xml.
  * @returns {*}              object   { flatten xml object }
  */
-var parseXml = function (catchupProviderId, pfContentId, xml) {
-  console.log('catchup: '+catchupProviderId+': '+pfContentId+': parsing xml = ', xml);
+const parseXml = (catchupProviderId, pfContentId, xml) => {
+  logger.log(catchupProviderId+': '+pfContentId+': parsing xml = ', xml);
   return Q.nfcall(xml2js.parseString, xml)
-    .then(function (json) {
-      console.log('catchup: '+catchupProviderId+': '+pfContentId+': json =' + JSON.stringify(json));
-      var flattenXml = flatten(json);
-      console.log('catchup: '+catchupProviderId+': '+pfContentId+': flatten = ' + JSON.stringify(flattenXml));
+    .then(json => {
+      logger.log(catchupProviderId+': '+pfContentId+': json =' + JSON.stringify(json));
+      const flattenXml = flatten(json);
+      logger.log(catchupProviderId+': '+pfContentId+': flatten = ' + JSON.stringify(flattenXml));
       return flattenXml;
     });
 };
 
-var saveAndParseXml = function (catchupProviderId, pfContentId, xmlUrl) {
-  return saveXmlToBucket(catchupProviderId, pfContentId, xmlUrl)
-    .then(function (xml) {
-      return parseXml(catchupProviderId, pfContentId, xml);
-    });
-};
+const saveAndParseXml = (catchupProviderId, pfContentId, xmlUrl) => saveXmlToBucket(catchupProviderId, pfContentId, xmlUrl)
+  .then(xml => parseXml(catchupProviderId, pfContentId, xml));
 
 module.exports.saveAndParseXml = saveAndParseXml;

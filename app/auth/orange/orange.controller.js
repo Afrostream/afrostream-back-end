@@ -5,8 +5,7 @@ var _ = require('lodash');
 var btoa = require('btoa');
 var passport = require('passport');
 var oauth2 = require('../oauth2/oauth2');
-var config = rootRequire('/config');
-var sqldb = rootRequire('/sqldb');
+var sqldb = rootRequire('sqldb');
 var User = sqldb.User;
 var Client = sqldb.Client;
 
@@ -19,14 +18,6 @@ var strategyOptions = function (options) {
     next();
   };
 };
-
-function validationError (res, statusCode) {
-  statusCode = statusCode || 422;
-  return function (err) {
-    console.error('/auth/orange/: error: validationError: ', err);
-    res.status(err.statusCode || statusCode).json({error: String(err)});
-  }
-}
 
 /**
  *
@@ -83,14 +74,14 @@ var link = function (req, res, next) {
 };
 
 var unlink = function (req, res) {
-  console.log('unlink user orange : ', req.user._id);
+  req.logger.log('unlink user orange : ', req.user._id);
   User.find({
     where: {
       _id: req.user._id
     }
   })
     .then(function (user) {
-      console.log(user._id);
+      req.logger.log(user._id);
       if (!user) {
         throw new Error('unknown user');
       }
@@ -99,17 +90,16 @@ var unlink = function (req, res) {
       return user.save();
     })
     .then(
-      function (user) {
-        res.json(user.getInfos());
-      },
-      validationError(res)
+      function (user) { res.json(user.getInfos()); },
+      res.handleError(422)
     );
 };
 
 var callback = function (req, res, next) {
+  var logger = req.logger.prefix('AUTH').prefix('ORANGE');
   var expireIn = null;
   // logs
-  console.log('[INFO]: [AUTH]: [ORANGE]: callback: START');
+  logger.log('callback: START');
   //
   passport.authenticate('orange', {
     session: false
@@ -117,12 +107,12 @@ var callback = function (req, res, next) {
     Q()
       .then(function () {
         if (err) throw err;
-        console.log('[INFO]: [AUTH]: [ORANGE]: callback: info=', info);
+        logger.log('callback: info=', info);
         if (info) {
-          expireIn = info.expireIn // Wat for ??
+          expireIn = info.expireIn; // Wat for ??
         }
         if (!user) throw new Error('Something went wrong, please try again.');
-        console.log('[INFO]: [AUTH]: [ORANGE]: callback: userId=', user._id);
+        logger.log('callback: userId=', user._id);
         return req.getPassport();
       })
       .then(function (passport) {
@@ -138,7 +128,7 @@ var callback = function (req, res, next) {
         return passport.client;
       })
       .then(function (client) {
-        console.log('[INFO]: [AUTH]: [ORANGE]: generate Token for client=' + client._id + ' & user=' + user._id);
+        logger.log('generate Token for client=' + client._id + ' & user=' + user._id);
         return Q.nfcall(oauth2.generateToken, client, user, null, req.clientIp, req.userAgent, expireIn);
       })
       .then(function (tokenInfos) {
@@ -152,11 +142,11 @@ var callback = function (req, res, next) {
       })
       .then(
         function success (tokens) {
-          console.log('[INFO]: [AUTH]: [ORANGE]: sending tokens ' + JSON.stringify(tokens));
+          logger.log('sending tokens ' + JSON.stringify(tokens));
           res.json(tokens);
         },
         function error (err) {
-          console.error('[ERROR]: [AUTH]: [ORANGE]: callback: error=' + err.message, err);
+          logger.error('callback: error=' + err.message, err);
           // hotfix: when SAML contains an ERROR, there is no SAML parsing, no state parsing in passport.js
           //  => req.signupClientType is not populated
           //  but the data can be found in req.body.RelayState (base64 of JSON)
@@ -165,7 +155,7 @@ var callback = function (req, res, next) {
               req.signupClientType = JSON.parse(
                 new Buffer(req.body.RelayState, 'base64').toString('ascii')
               ).signupClientType;
-            } catch (e) { }
+            } catch (e) { /* empty */ }
           }
           //
           res.handleError()(err, {signupClientType: req.signupClientType});

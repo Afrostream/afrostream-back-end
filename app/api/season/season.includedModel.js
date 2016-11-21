@@ -1,23 +1,21 @@
 'use strict';
 
-var sqldb = rootRequire('/sqldb');
-var Episode = sqldb.Episode;
-var Movie = sqldb.Movie;
-var Image = sqldb.Image;
+const sqldb = rootRequire('sqldb');
+const Episode = sqldb.Episode;
+const Movie = sqldb.Movie;
+const Image = sqldb.Image;
 
-module.exports.get = function () {
-  return [
-    {
-      model: Episode, as: 'episodes',
-      order: [['sort', 'ASC']],
-      include: [
-        {model: Image, as: 'poster', required: false},
-        {model: Image, as: 'thumb', required: false}
-      ],
-      required: false
-    },
-    {model: Movie, as: 'movie', required: false},
-    {model: Image, as: 'poster', required: false},
-    {model: Image, as: 'thumb', required: false}
-  ];
-};
+module.exports.get = () => [
+  {
+    model: Episode, as: 'episodes',
+    order: [['sort', 'ASC']],
+    include: [
+      {model: Image, as: 'poster', required: false},
+      {model: Image, as: 'thumb', required: false}
+    ],
+    required: false
+  },
+  {model: Movie, as: 'movie', required: false},
+  {model: Image, as: 'poster', required: false},
+  {model: Image, as: 'thumb', required: false}
+];
