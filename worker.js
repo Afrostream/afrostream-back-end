@@ -8,9 +8,9 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 // global
 global.__basedir = __dirname;
-global.rootRequire = function (name) { return require(global.__basedir + '/' + (name[0] === '/' ? name.substr(1) : name)); };
+global.rootRequire = name => require(global.__basedir + '/' + (name[0] === '/' ? name.substr(1) : name));
 
-process.on('uncaughtException', function (err) {
+process.on('uncaughtException', err => {
   console.error('[ERROR]: uncaught error: ' + err.message  + ' stack = ', err.stack);
 });
 

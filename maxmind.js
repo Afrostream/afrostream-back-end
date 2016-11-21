@@ -7,7 +7,7 @@ var lookup = maxmind.openSync(__dirname + '/data/GeoLite2-Country.mmdb');
 // fixme: avoid direct dependency
 var logger = rootRequire('logger').prefix('MAXMIND');
 
-var getCountryCode = function (ip) {
+var getCountryCode = ip => {
   try {
     return lookup.get(ip).country.iso_code;
   } catch (e) {
