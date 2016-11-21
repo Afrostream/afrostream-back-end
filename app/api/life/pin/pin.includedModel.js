@@ -3,40 +3,20 @@
 var sqldb = rootRequire('/sqldb');
 var User = sqldb.User;
 var Image = sqldb.Image;
-var LifePin = sqldb.LifePin;
+var LifeTheme = sqldb.LifeTheme;
 
 module.exports.get = function () {
     return [
         //{model: LifeThemePins, all: true},
         {
-            model: LifePin,
-            as: 'pins',
+            model: LifeTheme,
+            as: 'themes',
             attributes: [
                 '_id',
-                'type',
-                'title',
-                'role',
-                'providerUrl',
-                'providerName',
-                'originalUrl',
-                'imageUrl',
-                'richMediaUrl',
-                'description',
-                'date'],
-            required: true,
-            include: [
-                {model: Image, as: 'image', required: false},
-                {
-                    model: User,
-                    as: 'user',
-                    required: false
-                },
-                {
-                    model: User,
-                    as: 'users',
-                    required: false
-                }
-            ]
+                'label',
+                'slug',
+                'sort'],
+            required: true
         },
         {model: Image, as: 'image', required: false},
         {model: User, as: 'user', required: false},
