@@ -16,7 +16,7 @@ module.exports.get = () => [
       'slug',
       'sort'
     ],
-    required: false
+    required: true
   }, {
     model: Image,
     as: 'image',
