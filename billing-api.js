@@ -15,6 +15,8 @@ if (process.env.NODE_ENV === 'development' ||
   rootRequire('test/mock-billing-api.js');
 }
 
+var statsd = rootRequire('statsd');
+
 var logger = rootRequire('logger').prefix('BILLING-API');
 
 var requestBilling = options => {
@@ -26,6 +28,7 @@ var requestBilling = options => {
   options = _.merge({}, defaultOptions, options);
 
   logger.log('request ', JSON.stringify(options));
+  statsd.client.increment('request.billing-api.hit');
 
   return Q.nfcall(request, options)
     .then(data => {
@@ -39,6 +42,7 @@ var requestBilling = options => {
       }
       if (response.statusCode !== 200 || !body || body.status !== 'done') {
         logger.warn(response.statusCode + ' ' + (body && body.status) + ' ' + JSON.stringify(options) + " => " + JSON.stringify(body));
+        statsd.client.increment('request.billing-api.error');
         error = new Error(body && body.statusMessage || body && body.message || 'unknown');
         error.statusCode = (response.statusCode >= 200 && response.statusCode <= 400 ) ? 500 : response.statusCode;
         error.code = body && body.statusCode || response.statusCode;
@@ -46,6 +50,7 @@ var requestBilling = options => {
       }
 
       logger.log('200 ok' + JSON.stringify(body));
+      statsd.client.increment('request.billing-api.success');
 
       return body;
     });

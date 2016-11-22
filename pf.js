@@ -6,6 +6,8 @@ var config = rootRequire('config');
 
 var anr = require('afrostream-node-request');
 
+var statsd = rootRequire('statsd');
+
 // fixme: this dependency should be injected
 var logger = rootRequire('logger').prefix('PF');
 
@@ -21,10 +23,20 @@ var requestPF = ((() => {
   return options => {
     var readableQueryString = Object.keys(options.qs || []).map(k => k + '=' + options.qs[k]).join('&');
     var readableUrl = config.pf.url + options.uri + (readableQueryString?'?' + readableQueryString:'');
-    logger.log(readableUrl);
 
-    return request(options).then(data => // body
-    data[1]);
+    logger.log(readableUrl);
+    statsd.client.increment('request.pf.hit');
+
+    return request(options).then(
+      data => {
+        statsd.client.increment('request.pf.success');
+        return data[1]; // body
+      },
+      err => {
+        statsd.client.increment('request.pf.error');
+        throw err; // fwd
+      }
+    );
   };
 }))();
 
