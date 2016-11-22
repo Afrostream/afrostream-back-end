@@ -5,7 +5,7 @@ module.exports.metrics = function (options) {
     if (req.passport &&
         req.passport.client) {
       const broadcasterId = statsd.escapeKey(req.passport.client.get('broadcasterId'));
-      statsd.client.increment('route.api.video.hit.broadcaster.'+broadcasterId);
+      statsd.client.increment('route.api.video.infos.broadcaster.'+broadcasterId+'.hit');
     }
     statsd.middleware({route: 'api.video'})(req, res, next);
   };
