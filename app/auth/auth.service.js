@@ -8,10 +8,19 @@ var User = rootRequire('sqldb').User;
 
 var Q = require('q');
 
+var statsd = rootRequire('statsd');
+
 var middlewarePassport = rootRequire('app/middlewares/middleware-passport.js');
 var middlewareBroadcaster = rootRequire('app/middlewares/middleware-broadcaster.js');
 var middlewareCountry = rootRequire('app/middlewares/middleware-country.js');
 var middlewareHackBox = rootRequire('app/middlewares/middleware-hack-box.js');
+var middlewareMetricsHitsByCountry = () => (req, res, next) => {
+  // metrics: authentified hits by country
+  const country = req.country || 'unknown';
+  statsd.client.increment('route.authentified.all.hit');
+  statsd.client.increment('route.authentified.all.infos.country.'+country);
+  next();
+};
 
 /**
  * Attaches the user object to the request if authenticated
@@ -152,6 +161,7 @@ exports.middleware = {
       .use(middlewarePassport(options.middlewarePassport))
       .use(middlewareBroadcaster())
       .use(middlewareCountry())
+      .use(middlewareMetricsHitsByCountry())
       .use(middlewareHackBox());
   },
 
@@ -163,6 +173,7 @@ exports.middleware = {
       .use(middlewarePassport(options.middlewarePassport))
       .use(middlewareBroadcaster())
       .use(middlewareCountry())
+      .use(middlewareMetricsHitsByCountry())
       .use(middlewareHackBox());
   }
 };
