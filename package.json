@@ -4,7 +4,7 @@
   "main": "server.js",
   "dependencies": {
     "afrostream-node-request": "git+https://afrostream-tech:d51e355769ddd0fd212084c35fb99f71ab4146b2@github.com/Afrostream/afrostream-node-request.git#v2.3.2",
-    "afrostream-node-statsd": "git+https://afrostream-tech:d51e355769ddd0fd212084c35fb99f71ab4146b2@github.com/Afrostream/afrostream-node-statsd.git#v1.2.0",
+    "afrostream-node-statsd": "git+https://afrostream-tech:d51e355769ddd0fd212084c35fb99f71ab4146b2@github.com/Afrostream/afrostream-node-statsd.git#v1.3.0",
     "algoliasearch": "^3.19.1",
     "amqplib": "^0.5.1",
     "async": "^2.1.2",
