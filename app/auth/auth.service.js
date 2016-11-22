@@ -16,7 +16,7 @@ var middlewareCountry = rootRequire('app/middlewares/middleware-country.js');
 var middlewareHackBox = rootRequire('app/middlewares/middleware-hack-box.js');
 var middlewareMetricsHitsByCountry = () => (req, res, next) => {
   // metrics: authentified hits by country
-  const country = req.country || 'unknown';
+  const country = req.country && req.country._id || 'unknown';
   statsd.client.increment('route.authentified.all.hit');
   statsd.client.increment('route.authentified.all.infos.country.'+country);
   next();
