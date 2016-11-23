@@ -9,7 +9,9 @@ var logger = rootRequire('logger').prefix('MAXMIND');
 
 var getCountryCode = ip => {
   try {
-    return lookup.get(ip).country.iso_code;
+    const iso_code = lookup.get(ip).country.iso_code;
+    logger.debug(`LOOKUP : ${ip} => ${iso_code}`);
+    return iso_code;
   } catch (e) {
     logger.error('ip='+ip+' -> '+e.message);
     return '';

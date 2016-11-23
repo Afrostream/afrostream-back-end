@@ -10,6 +10,11 @@ module.exports = function (options) {
      *  But some broadcasters have a default country, ex: Orange newbox/Orange Mib4/Bouygues miami => FR
      */
     var country = req.query.country || req.broadcaster && req.broadcaster.defaultCountryId || "--";
+    if (country === '--') {
+      (req.logger || options.logger).debug('[MIDDLEWARE-COUNTRY]: unknown country req.country=' +
+                                            req.country+' broadcasterId='+(req.broadcaster&&req.broadcaster._id) +
+                                            ' url='+ req.originalUrl);
+    }
     Country.findOne({where: { _id: country }})
       .then(function (country) {
         if (!country) {

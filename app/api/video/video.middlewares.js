@@ -1,6 +1,6 @@
 const statsd = rootRequire('statsd');
 
-module.exports.metrics = function (options) {
+module.exports.metrics = function () {
   return function (req, res, next) {
     if (req.passport &&
         req.passport.client) {
