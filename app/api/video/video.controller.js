@@ -247,7 +247,27 @@ exports.show = (req, res) => {
         ]).then(pfData => {
           closure.pfAssetsStreams = pfData[0];
           closure.pfManifests = pfData[1];
-        });
+        }
+        ///// REMOVE THE CODE HERE
+        , () => {
+          // hotfix: fallback sur l'ancienne table Assets
+          return Asset.findAll({
+            where: { videoId: video._id }
+          }).then(sources => {
+            if (!sources || !sources.length) {
+              throw new Error('missing pfMd5Hash, cannot fallback to Assets table');
+            }
+            // on imite le retour de la pf
+            logger.log('missing pfMd5Hash, fallback to Assets');
+            closure.pfAssetsStreams = [];
+            closure.pfManifests = sources.map(source => ({
+              src: source.src.replace(/^https?:\/\/[^/]+/,''),
+              type: source.type
+            }));
+          });
+        }
+        ///// TO HERE /////
+        );
       })
 
     ,
