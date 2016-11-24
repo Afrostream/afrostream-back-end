@@ -66,7 +66,8 @@ module.exports = function (sequelize, DataTypes) {
       }
     },
     countries: DataTypes.ARRAY(DataTypes.STRING(2)),
-    broadcasters: DataTypes.ARRAY(DataTypes.STRING(4))
+    broadcasters: DataTypes.ARRAY(DataTypes.STRING(4)),
+    translations: DataTypes.JSONB
   }, {
     getterMethods   : {
       sharing: function()  {

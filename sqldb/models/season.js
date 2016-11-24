@@ -41,7 +41,8 @@ module.exports = function (sequelize, DataTypes) {
     numberOfEpisodes: DataTypes.INTEGER,
     countries: DataTypes.ARRAY(DataTypes.STRING(2)),
     broadcasters: DataTypes.ARRAY(DataTypes.STRING(4)),
-    shortTitle: DataTypes.STRING(32)
+    shortTitle: DataTypes.STRING(32),
+    translations: DataTypes.JSONB
   }, {
     getterMethods   : {
       sharing: function()  {
