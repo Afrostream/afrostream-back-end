@@ -15,6 +15,7 @@ module.exports = function (sequelize, DataTypes) {
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
-    }
+    },
+    translations: DataTypes.JSONB
   });
 };

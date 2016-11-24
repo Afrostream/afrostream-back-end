@@ -43,5 +43,6 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING,
             length: 4
         },
+        translations: DataTypes.JSONB
     });
 };
