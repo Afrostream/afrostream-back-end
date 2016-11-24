@@ -36,7 +36,7 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: 'free',
             length: 16
         },
-        translations: DataTypes.JSON
+        translations: DataTypes.JSONB
     }, {
         instanceMethods: {
             setThemesOrdered: sqldb.generateInstanceMethodSetXOrdered({
