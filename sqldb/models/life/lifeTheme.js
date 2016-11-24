@@ -15,7 +15,8 @@ module.exports = function (sequelize, DataTypes) {
         active: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
-        }
+        },
+        translations: DataTypes.JSON
     }, {
         instanceMethods: {
             setPinsOrdered: sqldb.generateInstanceMethodSetXOrdered({
