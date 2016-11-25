@@ -25,15 +25,6 @@ const utils = rootRequire('app/api/utils.js');
 
 const getIncludedModel = require('./movie.includedModel').get;
 
-function responseWithResult (res, statusCode) {
-  statusCode = statusCode || 200;
-  return entity => {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
 function responseWithSeasons (req, res, statusCode) {
   statusCode = statusCode || 200;
   return entity => {
@@ -214,7 +205,7 @@ exports.show = (req, res) => {
   //
   Movie.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 
@@ -243,7 +234,7 @@ exports.create = (req, res) => {
     .then(addLicensor(req.body))
     .then(updateVideo(req.body))
     .then(addActors(req.body))
-    .then(responseWithResult(res, 201))
+    .then(utils.responseWithResult(req, res, 201))
     .catch(res.handleError());
 };
 
@@ -307,7 +298,7 @@ exports.algolia = (req, res) => {
     })
     .then(utils.handleEntityNotFound(res))
     .then(algolia.importAll(res, 'movies'))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 
@@ -346,7 +337,7 @@ exports.update = (req, res) => {
     .then(addLicensor(req.body))
     .then(updateVideo(req.body))
     .then(addActors(req.body))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 

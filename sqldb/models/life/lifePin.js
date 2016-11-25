@@ -50,7 +50,12 @@ module.exports = function (sequelize, DataTypes) {
                 // optional
                 srcIdColumn: '_id',
                 dstIdColumn: '_id'
-            })
+            }),
+            toPlain: function (options) {
+              if (options.language && !options.isBacko) {
+                this.applyTranslation(options.language);
+              }
+            }
         }
     });
 };

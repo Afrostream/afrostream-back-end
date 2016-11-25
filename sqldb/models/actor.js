@@ -17,5 +17,13 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: true
     },
     translations: DataTypes.JSONB
+  }, {
+    instanceMethods: {
+      toPlain: function (options) {
+        if (options.language && !options.isBacko) {
+          this.applyTranslation(options.language);
+        }
+      }
+    }
   });
 };

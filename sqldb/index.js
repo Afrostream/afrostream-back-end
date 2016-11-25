@@ -14,7 +14,38 @@ var hooks = require('./hooks');
 
 var options = _.merge({}, config.sequelize.options, {
     define: {
-        hooks: hooks
+        hooks: hooks,
+        instanceMethods: {
+          /*
+           * Multi Language
+           * mutate the object, override every column content with translation content
+           *
+           * search in Table.translations (json) fields
+           *   { columnName: { language: value } }
+           * ex: movie.title = "2001 l'odyssée de l'espace"
+           *     movie.translations = { title: { EN: "2001 space odyssey" }}
+           *
+           *     movie.applyTranslation('DE');
+           *     console.log(movie.title) // 2001 l'odyssée de l'espace
+           *
+           *     movie.applyTranslation('EN');
+           *     console.log(movie.title) // 2001 space odyssey
+           */
+          applyTranslation: function (language) {
+            const translations = this.getDataValue('translations');
+            // translations = { columnName : { language : value } }
+            if (translations) {
+              Object.keys(translations)
+                .filter(columnName => {
+                  return translations[columnName] &&
+                         translations[columnName][language];
+                })
+                .forEach(columnName => {
+                  this.setDataValue(columnName, translations[columnName][language]);
+                });
+            }
+          }
+        }
     }
 });
 
