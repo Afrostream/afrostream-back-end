@@ -6,15 +6,6 @@ const Genre = sqldb.Genre;
 const filters = rootRequire('app/api/filters.js');
 const utils = rootRequire('app/api/utils.js');
 
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return entity => {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
 // Gets a list of episodes
 exports.index = (req, res) => {
   const queryName = req.param('query');
@@ -52,6 +43,6 @@ exports.show = (req, res) => {
 
   Genre.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };

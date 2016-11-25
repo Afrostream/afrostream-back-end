@@ -22,15 +22,6 @@ function getIncludedModel() {
   ];
 }
 
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return entity => {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
 function saveUpdates(updates) {
   return entity => entity.updateAttributes(updates);
 }
@@ -100,7 +91,7 @@ exports.show = (req, res) => {
   //
   Actor.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 
@@ -108,7 +99,7 @@ exports.show = (req, res) => {
 exports.create = (req, res) => {
   Actor.create(req.body)
     .then(updateImages(req.body))
-    .then(responseWithResult(res, 201))
+    .then(utils.responseWithResult(req, res, 201))
     .catch(res.handleError());
 };
 
@@ -126,7 +117,7 @@ exports.update = (req, res) => {
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(updateImages(req.body))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 

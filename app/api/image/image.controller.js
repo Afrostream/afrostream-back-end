@@ -17,15 +17,6 @@ const aws = rootRequire('aws');
 
 const utils = rootRequire('app/api/utils.js');
 
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return entity => {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
 function saveUpdates(updates) {
   return entity => entity.updateAttributes(updates);
 }
@@ -67,7 +58,7 @@ exports.show = (req, res) => {
     }
   })
     .then(utils.handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 
@@ -89,7 +80,7 @@ exports.create = (req, res) => {
         name: file.name
       }));
     })
-    .then(responseWithResult(res, 201))
+    .then(utils.responseWithResult(req, res, 201))
     .catch(res.handleError());
 };
 
@@ -105,6 +96,6 @@ exports.update = (req, res) => {
   })
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };

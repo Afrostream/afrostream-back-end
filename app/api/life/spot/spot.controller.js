@@ -19,15 +19,6 @@ const utils = rootRequire('app/api/utils.js');
 
 const getIncludedModel = require('./spot.includedModel').get;
 
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return entity => {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
 function saveUpdates(updates) {
   return entity => entity.updateAttributes(updates);
 }
@@ -116,7 +107,7 @@ exports.show = (req, res) => {
 
   LifeSpot.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 
@@ -124,7 +115,7 @@ exports.show = (req, res) => {
 exports.create = (req, res) => LifeSpot.create(req.body)
   .then(updateImages(req.body))
   .then(addThemes(req.body))
-  .then(responseWithResult(res, 201))
+  .then(utils.responseWithResult(req, res, 201))
   .catch(res.handleError());
 
 // Updates an existing LifeSpot in the DB
@@ -141,7 +132,7 @@ exports.update = (req, res) => {
     .then(saveUpdates(req.body))
     .then(updateImages(req.body))
     .then(addThemes(req.body))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 

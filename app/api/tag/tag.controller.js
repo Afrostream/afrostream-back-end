@@ -14,15 +14,6 @@ const Tag = sqldb.Tag;
 
 const utils = rootRequire('app/api/utils.js');
 
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return entity => {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
 function saveUpdates(updates) {
   return entity => entity.updateAttributes(updates);
 }
@@ -41,7 +32,7 @@ function removeEntity(res) {
 // Gets a list of tags
 exports.index = (req, res) => {
   Tag.findAll()
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 
@@ -53,14 +44,14 @@ exports.show = (req, res) => {
     }
   })
     .then(utils.handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 
 // Creates a new tag in the DB
 exports.create = (req, res) => {
   Tag.create(req.body)
-    .then(responseWithResult(res, 201))
+    .then(utils.responseWithResult(req, res, 201))
     .catch(res.handleError());
 };
 
@@ -76,7 +67,7 @@ exports.update = (req, res) => {
   })
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 

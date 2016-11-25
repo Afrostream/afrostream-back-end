@@ -19,15 +19,6 @@ function mapEntitys () {
   };
 }
 
-function responseWithResult (res, statusCode) {
-  statusCode = statusCode || 200;
-  return entity => {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
 function removeEntity (res) {
   return entity => {
     if (entity) {
@@ -55,7 +46,7 @@ exports.index = (req, res) => {
 
   Config.findAll(paramsObj)
     .then(mapEntitys())
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 
 };
@@ -72,14 +63,14 @@ exports.target = (req, res) => {
       ]
     })
     .then(utils.handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 
 // Creates a new client in the DB
 exports.create = (req, res) => {
   Config.create(req.body)
-    .then(responseWithResult(res, 201))
+    .then(utils.responseWithResult(req, res, 201))
     .catch(res.handleError());
 };
 
