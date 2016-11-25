@@ -20,7 +20,7 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     instanceMethods: {
       toPlain: function (options) {
-        if (options.language && !options.isBacko) {
+        if (options.language) {
           this.applyTranslation(options.language);
         }
       }
