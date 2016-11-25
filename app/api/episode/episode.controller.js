@@ -104,7 +104,7 @@ exports.index = (req, res) => {
 
   Episode.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(utils.responseWithResultAndTotal(res))
+    .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
 

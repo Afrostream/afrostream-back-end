@@ -28,18 +28,11 @@ const md5 = require('md5');
 
 const getIncludedModel = require('./pin.includedModel').get;
 
-function responseWithResult (res, statusCode) {
-  statusCode = statusCode || 200;
-  return entity => {
-    res.status(statusCode).json(entity);
-  };
-}
-
-function saveUpdates (updates) {
+function saveUpdates(updates) {
   return entity => entity.updateAttributes(updates);
 }
 
-function updateImages (updates) {
+function updateImages(updates) {
   return entity => {
     const promises = [];
     promises.push(entity.setImage(updates.image && updates.image.dataValues && Image.build(updates.image.dataValues) || updates.image && Image.build(updates.image) || null));
@@ -49,7 +42,7 @@ function updateImages (updates) {
   };
 }
 
-function updateUser (updates, req) {
+function updateUser(updates, req) {
   return entity => {
     const promises = [];
     promises.push(entity.setUser((updates.user && updates.user._id) || (req.user && req.user._id) || null));
@@ -59,14 +52,14 @@ function updateUser (updates, req) {
   };
 }
 
-function removeEntity (res) {
+function removeEntity(res) {
   return entity => entity.destroy()
     .then(() => {
       res.status(204).end();
     });
 }
 
-function addThemes (updates) {
+function addThemes(updates) {
   const themes = LifeTheme.build(_.map(updates.themes || [], _.partialRight(_.pick, '_id')));
   return entity => {
     if (!themes || !themes.length) {
@@ -126,7 +119,7 @@ exports.index = (req, res) => {
 
   LifePin.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(utils.responseWithResultAndTotal(res))
+    .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
 
@@ -151,7 +144,7 @@ exports.show = (req, res) => {
 
   LifePin.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 
@@ -224,7 +217,7 @@ exports.scrap = (req, res) => {
 
       });
     })
-    .then(responseWithResult(res, 201))
+    .then(utils.responseWithResult(req, res, 201))
     .catch(res.handleError());
 };
 // Creates a new LifePin in the DB
@@ -290,7 +283,7 @@ exports.create = (req, res) => {
     .then(updateImages(c.injectData))
     .then(updateUser(c.injectData, req))
     .then(addThemes(c.injectData))
-    .then(responseWithResult(res, 201))
+    .then(utils.responseWithResult(req, res, 201))
     .catch(res.handleError());
 };
 
@@ -309,7 +302,7 @@ exports.update = (req, res) => {
     .then(updateImages(req.body))
     .then(updateUser(req.body, req))
     .then(addThemes(req.body))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 

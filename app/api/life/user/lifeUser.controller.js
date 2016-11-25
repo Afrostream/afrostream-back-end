@@ -41,7 +41,7 @@ exports.index = (req, res) => {
   User.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(filters.filterUserAttributesAll(req, 'public'))
-    .then(utils.responseWithResultAndTotal(res))
+    .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
 

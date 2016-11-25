@@ -36,7 +36,7 @@ exports.index = (req, res) => {
 
   Genre.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(utils.responseWithResultAndTotal(res))
+    .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
 

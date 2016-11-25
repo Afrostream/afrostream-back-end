@@ -55,7 +55,7 @@ exports.index = (req, res) => {
   }
 
   Image.findAndCountAll(paramsObj)
-    .then(utils.responseWithResultAndTotal(res))
+    .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
 
