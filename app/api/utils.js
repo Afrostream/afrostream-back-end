@@ -6,6 +6,8 @@ const _ = require('lodash');
 // but the auto-complete require to query in 200 episodes ...
 const defaultLimit = 500;
 
+const filters = require('./filters');
+
 const reqRangeToSequelizeLimit = (req, size) => {
   size = size || Infinity;
 
@@ -40,6 +42,13 @@ const responseWithResultAndTotal = (res, statusCode) => {
       res.set('Resource-Count', entity.count);
       res.status(statusCode).json(entity.rows);
     }
+  };
+};
+
+const responseWithResult = function (req, res, statusCode) {
+  statusCode = statusCode || 200;
+  return entity => {
+    res.status(statusCode).json(filters.filterOutput({req:req})(entity));
   };
 };
 
@@ -81,3 +90,4 @@ module.exports.mergeReqRange = mergeReqRange;
 module.exports.responseWithResultAndTotal = responseWithResultAndTotal;
 module.exports.handleEntityNotFound = handleEntityNotFound;
 module.exports.isReqFromAfrostreamAdmin = isReqFromAfrostreamAdmin;
+module.exports.responseWithResult = responseWithResult;

@@ -266,7 +266,9 @@ const filterOutput = options => {
                    options.req && options.req.user ||
                    options.req && options.req.passport && options.req.passport.user;
   options.language = options.language ||
-                     options.req && options.req.language;
+                     options.req && options.req.query.language;
+  options.isBacko = options.isBacko ||
+                    options.req && utils.isReqFromAfrostreamAdmin(options.req);
   return data => {
     if (Array.isArray(data)) {
       return data.map(instance => instance.getPlain(options));

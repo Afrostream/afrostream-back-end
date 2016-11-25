@@ -15,5 +15,13 @@ module.exports = function (sequelize, DataTypes) {
     osearchNameMovie: DataTypes.STRING(32),
     osearchNameSerie: DataTypes.STRING(32),
     translations: DataTypes.JSONB
+  }, {
+    instanceMethods: {
+      toPlain: function (options) {
+        if (options.language && !options.isBacko) {
+          this.applyTranslation(options.language);
+        }
+      }
+    }
   });
 };

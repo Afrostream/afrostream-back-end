@@ -81,7 +81,7 @@ module.exports = function (sequelize, DataTypes) {
     yearReleased: DataTypes.INTEGER,
     translations: DataTypes.JSONB
   }, {
-    getterMethods   : {
+    getterMethods : {
       sharing: function()  {
         return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/sharing/movie/' + this._id };
       },
@@ -91,6 +91,13 @@ module.exports = function (sequelize, DataTypes) {
           return this.yearReleased + '-06-01T00:00:00.000Z'; // june, to avoid timezone artefacts :)
         } else {
           return null;
+        }
+      }
+    },
+    instanceMethods : {
+      toPlain: function (options) {
+        if (options.language && !options.isBacko) {
+          this.applyTranslation(options.language);
         }
       }
     }

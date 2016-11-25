@@ -48,6 +48,13 @@ module.exports = function (sequelize, DataTypes) {
       sharing: function()  {
         return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/sharing/season/' + this._id };
       }
+    },
+    instanceMethods : {
+      toPlain: function (options) {
+        if (options.language && !options.isBacko) {
+          this.applyTranslation(options.language);
+        }
+      }
     }
   });
 };
