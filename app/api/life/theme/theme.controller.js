@@ -114,9 +114,6 @@ exports.show = (req, res) => {
 
   LifeTheme.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(filters.filterOutput({
-      req: req
-    }))
     .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
