@@ -7,15 +7,6 @@ const User = sqldb.User;
 const utils = rootRequire('app/api/utils.js');
 const getIncludedModel = require('./lifeUser.includedModel').get;
 
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return entity => {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
 exports.index = (req, res) => {
   let queryOptions = {
     include: getIncludedModel(),
@@ -60,6 +51,6 @@ exports.show = (req, res) => {
     .then(filters.filterOutput({
       req: req
     }))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };

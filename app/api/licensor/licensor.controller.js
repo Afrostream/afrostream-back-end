@@ -20,15 +20,6 @@ const getIncludedModel = () => [
   {model: Movie, as: 'movies'} // load all movies
 ];
 
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return entity => {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
 function saveUpdates(updates) {
   return entity => entity.updateAttributes(updates);
 }
@@ -81,7 +72,7 @@ exports.show = (req, res) => {
     include: getIncludedModel()
   })
     .then(utils.handleEntityNotFound(res))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 
@@ -89,7 +80,7 @@ exports.show = (req, res) => {
 exports.create = (req, res) => {
   Licensor.create(req.body)
     .then(addMovies(req.body))
-    .then(responseWithResult(res, 201))
+    .then(utils.responseWithResult(req, res, 201))
     .catch(res.handleError());
 };
 
@@ -106,7 +97,7 @@ exports.update = (req, res) => {
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(addMovies(req.body))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 
