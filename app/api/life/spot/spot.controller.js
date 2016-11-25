@@ -99,7 +99,7 @@ exports.index = (req, res) => {
 
   LifeSpot.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(utils.responseWithResultAndTotal(res))
+    .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
 

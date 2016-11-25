@@ -45,7 +45,7 @@ exports.index = (req, res) => {
   const paramsObj = utils.mergeReqRange({}, req);
 
   Language.findAndCountAll(paramsObj)
-    .then(utils.responseWithResultAndTotal(res))
+    .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
 

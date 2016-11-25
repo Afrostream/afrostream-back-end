@@ -35,20 +35,20 @@ const reqRangeToSequelizeLimit = (req, size) => {
 
 const mergeReqRange = (obj, req, size) => _.merge(obj, reqRangeToSequelizeLimit(req, size));
 
-const responseWithResultAndTotal = (res, statusCode) => {
+const responseWithResultAndTotal = (req, res, statusCode) => {
   statusCode = statusCode || 200;
-  return entity => {
-    if (entity) {
-      res.set('Resource-Count', entity.count);
-      res.status(statusCode).json(entity.rows);
-    }
+  return result => {
+    const plainEntities = filters.filterOutput({req:req})(result.rows);
+    res.set('Resource-Count', result.count);
+    res.status(statusCode).json(plainEntities.rows);
   };
 };
 
 const responseWithResult = function (req, res, statusCode) {
   statusCode = statusCode || 200;
   return entity => {
-    res.status(statusCode).json(filters.filterOutput({req:req})(entity));
+    const plainEntity = filters.filterOutput({req:req})(entity);
+    res.status(statusCode).json(plainEntity);
   };
 };
 

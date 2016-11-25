@@ -68,7 +68,7 @@ exports.index = (req, res) => {
   }
 
   Licensor.findAndCountAll(paramsObj)
-    .then(utils.responseWithResultAndTotal(res))
+    .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
 
