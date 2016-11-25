@@ -28,18 +28,18 @@ const md5 = require('md5');
 
 const getIncludedModel = require('./pin.includedModel').get;
 
-function responseWithResult(res, statusCode) {
+function responseWithResult (res, statusCode) {
   statusCode = statusCode || 200;
   return entity => {
     res.status(statusCode).json(entity);
   };
 }
 
-function saveUpdates(updates) {
+function saveUpdates (updates) {
   return entity => entity.updateAttributes(updates);
 }
 
-function updateImages(updates) {
+function updateImages (updates) {
   return entity => {
     const promises = [];
     promises.push(entity.setImage(updates.image && updates.image.dataValues && Image.build(updates.image.dataValues) || updates.image && Image.build(updates.image) || null));
@@ -49,7 +49,7 @@ function updateImages(updates) {
   };
 }
 
-function updateUser(updates, req) {
+function updateUser (updates, req) {
   return entity => {
     const promises = [];
     promises.push(entity.setUser((updates.user && updates.user._id) || (req.user && req.user._id) || null));
@@ -59,14 +59,14 @@ function updateUser(updates, req) {
   };
 }
 
-function removeEntity(res) {
+function removeEntity (res) {
   return entity => entity.destroy()
     .then(() => {
       res.status(204).end();
     });
 }
 
-function addThemes(updates) {
+function addThemes (updates) {
   const themes = LifeTheme.build(_.map(updates.themes || [], _.partialRight(_.pick, '_id')));
   return entity => {
     if (!themes || !themes.length) {
@@ -80,13 +80,20 @@ function addThemes(updates) {
 // Gets a list of life/pins
 // ?query=... (search in the title)
 exports.index = (req, res) => {
+  const isBacko = utils.isReqFromAfrostreamAdmin(req);
+
   const queryName = req.param('query'); // deprecated.
   let queryOptions = {
-    include: getIncludedModel(),
     order: [
       ['date', 'DESC']
     ]
   };
+
+  if (!isBacko) {
+    queryOptions = _.merge(queryOptions, {
+      include: getIncludedModel()
+    });
+  }
   // pagination
   utils.mergeReqRange(queryOptions, req);
 
@@ -125,12 +132,20 @@ exports.index = (req, res) => {
 
 // Gets a single LifePin from the DB
 exports.show = (req, res) => {
+
+  const isBacko = utils.isReqFromAfrostreamAdmin(req);
+
   let queryOptions = {
     where: {
       _id: req.params.id
-    },
-    include: getIncludedModel()
+    }
   };
+
+  if (!isBacko) {
+    queryOptions = _.merge(queryOptions, {
+      include: getIncludedModel()
+    });
+  }
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
 
@@ -149,30 +164,30 @@ exports.scrap = (req, res) => {
 
   //TODO create afrostream-fetch-data project
   Q.fcall(() => {
-      //EXTRACT VIDEO INFO PROVIDER
-      if (c.originalUrl) {
-        return new Promise(resolve => {
-          mediaParser.parse(c.originalUrl, data => {
-            if (!data || !data.raw) {
-              resolve(null);
-            }
-            const rawdata = data.raw;
-            _.merge(c, {
-              title: rawdata.title,
-              type: rawdata.type,
-              imageUrl: rawdata.thumbnail_url,
-              imagesList: [rawdata.thumbnail_url],
-              providerUrl: rawdata.provider_url,
-              providerName: rawdata.provider_name.toLowerCase()
-            });
-            resolve(c);
-          }, 3000);
-        });
-      } else {
-        return null;
-      }
-    })
-    //EXTRACT METADATA INFO PROVIDER
+    //EXTRACT VIDEO INFO PROVIDER
+    if (c.originalUrl) {
+      return new Promise(resolve => {
+        mediaParser.parse(c.originalUrl, data => {
+          if (!data || !data.raw) {
+            resolve(null);
+          }
+          const rawdata = data.raw;
+          _.merge(c, {
+            title: rawdata.title,
+            type: rawdata.type,
+            imageUrl: rawdata.thumbnail_url,
+            imagesList: [rawdata.thumbnail_url],
+            providerUrl: rawdata.provider_url,
+            providerName: rawdata.provider_name.toLowerCase()
+          });
+          resolve(c);
+        }, 3000);
+      });
+    } else {
+      return null;
+    }
+  })
+  //EXTRACT METADATA INFO PROVIDER
     .then(data => {
       if (data) {
         return data;
@@ -223,9 +238,9 @@ exports.create = (req, res) => {
       //EXTRACT IMAGE
       if (req.body.imageUrl) {
         Q.nfcall(request, {
-            url: req.body.imageUrl,
-            encoding: null
-          })
+          url: req.body.imageUrl,
+          encoding: null
+        })
           .then(data => {
             /*var res = data[0];*/
             const buffer = data[1];
@@ -285,10 +300,10 @@ exports.update = (req, res) => {
     delete req.body._id;
   }
   LifePin.find({
-      where: {
-        _id: req.params.id
-      }
-    })
+    where: {
+      _id: req.params.id
+    }
+  })
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(updateImages(req.body))
@@ -301,10 +316,10 @@ exports.update = (req, res) => {
 // Deletes a LifePin from the DB
 exports.destroy = (req, res) => {
   LifePin.find({
-      where: {
-        _id: req.params.id
-      }
-    })
+    where: {
+      _id: req.params.id
+    }
+  })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(res.handleError());

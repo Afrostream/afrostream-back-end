@@ -376,6 +376,7 @@ promises.push(
       secret: '17abaee4-032d-4703-be86-0af3523dcedd',
       name: 'afrostream-admin',
       active: true,
+      type:'afrostream-admin.gui',
       billingProviderName:'afrostream-admin.gui'
     }]);
   })
