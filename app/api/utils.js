@@ -33,13 +33,18 @@ const reqRangeToSequelizeLimit = (req, size) => {
 
 const mergeReqRange = (obj, req, size) => _.merge(obj, reqRangeToSequelizeLimit(req, size));
 
-const responseWithResultAndTotal = (res, statusCode) => {
+const responseWithResultAndTotal = (req, res, statusCode) => {
+  statusCode = statusCode || 200;
+  return result => {
+    res.set('Resource-Count', result.count);
+    res.status(statusCode).json(result.rows);
+  };
+};
+
+const responseWithResult = function (req, res, statusCode) {
   statusCode = statusCode || 200;
   return entity => {
-    if (entity) {
-      res.set('Resource-Count', entity.count);
-      res.status(statusCode).json(entity.rows);
-    }
+    res.status(statusCode).json(entity);
   };
 };
 
@@ -81,3 +86,4 @@ module.exports.mergeReqRange = mergeReqRange;
 module.exports.responseWithResultAndTotal = responseWithResultAndTotal;
 module.exports.handleEntityNotFound = handleEntityNotFound;
 module.exports.isReqFromAfrostreamAdmin = isReqFromAfrostreamAdmin;
+module.exports.responseWithResult = responseWithResult;

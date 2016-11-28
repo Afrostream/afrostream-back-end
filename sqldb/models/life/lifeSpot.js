@@ -43,5 +43,14 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING,
             length: 4
         },
+        translations: DataTypes.JSONB
+    }, {
+      instanceMethods: {
+        toPlain: function (options) {
+          if (options.language && !options.isBacko) {
+            this.applyTranslation(options.language);
+          }
+        }
+      }
     });
 };
