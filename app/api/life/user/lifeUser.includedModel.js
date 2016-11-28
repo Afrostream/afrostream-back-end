@@ -10,6 +10,7 @@ module.exports.get = () => [{
   where: {
     active: true
   },
+  required: false,
   //attributes: [
   //  [sqldb.sequelize.fn('COUNT', sqldb.sequelize.col('LifePin._id')), 'pinsCount']
   //],
