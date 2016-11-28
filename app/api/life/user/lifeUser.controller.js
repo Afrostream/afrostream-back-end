@@ -3,6 +3,8 @@
 const filters = rootRequire('app/api/filters.js');
 const sqldb = rootRequire('sqldb');
 const _ = require('lodash');
+const Image = sqldb.Image;
+const LifePin = sqldb.LifePin;
 const User = sqldb.User;
 const utils = rootRequire('app/api/utils.js');
 const getIncludedModel = require('./lifeUser.includedModel').get;
@@ -38,7 +40,17 @@ exports.index = (req, res) => {
 
 exports.facebook = (req, res) => {
   let queryOptions = {
-    include: getIncludedModel(),
+    include: [
+      {
+        model: LifePin,
+        as: 'lifePins',
+        required: true,
+        include: [{
+          model: Image,
+          as: 'image',
+          required: false
+        }]
+    ],
     limit: 100,
     where: {
       facebook: {$ne: null}
@@ -66,23 +78,24 @@ exports.facebook = (req, res) => {
     .then(filters.filterUserAttributesAll(req, 'public'))
     .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
-};
+}
+  ;
 
 
 // Gets a single LifeTheme from the DB
-exports.show = (req, res) => {
-  const queryOptions = {
-    include: getIncludedModel(),
-    where: {
-      _id: req.params.id
-    }
-  };
+  exports.show = (req, res) => {
+    const queryOptions = {
+      include: getIncludedModel(),
+      where: {
+        _id: req.params.id
+      }
+    };
 
-  User.find(queryOptions)
-    .then(utils.handleEntityNotFound(res))
-    .then(filters.filterOutput({
-      req: req
-    }))
-    .then(utils.responseWithResult(req, res))
-    .catch(res.handleError());
-};
+    User.find(queryOptions)
+      .then(utils.handleEntityNotFound(res))
+      .then(filters.filterOutput({
+        req: req
+      }))
+      .then(utils.responseWithResult(req, res))
+      .catch(res.handleError());
+  };
