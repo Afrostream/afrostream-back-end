@@ -50,6 +50,7 @@ exports.facebook = (req, res) => {
           as: 'image',
           required: false
         }]
+      }
     ],
     limit: 100,
     where: {
@@ -79,23 +80,23 @@ exports.facebook = (req, res) => {
     .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 }
-  ;
+;
 
 
 // Gets a single LifeTheme from the DB
-  exports.show = (req, res) => {
-    const queryOptions = {
-      include: getIncludedModel(),
-      where: {
-        _id: req.params.id
-      }
-    };
-
-    User.find(queryOptions)
-      .then(utils.handleEntityNotFound(res))
-      .then(filters.filterOutput({
-        req: req
-      }))
-      .then(utils.responseWithResult(req, res))
-      .catch(res.handleError());
+exports.show = (req, res) => {
+  const queryOptions = {
+    include: getIncludedModel(),
+    where: {
+      _id: req.params.id
+    }
   };
+
+  User.find(queryOptions)
+    .then(utils.handleEntityNotFound(res))
+    .then(filters.filterOutput({
+      req: req
+    }))
+    .then(utils.responseWithResult(req, res))
+    .catch(res.handleError());
+};
