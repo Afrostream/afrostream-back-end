@@ -134,6 +134,10 @@ module.exports = function (sequelize, DataTypes) {
                 return (this.facebook && this.facebook.id && '//graph.facebook.com/' + this.facebook.id + '/picture') || (frontUrl + '/avatar/' + ( this.email || this.name)) || null;
             },
 
+            nickname: function () {
+                return this.getDataValue('nickname') || (this.facebook && this.facebook.name ) || null;
+            },
+
             ise2: function () {
                 return this.getDataValue('ise2') || this.orange && this.orange.identify && this.orange.identify.collectiveidentifier || null;
             },
