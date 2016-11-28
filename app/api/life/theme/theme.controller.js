@@ -18,15 +18,6 @@ const LifePin = sqldb.LifePin;
 const LifeSpot = sqldb.LifeSpot;
 const LifeTheme = sqldb.LifeTheme;
 
-function responseWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return entity => {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
 function saveUpdates(updates) {
   return entity => entity.updateAttributes(updates);
 }
@@ -99,7 +90,7 @@ exports.index = (req, res) => {
   LifeTheme.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(filters.filterUserAttributesAll(req, 'public', ['pins']))
-    .then(utils.responseWithResultAndTotal(res))
+    .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
 
@@ -123,10 +114,7 @@ exports.show = (req, res) => {
 
   LifeTheme.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(filters.filterOutput({
-      req: req
-    }))
-    .then(responseWithResult(res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 
@@ -136,7 +124,7 @@ exports.create = (req, res) => {
     .then(saveUpdates(req.body))
     .then(addLifePins(req.body))
     .then(addLifeSpots(req.body))
-    .then(responseWithResult(res, 201))
+    .then(utils.responseWithResult(req, res, 201))
     .catch(res.handleError());
 };
 
@@ -159,7 +147,7 @@ exports.update = (req, res) => {
       //  alors que normalement le sort devrait être dans une liaison entre "Home" et "Categories".
       .then(entity => entity.updateAttributes(_.pick(req.body, ['active', 'sort'])))
       //
-      .then(responseWithResult(res))
+      .then(utils.responseWithResult(req, res))
       .catch(res.handleError());
   } else {
     // normal update.
@@ -176,7 +164,7 @@ exports.update = (req, res) => {
       .then(saveUpdates(req.body))
       .then(addLifePins(req.body))
       .then(addLifeSpots(req.body))
-      .then(responseWithResult(res))
+      .then(utils.responseWithResult(req, res))
       .catch(res.handleError());
   }
 };

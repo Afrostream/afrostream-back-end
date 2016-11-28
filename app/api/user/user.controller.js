@@ -48,7 +48,7 @@ exports.index = (req, res) => {
   }
 
   User.findAndCountAll(paramsObj)
-    .then(utils.responseWithResultAndTotal(res))
+    .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
 

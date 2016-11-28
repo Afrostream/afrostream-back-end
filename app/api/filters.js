@@ -251,16 +251,34 @@ const filterUserAttributes = (req, role, attr) => {
 };
 
 /*
- * default output filter :
- *  - convert objects to plain
+ * @param options [OPTIONNAL] object
+ *     /!\ this param can be mutated.
+ * @return function filtering & mutating an entity.
  */
-const filterOutput = options => data => {
-  if (Array.isArray(data)) {
-    return data.map(instance => instance.getPlain(options));
-  } else {
-    return data.getPlain(options);
-  }
-};
+const filterOutput = (() => {
+  const filter = (entity, options) => {
+    // loop
+    if (Array.isArray(entity)) {
+      return entity.map(v => filter(v, options));
+    }
+    // single entity
+    if (entity instanceof sqldb.sequelize.Instance) {
+      return entity.getPlain(options);
+    }
+    return entity;
+  };
+
+  //
+  return (data, options) => {
+    options = options || {};
+    options.caller = options.caller ||
+                     options.req && options.req.user ||
+                     options.req && options.req.passport && options.req.passport.user;
+    options.language = options.language ||
+                       options.req && options.req.query.language;
+    return filter(data, options);
+  };
+})();
 
 // FIXME: USER_PRIVACY: we should implement here a global output filter
 exports.filterOutput = filterOutput;

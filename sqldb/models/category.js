@@ -29,6 +29,15 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: false
     },
     countries: DataTypes.ARRAY(DataTypes.STRING(2)),
-    broadcasters: DataTypes.ARRAY(DataTypes.STRING(4))
+    broadcasters: DataTypes.ARRAY(DataTypes.STRING(4)),
+    translations: DataTypes.JSONB
+  }, {
+    instanceMethods: {
+      toPlain: function (options) {
+        if (options.language) {
+          this.applyTranslation(options.language);
+        }
+      }
+    }
   });
 };
