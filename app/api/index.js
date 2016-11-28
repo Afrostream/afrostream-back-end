@@ -30,6 +30,7 @@ router.use('/jobs', require('./job/index'));
 router.use('/episodes', require('./episode/index'));
 router.use('/seasons', require('./season/index'));
 router.use('/tags', require('./tag/index'));
+router.use('/carousels', require('./carousel/index'));
 router.use('/categorys', require('./category/index'));
 router.use('/movies', require('./movie/index'));
 router.use('/press', require('./press/index'));
