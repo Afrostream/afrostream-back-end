@@ -11,7 +11,7 @@ module.exports.get = () => [{
     active: true
   },
   attributes: [
-    [db.sequelize.fn('COUNT', db.sequelize.col('LifePin._id')), 'pinsCount']
+    [sqldb.sequelize.fn('COUNT', sqldb.sequelize.col('LifePin._id')), 'pinsCount']
   ],
   required: false,
   include: [{
