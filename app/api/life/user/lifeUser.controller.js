@@ -19,7 +19,7 @@ exports.index = (req, res) => {
       [{
         model: LifePin,
         as: 'lifePins'
-      }, 'pinsCount', 'DESC']
+      }, 'date', 'DESC']
     ]
   };
   // pagination

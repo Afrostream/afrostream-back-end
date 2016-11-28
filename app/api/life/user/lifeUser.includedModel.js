@@ -10,10 +10,9 @@ module.exports.get = () => [{
   where: {
     active: true
   },
-  attributes: [
-    [sqldb.sequelize.fn('COUNT', sqldb.sequelize.col('LifePin._id')), 'pinsCount']
-  ],
-  required: false,
+  //attributes: [
+  //  [sqldb.sequelize.fn('COUNT', sqldb.sequelize.col('LifePin._id')), 'pinsCount']
+  //],
   include: [{
     model: Image,
     as: 'image',
