@@ -74,8 +74,9 @@ function addThemes (updates) {
 // ?query=... (search in the title)
 exports.index = (req, res) => {
   const isBacko = utils.isReqFromAfrostreamAdmin(req);
+  const queryName = req.query.query;
+  const language = req.query.language;
 
-  const queryName = req.param('query'); // deprecated.
   let queryOptions = {
     order: [
       ['date', 'DESC']
@@ -89,6 +90,17 @@ exports.index = (req, res) => {
   }
   // pagination
   utils.mergeReqRange(queryOptions, req);
+
+  //FIlter outbut only object with language translation
+  if (language) {
+    const langObj = {};
+    langObj[language] = {$ne: null};
+    queryOptions = _.merge(queryOptions, {
+      translations: {
+        title: langObj
+      }
+    });
+  }
 
   if (queryName) {
     queryOptions = _.merge(queryOptions, {

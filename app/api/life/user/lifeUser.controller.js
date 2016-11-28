@@ -36,6 +36,38 @@ exports.index = (req, res) => {
     .catch(res.handleError());
 };
 
+exports.facebook = (req, res) => {
+  let queryOptions = {
+    include: getIncludedModel(),
+    limit: 100,
+    where: {
+      facebook: {$ne: null}
+    }
+  };
+  // pagination
+  utils.mergeReqRange(queryOptions, req);
+
+  if (req.query.limit) {
+    queryOptions = _.merge(queryOptions, {
+      limit: req.query.limit
+    });
+  }
+
+  if (req.query.order) {
+    queryOptions = _.merge(queryOptions, {
+      order: [
+        [req.query.order, req.query.sort || 'DESC']
+      ]
+    });
+  }
+
+  User.findAndCountAll(queryOptions)
+    .then(utils.handleEntityNotFound(res))
+    .then(filters.filterUserAttributesAll(req, 'public'))
+    .then(utils.responseWithResultAndTotal(req, res))
+    .catch(res.handleError());
+};
+
 
 // Gets a single LifeTheme from the DB
 exports.show = (req, res) => {
