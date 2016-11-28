@@ -44,7 +44,7 @@ exports.facebook = (req, res) => {
       {
         model: LifePin,
         as: 'lifePins',
-        required: true,
+        required: false,
         include: [{
           model: Image,
           as: 'image',
