@@ -3,7 +3,6 @@
 const filters = rootRequire('app/api/filters.js');
 const sqldb = rootRequire('sqldb');
 const _ = require('lodash');
-const Image = sqldb.Image;
 const LifePin = sqldb.LifePin;
 const User = sqldb.User;
 const utils = rootRequire('app/api/utils.js');
