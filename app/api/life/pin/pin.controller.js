@@ -286,7 +286,7 @@ exports.create = (req, res) => {
     .then(image => {
       c.injectData.image = image;
     })
-    .then(() => LifePin.create(c.injectData))
+    .then(() => LifePin.create(_.merge(c.injectData, {active: true})))
     .then(updateImages(c.injectData))
     .then(updateUser(c.injectData, req))
     .then(addThemes(c.injectData))
