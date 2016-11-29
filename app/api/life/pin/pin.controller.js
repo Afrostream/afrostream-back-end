@@ -131,6 +131,9 @@ exports.index = (req, res) => {
 
   LifePin.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
+    .then(filters.filterOutput({
+      req: req
+    }))
     .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
@@ -156,6 +159,9 @@ exports.show = (req, res) => {
 
   LifePin.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
+    .then(filters.filterOutput({
+      req: req
+    }))
     .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };

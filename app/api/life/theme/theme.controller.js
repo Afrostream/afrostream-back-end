@@ -18,23 +18,23 @@ const LifePin = sqldb.LifePin;
 const LifeSpot = sqldb.LifeSpot;
 const LifeTheme = sqldb.LifeTheme;
 
-function saveUpdates(updates) {
+function saveUpdates (updates) {
   return entity => entity.updateAttributes(updates);
 }
 
-function addLifePins(updates) {
+function addLifePins (updates) {
   const pins = LifePin.build(_.map(updates.pins || [], _.partialRight(_.pick, '_id')));
   return entity => entity.setPins(pins)
     .then(() => entity);
 }
 
-function addLifeSpots(updates) {
+function addLifeSpots (updates) {
   const spots = LifeSpot.build(_.map(updates.spots || [], _.partialRight(_.pick, '_id')));
   return entity => entity.setSpots(spots)
     .then(() => entity);
 }
 
-function removeEntity(res) {
+function removeEntity (res) {
   return entity => {
     if (entity) {
       return entity.destroy()
@@ -90,6 +90,9 @@ exports.index = (req, res) => {
   LifeTheme.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(filters.filterUserAttributesAll(req, 'public', ['pins']))
+    .then(filters.filterOutput({
+      req: req
+    }))
     .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
@@ -136,11 +139,11 @@ exports.update = (req, res) => {
     req.logger.warn('shouldnot try to update LifeTheme ' + req.params.id);
     // returning without updating
     LifeTheme.find({
-        where: {
-          _id: req.params.id
-        },
-        include: getIncludedModel()
-      })
+      where: {
+        _id: req.params.id
+      },
+      include: getIncludedModel()
+    })
       .then(utils.handleEntityNotFound(res))
       // le READ ONLY ne peut pas s'appliquer ni a active / inactive
       // aussi, on doit ajouter une exception pour le champ sort...
@@ -155,11 +158,11 @@ exports.update = (req, res) => {
       delete req.body._id;
     }
     LifeTheme.find({
-        where: {
-          _id: req.params.id
-        },
-        include: getIncludedModel()
-      })
+      where: {
+        _id: req.params.id
+      },
+      include: getIncludedModel()
+    })
       .then(utils.handleEntityNotFound(res))
       .then(saveUpdates(req.body))
       .then(addLifePins(req.body))
@@ -172,10 +175,10 @@ exports.update = (req, res) => {
 // Deletes a LifeTheme from the DB
 exports.destroy = (req, res) => {
   LifeTheme.find({
-      where: {
-        _id: req.params.id
-      }
-    })
+    where: {
+      _id: req.params.id
+    }
+  })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(res.handleError());
