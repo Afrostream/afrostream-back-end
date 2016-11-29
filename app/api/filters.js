@@ -262,7 +262,7 @@ const filterOutput = (() => {
       return entity.map(v => filter(v, options));
     }
     // single entity
-    if (entity instanceof sqldb.sequelize.Instance) {
+    if (typeof entity.getPlain === 'function') {
       return entity.getPlain(options);
     }
     return entity;

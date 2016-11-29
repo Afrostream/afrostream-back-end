@@ -2,6 +2,8 @@
 
 const _ = require('lodash');
 
+const filters = rootRequire('app/api/filters.js');
+
 // should be 10
 // but the auto-complete require to query in 200 episodes ...
 const defaultLimit = 500;
@@ -33,18 +35,26 @@ const reqRangeToSequelizeLimit = (req, size) => {
 
 const mergeReqRange = (obj, req, size) => _.merge(obj, reqRangeToSequelizeLimit(req, size));
 
+/*
+ * - filter the output
+ */
 const responseWithResultAndTotal = (req, res, statusCode) => {
   statusCode = statusCode || 200;
   return result => {
     res.set('Resource-Count', result.count);
-    res.status(statusCode).json(result.rows);
+    res.set('afr-output-filtered', 'true');
+    res.status(statusCode).json(filters.filterOutput(result.rows, {req:req}));
   };
 };
 
+/*
+ * - filter the output
+ */
 const responseWithResult = function (req, res, statusCode) {
   statusCode = statusCode || 200;
   return entity => {
-    res.status(statusCode).json(entity);
+    res.set('afr-output-filtered', 'true');
+    res.status(statusCode).json(filters.filterOutput(entity, {req:req}));
   };
 };
 
