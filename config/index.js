@@ -31,8 +31,9 @@ var all = {
     videoExpire: process.env.VIDEO_TOKEN_EXPIRE || 300 // FIXME: int or string ...
   },
   oauth2: true,
+
   // List of user roles
-  userRoles: ['guest', 'user', 'client', 'admin'],
+  userRoles: ['guest', 'user', 'contributor', 'super-contributor', 'client', 'admin'],
 
   amazon: {
     key: process.env.AWS_ACCESS_KEY_ID || 'AKIAIJ7BEEEIYX3CZDOQ',
