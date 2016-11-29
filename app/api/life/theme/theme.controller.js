@@ -90,9 +90,6 @@ exports.index = (req, res) => {
   LifeTheme.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(filters.filterUserAttributesAll(req, 'public', ['pins']))
-    .then(filters.filterOutput({
-      req: req
-    }))
     .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
 };
