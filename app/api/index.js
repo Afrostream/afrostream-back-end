@@ -3,9 +3,6 @@
 const express = require('express');
 const router = express.Router();
 
-const middlewareApiOutputFilter = rootRequire('/app/middlewares/middleware-api-outputfilter.js');
-router.use(middlewareApiOutputFilter());
-
 router.use('/broadcasters', require('./broadcaster/index'));
 router.use('/posts', require('./post/index'));
 router.use('/actors', require('./actor/index'));
