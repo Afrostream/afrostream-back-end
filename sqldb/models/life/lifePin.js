@@ -52,7 +52,7 @@ module.exports = function (sequelize, DataTypes) {
                 dstIdColumn: '_id'
             }),
             toPlain: function (options) {
-              if (options.language && !options.isBacko) {
+              if (options.language) {
                 this.applyTranslation(options.language);
               }
             }
