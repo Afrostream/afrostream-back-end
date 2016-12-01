@@ -352,7 +352,7 @@ module.exports = function (sequelize, DataTypes) {
               const isBacko = utils.isReqFromAfrostreamAdmin(options.req);
 
               if(isBacko){
-                return
+                return;
               }
 
               if (!caller || caller._id !== this._id) {
