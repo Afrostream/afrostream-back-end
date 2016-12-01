@@ -10,20 +10,28 @@ const getIncludedModel = require('./lifeUser.includedModel').get;
 
 exports.index = (req, res) => {
   let queryOptions = {
-    include: getIncludedModel(),
+    attributes: Object.keys(User.rawAttributes).concat([[sqldb.sequelize.fn('COUNT', 'lifePins._id'), 'pinscount']]),
+    include: {
+      attributes: [],
+      duplicating: false,
+      model: LifePin,
+      as: 'lifePins',
+      where: {
+        active: true
+      },
+      required: false
+    },
     limit: 100,
+    group: [
+      [ '_id' ]
+    ],
     where: {
       facebook: {$ne: null}
     },
     order: [
-      [{
-        model: LifePin,
-        as: 'lifePins'
-      }, 'date', 'DESC']
+      [ {raw: 'pinscount'}, 'DESC' ]
     ]
   };
-  // pagination
-  utils.mergeReqRange(queryOptions, req);
 
   if (req.query.limit) {
     queryOptions = _.merge(queryOptions, {
@@ -39,11 +47,11 @@ exports.index = (req, res) => {
     });
   }
 
-  User.findAndCountAll(queryOptions)
+  User.findAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
-    .then(filters.filterUserAttributesAll(req, 'public'))
-    .then(utils.responseWithResultAndTotal(req, res))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
+
 };
 
 // Gets a single LifeTheme from the DB
