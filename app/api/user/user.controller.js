@@ -259,8 +259,14 @@ exports.history = (req, res) => {
         }
       ]
     }],
-    limit: 5
+    limit: 30
   };
+
+  if (req.query.limit) {
+    queryOptions = _.merge(queryOptions, {
+      limit: req.query.limit
+    });
+  }
   //
   queryOptions = filters.filterQueryOptions(req, queryOptions, UsersVideos);
   //
