@@ -20,6 +20,8 @@ const utils = require('../utils.js');
 
 const filters = rootRequire('app/api/filters.js');
 
+const statsd = rootRequire('statsd');
+
 /**
  * Get list of users
  * restriction: 'admin'
@@ -91,6 +93,7 @@ exports.create = (req, res) => {
       return newUser.save();
     })
     .then(user => {
+      statsd.client.increment('api.users.create');
       // everything went ok, we send an oauth2 access token
       return Q.ninvoke(oauth2, "generateToken",
         req.passport.client || null,
