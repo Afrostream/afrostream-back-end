@@ -4,6 +4,7 @@ var _ = require('lodash');
 var config = rootRequire('config');
 var crypto = require('crypto');
 var authTypes = ['github', 'twitter', 'facebook', 'google', 'bouygues', 'orange'];
+var utils = rootRequire('app/api/utils.js');
 
 var validatePresenceOf = function (value) {
     return value && value.length;
@@ -347,6 +348,12 @@ module.exports = function (sequelize, DataTypes) {
             toPlain: function (options) {
               var caller = options.req && options.req.user ||
                            options.req && options.req.passport && options.req.passport.user;
+
+              const isBacko = utils.isReqFromAfrostreamAdmin(options.req);
+
+              if(isBacko){
+                return
+              }
 
               if (!caller || caller._id !== this._id) {
                 return this.getPublicInfos();
