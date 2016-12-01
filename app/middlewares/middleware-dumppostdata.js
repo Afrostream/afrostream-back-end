@@ -19,7 +19,7 @@ module.exports = function (options) {
             if (body.month) body.month = 1;
           }
           if (body.cvv) { body.cvv = '123'; }
-          (req.logger || options.logger).log('[MIDDLEWARE-DUMPPOSTDATA]: ' + req.method + ' ' + req.url + ' body=', body);
+          (req.logger || options.logger).log('[MIDDLEWARE-DUMPPOSTDATA]: ' + req.method + ' ' + req.url + ' body= ', body);
         }
       } catch (e) { /* nothing */ }
     }
