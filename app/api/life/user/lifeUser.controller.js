@@ -9,8 +9,12 @@ const utils = rootRequire('app/api/utils.js');
 const getIncludedModel = require('./lifeUser.includedModel').get;
 
 exports.index = (req, res) => {
+  const usersFields = Object.keys(User.rawAttributes);
   let queryOptions = {
-    attributes: Object.keys(User.rawAttributes).concat([[sqldb.sequelize.fn('COUNT', 'lifePins._id'), 'pinscount']]),
+    attributes: usersFields.concat([
+      [sqldb.sequelize.fn('COUNT', sqldb.sequelize.col('lifePins._id')), 'pinscount'],
+      [sqldb.sequelize.fn('MAX', sqldb.sequelize.col('lifePins.date')), 'pinsdate']
+    ]),
     include: {
       attributes: [],
       duplicating: false,
@@ -29,7 +33,8 @@ exports.index = (req, res) => {
       facebook: {$ne: null}
     },
     order: [
-      [ {raw: 'pinscount'}, 'DESC' ]
+      [ {raw: 'pinscount'}, 'DESC' ],
+      [ {raw: 'pinsdate'}, 'DESC' ]
     ]
   };
 
