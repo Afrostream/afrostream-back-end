@@ -15,6 +15,7 @@ const sqldb = rootRequire('sqldb');
 const Image = sqldb.Image;
 const LifePin = sqldb.LifePin;
 const LifeTheme = sqldb.LifeTheme;
+const User = sqldb.User;
 const filters = rootRequire('app/api/filters.js');
 const utils = rootRequire('app/api/utils.js');
 const Q = require('q');
@@ -34,21 +35,29 @@ function saveUpdates (updates) {
 
 function updateImages (updates) {
   return entity => {
-    const promises = [];
-    promises.push(entity.setImage(updates.image && updates.image.dataValues && Image.build(updates.image.dataValues) || updates.image && Image.build(updates.image) || null));
-    return sqldb.Sequelize.Promise
-      .all(promises)
-      .then(() => entity);
+    let image;
+
+    if (updates.image && updates.image.dataValues) {
+      image = Image.build(updates.image.dataValues);
+    } else if (updates.imageId) {
+      image = Image.build({_id:updates.imageId});
+    } else {
+      image = null;
+    }
+    return entity.setImage(image).then(() => entity);
   };
 }
 
 function updateUser (updates, req) {
   return entity => {
-    const promises = [];
-    promises.push(entity.setUser((updates.user && updates.user._id) || (req.user && req.user._id) || null));
-    return sqldb.Sequelize.Promise
-      .all(promises)
-      .then(() => entity);
+    let user;
+
+    if (updates.user && updates.user._id) {
+      user = User.build({_id:updates.user._id});
+    } else {
+      user = User.build({_id:req.user._id});
+    }
+    return entity.setUser(user).then(() => entity);
   };
 }
 
@@ -137,20 +146,15 @@ exports.index = (req, res) => {
 
 // Gets a single LifePin from the DB
 exports.show = (req, res) => {
-
-  const isBacko = utils.isReqFromAfrostreamAdmin(req);
-
   let queryOptions = {
     where: {
       _id: req.params.id
     }
   };
 
-  if (!isBacko) {
-    queryOptions = _.merge(queryOptions, {
-      include: getIncludedModel()
-    });
-  }
+  queryOptions = _.merge(queryOptions, {
+    include: getIncludedModel()
+  });
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
 
