@@ -18,13 +18,19 @@
  */
 
 const winston = require('winston');
+const util = require('util');
 
 const logger = new (winston.Logger)({
   exitOnError: false,
   transports: [
     new (winston.transports.Console)({
       level: 'debug',
-      formatter: (options) => '['+options.level.toUpperCase() +']: ' + (options.message || '')
+      formatter: (options) => {
+        const meta = (options.meta && Object.keys(options.meta).length !== 0) ? ' ' + util.inspect(options.meta) : '';
+        return '['+options.level.toUpperCase() +']: ' +
+               (options.message || '') +
+               meta;
+      }
     })
   ]
 });
