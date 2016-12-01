@@ -259,7 +259,7 @@ exports.history = (req, res) => {
         }
       ]
     }],
-    limit: 10
+    limit: 5
   };
   //
   queryOptions = filters.filterQueryOptions(req, queryOptions, UsersVideos);
