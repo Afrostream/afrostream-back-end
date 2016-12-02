@@ -35,16 +35,10 @@ function saveUpdates (updates) {
 
 function updateImages (updates) {
   return entity => {
-    let image;
-
-    if (updates.image && updates.image.dataValues) {
-      image = Image.build(updates.image.dataValues);
-    } else if (updates.imageId) {
-      image = Image.build({_id:updates.imageId});
-    } else {
-      image = null;
-    }
-    return entity.setImage(image).then(() => entity);
+    const imageId = updates.image && updates.image._id ||
+                    updates.imageId ||
+                    null;
+    return entity.setImage(imageId).then(() => entity);
   };
 }
 
