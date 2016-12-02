@@ -92,13 +92,46 @@ exports.index = (req, res) => {
     ]
   };
 
-  if (!isBacko) {
+  if (isBacko) {
+    console.log('isBacko');
+    // aucune restriction sur les objets liés
     queryOptions = _.merge(queryOptions, {
       include: getIncludedModel()
+    });
+  } else {
+    // on ne remonte pas les pins sans themes.
+    queryOptions = _.merge(queryOptions, {
+      include: [
+        {
+          model: LifeTheme,
+          as: 'themes',
+          attributes: [
+            '_id',
+            'label',
+            'slug',
+            'sort'
+          ],
+          required: true
+        }, {
+          model: Image,
+          as: 'image',
+          required: false
+        }, {
+          model: User,
+          as: 'user',
+          required: false
+        }, {
+          model: User,
+          as: 'users',
+          required: false
+        }
+      ]
     });
   }
   // pagination
   utils.mergeReqRange(queryOptions, req);
+
+  console.log(queryOptions);
 
   //FIlter outbut only object with language translation
   if (language) {
@@ -122,6 +155,8 @@ exports.index = (req, res) => {
   }
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
+
+  console.log(queryOptions);
 
   if (req.query.limit) {
     queryOptions = _.merge(queryOptions, {
@@ -147,30 +182,7 @@ exports.index = (req, res) => {
 // Gets a single LifePin from the DB
 exports.show = (req, res) => {
   let queryOptions = {
-    include: [{
-        model: LifeTheme,
-        as: 'themes',
-        attributes: [
-          '_id',
-          'label',
-          'slug',
-          'sort'
-        ],
-        required: false
-      }, {
-        model: Image,
-        as: 'image',
-        required: false
-      }, {
-        model: User,
-        as: 'user',
-        required: false
-      }, {
-        model: User,
-        as: 'users',
-        required: false
-      }
-    ],
+    include: getIncludedModel(),
     where: {
       _id: req.params.id
     }
@@ -256,6 +268,7 @@ exports.scrap = (req, res) => {
     .then(utils.responseWithResult(req, res, 201))
     .catch(res.handleError());
 };
+
 // Creates a new LifePin in the DB
 exports.create = (req, res) => {
   const c = {
@@ -317,7 +330,8 @@ exports.update = (req, res) => {
   LifePin.find({
     where: {
       _id: req.params.id
-    }
+    },
+    include: getIncludedModel(),
   })
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))

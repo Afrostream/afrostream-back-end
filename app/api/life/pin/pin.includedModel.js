@@ -6,7 +6,6 @@ const Image = sqldb.Image;
 const LifeTheme = sqldb.LifeTheme;
 
 module.exports.get = () => [
-  //{model: LifeThemePins, all: true},
   {
     model: LifeTheme,
     as: 'themes',
@@ -16,7 +15,7 @@ module.exports.get = () => [
       'slug',
       'sort'
     ],
-    required: true
+    required: false
   }, {
     model: Image,
     as: 'image',
