@@ -147,14 +147,34 @@ exports.index = (req, res) => {
 // Gets a single LifePin from the DB
 exports.show = (req, res) => {
   let queryOptions = {
+    include: [{
+        model: LifeTheme,
+        as: 'themes',
+        attributes: [
+          '_id',
+          'label',
+          'slug',
+          'sort'
+        ],
+        required: false
+      }, {
+        model: Image,
+        as: 'image',
+        required: false
+      }, {
+        model: User,
+        as: 'user',
+        required: false
+      }, {
+        model: User,
+        as: 'users',
+        required: false
+      }
+    ],
     where: {
       _id: req.params.id
     }
   };
-
-  queryOptions = _.merge(queryOptions, {
-    include: getIncludedModel()
-  });
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
 
