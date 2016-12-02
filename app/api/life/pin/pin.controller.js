@@ -266,54 +266,40 @@ exports.create = (req, res) => {
     .then(() => {
       //EXTRACT IMAGE
       if (req.body.imageUrl) {
-        Q.nfcall(request, {
+        return Q.nfcall(request, {
           url: req.body.imageUrl,
           encoding: null
         })
-          .then(data => {
-            /*var res = data[0];*/
-            const buffer = data[1];
-
-            const typeOfFile = fileType(buffer);
-            const name = md5(buffer);
-            return {
-              name: name,
-              buffer: buffer,
-              mimeType: typeOfFile.mime
-            };
-          });
-      }
-      return null;
-    })
-    //SAVE Buffer
-    .then(file => {
-      if (!file) {
-        return;
-      }
-      const bucket = aws.getBucket('afrostream-img');
-      const type = 'pin';
-      return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/' + type + '/{date}/{rand}-' + file.name)
         .then(data => {
-          c.injectData.image = {
-            type: type,
-            path: data.req.path,
-            url: data.req.url,
-            mimetype: file.mimeType,
-            imgix: config.imgix.domain + data.req.path,
-            active: true,
-            name: file.name
+          /*var res = data[0];*/
+          const buffer = data[1];
+          const typeOfFile = fileType(buffer);
+          const name = md5(buffer);
+          return {
+            name: name,
+            buffer: buffer,
+            mimeType: typeOfFile.mime
           };
-          return c.injectData.image;
+        })
+        .then(file => {
+          const bucket = aws.getBucket('afrostream-img');
+          const type = 'pin';
+          return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/' + type + '/{date}/{rand}-' + file.name)
+            .then(data => {
+              return Image.create({
+                type: type,
+                path: data.req.path,
+                url: data.req.url,
+                mimetype: file.mimeType,
+                imgix: config.imgix.domain + data.req.path,
+                active: true,
+                name: file.name
+              }).then(image => {
+                c.injectData.image = image;
+              });
+            });
         });
-    })
-    .then(image => {
-      if (!image) {
-        return null;
       }
-      return Image.create(image);
-    })
-    .then(image => {
-      c.injectData.image = image;
     })
     .then(() => LifePin.create(_.merge(c.injectData, {active: true})))
     .then(updateImages(c.injectData))
