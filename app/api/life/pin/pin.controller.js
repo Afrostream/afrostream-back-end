@@ -115,10 +115,6 @@ exports.index = (req, res) => {
           model: User,
           as: 'user',
           required: false
-        }, {
-          model: User,
-          as: 'users',
-          required: false
         }
       ]
     });
