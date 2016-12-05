@@ -366,23 +366,6 @@ promises.push(
 );
 
 promises.push(
-  Client.sync()
-  .then(function () {
-    return Client.destroy({where: {}});
-  })
-  .then(function () {
-    return Client.bulkCreate([{
-      _id: '488d2f13-6c01-464f-bfa4-bf8c641d7063',
-      secret: '17abaee4-032d-4703-be86-0af3523dcedd',
-      name: 'afrostream-admin',
-      active: true,
-      type:'afrostream-admin.gui',
-      billingProviderName:'afrostream-admin.gui'
-    }]);
-  })
-);
-
-promises.push(
   Broadcaster.sync()
   .then(function () {
     return Broadcaster.destroy({where: {}});
@@ -504,11 +487,13 @@ promises.push(
       type: "legacy-api.orange-newbox",
       role: "client",
       broadcasterId: "ONEW"
-    }, {
-      name: 'afrostream-admin',
+    },{
       _id: '488d2f13-6c01-464f-bfa4-bf8c641d7063',
-      secret: "17abaee4-032d-4703-be86-0af3523dcedd",
-      type: "afrostream-admin.gui",
+      secret: '17abaee4-032d-4703-be86-0af3523dcedd',
+      name: 'afrostream-admin',
+      active: true,
+      type:'afrostream-admin.gui',
+      billingProviderName:'afrostream-admin.gui',
       role: "client",
       broadcasterId: "WEB"
     }]);

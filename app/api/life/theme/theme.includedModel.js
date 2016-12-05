@@ -34,10 +34,6 @@ module.exports.get = () => [
       model: User,
       as: 'user',
       required: false
-    }, {
-      model: User,
-      as: 'users',
-      required: false
     }]
   }, {
     model: LifeSpot,

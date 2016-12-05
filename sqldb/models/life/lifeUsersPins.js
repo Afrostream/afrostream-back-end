@@ -15,7 +15,7 @@ module.exports = function (sequelize, DataTypes) {
       },
       pinId: {
         type: DataTypes.UUID,
-        unique: 'userId_videoId'
+        unique: 'userId_pinId'
       },
       liked: DataTypes.BOOLEAN
     });
