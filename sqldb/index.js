@@ -364,19 +364,16 @@ db.Work = db.sequelize.import('models/work');
 db.LifePin = db.sequelize.import('models/life/lifePin');
 db.LifeTheme = db.sequelize.import('models/life/lifeTheme');
 db.LifeThemePins = db.sequelize.import('models/life/lifeThemePins');
-db.LifeUsersPinsLike = db.sequelize.import('models/life/lifeUsersPinsLike');
 db.LifeThemeSpots = db.sequelize.import('models/life/lifeThemeSpots');
 db.LifeSpot = db.sequelize.import('models/life/lifeSpot');
 
 db.LifePin.belongsTo(db.Image, {as: 'image', constraints: false});
 db.LifePin.belongsTo(db.User, {as: 'user', constraints: false});
-db.LifePin.belongsToMany(db.User, {through: db.LifeUsersPinsLike, as: 'users', foreignKey: 'lifePinId'});
 db.LifePin.belongsToMany(db.LifeTheme, {through: db.LifeThemePins, as: 'themes', foreignKey: 'lifePinId'});
 db.LifeTheme.belongsToMany(db.LifePin, {through: db.LifeThemePins, as: 'pins', foreignKey: 'lifeThemeId'});
 db.LifeSpot.belongsToMany(db.LifeTheme, {through: db.LifeThemeSpots, as: 'themes', foreignKey: 'lifeSpotId'});
 db.LifeSpot.belongsTo(db.Image, {as: 'image', constraints: false});
 db.LifeTheme.belongsToMany(db.LifeSpot, {through: db.LifeThemeSpots, as: 'spots', foreignKey: 'lifeThemeId'});
-db.User.belongsToMany(db.LifePin, {through: db.LifeUsersPinsLike, as: 'lifePinsLike', foreignKey: 'userId'});
 db.User.hasMany(db.LifePin, {as: 'lifePins', foreignKey: 'userId'});
 //JOIN
 db.Client.belongsTo(db.PFGroup, {as: 'pfGroup', constraints: false});
