@@ -21,7 +21,7 @@ module.exports.update = (req, res) => {
         return LifeUsersPins.update(data);
       }
     })
-    .then(() => {
+    .then((lifeUserPin) => {
       // should be in a model hook (trigger like feature)
       return Q.all([
         LifePin.findOne({where:{_id: req.params.pinId}}),
@@ -34,10 +34,11 @@ module.exports.update = (req, res) => {
           throw error;
         }
         return lifePin.update({likes:likes || 0});
-      });
+      })
+      .then(() => lifeUserPin);
     })
     .then(
-      () => res.json({}),
+      res.json.bind(res),
       res.handleError()
     );
 };
