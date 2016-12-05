@@ -36,6 +36,10 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: 'free',
             length: 16
         },
+        likes: {
+          type: DataTypes.INTEGER,
+          defaultValue: 0
+        },
         translations: DataTypes.JSONB
     }, {
         instanceMethods: {
