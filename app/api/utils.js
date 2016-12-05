@@ -88,6 +88,22 @@ function isReqFromAfrostreamAdmin (req) {
   return req.passport && req.passport.client && req.passport.client.isAfrostreamAdmin();
 }
 
+/**
+ * Tels if the request user params is current connected user
+ * @param req
+ * @returns {*}
+ */
+
+const tokenUserMatchParamUser = (req, res, next) => {
+  const isBacko = utils.isReqFromAfrostreamAdmin(req);
+
+  if (isBacko || String(req.params.userId) === String(req.user._id)) {
+    next();
+  } else {
+    res.status(401).json({error: 'userId param/token mismatch.'});
+  }
+};
+
 // middlewares
 module.exports.middlewareCache = middlewareCache;
 module.exports.middlewareNoCache = middlewareNoCache;
@@ -97,3 +113,5 @@ module.exports.responseWithResultAndTotal = responseWithResultAndTotal;
 module.exports.handleEntityNotFound = handleEntityNotFound;
 module.exports.isReqFromAfrostreamAdmin = isReqFromAfrostreamAdmin;
 module.exports.responseWithResult = responseWithResult;
+module.exports.tokenUserMatchParamUser = tokenUserMatchParamUser;
+
