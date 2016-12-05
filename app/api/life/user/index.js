@@ -11,4 +11,6 @@ router.use(auth.middleware.restrictRoutesToAuthentified());
 router.get('/', utils.middlewareCache, controller.index);
 router.get('/:id', utils.middlewareCache, controller.show);
 
+router.use('/:userId/pins/', require('./pin'));
+
 module.exports = router;

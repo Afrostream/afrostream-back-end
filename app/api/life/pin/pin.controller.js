@@ -26,6 +26,7 @@ const aws = rootRequire('aws');
 const config = rootRequire('config');
 const fileType = require('file-type');
 const md5 = require('md5');
+const statsd = rootRequire('statsd');
 
 const getIncludedModel = require('./pin.includedModel').get;
 
@@ -307,6 +308,9 @@ exports.create = (req, res) => {
             });
         });
       }
+    })
+    .then(() => {
+
     })
     .then(() => LifePin.create(_.merge(c.injectData, {active: true})))
     .then(updateImages(c.injectData))
