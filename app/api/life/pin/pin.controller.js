@@ -26,7 +26,6 @@ const aws = rootRequire('aws');
 const config = rootRequire('config');
 const fileType = require('file-type');
 const md5 = require('md5');
-const statsd = rootRequire('statsd');
 
 const getIncludedModel = require('./pin.includedModel').get;
 
@@ -88,7 +87,6 @@ exports.index = (req, res) => {
   };
 
   if (isBacko) {
-    console.log('isBacko');
     // aucune restriction sur les objets liés
     queryOptions = _.merge(queryOptions, {
       include: getIncludedModel()
@@ -121,8 +119,6 @@ exports.index = (req, res) => {
   }
   // pagination
   utils.mergeReqRange(queryOptions, req);
-
-  console.log(queryOptions);
 
   //FIlter outbut only object with language translation
   if (language) {
