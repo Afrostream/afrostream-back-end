@@ -130,6 +130,20 @@ const convertUserIdMeToUserId = (req, res, next) => {
   next();
 };
 
+/**
+ * Tels if the request user params is current connected user
+ * @param req
+ * @returns {*}
+ */
+
+const tokenUserMatchParamUser = (req, res, next) => {
+  if (String(req.params.userId) === String(req.user._id)) {
+    next();
+  } else {
+    res.status(401).json({error: 'userId param/token mismatch.'});
+  }
+};
+
 router.use('/:userId/favoritesEpisodes', require('./favoriteEpisode/index'));
 router.use('/:userId/favoritesMovies', require('./favoriteMovie/index'));
 router.use('/:userId/favoritesSeasons', require('./favoriteSeason/index'));
@@ -147,9 +161,9 @@ router.put('/:id/role', utils.middlewareNoCache, auth.hasRole('admin'), controll
 router.get('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.show);
 router.post('/search', controller.search);
 router.post('/', validator.validateCreateBody, controller.create);
-router.put('/:userId', convertUserIdMeToUserId, utils.tokenUserMatchParamUser, validator.validateUpdateBody, controller.update);
+router.put('/:userId', convertUserIdMeToUserId, tokenUserMatchParamUser, validator.validateUpdateBody, controller.update);
 
 router.use('/:userId/videos', require('./video'));
-router.get('/:userId/history', convertUserIdMeToUserId, utils.tokenUserMatchParamUser, controller.history);
+router.get('/:userId/history', convertUserIdMeToUserId, tokenUserMatchParamUser, controller.history);
 
 module.exports = router;

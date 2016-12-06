@@ -36,8 +36,8 @@ function saveUpdates (updates) {
 function updateImages (updates) {
   return entity => {
     const imageId = updates.image && updates.image._id ||
-                    updates.imageId ||
-                    null;
+      updates.imageId ||
+      null;
     return entity.setImage(imageId).then(() => entity);
   };
 }
@@ -47,9 +47,9 @@ function updateUser (updates, req) {
     let user;
 
     if (updates.user && updates.user._id) {
-      user = User.build({_id:updates.user._id});
+      user = User.build({_id: updates.user._id});
     } else {
-      user = User.build({_id:req.user._id});
+      user = User.build({_id: req.user._id});
     }
     return entity.setUser(user).then(() => entity);
   };
@@ -270,35 +270,35 @@ exports.create = (req, res) => {
           url: req.body.imageUrl,
           encoding: null
         })
-        .then(data => {
-          /*var res = data[0];*/
-          const buffer = data[1];
-          const typeOfFile = fileType(buffer);
-          const name = md5(buffer);
-          return {
-            name: name,
-            buffer: buffer,
-            mimeType: typeOfFile.mime
-          };
-        })
-        .then(file => {
-          const bucket = aws.getBucket('afrostream-img');
-          const type = 'pin';
-          return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/' + type + '/{date}/{rand}-' + file.name)
-            .then(data => {
-              return Image.create({
-                type: type,
-                path: data.req.path,
-                url: data.req.url,
-                mimetype: file.mimeType,
-                imgix: config.imgix.domain + data.req.path,
-                active: true,
-                name: file.name
-              }).then(image => {
-                c.injectData.image = image;
+          .then(data => {
+            /*var res = data[0];*/
+            const buffer = data[1];
+            const typeOfFile = fileType(buffer);
+            const name = md5(buffer);
+            return {
+              name: name,
+              buffer: buffer,
+              mimeType: typeOfFile.mime
+            };
+          })
+          .then(file => {
+            const bucket = aws.getBucket('afrostream-img');
+            const type = 'pin';
+            return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/' + type + '/{date}/{rand}-' + file.name)
+              .then(data => {
+                return Image.create({
+                  type: type,
+                  path: data.req.path,
+                  url: data.req.url,
+                  mimetype: file.mimeType,
+                  imgix: config.imgix.domain + data.req.path,
+                  active: true,
+                  name: file.name
+                }).then(image => {
+                  c.injectData.image = image;
+                });
               });
-            });
-        });
+          });
       }
     })
     .then(() => {
@@ -317,12 +317,44 @@ exports.update = (req, res) => {
   if (req.body._id) {
     delete req.body._id;
   }
-  LifePin.find({
+
+  const isBacko = utils.isReqFromAfrostreamAdmin(req);
+
+  let queryOptions = {
     where: {
       _id: req.params.id
-    },
-    include: getIncludedModel(),
-  })
+    }
+  };
+
+  if (!isBacko) {
+    queryOptions = _.merge(queryOptions, {
+      where: {
+        _id: req.params.id
+      },
+      include: [{
+        model: LifeTheme,
+        as: 'themes',
+        attributes: [
+          '_id',
+          'label',
+          'slug',
+          'sort'
+        ],
+        required: false
+      }, {
+        model: Image,
+        as: 'image',
+        required: false
+      }, {
+        model: User,
+        as: 'user',
+        where: {_id: req.user._id},
+        required: false
+      }]
+    });
+  }
+
+  LifePin.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(updateImages(req.body))
@@ -334,11 +366,25 @@ exports.update = (req, res) => {
 
 // Deletes a LifePin from the DB
 exports.destroy = (req, res) => {
-  LifePin.find({
+
+  const isBacko = utils.isReqFromAfrostreamAdmin(req);
+
+  let queryOptions = {
     where: {
       _id: req.params.id
     }
-  })
+  };
+
+  if (!isBacko) {
+    queryOptions = _.merge(queryOptions, {
+      include: [{model: User, where: {_id: req.user._id}, attributes: ['_id']}],
+      where: {
+        _id: req.params.id
+      }
+    });
+  }
+
+  LifePin.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(res.handleError());
