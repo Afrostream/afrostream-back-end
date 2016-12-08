@@ -10,7 +10,6 @@ module.exports.middleware = function (req, res, next) {
       req.url !== '/favicon.ico' &&
       req.url !== '/alive') {
     var rawBody = '';
-    req.setEncoding('utf8');
     req.on('data', function(chunk){ rawBody += chunk; });
     req.on('end', function() {
 
