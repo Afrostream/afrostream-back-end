@@ -15,13 +15,16 @@ module.exports.middleware = function (req, res, next) {
 
     });
 
+    const url = req.url;
+    const headers = req.headers;
+
     onFinished(res, function (err, res) {
       var message = {
         date: new Date(),
         req: {
           method: req.method,
-          url: req.url,
-          headers: req.headers,
+          url: url,
+          headers: headers,
           cookies: req.cookies,
           body: req.body,
           rawBody: rawBody,
@@ -34,7 +37,7 @@ module.exports.middleware = function (req, res, next) {
         }
       };
       stack.unshift(message);
-      if (stack.length > 100) {
+      if (stack.length > 200) {
         stack.pop();
       }
     });
