@@ -21,6 +21,7 @@
     "cookie-parser": "^1.4.3",
     "crypto": "0.0.3",
     "errorhandler": "^1.4.3",
+    "eslint": "^3.10.2",
     "express": "^4.14.0",
     "express-cluster": "0.0.4",
     "express-jwt": "^5.1.0",
@@ -44,6 +45,7 @@
     "node-uuid": "^1.4.7",
     "oauth2orize": "^1.5.1",
     "oauthorize": "^0.1.0",
+    "on-finished": "^2.3.0",
     "open": "0.0.5",
     "passport": "^0.3.2",
     "passport-facebook": "^2.1.1",
@@ -68,8 +70,7 @@
     "urlsafe-base64": "^1.0.0",
     "winston": "^2.3.0",
     "xml2js": "^0.4.17",
-    "xmlbuilder": "^8.2.2",
-    "eslint": "^3.10.2"
+    "xmlbuilder": "^8.2.2"
   },
   "devDependencies": {
     "mocha": "^3.1.2",

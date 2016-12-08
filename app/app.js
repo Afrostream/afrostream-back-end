@@ -52,12 +52,6 @@ app.use(cacheHandler());
 var middlewareStatsd = rootRequire('statsd').middleware;
 app.use(middlewareStatsd());
 
-// staging debug log route.
-var basicAuth = require('basic-auth-connect');
-if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging') {
-  app.get('/logs', basicAuth(config.logs.basicAuth.user, config.logs.basicAuth.password), controllerLogs.index);
-}
-
 // CORS
 var middlewareAllowCrossDomain = require('./middlewares/middleware-allowcrossdomain.js');
 var middlewareAllowPreflight = require('./middlewares/middleware-allowpreflight.js');
@@ -100,6 +94,12 @@ switch (process.env.NODE_ENV) {
 // add req.passport
 var middlewarePassport = rootRequire('app/middlewares/middleware-passport.js');
 app.use(middlewarePassport());
+
+// staging debug log route.
+var basicAuth = require('basic-auth-connect');
+if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging') {
+  app.get('/logs', basicAuth(config.logs.basicAuth.user, config.logs.basicAuth.password), controllerLogs.index);
+}
 
 require('./routes')(app);
 
