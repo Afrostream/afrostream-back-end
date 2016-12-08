@@ -24,6 +24,7 @@ app.set('view engine', 'jade');
 app.set('etag', false);
 app.use(require('compression')());
 
+const controllerLogs = require('./logs.controller.js');
 if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging') {
   app.use(controllerLogs.middleware);
 }
@@ -53,7 +54,6 @@ app.use(middlewareStatsd());
 
 // staging debug log route.
 var basicAuth = require('basic-auth-connect');
-var controllerLogs = require('./logs.controller.js');
 if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging') {
   app.get('/logs', basicAuth(config.logs.basicAuth.user, config.logs.basicAuth.password), controllerLogs.index);
 }
