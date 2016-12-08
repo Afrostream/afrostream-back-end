@@ -20,6 +20,7 @@ module.exports.middleware = function (req, res, next) {
       var message = {
         date: new Date(),
         req: {
+          method: req.method,
           url: req.url,
           headers: req.headers,
           cookies: req.cookies,
