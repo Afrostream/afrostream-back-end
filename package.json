@@ -1,5 +1,5 @@
 {
-  "name": "afrostream-admin",
+  "name": "afrostream-backend",
   "version": "0.0.0",
   "main": "server.js",
   "dependencies": {
@@ -83,8 +83,10 @@
   },
   "scripts": {
     "start": "node server.js",
-    "staging": ". ~/.nvm/nvm.sh && nvm use 6.9.1 && nodemon staging.js",
-    "dev": ". ~/.nvm/nvm.sh && nvm use 6.9.1 && nodemon server.js",
+    "nvmstaging": ". ~/.nvm/nvm.sh && nvm use 6.9.1 && node_modules/.bin/nodemon staging.js",
+    "staging": "node_modules/.bin/nodemon staging.js",
+    "nvmdev": ". ~/.nvm/nvm.sh && nvm use 6.9.1 && node_modules/.bin/nodemon server.js",
+    "dev": "node_modules/.bin/nodemon server.js",
     "seed": "export SEED_DB=true && npm run dev",
     "cron-daily-queries": "node cron/daily-queries.js",
     "cron-stats-usersVideos": "node cron/stats-usersVideos.js",
