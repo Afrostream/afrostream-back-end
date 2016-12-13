@@ -172,7 +172,19 @@ exports.show = (req, res) => {
     include: getIncludedModel(),
     where: {
       _id: req.params.id
-    }
+    },
+    attributes: [
+      '_id',
+      'type',
+      'title',
+      'date',
+      'originalUrl',
+      'imageUrl',
+      'providerName',
+      'providerUrl',
+      'description',
+      'likes'
+    ]
   };
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
