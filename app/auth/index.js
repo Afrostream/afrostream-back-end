@@ -34,6 +34,7 @@ router.use('/facebook', require('./facebook'));
 router.use('/bouygues', require('./bouygues'));
 router.use('/orange', require('./orange'));
 router.use('/netsize', require('./netsize'));
+router.use('/wecashup', require('./wecashup'));
 router.post('/reset', auth.isAuthenticated(), require('./auth.controller.js').reset);
 
 module.exports = router;

@@ -61,6 +61,15 @@ module.exports = {
     "allowed-user-id-type": [ "1", "2", "4" ]
   },
 
+  wecashup: {
+    billingProviderName: 'wecashup',
+    merchant: {
+      uid: '',
+      publicKey: '',
+      secret: ''
+    }
+  },
+
   cdnselector: {
     enabled: true,
     timeout: 250, // ms

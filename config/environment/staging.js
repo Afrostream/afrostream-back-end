@@ -132,6 +132,15 @@ module.exports = {
     billingProviderName: 'netsize',
     "allowed-user-id-type": [ "1", "2", "4" ]
   },
+
+  wecashup: {
+    billingProviderName: 'wecashup',
+    merchant: {
+      uid: 'bzmSSCP8WqUMDDH4sPb2w8hB14F2',
+      publicKey: '',
+      secret: ''
+    }
+  },
   /* */
 
   // tempfix

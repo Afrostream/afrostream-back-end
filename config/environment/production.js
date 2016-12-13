@@ -101,6 +101,15 @@ module.exports = {
     "allowed-user-id-type": [ "1", "2", "4" ]
   },
 
+  wecashup: {
+    billingProviderName: 'wecashup',
+    merchant: {
+      uid: 'nZpRMzyIg2Tgh7o2nIK2heGkfVB2',
+      publicKey: '',
+      secret: ''
+    }
+  },
+
   cookies: {
     secret: '2342REJIEJIZJO29J9JGZF',
     test: {
