@@ -38,12 +38,16 @@ module.exports.showInternalplans = (req, res) => {
                     {
                       const providerName = req.query.providerName || (client ? client.billingProviderName : '');
                       const context = req.query.contextBillingUuid;
+                      const contextCountry = req.query.contextCountry;
                       const filterEnabled = req.query.filterEnabled;
                       if (providerName) {
                           c.providerName = providerName;
                       }
                       if (context) {
                           c.contextBillingUuid = context;
+                        if (contextCountry) {
+                          c.contextCountry = contextCountry;
+                        }
                       }
                       if (filterEnabled) {
                           c.filterEnabled = filterEnabled;
