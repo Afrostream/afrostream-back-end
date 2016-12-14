@@ -94,6 +94,18 @@ exports.index = (req, res) => {
   } else {
     // on ne remonte pas les pins sans themes.
     queryOptions = _.merge(queryOptions, {
+      attributes: [
+        '_id',
+        'type',
+        'title',
+        'date',
+        'originalUrl',
+        'imageUrl',
+        'providerName',
+        'providerUrl',
+        'description',
+        'likes'
+      ],
       include: [
         {
           model: LifeTheme,
@@ -172,19 +184,7 @@ exports.show = (req, res) => {
     include: getIncludedModel(),
     where: {
       _id: req.params.id
-    },
-    attributes: [
-      '_id',
-      'type',
-      'title',
-      'date',
-      'originalUrl',
-      'imageUrl',
-      'providerName',
-      'providerUrl',
-      'description',
-      'likes'
-    ]
+    }
   };
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
