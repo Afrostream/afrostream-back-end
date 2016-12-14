@@ -9,6 +9,8 @@ var AccessToken = rootRequire('sqldb').AccessToken;
 var RefreshToken = rootRequire('sqldb').RefreshToken;
 var Log = rootRequire('sqldb').Log;
 
+const cls = require('continuation-local-storage');
+
 var TokenError = oauth2orize.TokenError;
 
 // custom oauth2 exchange
@@ -36,7 +38,6 @@ server.deserializeClient(function (id, done) {
       return done(err);
     });
 });
-
 
 var generateTokenData = function (client, user, code, expiresIn) {
   var token = utils.uid(256);
@@ -69,6 +70,52 @@ var generateTokenData = function (client, user, code, expiresIn) {
   };
 };
 
+/*
+** Hooking into token generation.
+** We want to set cookies when accessToken are issued but
+**  we cannot access req & res into Oauthorize callbacks... :(
+**
+** We use continuation local storage to access to req & res
+**  bypassing everything :)
+**
+** we impact only front-api.front-end client.
+**
+** we hope
+**  - it doesn't cause memory leaks
+**  - it will not have side effects on token generation
+*/
+const trySetAuthCookie = function (tokenEntity, refreshTokenEntity) {
+  try {
+    let namespace = cls.getNamespace('afrostream-back-end.incoming-request.context');
+
+    if (namespace) {
+      const req = namespace.get('req');
+      const res = namespace.res('res');
+
+      if (req && res && req.passport && req.passport.client.isFrontApi()) {
+        req.logger.info('SET AUTH COOKIE');
+        res.cookie(
+          config.cookies.auth.name,
+          {
+            version: 1,
+            access_token: tokenEntity.token,
+            refresh_token: refreshTokenEntity && refreshTokenEntity.token || null,
+            expires_in:  tokenEntity.expirationTimespan
+          },
+          {
+            domain: config.cookies.auth.domain,
+            path: config.cookies.auth.path,
+            signed: true
+          }
+        );
+      }
+    }
+  } catch (err) {
+    logger.error('AccessToken continuation', err.message);
+  }
+};
+
+
 var generateToken = function (client, user, code, userIp, userAgent, expireIn, done) {
   var tokenData = generateTokenData(client, user, code, expireIn);
 
@@ -95,6 +142,7 @@ var generateToken = function (client, user, code, userIp, userAgent, expireIn, d
   }, function (err) {
     logger.error(err.message);
   });
+
   // fixme: revoir complètement cette fonction !
   // pas d'attente d'async, error handler incorrects, etc..
   AccessToken.create({
@@ -106,6 +154,7 @@ var generateToken = function (client, user, code, userIp, userAgent, expireIn, d
   })
     .then(function (tokenEntity) {
       if (client === null) {
+        trySetAuthCookie(tokenEntity, null);
         return done(null, tokenEntity.token, null, {expires_in: tokenEntity.expirationTimespan});
       }
 
@@ -115,6 +164,7 @@ var generateToken = function (client, user, code, userIp, userAgent, expireIn, d
         userId: tokenData.userId
       })
         .then(function (refreshTokenEntity) {
+          trySetAuthCookie(tokenEntity, refreshTokenEntity);
           return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
         }).catch(function (err) {
         logger.error('RefreshToken', err.message);
