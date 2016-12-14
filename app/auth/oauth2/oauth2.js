@@ -86,7 +86,7 @@ var generateTokenData = function (client, user, code, expiresIn) {
 */
 const trySetAuthCookie = function (tokenEntity, refreshTokenEntity) {
   try {
-    let namespace = cls.getNamespace('afrostream-back-end.incoming-request.context');
+    let namespace = cls.getNamespace('req.context');
 
     if (namespace) {
       const req = namespace.get('req');
