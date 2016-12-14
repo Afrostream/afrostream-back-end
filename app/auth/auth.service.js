@@ -102,7 +102,14 @@ function getOauth2UserTokens (user, userIp, userAgent) {
   if (!user) {
     deferred.reject(new Error("no user"));
   } else {
-    oauth2.generateToken(null, user, null, userIp, userAgent, null, function (err, accessToken, refreshToken, info) {
+    oauth2.generateToken({
+      client: null,
+      user: user,
+      code: null,
+      userIp: userIp,
+      userAgent: userAgent,
+      expireIn: null
+    }, function (err, accessToken, refreshToken, info) {
       if (err)  return deferred.reject(err);
       return deferred.resolve({
         token: accessToken, // backward compatibility
