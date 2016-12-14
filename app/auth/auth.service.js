@@ -101,6 +101,8 @@ function getOauth2UserTokens (user, options) {
   options = options || {};
   const userIp = options.userIp;
   const userAgent = options.userAgent;
+  const req = options.req;
+  const res = options.res;
 
   var deferred = Q.defer();
   if (!user) {
@@ -112,7 +114,9 @@ function getOauth2UserTokens (user, options) {
       code: null,
       userIp: userIp,
       userAgent: userAgent,
-      expireIn: null
+      expireIn: null,
+      req: req,
+      res: res
     }, function (err, accessToken, refreshToken, info) {
       if (err)  return deferred.reject(err);
       return deferred.resolve({
@@ -130,7 +134,7 @@ function getOauth2UserTokens (user, options) {
  * respond oauth2 user token.
  */
 function respondOauth2UserTokens (req, res) {
-  getOauth2UserTokens(req.user, { userIp: req.clientIp, userAgent: req.userAgent})
+  getOauth2UserTokens(req.user, { userIp: req.clientIp, userAgent: req.userAgent, req: req, res: res})
     .then(function (tokens) {
       res.json(tokens);
     })
