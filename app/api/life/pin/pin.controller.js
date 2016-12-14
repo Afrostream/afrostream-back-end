@@ -157,8 +157,6 @@ exports.index = (req, res) => {
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
 
-  console.log(queryOptions);
-
   if (req.query.limit) {
     queryOptions = _.merge(queryOptions, {
       limit: req.query.limit
