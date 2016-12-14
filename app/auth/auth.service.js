@@ -97,7 +97,11 @@ function hasRole (roleRequired) {
 /**
  * OAuth2 user token
  */
-function getOauth2UserTokens (user, userIp, userAgent) {
+function getOauth2UserTokens (user, options) {
+  options = options || {};
+  const userIp = options.userIp;
+  const userAgent = options.userAgent;
+
   var deferred = Q.defer();
   if (!user) {
     deferred.reject(new Error("no user"));
@@ -126,7 +130,7 @@ function getOauth2UserTokens (user, userIp, userAgent) {
  * respond oauth2 user token.
  */
 function respondOauth2UserTokens (req, res) {
-  getOauth2UserTokens(req.user, req.clientIp, req.userAgent)
+  getOauth2UserTokens(req.user, { userIp: req.clientIp, userAgent: req.userAgent})
     .then(function (tokens) {
       res.json(tokens);
     })
