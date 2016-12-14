@@ -26,8 +26,8 @@ router.use(function (req, res, next) {
 
 router.use('/geo', require('./geo').router);
 
-const middlewareLocalstorage = rootRequire('app/middlewares/middleware-localstorage');
-router.use(middlewareLocalstorage());
+const middlewareContext = rootRequire('app/middlewares/middleware-context');
+router.use(middlewareContext());
 
 router.use('/oauth2', require('./oauth2'));
 router.use('/local', require('./local'));

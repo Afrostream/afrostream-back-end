@@ -14,6 +14,8 @@ var cacheHandler = require('./middlewares/middleware-cachehandler.js');
 var logger = require('./middlewares/middleware-logger.js');
 var id = require('./middlewares/middleware-id.js');
 
+require('./middlewares/middleware-context.js'); // enforce context creation.
+
 var cookieParser = require('cookie-parser');
 
 // Setup server
