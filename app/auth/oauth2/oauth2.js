@@ -93,7 +93,7 @@ const trySetAuthCookie = function (tokenEntity, refreshTokenEntity) {
       const res = namespace.get('res');
 
       if (req && res && req.passport && req.passport.client.isFrontApi()) {
-        req.logger.info('SET AUTH COOKIE');
+        req.logger.log('SET AUTH COOKIE');
         res.cookie(
           config.cookies.auth.name,
           {
@@ -108,6 +108,9 @@ const trySetAuthCookie = function (tokenEntity, refreshTokenEntity) {
             signed: true
           }
         );
+      } else {
+        logger.log('cannot fetch req & res');
+        logger.log('req', req, 'res', res);
       }
     }
   } catch (err) {
