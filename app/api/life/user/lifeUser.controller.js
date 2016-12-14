@@ -33,9 +33,12 @@ exports.index = (req, res) => {
       facebook: {$ne: null}
     },
     order: [
-      [ 'date', 'DESC' ],
       [ {raw: 'pinscount'}, 'DESC' ],
-      [ {raw: 'pinsdate'}, 'DESC' ]
+      [ {raw: 'pinsdate'}, 'DESC' ],
+      [{
+        model: LifePin,
+        as: 'lifePins'
+      }, 'date', 'DESC']
     ]
   };
 
