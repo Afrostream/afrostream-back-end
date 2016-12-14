@@ -34,11 +34,7 @@ exports.index = (req, res) => {
     },
     order: [
       [ {raw: 'pinscount'}, 'DESC' ],
-      [ {raw: 'pinsdate'}, 'DESC' ],
-      [{
-        model: LifePin,
-        as: 'lifePins'
-      }, 'date', 'DESC']
+      [ {raw: 'pinsdate'}, 'DESC' ]
     ]
   };
 
@@ -69,7 +65,13 @@ exports.show = (req, res) => {
     include: getIncludedModel(),
     where: {
       _id: req.params.id
-    }
+    },
+    order: [
+      [{
+        model: LifePin,
+        as: 'lifePins'
+      }, 'date', 'DESC']
+    ]
   };
 
   User.find(queryOptions)
