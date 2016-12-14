@@ -90,7 +90,7 @@ const trySetAuthCookie = function (tokenEntity, refreshTokenEntity) {
 
     if (namespace) {
       const req = namespace.get('req');
-      const res = namespace.res('res');
+      const res = namespace.get('res');
 
       if (req && res && req.passport && req.passport.client.isFrontApi()) {
         req.logger.info('SET AUTH COOKIE');
