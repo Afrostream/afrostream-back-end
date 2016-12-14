@@ -104,7 +104,8 @@ exports.index = (req, res) => {
         'providerName',
         'providerUrl',
         'description',
-        'likes'
+        'likes',
+        'imageId'
       ],
       include: [
         {
