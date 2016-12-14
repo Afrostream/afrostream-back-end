@@ -105,10 +105,10 @@ module.exports.callback = (req, res) => {
   })
   .then(
     () => {
-      redirectSuccess(res, '/auth/wecashup/finished', {success:true});
+      redirectSuccess(res, '/auth/wecashup/final-callback', {success:true});
     },
     (err) => {
-      redirectError(res, '/auth/wecashup/finished', {success:false, error:err.message});
+      redirectError(res, '/auth/wecashup/final-callback', {success:false, error:err.message});
     }
   );
 };
