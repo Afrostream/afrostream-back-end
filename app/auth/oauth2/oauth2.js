@@ -69,6 +69,29 @@ var generateTokenData = function (client, user, code, expiresIn) {
   };
 };
 
+const trySetAuthCookie = function (req, res, tokenEntity, refreshTokenEntity) {
+  if (req && res && req.passport &&
+      req.passport.client && req.passport.client.isFrontApi()) {
+    req.logger.log('SET AUTH COOKIE');
+    res.cookie(
+      config.cookies.auth.name,
+      {
+        version: 1,
+        access_token: tokenEntity.token,
+        refresh_token: refreshTokenEntity && refreshTokenEntity.token || null,
+        expires_in:  tokenEntity.expirationTimespan
+      },
+      {
+        domain: config.cookies.auth.domain,
+        path: config.cookies.auth.path,
+        signed: true
+      }
+    );
+  } else {
+    logger.log('cannot set auth cookie');
+  }
+};
+
 var generateToken = function (options, done) {
   const client = options.client;
   const user = options.user;
@@ -113,6 +136,7 @@ var generateToken = function (options, done) {
   })
     .then(function (tokenEntity) {
       if (client === null) {
+        trySetAuthCookie(options.req, options.res, tokenEntity, null);
         return done(null, tokenEntity.token, null, {expires_in: tokenEntity.expirationTimespan});
       }
 
@@ -122,6 +146,7 @@ var generateToken = function (options, done) {
         userId: tokenData.userId
       })
         .then(function (refreshTokenEntity) {
+          trySetAuthCookie(options.req, options.res, tokenEntity, refreshTokenEntity);
           return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
         }).catch(function (err) {
         logger.error('RefreshToken', err.message);
@@ -152,6 +177,7 @@ var refreshAccessToken = function (client, userId, options) {
         expirationTimespan: tokenData.expirationTimespan
       })
       .then(refreshToken => {
+        trySetAuthCookie(options.req, options.res, accessToken, refreshToken);
         return refreshToken;
       });
     });
