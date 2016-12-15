@@ -133,9 +133,10 @@ var generateToken = function (options, done) {
     });
 };
 
-var refreshAccessToken = function (client, userId) {
+var refreshAccessToken = function (client, userId, options) {
   var user = userId ? {_id: userId} : null; // yeark...
   var tokenData = generateTokenData(client, user, null);
+  options = options || {};
 
   return AccessToken.find({
     where: {
@@ -149,6 +150,9 @@ var refreshAccessToken = function (client, userId) {
         token: tokenData.token,
         expirationDate: tokenData.expirationDate,
         expirationTimespan: tokenData.expirationTimespan
+      })
+      .then(refreshToken => {
+        return refreshToken;
       });
     });
 };
@@ -344,7 +348,7 @@ server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken
       if (refreshToken.clientId !== client._id) {
         throw new Error("clientId missmatch");
       }
-      return refreshAccessToken(client, refreshToken.userId);
+      return refreshAccessToken(client, refreshToken.userId, { req: reqAuthInfo.req, res: reqAuthInfo.res });
     }).then(function (accessToken) {
     done(null, accessToken.token, refreshTokenToken, {expires_in: accessToken.expirationTimespan});
   }).catch(done);
