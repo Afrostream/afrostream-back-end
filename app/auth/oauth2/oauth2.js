@@ -153,7 +153,9 @@ var refreshAccessToken = function (client, userId) {
     });
 };
 
-server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, reqBody, done) {
+server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, reqBody, reqAuthInfo, done) {
+  reqAuthInfo = reqAuthInfo || {};
+
   Client.find({
     where: {
       _id: client._id
@@ -185,7 +187,9 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
               code: null,
               userIp: reqBody.userIp,
               userAgent: reqBody.userAgent,
-              expireIn: null
+              expireIn: null,
+              req: reqAuthInfo.req,
+              res: reqAuthInfo.res
             }, done);
           }
           user.authenticate(password, function (authError, authenticated) {
@@ -201,7 +205,9 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
                 code: null,
                 userIp: reqBody.userIp,
                 userAgent: reqBody.userAgent,
-                expireIn: null
+                expireIn: null,
+                req: reqAuthInfo.req,
+                res: reqAuthInfo.res
               }, done);
             }
           });
@@ -292,7 +298,9 @@ server.exchange(exchangeIse2(function (client, id, scope, reqBody, done) {
     });
 }));
 
-server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, reqBody, done) {
+server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, reqBody, reqAuthInfo, done) {
+  reqAuthInfo = reqAuthInfo || {};
+
   Client.find({
     where: {
       _id: client._id
@@ -311,7 +319,9 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
         code: null,
         userIp: reqBody.userIp,
         userAgent: reqBody.userAgent,
-        expireIn: null
+        expireIn: null,
+        req: reqAuthInfo.req,
+        res: reqAuthInfo.res
       }, done);
     })
     .catch(function (err) {
@@ -319,7 +329,9 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
     });
 }));
 
-server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshTokenToken, scope, done) {
+server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshTokenToken, scope, reqBody, reqAuthInfo, done) {
+  reqAuthInfo = reqAuthInfo || {};
+
   RefreshToken.find({
     where: {
       token: refreshTokenToken
