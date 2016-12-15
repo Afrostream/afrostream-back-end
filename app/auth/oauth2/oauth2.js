@@ -405,9 +405,17 @@ exports.decision = [
 
 exports.token = [
   function (req, res, next) {
+    // FIXME: we do this because oauth2orize wasn't letting access to info
+    //   but the newest release allow req.authInfo fwding ...
+    //   we need to refactor req.body.userIp & req.body.userAgent
+    //   & move them into req.authInfo
     // req.clientIp is the browser client ip
     req.body.userIp = req.clientIp;
     req.body.userAgent = req.userAgent;
+    req.authInfo = {
+      req: req,
+      res: res
+    };
     next();
   },
   passport.authenticate(['clientBasic', 'clientPassword'], {session: false}),
