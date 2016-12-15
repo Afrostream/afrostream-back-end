@@ -8,7 +8,7 @@ module.exports.get = () => [{
   model: LifePin,
   as: 'lifePins',
   where: {
-    active: true
+    active: false
   },
   required: false,
   //attributes: [

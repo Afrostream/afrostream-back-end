@@ -389,9 +389,9 @@ exports.destroy = (req, res) => {
 
   if (!isBacko) {
     queryOptions = _.merge(queryOptions, {
-      include: [{model: User, where: {_id: req.user._id}, attributes: ['_id']}],
       where: {
-        _id: req.params.id
+        _id: req.params.id,
+        userId: req.user._id
       }
     });
   }
