@@ -33,7 +33,6 @@ exports.index = (req, res) => {
       facebook: {$ne: null}
     },
     order: [
-      [ 'date', 'DESC' ],
       [ {raw: 'pinscount'}, 'DESC' ],
       [ {raw: 'pinsdate'}, 'DESC' ]
     ]
@@ -66,7 +65,13 @@ exports.show = (req, res) => {
     include: getIncludedModel(),
     where: {
       _id: req.params.id
-    }
+    },
+    order: [
+      [{
+        model: LifePin,
+        as: 'lifePins'
+      }, 'date', 'DESC']
+    ]
   };
 
   User.find(queryOptions)
