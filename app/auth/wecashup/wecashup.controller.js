@@ -38,8 +38,8 @@ module.exports.check = (req, res) => {
         error.statusCode = 401;
         throw error;
       }
-      if (!req.passport) {
-        const error = new Error('unknown user');
+      if (!req.passport.user) {
+        const error = new Error('unauthentified user');
         error.statusCode = 401;
         throw error;
       }
