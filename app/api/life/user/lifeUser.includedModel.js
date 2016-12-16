@@ -7,9 +7,6 @@ const Image = sqldb.Image;
 module.exports.get = () => [{
   model: LifePin,
   as: 'lifePins',
-  where: {
-    active: false
-  },
   required: false,
   //attributes: [
   //  [sqldb.sequelize.fn('COUNT', sqldb.sequelize.col('LifePin._id')), 'pinsCount']
