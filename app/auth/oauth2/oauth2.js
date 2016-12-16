@@ -83,7 +83,10 @@ const trySetAuthCookie = function (req, res, tokenEntity, refreshTokenEntity) {
       {
         domain: config.cookies.auth.domain,
         path: config.cookies.auth.path,
-        signed: true
+        signed: true,
+        expires: new Date(Date.now() + tokenEntity.expirationTimespan * 1000),
+        httpOnly: config.cookies.auth.httpOnly,
+        secure: config.cookies.auth.secure,
       }
     );
   }

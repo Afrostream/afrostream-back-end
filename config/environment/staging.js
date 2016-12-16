@@ -161,7 +161,9 @@ module.exports = {
     auth: {
       name: 'auth',
       domain: '.afrostream.tv',
-      path: '/'
+      path: '/',
+      httpOnly: true,
+      secure: true
     }
   },
 

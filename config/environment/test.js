@@ -125,7 +125,9 @@ module.exports = {
     auth: {
       name: 'auth',
       domain: '.afrostream.dev',
-      path: '/'
+      path: '/',
+      httpOnly: true,
+      secure: false
     }
   }
 };
