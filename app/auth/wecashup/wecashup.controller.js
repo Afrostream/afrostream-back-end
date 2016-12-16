@@ -34,7 +34,7 @@ module.exports.check = (req, res) => {
   res.cookie(
     config.cookies.wecashup.name,
     {
-      userId: req.user._id
+      userId: req.passport.user._id
     },
     {
       domain: config.cookies.wecashup.domain,
