@@ -70,9 +70,8 @@ var generateTokenData = function (client, user, code, expiresIn) {
 };
 
 const trySetAuthCookie = function (req, res, tokenEntity, refreshTokenEntity) {
-  if (req && res && req.passport &&
-      req.passport.client && req.passport.client.isFrontApi()) {
-    req.logger.log('SET AUTH COOKIE');
+  if (req && res) {
+    req.logger.debug('SET AUTH COOKIE');
     res.cookie(
       config.cookies.auth.name,
       {
@@ -87,8 +86,6 @@ const trySetAuthCookie = function (req, res, tokenEntity, refreshTokenEntity) {
         signed: true
       }
     );
-  } else {
-    logger.log('cannot set auth cookie', (new Error()).stack);
   }
 };
 
@@ -413,18 +410,20 @@ exports.token = [
   function (req, res, next) {
     // FIXME: we do this because oauth2orize wasn't letting access to info
     //   but the newest release allow req.authInfo fwding ...
-    //   we need to refactor req.body.userIp & req.body.userAgent
-    //   & move them into req.authInfo
-    // req.clientIp is the browser client ip
+    //   we need to refactor all this (remove oauth2orize or fork it.)
     req.body.userIp = req.clientIp;
     req.body.userAgent = req.userAgent;
-    req.authInfo = {
-      req: req,
-      res: res
-    };
     next();
   },
   passport.authenticate(['clientBasic', 'clientPassword'], {session: false}),
+  (req, res, next) => {
+    // FIXME: we need to remove oauth2orize or fork it to prevent this hack.
+    req.authInfo = Object.assign({}, req.authInfo, {
+      req: req,
+      res: res
+    });
+    next();
+  },
   server.token(),
   server.errorHandler()
 ];
