@@ -158,6 +158,10 @@ module.exports = {
       name: 'netsize',
       domain: '.afrostream.tv'
     },
+    wecashup: {
+      wecashup: 'wecashup',
+      domain: '.afrostream.tv'
+    },
     auth: {
       name: 'auth',
       domain: '.afrostream.tv',
