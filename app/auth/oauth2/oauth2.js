@@ -130,7 +130,7 @@ var generateToken = function (options, done) {
   });
   // fixme: revoir complètement cette fonction !
   // pas d'attente d'async, error handler incorrects, etc..
-  AccessToken.create({
+  return AccessToken.create({
     token: tokenData.token,
     clientId: tokenData.clientId,
     userId: tokenData.userId,
@@ -143,7 +143,7 @@ var generateToken = function (options, done) {
         return done(null, tokenEntity.token, null, {expires_in: tokenEntity.expirationTimespan});
       }
 
-      RefreshToken.create({
+      return RefreshToken.create({
         token: tokenData.refresh,
         clientId: tokenData.clientId,
         userId: tokenData.userId
