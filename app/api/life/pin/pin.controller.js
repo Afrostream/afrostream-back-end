@@ -107,6 +107,7 @@ exports.index = (req, res) => {
         'description',
         'likes',
         'imageId',
+        'role',
         'userId'
       ],
       include: [
