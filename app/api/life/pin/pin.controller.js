@@ -155,7 +155,8 @@ exports.index = (req, res) => {
     });
   }
 
-  queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
+  // pagination
+  utils.mergeReqRange(queryOptions, req);
 
   if (req.query.limit) {
     queryOptions = _.merge(queryOptions, {
@@ -171,6 +172,13 @@ exports.index = (req, res) => {
     });
   }
 
+  if (req.query.offset) {
+    queryOptions = _.merge(queryOptions, {
+      offset: req.query.offset
+    });
+  }
+
+  queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
 
   LifePin.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
