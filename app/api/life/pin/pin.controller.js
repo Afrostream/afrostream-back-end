@@ -171,6 +171,12 @@ exports.index = (req, res) => {
     });
   }
 
+  if (req.query.offset) {
+    queryOptions = _.merge(queryOptions, {
+      offset: req.query.offset
+    });
+  }
+
 
   LifePin.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
