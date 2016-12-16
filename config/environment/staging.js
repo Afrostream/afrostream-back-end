@@ -159,7 +159,7 @@ module.exports = {
       domain: '.afrostream.tv'
     },
     wecashup: {
-      wecashup: 'wecashup',
+      name: 'wecashup',
       domain: '.afrostream.tv'
     },
     auth: {

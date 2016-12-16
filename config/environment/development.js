@@ -127,8 +127,8 @@ module.exports = {
       domain: '.afrostream.dev'
     },
     wecashup: {
-      wecashup: 'wecashup',
-      domain: '.afrostream.dev'
+      name: 'wecashup',
+      domain: ''
     },
     auth: {
       name: 'auth',
