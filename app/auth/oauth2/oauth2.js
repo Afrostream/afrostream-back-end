@@ -88,11 +88,17 @@ const trySetAuthCookie = function (req, res, tokenEntity, refreshTokenEntity) {
       }
     );
   } else {
-    logger.log('cannot set auth cookie');
+    logger.log('cannot set auth cookie', (new Error()).stack);
   }
 };
 
 var generateToken = function (options, done) {
+
+  console.log('GENERATE TOKEN ' + typeof options.req + ' ' + typeof options.res);
+  if (!options.req || !options.res) {
+    console.log('DEBUG STACK ', (new Error()).stack);
+  }
+
   const client = options.client;
   const user = options.user;
   const code = options.code;
