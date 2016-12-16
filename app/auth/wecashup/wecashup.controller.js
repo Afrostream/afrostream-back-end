@@ -31,18 +31,35 @@ function redirectError(res, url, data, statusCode) {
 }
 
 module.exports.check = (req, res) => {
-  res.cookie(
-    config.cookies.wecashup.name,
-    {
-      userId: req.passport.user._id
-    },
-    {
-      domain: config.cookies.wecashup.domain,
-      path: '/',
-      signed: true
+  return Q()
+    .then(() => {
+      if (!req.passport) {
+        const error = new Error('missing passport');
+        error.statusCode = 401;
+        throw error;
+      }
+      if (!req.passport) {
+        const error = new Error('unknown user');
+        error.statusCode = 401;
+        throw error;
+      }
+      res.cookie(
+        config.cookies.wecashup.name,
+        {
+          userId: req.passport.user._id
+        },
+        {
+          domain: config.cookies.wecashup.domain,
+          path: '/',
+          signed: true
+        }
+      );
     }
+  )
+  .then(
+    () => { res.json({}); },
+    res.handleError()
   );
-  res.json({});
 };
 
 module.exports.callback = (req, res) => {
