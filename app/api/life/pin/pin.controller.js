@@ -78,6 +78,7 @@ function addThemes (updates) {
 exports.index = (req, res) => {
   const isBacko = utils.isReqFromAfrostreamAdmin(req);
   const queryName = req.query.query;
+  const queryThemeId = req.query.themeId;
   const language = req.query.language;
 
   let queryOptions = {
@@ -151,6 +152,14 @@ exports.index = (req, res) => {
         title: {
           $iLike: '%' + queryName + '%'
         }
+      }
+    });
+  }
+
+  if (queryThemeId) {
+    queryOptions = _.merge(queryOptions, {
+      where: {
+        themeId: queryThemeId
       }
     });
   }

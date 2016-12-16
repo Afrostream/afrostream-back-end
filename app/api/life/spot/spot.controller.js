@@ -19,11 +19,11 @@ const utils = rootRequire('app/api/utils.js');
 
 const getIncludedModel = require('./spot.includedModel').get;
 
-function saveUpdates(updates) {
+function saveUpdates (updates) {
   return entity => entity.updateAttributes(updates);
 }
 
-function updateImages(updates) {
+function updateImages (updates) {
   return entity => {
     const promises = [];
     promises.push(entity.setImage(updates.image && updates.image.dataValues && Image.build(updates.image.dataValues) || updates.image && Image.build(updates.image) || null));
@@ -33,7 +33,7 @@ function updateImages(updates) {
   };
 }
 
-function removeEntity(res) {
+function removeEntity (res) {
   return entity => {
     if (entity) {
       return entity.destroy()
@@ -44,7 +44,7 @@ function removeEntity(res) {
   };
 }
 
-function addThemes(updates) {
+function addThemes (updates) {
   const themes = LifeTheme.build(_.map(updates.themes || [], _.partialRight(_.pick, '_id')));
   return entity => {
     if (!themes || !themes.length) {
@@ -58,8 +58,9 @@ function addThemes(updates) {
 // Gets a list of life/spots
 // ?query=... (search in the title)
 exports.index = (req, res) => {
-  const queryName = req.param('query'); // deprecated.
-  const queryType = req.param('type'); // deprecated.
+  const queryName = req.query.query;
+  const queryType = req.query.type;
+  const queryThemeId = req.query.themeId;
   let queryOptions = {
     include: getIncludedModel()
   };
@@ -82,6 +83,14 @@ exports.index = (req, res) => {
         type: {
           $iLike: '%' + queryType + '%'
         }
+      }
+    });
+  }
+
+  if (queryThemeId) {
+    queryOptions = _.merge(queryOptions, {
+      where: {
+        themeId: queryThemeId
       }
     });
   }
@@ -124,10 +133,10 @@ exports.update = (req, res) => {
     delete req.body._id;
   }
   LifeSpot.find({
-      where: {
-        _id: req.params.id
-      }
-    })
+    where: {
+      _id: req.params.id
+    }
+  })
     .then(utils.handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(updateImages(req.body))
@@ -139,10 +148,10 @@ exports.update = (req, res) => {
 // Deletes a LifeSpot from the DB
 exports.destroy = (req, res) => {
   LifeSpot.find({
-      where: {
-        _id: req.params.id
-      }
-    })
+    where: {
+      _id: req.params.id
+    }
+  })
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(res.handleError());
