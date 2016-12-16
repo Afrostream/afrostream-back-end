@@ -69,7 +69,43 @@ var generateTokenData = function (client, user, code, expiresIn) {
   };
 };
 
-var generateToken = function (client, user, code, userIp, userAgent, expireIn, done) {
+const trySetAuthCookie = function (req, res, tokenEntity, refreshTokenEntity) {
+  if (req && res) {
+    req.logger.debug('SET AUTH COOKIE');
+    res.cookie(
+      config.cookies.auth.name,
+      {
+        version: 1,
+        access_token: tokenEntity.token,
+        refresh_token: refreshTokenEntity && refreshTokenEntity.token || null,
+        expires_in:  tokenEntity.expirationTimespan
+      },
+      {
+        domain: config.cookies.auth.domain,
+        path: config.cookies.auth.path,
+        signed: true,
+        expires: new Date(Date.now() + tokenEntity.expirationTimespan * 1000),
+        httpOnly: config.cookies.auth.httpOnly,
+        secure: config.cookies.auth.secure,
+      }
+    );
+  }
+};
+
+var generateToken = function (options, done) {
+
+  console.log('GENERATE TOKEN ' + typeof options.req + ' ' + typeof options.res);
+  if (!options.req || !options.res) {
+    console.log('DEBUG STACK ', (new Error()).stack);
+  }
+
+  const client = options.client;
+  const user = options.user;
+  const code = options.code;
+  const userIp = options.userIp;
+  const userAgent = options.userAgent;
+  const expireIn = options.expireIn;
+
   var tokenData = generateTokenData(client, user, code, expireIn);
 
   // log accessToken (duplicate with db)
@@ -97,7 +133,7 @@ var generateToken = function (client, user, code, userIp, userAgent, expireIn, d
   });
   // fixme: revoir complètement cette fonction !
   // pas d'attente d'async, error handler incorrects, etc..
-  AccessToken.create({
+  return AccessToken.create({
     token: tokenData.token,
     clientId: tokenData.clientId,
     userId: tokenData.userId,
@@ -106,15 +142,17 @@ var generateToken = function (client, user, code, userIp, userAgent, expireIn, d
   })
     .then(function (tokenEntity) {
       if (client === null) {
+        trySetAuthCookie(options.req, options.res, tokenEntity, null);
         return done(null, tokenEntity.token, null, {expires_in: tokenEntity.expirationTimespan});
       }
 
-      RefreshToken.create({
+      return RefreshToken.create({
         token: tokenData.refresh,
         clientId: tokenData.clientId,
         userId: tokenData.userId
       })
         .then(function (refreshTokenEntity) {
+          trySetAuthCookie(options.req, options.res, tokenEntity, refreshTokenEntity);
           return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
         }).catch(function (err) {
         logger.error('RefreshToken', err.message);
@@ -126,9 +164,10 @@ var generateToken = function (client, user, code, userIp, userAgent, expireIn, d
     });
 };
 
-var refreshAccessToken = function (client, userId) {
+var refreshAccessToken = function (client, userId, options) {
   var user = userId ? {_id: userId} : null; // yeark...
   var tokenData = generateTokenData(client, user, null);
+  options = options || {};
 
   return AccessToken.find({
     where: {
@@ -142,11 +181,17 @@ var refreshAccessToken = function (client, userId) {
         token: tokenData.token,
         expirationDate: tokenData.expirationDate,
         expirationTimespan: tokenData.expirationTimespan
+      })
+      .then(refreshToken => {
+        trySetAuthCookie(options.req, options.res, accessToken, refreshToken);
+        return refreshToken;
       });
     });
 };
 
-server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, reqBody, done) {
+server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, reqBody, reqAuthInfo, done) {
+  reqAuthInfo = reqAuthInfo || {};
+
   Client.find({
     where: {
       _id: client._id
@@ -172,7 +217,16 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
           }
           if (entity.type === 'legacy-api.bouygues-miami' &&
             user.email.match(/@bbox\.fr$/i)) {
-            return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, null, done);
+            return generateToken({
+              client: entity,
+              user: user,
+              code: null,
+              userIp: reqBody.userIp,
+              userAgent: reqBody.userAgent,
+              expireIn: null,
+              req: reqAuthInfo.req,
+              res: reqAuthInfo.res
+            }, done);
           }
           user.authenticate(password, function (authError, authenticated) {
             if (authError) {
@@ -181,7 +235,16 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
             if (!authenticated) {
               return done(new TokenError('wrong password', 'invalid_grant'), false);
             } else {
-              return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, null, done);
+              return generateToken({
+                client: entity,
+                user: user,
+                code: null,
+                userIp: reqBody.userIp,
+                userAgent: reqBody.userAgent,
+                expireIn: null,
+                req: reqAuthInfo.req,
+                res: reqAuthInfo.res
+              }, done);
             }
           });
         });
@@ -211,7 +274,14 @@ server.exchange(exchangeBouygues(function (client, id, scope, reqBody, done) {
           if (user === null) {
             return done(new TokenError('unknown bouyguesId', 'invalid_grant'), false);
           }
-          return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, null, done);
+          return generateToken({
+            client: entity,
+            user: user,
+            code: null,
+            userIp: reqBody.userIp,
+            userAgent: reqBody.userAgent,
+            expireIn: null
+          }, done);
         })
         .catch(function (err) {
           return done(err);
@@ -249,7 +319,14 @@ server.exchange(exchangeIse2(function (client, id, scope, reqBody, done) {
             ise2Logger.error('UNKNOWN_ISE2 ' + id + ' => invalid_grant');
             return done(new TokenError('UNKNOWN_ISE2:' + id, 'invalid_grant'), false);
           }
-          return generateToken(entity, user, null, reqBody.userIp, reqBody.userAgent, null, done);
+          return generateToken({
+            client: entity,
+            user: user,
+            code: null,
+            userIp: reqBody.userIp,
+            userAgent: reqBody.userAgent,
+            expireIn: null
+          }, done);
         });
     })
     .catch(function (err) {
@@ -257,7 +334,9 @@ server.exchange(exchangeIse2(function (client, id, scope, reqBody, done) {
     });
 }));
 
-server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, reqBody, done) {
+server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, reqBody, reqAuthInfo, done) {
+  reqAuthInfo = reqAuthInfo || {};
+
   Client.find({
     where: {
       _id: client._id
@@ -270,14 +349,25 @@ server.exchange(oauth2orize.exchange.clientCredentials(function (client, scope, 
       if (entity.secret !== client.secret) {
         return done(null, false);
       }
-      return generateToken(entity, null, null, reqBody.userIp, reqBody.userAgent, null, done);
+      return generateToken({
+        client: entity,
+        user: null,
+        code: null,
+        userIp: reqBody.userIp,
+        userAgent: reqBody.userAgent,
+        expireIn: null,
+        req: reqAuthInfo.req,
+        res: reqAuthInfo.res
+      }, done);
     })
     .catch(function (err) {
       return done(err);
     });
 }));
 
-server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshTokenToken, scope, done) {
+server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshTokenToken, scope, reqBody, reqAuthInfo, done) {
+  reqAuthInfo = reqAuthInfo || {};
+
   RefreshToken.find({
     where: {
       token: refreshTokenToken
@@ -290,7 +380,7 @@ server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken
       if (refreshToken.clientId !== client._id) {
         throw new Error("clientId missmatch");
       }
-      return refreshAccessToken(client, refreshToken.userId);
+      return refreshAccessToken(client, refreshToken.userId, { req: reqAuthInfo.req, res: reqAuthInfo.res });
     }).then(function (accessToken) {
     done(null, accessToken.token, refreshTokenToken, {expires_in: accessToken.expirationTimespan});
   }).catch(done);
@@ -321,12 +411,22 @@ exports.decision = [
 
 exports.token = [
   function (req, res, next) {
-    // req.clientIp is the browser client ip
+    // FIXME: we do this because oauth2orize wasn't letting access to info
+    //   but the newest release allow req.authInfo fwding ...
+    //   we need to refactor all this (remove oauth2orize or fork it.)
     req.body.userIp = req.clientIp;
     req.body.userAgent = req.userAgent;
     next();
   },
   passport.authenticate(['clientBasic', 'clientPassword'], {session: false}),
+  (req, res, next) => {
+    // FIXME: we need to remove oauth2orize or fork it to prevent this hack.
+    req.authInfo = Object.assign({}, req.authInfo, {
+      req: req,
+      res: res
+    });
+    next();
+  },
   server.token(),
   server.errorHandler()
 ];

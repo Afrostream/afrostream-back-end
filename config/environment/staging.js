@@ -157,6 +157,13 @@ module.exports = {
     netsize: {
       name: 'netsize',
       domain: '.afrostream.tv'
+    },
+    auth: {
+      name: 'auth',
+      domain: '.afrostream.tv',
+      path: '/',
+      httpOnly: true,
+      secure: true
     }
   },
 
