@@ -101,11 +101,18 @@ exports.index = (req, res) => {
     required: true
   };
 
+  //SearchBy themes
   if (queryThemeId) {
     includeThemesModel = _.merge(includeThemesModel, {
       where: {
         _id: queryThemeId
       }
+    });
+  }
+  //If user query, disabled required themes
+  if (queryUserId) {
+    includeThemesModel = _.merge(includeThemesModel, {
+      required: false
     });
   }
 
