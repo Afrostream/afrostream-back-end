@@ -12,6 +12,7 @@
 const _ = require('lodash');
 const request = require('request');
 const sqldb = rootRequire('sqldb');
+const algolia = rootRequire('components/algolia');
 const Image = sqldb.Image;
 const LifePin = sqldb.LifePin;
 const LifeTheme = sqldb.LifeTheme;
@@ -426,5 +427,20 @@ exports.destroy = (req, res) => {
   LifePin.find(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(removeEntity(res))
+    .catch(res.handleError());
+};
+
+// Updates an existing episode in the DB
+exports.algolia = (req, res) => {
+
+  LifePin.findAll({
+    include: getIncludedModel(),
+    where: {
+      active: true
+    }
+  })
+    .then(utils.handleEntityNotFound(res))
+    .then(algolia.importAll(res, 'lifePins'))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
