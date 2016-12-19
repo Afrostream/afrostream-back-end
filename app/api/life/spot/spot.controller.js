@@ -61,12 +61,42 @@ exports.index = (req, res) => {
   const queryName = req.query.query;
   const queryType = req.query.type;
   const queryThemeId = req.query.themeId;
-  let queryOptions = {
-    include: getIncludedModel()
+
+  let includeThemesModel = {
+    model: LifeTheme,
+    as: 'themes',
+    attributes: [
+      '_id',
+      'label',
+      'slug',
+      'sort'
+    ],
+    required: false
   };
+
+  //SearchBy themes
+  if (queryThemeId) {
+    includeThemesModel = _.merge(includeThemesModel, {
+      where: {
+        _id: queryThemeId
+      }
+    });
+  }
+
+  let queryOptions = {
+    include: [
+      includeThemesModel, {
+        model: Image,
+        as: 'image',
+        required: false
+      }
+    ]
+  };
+
 
   // pagination
   utils.mergeReqRange(queryOptions, req);
+
 
   if (queryName) {
     queryOptions = _.merge(queryOptions, {
@@ -83,14 +113,6 @@ exports.index = (req, res) => {
         type: {
           $iLike: '%' + queryType + '%'
         }
-      }
-    });
-  }
-
-  if (queryThemeId) {
-    queryOptions = _.merge(queryOptions, {
-      where: {
-        themeId: queryThemeId
       }
     });
   }
