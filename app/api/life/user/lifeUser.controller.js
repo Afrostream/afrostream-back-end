@@ -27,14 +27,14 @@ exports.index = (req, res) => {
     },
     limit: 100,
     group: [
-      [ '_id' ]
+      ['_id']
     ],
     where: {
       facebook: {$ne: null}
     },
     order: [
-      [ {raw: 'pinscount'}, 'DESC' ],
-      [ {raw: 'pinsdate'}, 'DESC' ]
+      [{raw: 'pinscount'}, 'DESC'],
+      [{raw: 'pinsdate'}, 'DESC']
     ]
   };
 
@@ -49,6 +49,19 @@ exports.index = (req, res) => {
       order: [
         [req.query.order, req.query.sort || 'DESC']
       ]
+    });
+  }
+
+  if (req.query.limit) {
+    queryOptions = _.merge(queryOptions, {
+      limit: req.query.limit,
+      subQuery: false
+    });
+  }
+
+  if (req.query.offset) {
+    queryOptions = _.merge(queryOptions, {
+      offset: req.query.offset
     });
   }
 
