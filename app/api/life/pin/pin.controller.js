@@ -105,9 +105,9 @@ exports.index = (req, res) => {
   if (queryThemeId) {
     includeThemesModel = _.merge(includeThemesModel, {
       where: {
-        _id: queryThemeId,
-        required: false
-      }
+        _id: queryThemeId
+      },
+      required: false
     });
   }
   //If user query, disabled required themes
