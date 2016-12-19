@@ -122,6 +122,10 @@ module.exports = {
       name: 'netsize',
       domain: '.afrostream.dev'
     },
+    wecashup: {
+      name: 'wecashup',
+      domain: '.afrostream.dev'
+    },
     auth: {
       name: 'auth',
       domain: '.afrostream.dev',

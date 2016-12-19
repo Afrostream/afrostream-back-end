@@ -2,9 +2,9 @@
 
 var Video = rootRequire('sqldb').Video;
 
-var authenticate = require('../auth/auth.service').authenticate;
+//var authenticate = require('../auth/auth.service').authenticate;
 
-module.exports.drmtodayCallback = function (req, res, next) {
+module.exports.drmtodayCallback = function (req, res/*, next*/) {
   var accessToken = req.query.sessionId;
   var userId = req.params.userId;
   var encodingId = req.params.assetId;
@@ -16,6 +16,25 @@ module.exports.drmtodayCallback = function (req, res, next) {
   res.noCache(); // we cannot cache this route
   res.set('Content-Type', 'application/json');
 
+  return Video.find({where: {encodingId: encodingId}}).then(function (video) {
+    if (!video) throw 'unknown asset '+encodingId;
+    return video;
+  }).then(
+    function (video) { return video; },
+    function () { return { _id: 'unknown', name: 'unknown' }; }
+  ).then(function (video) {
+    res.json({
+      "accountingId": userId + ":" + video._id + ":" + video.name,
+      "profile": {
+        "rental": {
+          "absoluteExpiration": new Date(new Date().getTime() + 1000 * 3600 * 24).toISOString(), // 1 day
+          "playDuration": 1000 * 3600 * 12 // 12 hours
+        }
+      },
+      "message": "granted"
+    });
+  });
+/*
   //
   // hack, test orange, to be removed !
   // BEGIN HACK
@@ -81,4 +100,5 @@ module.exports.drmtodayCallback = function (req, res, next) {
         });
       }
     );
+    */
 };
