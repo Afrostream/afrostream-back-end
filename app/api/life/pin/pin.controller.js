@@ -79,6 +79,7 @@ exports.index = (req, res) => {
   const isBacko = utils.isReqFromAfrostreamAdmin(req);
   const queryName = req.query.query;
   const queryThemeId = req.query.themeId;
+  const queryUserId = req.query.userId;
   const language = req.query.language;
 
   let queryOptions = {
@@ -161,6 +162,14 @@ exports.index = (req, res) => {
     queryOptions = _.merge(queryOptions, {
       where: {
         themeId: queryThemeId
+      }
+    });
+  }
+
+  if (queryUserId) {
+    queryOptions = _.merge(queryOptions, {
+      where: {
+        userId: queryUserId
       }
     });
   }
