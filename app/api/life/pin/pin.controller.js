@@ -89,6 +89,26 @@ exports.index = (req, res) => {
     ]
   };
 
+  let includeThemesModel = {
+    model: LifeTheme,
+    as: 'themes',
+    attributes: [
+      '_id',
+      'label',
+      'slug',
+      'sort'
+    ],
+    required: true
+  };
+
+  if (queryThemeId) {
+    includeThemesModel = _.merge(includeThemesModel, {
+      where: {
+        _id: queryThemeId
+      }
+    });
+  }
+
   if (isBacko) {
     // aucune restriction sur les objets liés
     queryOptions = _.merge(queryOptions, {
@@ -113,17 +133,7 @@ exports.index = (req, res) => {
         'userId'
       ],
       include: [
-        {
-          model: LifeTheme,
-          as: 'themes',
-          attributes: [
-            '_id',
-            'label',
-            'slug',
-            'sort'
-          ],
-          required: true
-        }, {
+        includeThemesModel, {
           model: Image,
           as: 'image',
           required: false
@@ -155,14 +165,6 @@ exports.index = (req, res) => {
         title: {
           $iLike: '%' + queryName + '%'
         }
-      }
-    });
-  }
-
-  if (queryThemeId) {
-    queryOptions = _.merge(queryOptions, {
-      where: {
-        themeId: queryThemeId
       }
     });
   }
