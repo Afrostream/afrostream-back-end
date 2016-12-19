@@ -189,7 +189,8 @@ exports.index = (req, res) => {
 
   if (req.query.limit) {
     queryOptions = _.merge(queryOptions, {
-      limit: req.query.limit
+      limit: req.query.limit,
+      subQuery: false
     });
   }
 
@@ -209,9 +210,7 @@ exports.index = (req, res) => {
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
 
-  LifePin.findAndCountAll(queryOptions, {
-    subQuery: false
-  })
+  LifePin.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
