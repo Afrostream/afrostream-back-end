@@ -85,7 +85,7 @@ exports.index = (req, res) => {
 
   let queryOptions = {
     order: [
-      [LifeTheme, 'date', 'DESC']
+      ['date', 'DESC']
     ]
   };
 
@@ -209,7 +209,9 @@ exports.index = (req, res) => {
 
   queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
 
-  LifePin.findAndCountAll(queryOptions)
+  LifePin.findAndCountAll(queryOptions, {
+    subQuery: false
+  })
     .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
