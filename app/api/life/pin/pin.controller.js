@@ -85,7 +85,7 @@ exports.index = (req, res) => {
 
   let queryOptions = {
     order: [
-      ['date', 'DESC']
+      [LifeTheme, 'date', 'DESC']
     ]
   };
 
