@@ -135,7 +135,16 @@ var callback = function (req, res, next) {
       })
       .then(function (client) {
         logger.log('generate Token for client=' + client._id + ' & user=' + user._id);
-        return Q.nfcall(oauth2.generateToken, client, user, null, req.clientIp, req.userAgent, null);
+        return Q.ninvoke(oauth2, "generateToken", {
+          client: client,
+          user: user,
+          code: null,
+          userIp: req.clientIp,
+          userAgent: req.userAgent,
+          expireIn: null,
+          req: req,
+          res: res
+        });
       })
       .then(function (tokenInfos) {
         return {
