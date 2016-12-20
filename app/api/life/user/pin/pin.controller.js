@@ -18,7 +18,7 @@ module.exports.update = (req, res) => {
       if (!lifeUserPin) {
         return LifeUsersPins.create(data);
       } else {
-        return LifeUsersPins.update(data,lifeUserPinKey);
+        return lifeUserPin.updateAttributes(data);
       }
     })
     .then((lifeUserPin) => {
