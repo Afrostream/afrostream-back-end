@@ -419,14 +419,14 @@ exports.token = [
     next();
   },
   passport.authenticate(['clientBasic', 'clientPassword'], {session: false}),
-  (req, res, next) => {
-    // FIXME: we need to remove oauth2orize or fork it to prevent this hack.
-    req.authInfo = Object.assign({}, req.authInfo, {
-      req: req,
-      res: res
-    });
-    next();
-  },
+  //(req, res, next) => {
+  //  // FIXME: we need to remove oauth2orize or fork it to prevent this hack.
+  //  req.authInfo = Object.assign({}, req.authInfo, {
+  //    req: req,
+  //    res: res
+  //  });
+  //  next();
+  //},
   server.token(),
   server.errorHandler()
 ];
