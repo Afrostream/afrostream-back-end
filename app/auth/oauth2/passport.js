@@ -37,7 +37,7 @@ function localAuthenticate (User, email, password, done) {
 }
 
 function clientAuthenticate (Client, clientId, clientSecret, done) {
-  return Client.find({
+  Client.find({
     where: {
       _id: clientId
     }
