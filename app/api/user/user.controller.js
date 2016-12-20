@@ -95,14 +95,16 @@ exports.create = (req, res) => {
     .then(user => {
       statsd.client.increment('api.users.create');
       // everything went ok, we send an oauth2 access token
-      return Q.ninvoke(oauth2, "generateToken",
-        req.passport.client || null,
-        user,
-        null, // code
-        req.clientIp,
-        req.userAgent,
-        null
-      ).then(data => {
+      return Q.ninvoke(oauth2, "generateToken", {
+        client: req.passport.client || null,
+        user: user,
+        code: null,
+        userIp: req.clientIp,
+        userAgent: req.userAgent,
+        expireIn: null,
+        req: req,
+        res: res
+      }).then(data => {
         const accessToken = data[0], refreshToken = data[1], info = data[2];
 
         return {
