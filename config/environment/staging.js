@@ -137,7 +137,7 @@ module.exports = {
     billingProviderName: 'wecashup',
     merchant: {
       uid: 'bzmSSCP8WqUMDDH4sPb2w8hB14F2',
-      publicKey: '',
+      publicKey: 'NoZ7voE0KDRSBnxaB7oqcGdWQnrLVxAZm9NLiEIMyYvq',
       secret: ''
     }
   },
