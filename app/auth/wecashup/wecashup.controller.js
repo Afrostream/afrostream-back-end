@@ -95,7 +95,7 @@ module.exports.callback = (req, res) => {
         timeout: 10000
       };
 
-      logger.info('=> ' + JSON.stringify(options));
+      logger.log('=> ' + JSON.stringify(options));
 
       return Q.nfcall(request, options)
         .then(([response, data]) => {
@@ -110,7 +110,7 @@ module.exports.callback = (req, res) => {
           if (!data) {
             throw new Error('no data');
           }
-          logger.info('<= ' + JSON.stringify(data));
+          logger.log('<= ' + JSON.stringify(data));
           if (!data.response_content) {
             throw new Error('data.response_content is empty');
           }
