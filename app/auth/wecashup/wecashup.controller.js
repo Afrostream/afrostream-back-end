@@ -11,19 +11,19 @@ const btoa = require('btoa');
 
 const User = rootRequire('sqldb').User;
 
-function redirectWithData(res, url, data) {
+function redirectWithData (res, url, data) {
   url += '#' + btoa(JSON.stringify(data));
   res.redirect(302, url);
 }
 
-function redirectSuccess(res, url, data) {
+function redirectSuccess (res, url, data) {
   redirectWithData(res, url, {
     statusCode: 200,
     data: data
   });
 }
 
-function redirectError(res, url, data, statusCode) {
+function redirectError (res, url, data, statusCode) {
   redirectWithData(res, url, {
     statusCode: statusCode || 500,
     data: data
@@ -33,33 +33,35 @@ function redirectError(res, url, data, statusCode) {
 module.exports.check = (req, res) => {
   return Q()
     .then(() => {
-      if (!req.passport) {
-        const error = new Error('missing passport');
-        error.statusCode = 401;
-        throw error;
-      }
-      if (!req.passport.user) {
-        const error = new Error('unauthentified user');
-        error.statusCode = 401;
-        throw error;
-      }
-      res.cookie(
-        config.cookies.wecashup.name,
-        {
-          userId: req.passport.user._id
-        },
-        {
-          domain: config.cookies.wecashup.domain,
-          path: '/',
-          signed: true
+        if (!req.passport) {
+          const error = new Error('missing passport');
+          error.statusCode = 401;
+          throw error;
         }
-      );
-    }
-  )
-  .then(
-    () => { res.json({}); },
-    res.handleError()
-  );
+        if (!req.passport.user) {
+          const error = new Error('unauthentified user');
+          error.statusCode = 401;
+          throw error;
+        }
+        res.cookie(
+          config.cookies.wecashup.name,
+          {
+            userId: req.passport.user._id
+          },
+          {
+            domain: config.cookies.wecashup.domain,
+            path: '/',
+            signed: true
+          }
+        );
+      }
+    )
+    .then(
+      () => {
+        res.json({});
+      },
+      res.handleError()
+    );
 };
 
 module.exports.callback = (req, res) => {
@@ -83,8 +85,8 @@ module.exports.callback = (req, res) => {
       const merchantPublicKey = config.wecashup.merchant.publicKey;
       const transactionUid = req.body.transaction_uid || '';
 
-      const options =  {
-        method:'GET',
+      const options = {
+        method: 'GET',
         url: `https://merchant-dashboard-dot-wecashup-payment.appspot.com/api/v1.0/merchants/${merchantUid}/transactions/${transactionUid}`,
         json: true,
         qs: {
@@ -96,68 +98,67 @@ module.exports.callback = (req, res) => {
       logger.info('=> ' + JSON.stringify(options));
 
       return Q.nfcall(request, options)
-      .then(([response, data]) => {
-      // error checking :)
-      if (!response) {
-        throw new Error('no response');
-      }
-      if (response.statusCode !== 200) {
-        logger.error(`statusCode = ${response.statusCode}`);
-        throw new Error('wecashup should response 200ok');
-      }
-      if (!data) {
-        throw new Error('no data');
-      }
-      logger.info('<= '+ JSON.stringify(data));
-      if (!data.response_content) {
-        throw new Error('data.response_content is empty');
-      }
-      if (!Array.isArray(data.response_content.transactions)) {
-        throw new Error('data.response_content.transactions should be an array');
-      }
-      if (!Array.isArray(data.response_content.transactions)) {
-        throw new Error('data.response_content.transactions should be an array');
-      }
-      if (!data.response_content.transactions.length) {
-        throw new Error('data.response_content.transactions should not be empty');
-      }
-      if (data.response_content.transactions.length > 1) {
-        logger.warn('multiple transactions');
-      }
-      if (!data.response_content.transactions[0].transaction_sender_reference) {
-        throw new Error('cannot extract transaction_sender_reference');
-      }
-      const internalPlanUuid = data.response_content.transactions[0].transaction_sender_reference;
-
-      return billingApi.getOrCreateUser({
-          providerName: config.wecashup.billingProviderName,
-          userReferenceUuid: user._id,
-          userProviderUuid: undefined, //  le champs 'userProviderUuid' ne doit pas être fourni
-          userOpts: {
-            email: user.get('email'),
-            firstName: user.get('first_name'),
-            lastName: user.get('last_name')
+        .then(([response, data]) => {
+          // error checking :)
+          if (!response) {
+            throw new Error('no response');
           }
-        })
-        .then(billingsResponse => {
-          return billingApi.createSubscription({
-            userBillingUuid: billingsResponse.response.user.userBillingUuid,
-            internalPlanUuid: internalPlanUuid,
-            subscriptionProviderUuid: undefined, // généré par le billing
-            billingInfoOpts: {
-              countryCode: maxmind.getCountryCode(req.clientIp)
-            },
-            subOpts: req.body
-          });
+          if (response.statusCode !== 200) {
+            logger.error(`statusCode = ${response.statusCode}`);
+            throw new Error('wecashup should response 200ok');
+          }
+          if (!data) {
+            throw new Error('no data');
+          }
+          logger.info('<= ' + JSON.stringify(data));
+          if (!data.response_content) {
+            throw new Error('data.response_content is empty');
+          }
+          if (!Array.isArray(data.response_content.transactions)) {
+            throw new Error('data.response_content.transactions should be an array');
+          }
+          if (!Array.isArray(data.response_content.transactions)) {
+            throw new Error('data.response_content.transactions should be an array');
+          }
+          if (!data.response_content.transactions.length) {
+            throw new Error('data.response_content.transactions should not be empty');
+          }
+          if (data.response_content.transactions.length > 1) {
+            logger.warn('multiple transactions');
+          }
+          if (!data.response_content.transactions[0].transaction_sender_reference) {
+            throw new Error('cannot extract transaction_sender_reference');
+          }
+          const internalPlanUuid = data.response_content.transactions[0].transaction_sender_reference;
+
+          return billingApi.getOrCreateUser({
+            providerName: config.wecashup.billingProviderName,
+            userReferenceUuid: user._id,
+            userProviderUuid: undefined, //  le champs 'userProviderUuid' ne doit pas être fourni
+            userOpts: {
+              email: user.get('email'),
+              firstName: user.get('first_name'),
+              lastName: user.get('last_name')
+            }
+          })
+            .then(billingsResponse => {
+              return billingApi.createSubscription({
+                userBillingUuid: billingsResponse.response.user.userBillingUuid,
+                internalPlanUuid: internalPlanUuid,
+                subscriptionProviderUuid: undefined, // généré par le billing
+                billingInfoOpts: {
+                  countryCode: maxmind.getCountryCode(req.clientIp)
+                },
+                subOpts: req.body
+              });
+            });
         });
-      })
-      .then(
-        () => {
-          redirectSuccess(res, '/auth/wecashup/final-callback', {success:true});
-        },
-        (err) => {
-          redirectError(res, '/auth/wecashup/final-callback', {success:false, error:err.message});
-        }
-      );
-    });
+    }).then(
+      () => {
+        redirectSuccess(res, '/auth/wecashup/final-callback', {success: true});
+      },
+      (err) => {
+        redirectError(res, '/auth/wecashup/final-callback', {success: false, error: err.message});
+      }
+    );
 };
