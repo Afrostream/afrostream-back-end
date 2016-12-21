@@ -70,10 +70,13 @@ module.exports.callback = (req, res) => {
       if (!req.signedCookies) {
         throw new Error('no cookies');
       }
-      if (!req.signedCookies.userId) {
+      if (!req.signedCookies[config.cookies.wecashup.name]) {
+        throw new Error('missing cookie wecashup');
+      }
+      if (!req.signedCookies[config.cookies.wecashup.name].userId) {
         throw new Error('missing userId');
       }
-      return User.find({where:{_id: req.signedCookies.userId}});
+      return User.find({where:{_id: req.signedCookies[config.cookies.wecashup.name].userId}});
     })
     .then(user => {
       const merchantUid = config.wecashup.merchant.uid;
