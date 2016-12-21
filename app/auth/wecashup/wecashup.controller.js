@@ -66,7 +66,7 @@ module.exports.check = (req, res) => {
 
 module.exports.callback = (req, res) => {
   const logger = req.logger.prefix('WECASHUP');
-  logger.info('req ' + req);
+
   return Q()
     .then(() => {
       if (!req.signedCookies) {
