@@ -360,7 +360,7 @@ module.exports.createGift = (req, res) => {
                 userBillingUuid: c.userBillingUuid,
                 internalPlanUuid: c.bodyInternalPlanUuid,
                 subscriptionProviderUuid: c.bodySubscriptionProviderUuid,
-                billingInfoOpts: {},
+                billingInfo: {},
                 subOpts: c.bodySubOpts
             };
             return billingApi.createSubscription(subscriptionBillingData);
