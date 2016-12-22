@@ -32,15 +32,15 @@ exports.search = (req, res) => {
   const models = [{
     name: 'movies',
     model: Movie,
-    include: movieIncludedModels
+    include: movieIncludedModels()
   }, {
     name: 'lifePins',
     model: LifePin,
-    include: lifePinsIncludedModels
+    include: lifePinsIncludedModels()
   }, {
     name: 'actors',
     model: Actor,
-    include: actorIncludedModels
+    include: actorIncludedModels()
   }];
 
   const queries = models.map((model) => {
@@ -63,9 +63,12 @@ exports.search = (req, res) => {
       const results = res.results;
 
       (results || []).map((result, key) => {
+
+
         promises.push(new Promise(resolve => {
 
           const modelInstance = models[key].model;
+          console.log(modelInstance);
           let queryOptions = {
             where: {
               _id: {
