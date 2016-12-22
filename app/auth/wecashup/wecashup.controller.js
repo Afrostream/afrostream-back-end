@@ -92,7 +92,7 @@ module.exports.callback = (req, res) => {
         json: true,
         qs: {
           merchant_public_key: merchantPublicKey,
-          merchant_secret:merchantSecret
+          merchant_secret: merchantSecret
         },
         timeout: 10000
       };
@@ -115,9 +115,6 @@ module.exports.callback = (req, res) => {
           logger.log('<= ' + JSON.stringify(data));
           if (!data.response_content) {
             throw new Error('data.response_content is empty');
-          }
-          if (!Array.isArray(data.response_content.transactions)) {
-            throw new Error('data.response_content.transactions should be an array');
           }
           if (!Array.isArray(data.response_content.transactions)) {
             throw new Error('data.response_content.transactions should be an array');
@@ -160,6 +157,7 @@ module.exports.callback = (req, res) => {
         redirectSuccess(res, '/auth/wecashup/final-callback', {success: true});
       },
       (err) => {
+        logger.warn(err.message);
         redirectError(res, '/auth/wecashup/final-callback', {success: false, error: err.message});
       }
     );
