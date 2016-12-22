@@ -149,7 +149,7 @@ var updateSubscription = (subscriptionBillingUuid, status) => {
  */
 var getUser = (userReferenceUuid, providerName) => {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
-  assert(['stripe', 'gocardless', 'recurly', 'celery', 'bachat', 'afr', 'cashway', 'bouygues', 'orange', 'braintree', 'netsize'].indexOf(providerName) !== -1); // add other providers here later.
+  assert(['stripe', 'gocardless', 'recurly', 'celery', 'bachat', 'afr', 'cashway', 'bouygues', 'orange', 'braintree', 'netsize', 'wecashup'].indexOf(providerName) !== -1); // add other providers here later.
 
   return requestBilling({
     url: config.billings.url + '/billings/api/users/'
