@@ -11,22 +11,19 @@
 
 const _ = require('lodash');
 const sqldb = rootRequire('sqldb');
+const algolia = rootRequire('components/algolia');
 const Actor = sqldb.Actor;
 const Image = sqldb.Image;
 const filters = rootRequire('app/api/filters.js');
 const utils = rootRequire('app/api/utils.js');
 
-function getIncludedModel() {
-  return [
-    {model: Image, as: 'picture'}
-  ];
-}
+const getIncludedModel = require('./actor.includedModel').get;
 
-function saveUpdates(updates) {
+function saveUpdates (updates) {
   return entity => entity.updateAttributes(updates);
 }
 
-function updateImages(updates) {
+function updateImages (updates) {
   return entity => {
     const promises = [];
     promises.push(entity.setPicture(updates.picture && Image.build(updates.picture) || null));
@@ -36,7 +33,7 @@ function updateImages(updates) {
   };
 }
 
-function removeEntity(res) {
+function removeEntity (res) {
   return entity => {
     if (entity) {
       return entity.destroy()
@@ -54,7 +51,7 @@ exports.index = (req, res) => {
     include: [
       {model: Image, as: 'picture', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
     ],
-    order: [ [ 'lastName' ] ]
+    order: [['lastName']]
   };
 
   // pagination
@@ -100,6 +97,20 @@ exports.create = (req, res) => {
   Actor.create(req.body)
     .then(updateImages(req.body))
     .then(utils.responseWithResult(req, res, 201))
+    .catch(res.handleError());
+};
+
+// Updates an existing episode in the DB
+exports.algolia = (req, res) => {
+  Actor.findAll({
+    include: getIncludedModel(),
+    where: {
+      active: true
+    }
+  })
+    .then(utils.handleEntityNotFound(res))
+    .then(algolia.importAll(res, 'actors'))
+    .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };
 

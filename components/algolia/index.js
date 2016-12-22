@@ -28,6 +28,10 @@ exports = module.exports = {
     return Q.ninvoke(index, 'search', querystring);
   },
 
+  searchQueries: function (queries) {
+    return Q.ninvoke(client, 'search', queries);
+  },
+
   handleError: function (res) {
     return function (err) {
       res.status(500).send(err);
