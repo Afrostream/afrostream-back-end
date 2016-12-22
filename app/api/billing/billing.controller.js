@@ -238,6 +238,7 @@ module.exports.createSubscriptions = (req, res) => {
                 internalPlanUuid: c.bodyInternalPlanUuid,
                 subscriptionProviderUuid: c.bodySubscriptionProviderUuid,
                 billingInfo: c.billingInfoOpts,
+                billingInfoOpts: {},
                 subOpts: c.bodySubOpts
             };
 
