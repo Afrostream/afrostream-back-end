@@ -145,7 +145,7 @@ module.exports.callback = (req, res) => {
                 userBillingUuid: billingsResponse.response.user.userBillingUuid,
                 internalPlanUuid: internalPlanUuid,
                 subscriptionProviderUuid: undefined, // généré par le billing
-                billingInfoOpts: {
+                billingInfo: {
                   countryCode: maxmind.getCountryCode(req.clientIp)
                 },
                 subOpts: req.body

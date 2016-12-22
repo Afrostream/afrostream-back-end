@@ -180,7 +180,7 @@ module.exports.createSubscriptions = (req, res) => {
         userEmail: req.user.email,
         userProviderUuid: null,
         billingProviderName: req.body.billingProviderName || req.body.billingProvider,
-        billingInfoOpts:req.body.billingInfoOpts || {},
+        billingInfo:req.body.billingInfoOpts || req.body.billingInfo || {},
         bodyFirstName: req.body.firstName,
         bodyLastName: req.body.lastName,
         bodyInternalPlanUuid: req.body.internalPlanUuid,
@@ -237,8 +237,7 @@ module.exports.createSubscriptions = (req, res) => {
                 userBillingUuid: c.userBillingUuid,
                 internalPlanUuid: c.bodyInternalPlanUuid,
                 subscriptionProviderUuid: c.bodySubscriptionProviderUuid,
-                billingInfo: c.billingInfoOpts,
-                billingInfoOpts: {},
+                billingInfo: c.billingInfo,
                 subOpts: c.bodySubOpts
             };
 
