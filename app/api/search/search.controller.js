@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const sqldb = rootRequire('sqldb');
 const Promise = sqldb.Sequelize.Promise;
 const algolia = rootRequire('components/algolia');
@@ -8,7 +7,6 @@ const Movie = sqldb.Movie;
 const Actor = sqldb.Actor;
 const LifePin = sqldb.LifePin;
 const filters = rootRequire('app/api/filters.js');
-const utils = rootRequire('app/api/utils.js');
 
 const movieIncludedModels = require('../movie/movie.includedModel').get;
 const lifePinsIncludedModels = require('../life/pin/pin.includedModel').get;
