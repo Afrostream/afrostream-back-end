@@ -94,5 +94,8 @@
     "test": ". ~/.nvm/nvm.sh && nvm use 6.9.1 && node_modules/.bin/mocha -b test/integration/*",
     "heroku-postbuild": "npm run lint"
   },
+  "pre-commit": [
+    "lint"
+  ],
   "private": true
 }
