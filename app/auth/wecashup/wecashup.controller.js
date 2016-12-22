@@ -78,11 +78,12 @@ module.exports.callback = (req, res) => {
       if (!req.signedCookies[config.cookies.wecashup.name].userId) {
         throw new Error('missing userId');
       }
-      return User.find({where:{_id: req.signedCookies[config.cookies.wecashup.name].userId}});
+      return User.find({where: {_id: req.signedCookies[config.cookies.wecashup.name].userId}});
     })
     .then(user => {
       const merchantUid = config.wecashup.merchant.uid;
       const merchantPublicKey = config.wecashup.merchant.publicKey;
+      const merchantSecret = config.wecashup.merchant.secret;
       const transactionUid = req.body.transaction_uid || '';
 
       const options = {
@@ -90,7 +91,8 @@ module.exports.callback = (req, res) => {
         url: `https://merchant-dashboard-dot-wecashup-payment.appspot.com/api/v1.0/merchants/${merchantUid}/transactions/${transactionUid}`,
         json: true,
         qs: {
-          merchant_public_key: merchantPublicKey
+          merchant_public_key: merchantPublicKey,
+          merchant_secret:merchantSecret
         },
         timeout: 10000
       };

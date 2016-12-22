@@ -106,7 +106,7 @@ module.exports = {
     merchant: {
       uid: 'nZpRMzyIg2Tgh7o2nIK2heGkfVB2',
       publicKey: 'SM3xFy5l31t9HD5XuosCfNuhZvNNhEQHNexLu4VjPtu3',
-      secret: ''
+      secret: 'PwWqkwwq8L7nlb61'
     }
   },
 

@@ -138,7 +138,7 @@ module.exports = {
     merchant: {
       uid: 'bzmSSCP8WqUMDDH4sPb2w8hB14F2',
       publicKey: 'NoZ7voE0KDRSBnxaB7oqcGdWQnrLVxAZm9NLiEIMyYvq',
-      secret: ''
+      secret: 'PwWqkwwq8L7nlb61'
     }
   },
   /* */
