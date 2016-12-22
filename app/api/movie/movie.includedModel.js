@@ -18,3 +18,8 @@ module.exports.get = () => [
   {model: Licensor, as: 'licensor', required: false},
   {model: Actor, as: 'actors', required: false}
 ];
+
+module.exports.getSearch = () => [
+  {model: Image, as: 'logo', required: false},
+  {model: Image, as: 'thumb', required: false}
+];

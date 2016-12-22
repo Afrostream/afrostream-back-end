@@ -8,7 +8,7 @@ const Actor = sqldb.Actor;
 const LifePin = sqldb.LifePin;
 const filters = rootRequire('app/api/filters.js');
 
-const movieIncludedModels = require('../movie/movie.includedModel').get;
+const movieIncludedModels = require('../movie/movie.includedModel').getSearch;
 const lifePinsIncludedModels = require('../life/pin/pin.includedModel').get;
 const actorIncludedModels = require('../actor/actor.includedModel').get;
 

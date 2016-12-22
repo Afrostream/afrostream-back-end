@@ -139,18 +139,17 @@ module.exports.callback = (req, res) => {
               firstName: user.get('first_name'),
               lastName: user.get('last_name')
             }
-          })
-            .then(billingsResponse => {
-              return billingApi.createSubscription({
-                userBillingUuid: billingsResponse.response.user.userBillingUuid,
-                internalPlanUuid: internalPlanUuid,
-                subscriptionProviderUuid: undefined, // généré par le billing
-                billingInfo: {
-                  countryCode: maxmind.getCountryCode(req.clientIp)
-                },
-                subOpts: req.body
-              });
+          }).then(billingsResponse => {
+            return billingApi.createSubscription({
+              userBillingUuid: billingsResponse.response.user.userBillingUuid,
+              internalPlanUuid: internalPlanUuid,
+              subscriptionProviderUuid: undefined, // généré par le billing
+              billingInfo: {
+                countryCode: maxmind.getCountryCode(req.clientIp)
+              },
+              subOpts: req.body
             });
+          });
         });
     }).then(
       () => {
