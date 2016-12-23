@@ -690,8 +690,8 @@ module.exports.callback = function(req, res) {
                 userOpts: {
                   transactionId: c.cookieInfos.transactionId,
                   email: req.passport.user.get('email'),
-                  firstName: req.passport.user.get('first_name'),
-                  lastName: req.passport.user.get('last_name')
+                  firstName: c.cookieInfos.firstName || req.passport.user.get('first_name'),
+                  lastName: c.cookieInfos.lastName ||req.passport.user.get('last_name')
                 }
               })
               .then(function(billingsResponse) {
