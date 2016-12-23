@@ -96,7 +96,7 @@ module.exports.callback = (req, res) => {
           merchant_public_key: merchantPublicKey,
           merchant_secret: merchantSecret
         },
-        timeout: 20000
+        timeout: 30000
       };
 
       logger.log('=> ' + JSON.stringify(options));
