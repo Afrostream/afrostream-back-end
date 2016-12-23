@@ -152,7 +152,7 @@ module.exports.callback = (req, res) => {
               subOpts: req.body
             });
           });
-        })
+        });
     }).then(
       (data) => {
         logger.log('SUCCESS => ' + JSON.stringify(data));
