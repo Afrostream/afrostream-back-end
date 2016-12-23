@@ -152,17 +152,10 @@ module.exports.callback = (req, res) => {
               subOpts: req.body
             });
           });
-        }).then(
-          () => {
-            redirectSuccess(res, '/auth/wecashup/final-callback', {success: true});
-          },
-          (err) => {
-            logger.warn(err.message);
-            redirectError(res, '/auth/wecashup/final-callback', {success: false, error: err.message});
-          }
-        );
+        })
     }).then(
-      () => {
+      (data) => {
+        logger.log('SUCCESS => ' + JSON.stringify(data));
         redirectSuccess(res, '/auth/wecashup/final-callback', {success: true});
       },
       (err) => {
