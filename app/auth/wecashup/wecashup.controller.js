@@ -46,7 +46,9 @@ module.exports.check = (req, res) => {
         res.cookie(
           config.cookies.wecashup.name,
           {
-            userId: req.passport.user._id
+            userId: req.passport.user._id,
+            firstName: req.query.firstName,
+            lastName: req.query.lastName
           },
           {
             domain: config.cookies.wecashup.domain,
@@ -66,19 +68,19 @@ module.exports.check = (req, res) => {
 
 module.exports.callback = (req, res) => {
   const logger = req.logger.prefix('WECASHUP');
-
+  const signedCokkie = req.signedCookies[config.cookies.wecashup.name];
   return Q()
     .then(() => {
       if (!req.signedCookies) {
         throw new Error('no cookies');
       }
-      if (!req.signedCookies[config.cookies.wecashup.name]) {
+      if (!signedCokkie) {
         throw new Error('missing cookie wecashup');
       }
-      if (!req.signedCookies[config.cookies.wecashup.name].userId) {
+      if (!signedCokkie.userId) {
         throw new Error('missing userId');
       }
-      return User.find({where: {_id: req.signedCookies[config.cookies.wecashup.name].userId}});
+      return User.find({where: {_id: signedCokkie.userId}});
     })
     .then(user => {
       const merchantUid = config.wecashup.merchant.uid;
@@ -136,8 +138,8 @@ module.exports.callback = (req, res) => {
             userProviderUuid: undefined, //  le champs 'userProviderUuid' ne doit pas être fourni
             userOpts: {
               email: user.get('email'),
-              firstName: user.get('first_name'),
-              lastName: user.get('last_name')
+              firstName: signedCokkie.firstName || user.get('first_name'),
+              lastName: signedCokkie.lastName || user.get('last_name')
             }
           }).then(billingsResponse => {
             return billingApi.createSubscription({
