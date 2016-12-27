@@ -16,7 +16,7 @@ module.exports.drmtodayCallback = function (req, res/*, next*/) {
   res.noCache(); // we cannot cache this route
   res.set('Content-Type', 'application/json');
 
-  return Video.find({where: {encodingId: encodingId}}).then(function (video) {
+  /*return Video.find({where: {encodingId: encodingId}}).then(function (video) {
     if (!video) throw 'unknown asset '+encodingId;
     return video;
   }).then(
@@ -33,8 +33,8 @@ module.exports.drmtodayCallback = function (req, res/*, next*/) {
       },
       "message": "granted"
     });
-  });
-/*
+  });*/
+  /*
   //
   // hack, test orange, to be removed !
   // BEGIN HACK
@@ -58,6 +58,7 @@ module.exports.drmtodayCallback = function (req, res/*, next*/) {
       });
     });
   }
+  */
   // END HACK
 
   // we check if the user exist & if the accessToken is valid.
@@ -100,5 +101,5 @@ module.exports.drmtodayCallback = function (req, res/*, next*/) {
         });
       }
     );
-    */
+
 };
