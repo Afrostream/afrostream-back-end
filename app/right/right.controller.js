@@ -9,6 +9,9 @@ module.exports.drmtodayCallback = function (req, res, next) {
   var userId = req.params.userId;
   var encodingId = req.params.assetId;
 
+  //FIXME replace encodingId for blackish
+  encodingId = encodingId.replace(/-drm/, '');
+
   // simulating bearer auth
   req.headers.authorization = 'Bearer ' + accessToken;
 
