@@ -37,31 +37,35 @@ module.exports.drmtodayCallback = function (req, res, next) {
    "message": "granted"
    });
    });*/
-  /*
-   //
-   // hack, test orange, to be removed !
-   // BEGIN HACK
-   if (userId === '12345') {
-   return Video.find({where: {encodingId: encodingId}}).then(function (video) {
-   if (!video) throw 'unknown asset '+encodingId;
-   return video;
-   }).then(
-   function (video) { return video; },
-   function () { return { _id: 'unknown', name: 'unknown' }; }
-   ).then(function (video) {
-   res.json({
-   "accountingId": userId + ":" + video._id + ":" + video.name,
-   "profile": {
-   "rental": {
-   "absoluteExpiration": new Date(new Date().getTime() + 1000 * 3600 * 24).toISOString(), // 1 day
-   "playDuration": 1000 * 3600 * 12 // 12 hours
-   }
-   },
-   "message": "granted"
-   });
-   });
-   }
-   */
+
+  //
+  // hack, test orange, to be removed !
+  // BEGIN HACK
+  if (userId === '12345') {
+    return Video.find({where: {encodingId: encodingId}}).then(function (video) {
+      if (!video) throw 'unknown asset ' + encodingId;
+      return video;
+    }).then(
+      function (video) {
+        return video;
+      },
+      function () {
+        return {_id: 'unknown', name: 'unknown'};
+      }
+    ).then(function (video) {
+      res.json({
+        "accountingId": userId + ":" + video._id + ":" + video.name,
+        "profile": {
+          "rental": {
+            "absoluteExpiration": new Date(new Date().getTime() + 1000 * 3600 * 24).toISOString(), // 1 day
+            "playDuration": 1000 * 3600 * 12 // 12 hours
+          }
+        },
+        "message": "granted"
+      });
+    });
+  }
+
   // END HACK
 
   // we check if the user exist & if the accessToken is valid.
