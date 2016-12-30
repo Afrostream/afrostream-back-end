@@ -52,7 +52,7 @@ var env = program.env || "staging";
 
 var envsConf = {
   localhost: {
-    baseUrl: "http://localhost:9000"
+    baseUrl: "http://localhost:5602"
   },
   cdnOrangeStaging: {
     baseUrl: "https://legacy-api-orange-staging.afrostream.tv",

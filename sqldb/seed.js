@@ -375,49 +375,49 @@ promises.push(
     {
       _id: "WEB",
       name: "WEB",
-      fqdn: "{localhost:9000}",
+      fqdn: "{localhost:5602}",
       defaultCountryId: "FR",
       pfName: "AFROSTREAM"
     },
     {
       _id: "BMIA",
       name: "BOUYGUES_MIAMI",
-      fqdn: "{localhost:9000}",
+      fqdn: "{localhost:5602}",
       defaultCountryId: "FR",
       pfName: "BOUYGUESMIAMI"
     },
     {
       _id: "EBOU",
       name: "EXPORTS_BOUYGUES",
-      fqdn: "{localhost:9000}",
+      fqdn: "{localhost:5602}",
       defaultCountryId: "FR",
       pfName: "BOUYGUES"
     },
     {
       _id: "MOBI",
       name: "MOBILE",
-      fqdn: "{localhost:9000}",
+      fqdn: "{localhost:5602}",
       defaultCountryId: "FR",
       pfName: "AFROSTREAM"
     },
     {
       _id: "OMIB",
       name: "ORANGE_MIB4",
-      fqdn: "{localhost:9000}",
+      fqdn: "{localhost:5602}",
       defaultCountryId: "FR",
       pfName: "ORANGE"
     },
     {
       _id: "ONEW",
       name: "ORANGE_NEWBOX",
-      fqdn: "{localhost:9000}",
+      fqdn: "{localhost:5602}",
       defaultCountryId: "FR",
       pfName: "ORANGE"
     },
     {
       _id: "ROKU",
       name: "ROKU",
-      fqdn: "{localhost:9000}",
+      fqdn: "{localhost:5602}",
       defaultCountryId: "FR",
       pfName: "AFROSTREAM"
     }

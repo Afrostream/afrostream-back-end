@@ -59,7 +59,7 @@ POST /api/catchup/bet
 
 test the catchup api using curl :
 ```
-curl -v -X POST --header "Content-Type: application/json" --header "Authorization: Basic ZGV2OmRldg==" --data '{"sharedSecret":"62b8557f248035275f6f8219fed7e9703d59509c","xml":"http://localhost:47611/fake.xml","pfContentId":1316}' http://localhost:9000/api/jobs/catchup-bet
+curl -v -X POST --header "Content-Type: application/json" --header "Authorization: Basic ZGV2OmRldg==" --data '{"sharedSecret":"62b8557f248035275f6f8219fed7e9703d59509c","xml":"http://localhost:47611/fake.xml","pfContentId":1316}' http://localhost:5602/api/jobs/catchup-bet
 ```
 
 test creation catchup job ok & fail :

@@ -5,7 +5,7 @@
 module.exports = {
   backEnd: {
     publicProtocol: 'http',
-    publicAuthority: 'localhost:9000'
+    publicAuthority: 'localhost:5602'
   },
 
   player: {
