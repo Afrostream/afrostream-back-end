@@ -79,8 +79,8 @@ module.exports = function (sequelize, DataTypes) {
 
         // notifications
         webPushNotifications: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true
+            type: DataTypes.JSON,
+            defaultValue: {}
         },
 
         // 3-Leg
