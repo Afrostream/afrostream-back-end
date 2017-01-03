@@ -16,9 +16,17 @@ var Notification = sqldb.Notification;
 var filters = rootRequire('/server/app/api/filters.js');
 var utils = rootRequire('/server/app/api/utils.js');
 var Promise = sqldb.Sequelize.Promise;
-var gcm = require('node-gcm');
-var sender = new gcm.Sender(config.google.cloudKey);
-var senderAsync = Promise.promisify(sender.send, sender);
+var webpush = require('web-push');
+
+// VAPID keys should only be generated only once.
+const vapidKeys = webpush.generateVAPIDKeys();
+webpush.setGCMAPIKey(config.google.cloudKey);
+webpush.setVapidDetails(
+  'mailto:support@afrostream.tv',
+  vapidKeys.publicKey,
+  vapidKeys.privateKey
+);
+var senderAsync = Promise.promisify(webpush.sendNotification, webpush);
 
 function publishNotification (res) {
 // This is the same output of calling JSON.stringify on a PushSubscription
