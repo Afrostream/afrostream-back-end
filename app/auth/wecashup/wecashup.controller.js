@@ -90,7 +90,7 @@ module.exports.callback = (req, res) => {
 
       const options = {
         method: 'GET',
-        url: `https://merchant-dashboard-dot-wecashup-payment.appspot.com/api/v1.0/merchants/${merchantUid}/transactions/${transactionUid}`,
+        url: `https://www.wecashup.com/api/v1.0/merchants/${merchantUid}/transactions/${transactionUid}`,
         json: true,
         qs: {
           merchant_public_key: merchantPublicKey,
