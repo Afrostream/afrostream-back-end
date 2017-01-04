@@ -26,7 +26,5 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     }
-    //TODO ajouter un client (mobile/front/web/box...)
-    //TODO ajouter une langue (FR/EN...)
   });
 };

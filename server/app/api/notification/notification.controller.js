@@ -13,9 +13,9 @@ var _ = require('lodash');
 var sqldb = rootRequire('/server/sqldb');
 var config = rootRequire('/server/config');
 var Notification = sqldb.Notification;
+var User = sqldb.User;
 var filters = rootRequire('/server/app/api/filters.js');
 var utils = rootRequire('/server/app/api/utils.js');
-var Promise = sqldb.Sequelize.Promise;
 var webpush = require('web-push');
 
 // VAPID keys should only be generated only once.
@@ -26,58 +26,26 @@ webpush.setVapidDetails(
   vapidKeys.publicKey,
   vapidKeys.privateKey
 );
-var senderAsync = Promise.promisify(webpush.sendNotification, webpush);
 
 function publishNotification (res) {
-// This is the same output of calling JSON.stringify on a PushSubscription
-  var registrationTokens = [];
-  //registrationTokens.push('AIzaSyChZdYqI4jFHEvHop6vYpuKSVfqkczovpI');
-  //registrationTokens.push('AIzaSyCDjTwcMGz1NQ3bLBvCHv5VhIXW2SJ69qA');
-  registrationTokens.push('AAAAABX7QitvSQlXldGW2_3XdgaJQXr0NxYW4LCL4cUdreHD7E-gBkH5CzTuBOX6Ase6u-OhXF8MyrECdjWdszXZd10_Y04TTjQibvNMMm5G_NDBHHNBvNQ4fmL9cNTziw5LGcHoiLa');
-  //registrationTokens.push('1055101774560');
 
-  var message = new gcm.Message(
-    //{
-    //collapseKey: 'demo',
-    //priority: 'high',
-    //contentAvailable: true,
-    //delayWhileIdle: true,
-    //timeToLive: 3,
-    //restrictedPackageName: 'somePackageName',
-    //dryRun: true,
-    //data: {
-    //  key1: 'message1',
-    //  key2: 'message2'
-    //},
-    //notification: {
-    //  title: "Hello, World",
-    //  icon: "ic_launcher",
-    //  body: "This is a notification that will be displayed ASAP."
-    //}
-    // }
-  );
-
-  message.addNotification({
-    title: 'Alert!!!',
-    body: 'Abnormal data access',
-    icon: 'ic_launcher'
-  });
-
-  //result
-  //{
-  //  "multicast_id": -1,
-  //  "success": 0,
-  //  "failure": 1,
-  //  "canonical_ids": 0,
-  //  "results": [
-  //  {
-  //    "error": "InvalidRegistration"
-  //  }
-  //]
-  //}
-  //return senderAsync(message, {to: 'AIzaSyAF6gmoWfA_IDrn_7c8-dyFB9yZJ8ujpws'});
-  //return senderAsync(message, {registrationIds: registrationTokens});
-  return senderAsync(message, {registrationTokens: registrationTokens}, 1);
+  return function (notification) {
+    return User.findAll({
+      where: {
+        webPushNotificationsData: {$ne: null}
+      }
+    })
+      .then(utils.handleEntityNotFound(res))
+      .then(function (users) {
+        const promises = [];
+        users.map(function (user) {
+          promises.push(webpush.sendNotification(user.webPushNotificationsData, notification.body || 'send notification from server'));
+        });
+        return sqldb.Sequelize.Promise
+          .all(promises)
+          .then(() => notification);
+      })
+  }
 }
 
 function responseNotificationResult (res, statusCode) {
@@ -196,20 +164,14 @@ exports.update = function (req, res) {
 
 // Updates an existing post in the DB
 exports.deploy = function (req, res) {
-  //if (req.body._id) {
-  //  delete req.body._id;
-  //}
-  //Notification.find({
-  //  where: {
-  //    _id: req.params.id
-  //  }
-  //})
-  //  .then(utils.handleEntityNotFound(res))
-  //  .then(publishNotification(res))
-  //  .then(responseWithResult(res))
-  //  .catch(res.handleError());
-  return publishNotification(res)
-    .then(responseNotificationResult(res))
+  Notification.find({
+    where: {
+      _id: req.params.id
+    }
+  })
+    .then(utils.handleEntityNotFound(res))
+    .then(publishNotification(res))
+    .then(responseWithResult(res))
     .catch(res.handleError());
 };
 
