@@ -58,7 +58,7 @@ module.exports = {
     serviceId: 1,
     productType: 121,
     "initialize-authentication-success-code-list": [ "120" ],
-    "initialize-subscription-success-code-list": [ "420", "421", "424" ],
+    "initialize-subscription-success-code-list": [ "111", "420", "421", "424" ],
     "close-subscription-success-code-list": [ "422" ],
     internalPlanUuid: 'nsafrostreammonthly',
     billingProviderName: 'netsize',
