@@ -43,6 +43,7 @@ const filterQueryOptions = (req, options, rootModel) => {
     const isBouyguesMiami = client && client.isBouyguesMiami();
     const isOrange = client && client.isOrange();
     const isOrangeNewbox = client && client.isOrangeNewbox();
+    const isTapptic = client && client.isTapptic();
 
     return sqldb.filterOptions(options, function filter (options, root) {
         const model = root ? rootModel : options.model;
@@ -50,6 +51,10 @@ const filterQueryOptions = (req, options, rootModel) => {
         if (isBacko || isAfrostreamExportsBouygues || isAfrostreamExportsOsearch) {
             // no restrictions.
         } else {
+            // BEGIN HOTFIX: 05/01/2017 bug sur mobile geoblock
+            if (!isTapptic) {
+            // FIN HOTFIX
+
             if (req.country &&
                 model &&
                 model.attributes &&
@@ -72,6 +77,10 @@ const filterQueryOptions = (req, options, rootModel) => {
                     }
                 });
             }
+
+            // BEGIN HOTFIX: 05/01/2017 bug sur mobile geoblock
+            }
+            // FIN HOTFIX
 
             if (req.broadcaster &&
                 model &&
