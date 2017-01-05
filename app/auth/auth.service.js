@@ -14,6 +14,7 @@ var middlewarePassport = rootRequire('app/middlewares/middleware-passport.js');
 var middlewareBroadcaster = rootRequire('app/middlewares/middleware-broadcaster.js');
 var middlewareCountry = rootRequire('app/middlewares/middleware-country.js');
 var middlewareHackBox = rootRequire('app/middlewares/middleware-hack-box.js');
+var middlewareHackTapptic = rootRequire('app/middlewares/middleware-hack-tapptic.js');
 var middlewareMetricsHitsByCountry = () => (req, res, next) => {
   // metrics: authentified hits by country
   const country = req.country && req.country._id || 'unknown';
@@ -177,7 +178,8 @@ exports.middleware = {
       .use(middlewareBroadcaster())
       .use(middlewareCountry())
       .use(middlewareMetricsHitsByCountry())
-      .use(middlewareHackBox());
+      .use(middlewareHackBox())
+      .use(middlewareHackTapptic());
   },
 
   authentify: function (options) {
@@ -189,6 +191,7 @@ exports.middleware = {
       .use(middlewareBroadcaster())
       .use(middlewareCountry())
       .use(middlewareMetricsHitsByCountry())
-      .use(middlewareHackBox());
+      .use(middlewareHackBox())
+      .use(middlewareHackTapptic());
   }
 };

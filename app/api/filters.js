@@ -43,7 +43,7 @@ const filterQueryOptions = (req, options, rootModel) => {
     const isBouyguesMiami = client && client.isBouyguesMiami();
     const isOrange = client && client.isOrange();
     const isOrangeNewbox = client && client.isOrangeNewbox();
-    const isTapptic = client && client.isTapptic();
+    //const isTapptic = client && client.isTapptic();
 
     return sqldb.filterOptions(options, function filter (options, root) {
         const model = root ? rootModel : options.model;
