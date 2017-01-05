@@ -51,10 +51,6 @@ const filterQueryOptions = (req, options, rootModel) => {
         if (isBacko || isAfrostreamExportsBouygues || isAfrostreamExportsOsearch) {
             // no restrictions.
         } else {
-            // BEGIN HOTFIX: 05/01/2017 bug sur mobile geoblock
-            if (!isTapptic) {
-            // FIN HOTFIX
-
             if (req.country &&
                 model &&
                 model.attributes &&
@@ -77,10 +73,6 @@ const filterQueryOptions = (req, options, rootModel) => {
                     }
                 });
             }
-
-            // BEGIN HOTFIX: 05/01/2017 bug sur mobile geoblock
-            }
-            // FIN HOTFIX
 
             if (req.broadcaster &&
                 model &&
