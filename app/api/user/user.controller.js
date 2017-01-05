@@ -194,6 +194,7 @@ exports.update = (req, res) => {
     'socialSharing',
     //
     'webPushNotifications',
+    'webPushNotificationsData',
     //
     'bouyguesId',
     'splashList',
