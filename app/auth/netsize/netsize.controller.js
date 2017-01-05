@@ -314,6 +314,7 @@ module.exports.check = function(req, res) {
 module.exports.subscribe = function(req, res) {
   var logger = req.logger.prefix('NETSIZE');
   var c = {
+    transactionStatus: {},
     transactionId: null
   };
   var methodName = "initialize-subscription";
@@ -346,6 +347,45 @@ module.exports.subscribe = function(req, res) {
       }
 
       c.transactionId = cookieInfos.transactionId;
+
+      // PATCH SUBSCRIBE 04/01/2017
+      // on chope le status, juste pour récupérer le userProviderUuid
+      // afin de register ca en amont dans le billing.
+      // car on n'est pas certain que l'user appelle callback.
+      return Q()
+        .then(function () {
+          logger.debug('get-status of ' + c.transactionId);
+          var methodName = "get-status";
+          var data = generateBaseParameters(methodName, c.transactionId);
+          hydrateWithAdvancedParam(data, methodName, req);
+          return requestNetsize(req, data);
+        })
+        .then(function (json) {
+          c.transactionStatus.code = json['response']['get-status'][0]['transaction-status'][0]['$']['code'];
+          c.transactionStatus.userId = json['response']['get-status'][0]['$']['user-id'];
+          c.transactionStatus.userIdType = json['response']['get-status'][0]['$']['user-id-type'];
+          return billingApi.getOrCreateUser({
+              providerName: config.netsize.billingProviderName,
+              userReferenceUuid: req.passport.user._id,
+              userProviderUuid: c.transactionStatus.userId,
+              userOpts: {
+                transactionId: c.transactionId,
+                email: req.passport.user.get('email'),
+                firstName: cookieInfos.firstName || req.passport.user.get('first_name'),
+                lastName: cookieInfos.lastName ||req.passport.user.get('last_name')
+              }
+            });
+        })
+        .then(function () {
+          return result;
+        }, function (err) {
+          logger.error('get-status: cannot harvest user-id for transaction '+ c.transactionId + ' ' + err.message);
+          return result;
+        });
+    })
+    .then(function success(result) {
+      var cookieInfos = result[0];
+      var internalPlan = result[1];
 
       // base method parameters
       var data = generateBaseParameters(methodName, cookieInfos.transactionId);
