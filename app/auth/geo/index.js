@@ -21,10 +21,10 @@ router.get('/', function (req, res) {
   var authorized = isCountryAuthorized(countryCode);
   if (authorized){
     req.logger.log('authorized, ip=' + ip + ' countryCode=' + countryCode);
-    res.json({authorized: true, ip: ip, countryCode: countryCode});
+    res.jsonp({authorized: true, ip: ip, countryCode: countryCode});
   } else {
     req.logger.log('FORBIDDEN, ip='+ip+' countryCode='+countryCode);
-    res.json({authorized:false, ip:ip, countryCode:countryCode});
+    res.jsonp({authorized:false, ip:ip, countryCode:countryCode});
   }
 });
 

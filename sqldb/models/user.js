@@ -82,7 +82,7 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             defaultValue: true
         },
-
+        webPushNotificationsData: DataTypes.JSON,
         // 3-Leg
         google: DataTypes.JSON,
         github: DataTypes.JSON,

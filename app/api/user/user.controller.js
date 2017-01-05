@@ -194,6 +194,7 @@ exports.update = (req, res) => {
     'socialSharing',
     //
     'webPushNotifications',
+    'webPushNotificationsData',
     //
     'bouyguesId',
     'splashList',
@@ -428,7 +429,7 @@ exports.me = (req, res) => {
       req.logger.log('[INFO]: /api/users/me: user registered but no subscriptions (' + req.user._id + ')');
     })
     .then(
-    function success() { res.json(userInfos); },
+    function success() { res.jsonp(userInfos); },
     res.handleError()
   );
 };
