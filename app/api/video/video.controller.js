@@ -314,7 +314,8 @@ exports.show = (req, res) => {
 
         // BEGIN TEMPFIX: 2016/08/02: on bascule l'intégralité du trafic orange sur l'origine en http simple, sans passer par le cdnselector
         if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
-          source.src = 'http://origin.cdn.afrostream.net' + source.src;
+          // TEMPFIX: 2017/01/06: prod down orange, on test sur HW
+          source.src = 'http://hw.cdn.afrostream.net' + source.src;
           logger.log('[CDNSELECTOR]: tempfix orange: source = ' + source.src);
           return;
         }
