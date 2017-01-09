@@ -49,7 +49,6 @@ function strip(o, key) {
  //
  function recursiveReplaceBillingDateByBackendDate(obj) {
    for (var property in obj) {
-     console.log('property ', property);
      if (obj.hasOwnProperty(property) &&
          property.match(regexKey) &&
          typeof obj[property] === 'string' &&
