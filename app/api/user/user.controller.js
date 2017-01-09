@@ -429,7 +429,14 @@ exports.me = (req, res) => {
       req.logger.log('[INFO]: /api/users/me: user registered but no subscriptions (' + req.user._id + ')');
     })
     .then(
-    function success() { res.jsonp(userInfos); },
+    function success() {
+      if (req.query.callback) {
+        res.jsonp(userInfos); // this function is not monkey patched
+      } else {
+        res.json(userInfos);  // /!\ this function is monkey patched
+                              // dates are rewrited for the mobile app (tapptic)
+      }
+    },
     res.handleError()
   );
 };

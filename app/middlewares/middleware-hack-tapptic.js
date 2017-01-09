@@ -37,6 +37,30 @@ function strip(o, key) {
 }
 
 /*
+ * this function recursively iterate on object value
+ * to replace *Date (billing date key) values from
+ *   2016-09-05T09:42:18+0000
+ * to
+ *   1981-05-15T22:00:00.000Z
+ */
+ function recursiveReplaceBillingDateByBackendDate(obj) {
+   for (var property in obj) {
+     console.log('property ', property);
+     if (obj.hasOwnProperty(property) &&
+         property.match(/^.+Date$/) &&
+         typeof obj[property] === 'string') {
+       // can be a "billing date field" ... (we hope)
+       //  -> convertion
+       obj[property] = new Date(obj[property]);
+     }
+     if (obj.hasOwnProperty(property) && typeof obj[property] === "object") {
+       recursiveReplaceBillingDateByBackendDate(obj[property]);
+     }
+   }
+   return obj;
+ }
+
+/*
  * This function will monkey patch res.json()
  *  to overwrite
  */
@@ -49,6 +73,7 @@ function rewriteOutputs(req, res) {
 
     body = JSON.parse(stringify(body, replacer, spaces));
     body = strip(body, 'countries');
+    body = recursiveReplaceBillingDateByBackendDate(body);
     json(body);
   };
 }
