@@ -30,7 +30,7 @@ exports.setup = function (User, config) {
       logger.log('state = ' + state);
       state = JSON.parse(state);
       var status = state.status;
-      var email = profile.emails[0].value;
+      var email = profile._json.email || profile.emails[0].value;
       var userId = req.user ? req.user._id : state.userId;
       logger.log('userId = ' + userId + ' email = ' + email + ' status = ' + status);
       bluebird.resolve(req.user)
