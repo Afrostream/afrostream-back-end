@@ -43,12 +43,17 @@ function strip(o, key) {
  * to
  *   1981-05-15T22:00:00.000Z
  */
+ // optim
+ var regexKey = /^.+Date$/;
+ var regexBillingDate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4}$/;
+ //
  function recursiveReplaceBillingDateByBackendDate(obj) {
    for (var property in obj) {
      console.log('property ', property);
      if (obj.hasOwnProperty(property) &&
-         property.match(/^.+Date$/) &&
-         typeof obj[property] === 'string') {
+         property.match(regexKey) &&
+         typeof obj[property] === 'string' &&
+         obj[property].match(regexBillingDate)) {
        // can be a "billing date field" ... (we hope)
        //  -> convertion
        obj[property] = new Date(obj[property]);
