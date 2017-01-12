@@ -29,6 +29,13 @@ var middlewareMetricsHitsByCountry = () => (req, res, next) => {
  */
 function isAuthenticated () {
   return function (req, res, next) {
+    // optim, avoiding double hits to AccessTokens & ...
+    if (req.passport &&
+        req.passport.user) {
+      req.user = req.passport.user;
+      return next();
+    }
+
     if (~'development,test'.indexOf(process.env.NODE_ENV) && req.get('bypass-auth')) {
       //
       // dev or test auth bypass
@@ -173,8 +180,8 @@ exports.middleware = {
     options.middlewarePassport = options.middlewarePassport || { preload: true };
 
     return compose()
-      .use(isAuthenticated())
       .use(middlewarePassport(options.middlewarePassport))
+      .use(isAuthenticated())
       .use(middlewareBroadcaster())
       .use(middlewareCountry())
       .use(middlewareMetricsHitsByCountry())
