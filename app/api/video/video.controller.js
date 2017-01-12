@@ -211,6 +211,9 @@ exports.show = (req, res) => {
         if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
           return;
         }
+        if (video._id === "3db799ed-147c-49d7-9423-91e47d226bc0") {
+          return video;
+      }
         /*
         if (req.passport.client.isAfrostreamAdmin()) {
           return; // skip pf part for the admin.
