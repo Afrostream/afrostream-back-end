@@ -211,6 +211,9 @@ exports.show = (req, res) => {
         if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
           return;
         }
+        if (video._id === "3db799ed-147c-49d7-9423-91e47d226bc0") {
+          return video;
+      }
         /*
         if (req.passport.client.isAfrostreamAdmin()) {
           return; // skip pf part for the admin.
@@ -268,7 +271,7 @@ exports.show = (req, res) => {
       //! FIXME: HOTFIX 10/10/2016 live bet down.
       // on hydrate l'objet vidéo avec de la data
       if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
-        logger.warn('live: faking sources');
+        logger.warn('live: faking sources bet');
         video.sources = [
           {
             src: "/live/betdev.isml/bet.m3u8",
@@ -280,6 +283,24 @@ exports.show = (req, res) => {
           },
           {
             src: "/live/betdev.isml/bet.m3u8",
+            type: "application/vnd.ms-sstr+xml"
+          }
+        ];
+      }
+    
+       if (video._id === "3db799ed-147c-49d7-9423-91e47d226bc0") {
+        logger.warn('live: faking sources indies live  tv');
+        video.sources = [
+          {
+            src: "/live/indiestv.isml/indiestv.m3u8",
+            type: "application/vnd.apple.mpegurl"
+          },
+          {
+            src: "/live/indiestv.isml/indiestv.mpd",
+            type: "application/dash+xml"
+          },
+          {
+            src: "/live/indiestv.isml/indiestv.m3u8",
             type: "application/vnd.ms-sstr+xml"
           }
         ];
@@ -355,7 +376,11 @@ exports.show = (req, res) => {
 
       //! FIXME: HOTFIX 10/10/2016 live bet down.
       // pfContent is null here (not loaded from PF)
+      // lb add indies live tv
       if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
+        return video;
+      } 
+      if (video._id === "3db799ed-147c-49d7-9423-91e47d226bc0") {
         return video;
       }
 
