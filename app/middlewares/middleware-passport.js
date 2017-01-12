@@ -50,7 +50,8 @@ function getAccessToken(req) {
  * @param req
  * @return Passport
  */
-function getPassport(req) {
+function getPassport(req, options) {
+  options = options || {};
   var passport = {
     client: null,
     clientIp: null,
@@ -73,13 +74,12 @@ function getPassport(req) {
         // saving the accessToken.
         passport.accessToken = accessToken;
         // searching additionnal infos.
-        return Q.all([
-          accessToken.getClient(),
-          accessToken.getUser()
-        ]).then(function (data) {
-          passport.client = data[0];
-          passport.user = data[1];
-        });
+        var todo = [];
+        if (!options.doNotLoadClient) {
+          todo.push(accessToken.getClient().then(function (d) { passport.client = d; }));
+        }
+        todo.push(accessToken.getUser().then(function (d) { passport.user = d; }));
+        return Q.all(todo);
       }
     })
     .then(

@@ -105,9 +105,6 @@ router.use((req, res, next) => {
   next();
 });
 
-//
-router.use(auth.middleware.restrictRoutesToAuthentified());
-
 // cross domain access to our api, staging only for tests
 if (process.env.NODE_ENV === 'staging') {
   router.use((req, res, next) => {
@@ -143,6 +140,37 @@ const tokenUserMatchParamUser = (req, res, next) => {
     res.status(401).json({error: 'userId param/token mismatch.'});
   }
 };
+
+/*
+ * BEGIN OPTIMISATION: /api/users/me
+ */
+/*
+var compose = require('composable-middleware');
+var middlewarePassport = rootRequire('app/middlewares/middleware-passport.js');
+var middlewareHackBox = rootRequire('app/middlewares/middleware-hack-box.js');
+var middlewareHackTapptic = rootRequire('app/middlewares/middleware-hack-tapptic.js');
+var statsd = rootRequire('statsd');
+var middlewareMetricsHitsByCountry = () => (req, res, next) => {
+  // metrics: authentified hits by country
+  const country = req.country && req.country._id || 'unknown';
+  statsd.client.increment('route.authentified.all.hit');
+  statsd.client.increment('route.authentified.all.infos.country.'+country);
+  next();
+};
+router.get('/me', compose()
+  .use(middlewarePassport())
+  .use(function (req, res, next) {
+    req.getPassport({doNotLoadClient:true}).then(function (passport) {
+      req.passport = passport;
+      req.user = passport.user;
+      next();
+    });
+  })
+  .use(middlewareMetricsHitsByCountry())
+  .use(middlewareHackBox())
+  .use(middlewareHackTapptic()), controller.me);*/
+
+router.use(auth.middleware.restrictRoutesToAuthentified());
 
 router.use('/:userId/favoritesEpisodes', require('./favoriteEpisode/index'));
 router.use('/:userId/favoritesMovies', require('./favoriteMovie/index'));
