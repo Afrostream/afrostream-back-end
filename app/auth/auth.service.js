@@ -30,11 +30,13 @@ var middlewareMetricsHitsByCountry = () => (req, res, next) => {
 function isAuthenticated () {
   return function (req, res, next) {
     // optim, avoiding double hits to AccessTokens & ...
+    /* HOTFIX 2017/01/16: disabling optim, side effect on /api/users/me (missing plancode)
     if (req.passport &&
         req.passport.user) {
       req.user = req.passport.user;
       return next();
     }
+    */
 
     if (~'development,test'.indexOf(process.env.NODE_ENV) && req.get('bypass-auth')) {
       //
