@@ -7,6 +7,7 @@ const utils = rootRequire('app/api/utils.js');
 const router = express.Router();
 
 router.get('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.index);
+router.get('/extList', utils.middlewareNoCache, controller.extList);
 router.get('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.show);
 router.post('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.create);
 router.put('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);

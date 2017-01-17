@@ -40,6 +40,13 @@ exports.index = (req, res) => {
     .catch(res.handleError());
 };
 
+// public id/name list for chrome-extension
+exports.extList = (req, res) => {
+  Client.findAndCountAll({attributes:['_id', 'name']})
+    .then(utils.responseWithResultAndTotal(req, res))
+    .catch(res.handleError());
+};
+
 // Gets a single client from the DB
 exports.show = (req, res) => {
   Client.find({
