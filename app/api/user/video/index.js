@@ -71,6 +71,11 @@ const tokenUserMatchParamUser = (req, res, next) => {
   }
 };
 
+// 2016-01: hack for orange & wiztivi
+// POST /api/users/:userId/videos/:videoId is now an alias/duplicate of the PUT route.
+//  (orange servers cannot proxy PUT requests...)
+router.post('/:videoId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.update);
+//
 router.put('/:videoId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.update);
 router.get('/:videoId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.show);
 router.get('/', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.index);
