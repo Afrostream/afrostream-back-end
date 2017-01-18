@@ -7,23 +7,9 @@ var oauth2 = require('../oauth2/oauth2');
 var sqldb = rootRequire('sqldb');
 var User = sqldb.User;
 
-/**
- * Scope authorizations
- * @type {string[]}
- */
-var scope = [
-  'email',
-  'publish_actions',
-  'user_birthday',
-  'user_actions.video',
-  'user_actions.news',
-  'public_profile',
-  'user_friends'
-];
-
 var strategyOptions = function (options) {
   return function (req, res, next) {
-    req.passportStrategyFacebookOptions = _.merge({
+    req.passportStrategyTwitterOptions = _.merge({
       createAccountIfNotFound: false
     }, options || {});
     next();
@@ -36,8 +22,6 @@ var signin = function (req, res, next) {
 
   logger.log('userId=' + userId);
   passport.authenticate('twitter', {
-    display: 'popup',
-    scope: scope,
     session: false,
     state: new Buffer(JSON.stringify({
       status: 'signin',
@@ -50,8 +34,6 @@ var signup = function (req, res, next) {
   var logger = req.logger.prefix('AUTH').prefix('TWITTER');
   logger.log('start');
   passport.authenticate('twitter', {
-    display: 'popup',
-    scope: scope,
     session: false,
     state: new Buffer(JSON.stringify({
       status: 'signup'
