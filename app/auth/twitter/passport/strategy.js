@@ -138,9 +138,7 @@ Strategy.prototype.userProfile = function (accessToken, done) {
   var url = uri.parse(this._profileURL);
 
   url.query = url.query || {};
-  if (url.pathname.indexOf('/users/show.json') == (url.pathname.length - '/users/show.json'.length)) {
-    url.query.user_id = params.user_id;
-  }
+
   if (this._includeEmail == true) {
     url.query.include_email = true;
   }
@@ -157,7 +155,8 @@ Strategy.prototype.userProfile = function (accessToken, done) {
       if (err.data) {
         try {
           json = JSON.parse(err.data);
-        } catch (_) {
+        } catch (e) {
+          console.log('Passport Twitter json parse error', e);
         }
       }
 
