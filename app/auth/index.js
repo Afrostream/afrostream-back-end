@@ -12,7 +12,6 @@ var auth = rootRequire('app/auth/auth.service');
 require('./local/passport').setup(User, config);
 require('./oauth2/passport').setup(Client, User, AccessToken, config);
 require('./google/passport').setup(User, config);
-require('./twitter/passport').setup(User, config);
 require('./facebook/passport').setup(User, config);
 require('./bouygues/passport').setup(User, config);
 require('./orange/passport').setup(User, config);
@@ -30,7 +29,6 @@ router.use('/geo', require('./geo').router);
 router.use('/oauth2', require('./oauth2'));
 router.use('/local', require('./local'));
 
-router.use('/twitter', require('./twitter'));
 router.use('/google', require('./google'));
 router.use('/facebook', require('./facebook'));
 router.use('/bouygues', require('./bouygues'));
