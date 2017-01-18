@@ -1,6 +1,6 @@
 var bluebird = require('bluebird');
 var passport = require('passport');
-var TwitterStrategy = require('passport-twitter');
+var TwitterStrategy = require('./passport/');
 
 /**
  * - si personne d’a de twitterId , je crée un user from scratch et je lui assigne le bouygueId
