@@ -61,6 +61,11 @@ var all = {
     clientSecret: process.env.FACEBOOK_SECRET || '25130290468ec21fbefd1604218cc57c'
   },
 
+  twitter: {
+    clientID: process.env.TWITTER_ID || '828887693868980',
+    clientSecret: process.env.TWITTER_SECRET || '25130290468ec21fbefd1604218cc57c'
+  },
+
   google: {
     clientID: process.env.GOOGLE_ID || 'id',
     clientSecret: process.env.GOOGLE_SECRET || 'secret',
