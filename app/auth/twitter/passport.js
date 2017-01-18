@@ -10,8 +10,8 @@ var TwitterStrategy = require('./passport/');
  **/
 exports.setup = function (User, config) {
   passport.use(new TwitterStrategy({
-      consumerKey: config.twitter.clientID,
-      consumerSecret: config.twitter.clientSecret,
+      clientID: config.twitter.clientID,
+      clientSecret: config.twitter.clientSecret,
       callbackURL: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/auth/twitter/callback',
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
