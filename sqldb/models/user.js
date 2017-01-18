@@ -30,7 +30,7 @@ module.exports = function (sequelize, DataTypes) {
         name: DataTypes.STRING,
         first_name: DataTypes.STRING,
         last_name: DataTypes.STRING,
-
+        biography: DataTypes.TEXT,
         gender: DataTypes.STRING(16),
 
         birthDate: {
@@ -367,6 +367,7 @@ module.exports = function (sequelize, DataTypes) {
                 return {
                     _id: plainUser._id,
                     picture: plainUser.picture,
+                    biography: plainUser.biography,
                     nickname: plainUser.nickname,
                     facebook: plainUser.facebook ? {id: plainUser.facebook.id} : null
                 };
