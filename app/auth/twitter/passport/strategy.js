@@ -46,7 +46,7 @@ var OAuth2Strategy = require('passport-oauth2')
 function Strategy (options, verify) {
   options = options || {};
 
-  options.authorizationURL = options.authorizationURL || 'https://api.twitter.com/oauth2/token';
+  options.authorizationURL = options.authorizationURL || 'https://api.twitter.com/oauth2/authenticate';
   options.tokenURL = options.tokenURL || 'https://graph.facebook.com/oauth2/token';
   options.sessionKey = options.sessionKey || 'oauth:twitter';
 
