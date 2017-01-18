@@ -21,8 +21,8 @@ var scope = [
   'user_friends'
 ];
 
-var strategyOptions = function(options) {
-  return function(req, res, next) {
+var strategyOptions = function (options) {
+  return function (req, res, next) {
     req.passportStrategyFacebookOptions = _.merge({
       createAccountIfNotFound: false
     }, options || {});
@@ -30,12 +30,12 @@ var strategyOptions = function(options) {
   };
 };
 
-var signin = function(req, res, next) {
+var signin = function (req, res, next) {
   var userId = req.user ? req.user._id : null;
-  var logger = req.logger.prefix('AUTH').prefix('FACEBOOK');
+  var logger = req.logger.prefix('AUTH').prefix('TWITTER');
 
   logger.log('userId=' + userId);
-  passport.authenticate('facebook', {
+  passport.authenticate('twitter', {
     display: 'popup',
     scope: scope,
     session: false,
@@ -46,10 +46,10 @@ var signin = function(req, res, next) {
   })(req, res, next);
 };
 
-var signup = function(req, res, next) {
-  var logger = req.logger.prefix('AUTH').prefix('FACEBOOK');
+var signup = function (req, res, next) {
+  var logger = req.logger.prefix('AUTH').prefix('TWITTER');
   logger.log('start');
-  passport.authenticate('facebook', {
+  passport.authenticate('twitter', {
     display: 'popup',
     scope: scope,
     session: false,
@@ -59,49 +59,49 @@ var signup = function(req, res, next) {
   })(req, res, next);
 };
 
-var unlink = function(req, res) {
+var unlink = function (req, res) {
   var userId = req.user._id;
   User.find({
-      where: {
-        _id: userId
-      }
-    })
-    .then(function(user) {
+    where: {
+      _id: userId
+    }
+  })
+    .then(function (user) {
       if (!user) {
         return res.status(422).end();
       }
-      user.facebook = null;
+      user.twitter = null;
       return user.save();
     })
     .then(
-      function(user) {
+      function (user) {
         res.json(user.getInfos());
       },
       res.handleError(422)
     );
 };
 
-var callback = function(req, res, next) {
-  var logger = req.logger.prefix('AUTH').prefix('FACEBOOK');
+var callback = function (req, res, next) {
+  var logger = req.logger.prefix('AUTH').prefix('TWITTER');
   logger.log('start');
-  passport.authenticate('facebook', {
+  passport.authenticate('twitter', {
     display: 'popup',
     session: false
-  }, function(err, user, info) {
+  }, function (err, user, info) {
     if (err) {
       logger.log('authenticate done, error ' + err.message, JSON.stringify(err));
     } else {
       logger.log('authenticate done, no error, info = ' + JSON.stringify(info));
     }
     Q()
-      .then(function() {
+      .then(function () {
         if (err) throw err;
         //if (info) throw info;
         if (!user) throw new Error('Something went wrong, please try again.');
         logger.log('authenticate getOauth2UserTokens', user._id);
         return req.getPassport();
       })
-      .then(function(passport) {
+      .then(function (passport) {
         logger.log('generate token with client', passport.client._id, user._id);
         var deferred = Q.defer();
         oauth2.generateToken({
@@ -111,7 +111,7 @@ var callback = function(req, res, next) {
           userIp: req.clientIp,
           userAgent: req.userAgent,
           expireIn: null
-        }, function(err, accessToken, refreshToken, info) {
+        }, function (err, accessToken, refreshToken, info) {
           logger.log('token generated ');
           if (err) return deferred.reject(err);
           return deferred.resolve({
@@ -124,7 +124,7 @@ var callback = function(req, res, next) {
         return deferred.promise;
       })
       .then(
-        function success(tokens) {
+        function success (tokens) {
           logger.log('sending tokens ' + JSON.stringify(tokens));
           res.json(tokens);
         },
