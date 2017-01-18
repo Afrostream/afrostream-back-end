@@ -82,36 +82,6 @@ Strategy.prototype.authenticate = function (req, options) {
 };
 
 /**
- * Return extra Twitter-specific parameters to be included in the authorization
- * request.
- *
- * Options:
- *  - `display`  Display mode to render dialog, { `page`, `popup`, `touch` }.
- *
- * @param {object} options
- * @return {object}
- * @access protected
- */
-Strategy.prototype.authorizationParams = function (options) {
-  var params = {};
-
-  // https://developers.twitter.com/docs/reference/dialogs/oauth/
-  if (options.display) {
-    params.display = options.display;
-  }
-
-  // https://developers.twitter.com/docs/twitter-login/reauthentication/
-  if (options.authType) {
-    params.auth_type = options.authType;
-  }
-  if (options.authNonce) {
-    params.auth_nonce = options.authNonce;
-  }
-
-  return params;
-};
-
-/**
  * Retrieve user profile from Twitter.
  *
  * This function constructs a normalized profile, with the following properties:
@@ -149,7 +119,9 @@ Strategy.prototype.userProfile = function (accessToken, done) {
   }
   url = uri.format(url);
 
+  console.log('TWITTER 0AUTH2 token : ', accessToken);
   this._oauth2.get(url, accessToken, function (err, body, res) {
+    console.log('TWITTER 0AUTH2 token result : ', err, body);
     if (err) {
       if (err.data) {
         try {
