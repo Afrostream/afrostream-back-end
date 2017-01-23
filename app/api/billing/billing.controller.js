@@ -64,7 +64,7 @@ module.exports.showInternalplans = (req, res) => {
                     throw new Error('unknown userProviderUuid for user ' + c.userId + ' client type ' + client.type);
             }
         })
-        .then(() => billingApi.getInternalPlans(c))
+        .then(() => billingApi.getInternalPlans(req, c))
         .then(internalPlans => {
             res.json(internalPlans);
         }).catch(res.handleError());
@@ -77,7 +77,7 @@ module.exports.showInternalplan = (req, res) => {
     // FIXME: should be refactored with #209
     // who is initiating this request ?
     Q()
-        .then(() => billingApi.getInternalPlan(c.internalPlanUuid))
+        .then(() => billingApi.getInternalPlan(req, c.internalPlanUuid))
         .then(internalPlans => {
             res.json(internalPlans);
         }).catch(res.handleError());
@@ -112,7 +112,7 @@ module.exports.cancelSubscriptions = (req, res) => {
         //
         // we create the user in the billing-api if he doesn't exist yet
         //
-        .then(() => billingApi.updateSubscription(c.subscriptionUuid, 'cancel'))
+        .then(() => billingApi.updateSubscription(req, c.subscriptionUuid, 'cancel'))
         .then(function success (subscription) {
             res.json(subscription);
         }).catch(res.handleError());
@@ -147,7 +147,7 @@ module.exports.reactivateSubscriptions = (req, res) => {
         //
         // we create the user in the billing-api if he doesn't exist yet
         //
-        .then(() => billingApi.updateSubscription(c.subscriptionUuid, 'reactivate'))
+        .then(() => billingApi.updateSubscription(req, c.subscriptionUuid, 'reactivate'))
         .then(function success (subscription) {
             res.json(subscription);
         }).catch(res.handleError());
@@ -215,7 +215,7 @@ module.exports.createSubscriptions = (req, res) => {
         // we create the user in the billing-api if he doesn't exist yet
         //
         .then(() => {
-          return billingApi.getOrCreateUser({
+          return billingApi.getOrCreateUser(req, {
             providerName: c.billingProviderName,
             userReferenceUuid: c.userId,
             userProviderUuid: c.userProviderUuid,
@@ -241,7 +241,7 @@ module.exports.createSubscriptions = (req, res) => {
                 subOpts: c.bodySubOpts
             };
 
-            return billingApi.createSubscription(subscriptionBillingData);
+            return billingApi.createSubscription(req, subscriptionBillingData);
         })
         .then(function success (subscription) {
             res.json(subscription);
@@ -338,7 +338,7 @@ module.exports.createGift = (req, res) => {
         // we create the user in the billing-api if he doesn't exist yet
         //
         .then(giftUser => {
-          return billingApi.getOrCreateUser({
+          return billingApi.getOrCreateUser(req, {
             providerName: c.billingProviderName,
             userReferenceUuid: giftUser._id,
             userProviderUuid: c.userProviderUuid,
@@ -363,7 +363,7 @@ module.exports.createGift = (req, res) => {
                 billingInfo: {},
                 subOpts: c.bodySubOpts
             };
-            return billingApi.createSubscription(subscriptionBillingData);
+            return billingApi.createSubscription(req, subscriptionBillingData);
         })
         //
         // Sending the email
@@ -380,7 +380,7 @@ module.exports.validateCoupons = (req, res) => {
         .then(() => {
             const billingProviderName = req.query.billingProviderName || req.query.providerName;
             const couponCode = req.query.coupon;
-            return billingApi.validateCoupons(billingProviderName, couponCode);
+            return billingApi.validateCoupons(req, billingProviderName, couponCode);
         })
         .then(couponStatus => {
             res.json(couponStatus);
@@ -401,14 +401,14 @@ module.exports.listCoupons = (req, res) => {
             if (c.userBillingUuid) {
                 return;
             }
-            return billingApi.getUser(c.userId, c.billingProviderName).then(billingsResponse => {
+            return billingApi.getUser(req, c.userId, c.billingProviderName).then(billingsResponse => {
                 c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
             });
         })
         .then(() => {
             const userBillingUuid = c.userBillingUuid;
             const couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
-            return billingApi.listCoupons(userBillingUuid, couponsCampaignBillingUuid);
+            return billingApi.listCoupons(req, userBillingUuid, couponsCampaignBillingUuid);
         })
         .then(couponsList => {
             res.json(couponsList);
@@ -438,7 +438,7 @@ module.exports.createCoupons = (req, res) => {
             if (c.userBillingUuid) {
                 return;
             }
-            return billingApi.getOrCreateUser({
+            return billingApi.getOrCreateUser(req, {
                 providerName: c.billingProviderName,
                 userReferenceUuid: c.userReferenceUuid || c.userId,
                 userProviderUuid: c.userProviderUuid,
@@ -456,7 +456,7 @@ module.exports.createCoupons = (req, res) => {
             const couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
             const userBillingUuid = c.userBillingUuid;
             const couponOpts = c.couponOpts;
-            return billingApi.createCoupons(userBillingUuid, couponsCampaignBillingUuid, couponOpts);
+            return billingApi.createCoupons(req, userBillingUuid, couponsCampaignBillingUuid, couponOpts);
         })
         .then(couponStatus => {
             res.json(couponStatus);
@@ -468,7 +468,7 @@ module.exports.getCouponCampains = (req, res) => {
         .then(() => {
             const billingProviderName = req.query.billingProviderName || req.query.billingProvider;
             const couponsCampaignBillingUuid = req.params.couponsCampaignBillingUuid || req.query.couponsCampaignBillingUuid || '';
-            return billingApi.getCouponCampains(billingProviderName, couponsCampaignBillingUuid);
+            return billingApi.getCouponCampains(req, billingProviderName, couponsCampaignBillingUuid);
         })
         .then(couponStatus => {
             res.json(couponStatus);

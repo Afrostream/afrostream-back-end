@@ -137,7 +137,7 @@ exports.setup = function (User, config) {
           logger.log('userProviderUuid = ' + user.ise2);
           logger.log('OrangeApiToken = ' + orange.identity.OrangeAPIToken);
 
-          return billingApi.getOrCreateUser({
+          return billingApi.getOrCreateUser(req, {
             providerName: 'orange',
             userReferenceUuid: user._id,
             userProviderUuid: orange.identity.collectiveidentifier,
@@ -152,7 +152,7 @@ exports.setup = function (User, config) {
             var userBillingUuid = data.response.user.userBillingUuid;
             var orangeApiToken = orange.identity.OrangeAPIToken;
             logger.log('updating billing user ' + userBillingUuid + ' with orangeApiToken ' + orangeApiToken);
-            return billingApi.updateUser(
+            return billingApi.updateUser(req,
               userBillingUuid,
               {
                 userOpts: {

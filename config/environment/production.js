@@ -3,6 +3,11 @@
 // Production specific configuration
 // =================================
 module.exports = {
+  features: {
+      "backend.billings-pr": "off",      // lowest priority
+      "backend.billings-base-url": "off" // highest priority
+  },
+
   backEnd: {
     publicProtocol: 'https',
     publicAuthority: 'afrostream-backend.herokuapp.com'

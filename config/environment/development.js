@@ -3,6 +3,11 @@
 // Development specific configuration
 // ==================================
 module.exports = {
+  features: {
+      "backend.billings-pr": "off",      // lowest priority
+      "backend.billings-base-url": "off" // highest priority
+  },
+
   backEnd: {
     publicProtocol: 'http',
     publicAuthority: 'localhost:5602'

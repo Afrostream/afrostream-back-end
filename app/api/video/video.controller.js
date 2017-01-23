@@ -154,9 +154,9 @@ function readVideo(videoId) {
   });
 }
 
-function getBillingUserSubscriptionStatus(user) {
+function getBillingUserSubscriptionStatus(req, user) {
   if (user instanceof User.Instance) {
-    return billingApi.someSubscriptionActiveSafe(parseInt(user._id, 10));
+    return billingApi.someSubscriptionActiveSafe(req, parseInt(user._id, 10));
   }
   return Q();
 }
@@ -249,7 +249,7 @@ exports.show = (req, res) => {
 
     ,
     // BILLING INFOS
-    getBillingUserSubscriptionStatus(req.user)
+    getBillingUserSubscriptionStatus(req, req.user)
       .then(active => {
         closure.billingUserSubscriptionActive = active;
       })

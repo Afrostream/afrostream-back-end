@@ -144,7 +144,7 @@ exports.setup = function (User, config) {
         .then(function (user) {
           logger.log('update billingApi userReferenceUuid=' + user._id);
           logger.log('update billingApi userProviderUuid=' + user.bouyguesId);
-          return billingApi.getOrCreateUser({
+          return billingApi.getOrCreateUser(req, {
             providerName: 'bouygues',
             userReferenceUuid: user._id,
             userProviderUuid: profile.id,

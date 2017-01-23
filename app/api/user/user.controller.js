@@ -420,7 +420,7 @@ exports.me = (req, res) => {
   const userInfos = req.user.getInfos();
 
   // on enrichi le profile avec des infos de souscriptions
-  billingApi.getSubscriptionsStatus(req.user._id)
+  billingApi.getSubscriptionsStatus(req, req.user._id)
     .then(subscriptionsStatus => {
       // utilisateur inscrit
       userInfos.subscriptionsStatus = subscriptionsStatus;

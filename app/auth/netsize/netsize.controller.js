@@ -329,7 +329,7 @@ module.exports.subscribe = function(req, res) {
       }
       return Q.all([
         getCookieInfos(req),
-        billingApi.getInternalPlan(config.netsize.internalPlanUuid)
+        billingApi.getInternalPlan(req, config.netsize.internalPlanUuid)
       ]);
     })
     .then(function success(result) {
@@ -364,7 +364,7 @@ module.exports.subscribe = function(req, res) {
           c.transactionStatus.code = json['response']['get-status'][0]['transaction-status'][0]['$']['code'];
           c.transactionStatus.userId = json['response']['get-status'][0]['$']['user-id'];
           c.transactionStatus.userIdType = json['response']['get-status'][0]['$']['user-id-type'];
-          return billingApi.getOrCreateUser({
+          return billingApi.getOrCreateUser(req, {
               providerName: config.netsize.billingProviderName,
               userReferenceUuid: req.passport.user._id,
               userProviderUuid: c.transactionStatus.userId,
@@ -524,7 +524,7 @@ module.exports.unsubscribe = function(req, res) {
       if (!req.passport.accessToken) {
         throw new Error('missing accessToken in passport');
       }
-      return billingApi.getSubscriptions(req.passport.user._id);
+      return billingApi.getSubscriptions(req, req.passport.user._id);
     })
     .then(function(subscriptions) {
       var netsizeSubscriptionsActive = (subscriptions || []).filter(function(subscription) {
@@ -723,7 +723,7 @@ module.exports.callback = function(req, res) {
             // nothing to do
             break;
           case 'subscribe':
-            return billingApi.getOrCreateUser({
+            return billingApi.getOrCreateUser(req, {
                 providerName: config.netsize.billingProviderName,
                 userReferenceUuid: req.passport.user._id,
                 userProviderUuid: c.transactionStatus.userId,
@@ -735,14 +735,14 @@ module.exports.callback = function(req, res) {
                 }
               })
               .then(function(billingsResponse) {
-                return billingApi.createSubscription({
+                return billingApi.createSubscription(req, {
                   userBillingUuid: billingsResponse.response.user.userBillingUuid,
                   internalPlanUuid: config.netsize.internalPlanUuid,
                   subscriptionProviderUuid: c.cookieInfos.transactionId
                 });
               });
           case 'unsubscribe':
-            return billingApi.updateSubscription(c.cookieInfos.subscriptionBillingUuid, 'cancel');
+            return billingApi.updateSubscription(req, c.cookieInfos.subscriptionBillingUuid, 'cancel');
           default:
             throw new Error('unknown lastCall ' + c.cookieInfos.lastCall);
         }

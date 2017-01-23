@@ -19,10 +19,24 @@ var statsd = rootRequire('statsd');
 
 var logger = rootRequire('logger').prefix('BILLING-API');
 
-var requestBilling = options => {
+var requestBilling = (req, options) => {
+  let baseUrl;
+
+  if (options.baseUrl) {
+    baseUrl = options.baseUrl;
+  } else if (req && req.features.isEnabled('backend.billings-base-url')) {
+    baseUrl = req.features.getVariant('backend.billings-base-url');
+  } else if (req && req.features.isEnabled('backend.billings-pr') &&
+             req.features.getVariant('backend.billings-pr').match(/^[\d]+$/)) {
+    baseUrl = 'https://afrostream-billings-pr-'+req.features.getVariant('backend.billings-pr');
+  } else {
+    baseUrl = config.billings.url;
+  }
+
   var defaultOptions = {
     json: true,
     timeout: 25000, // browser request timeout is 30 sec
+    baseUrl: baseUrl,
     auth: {user: config.billings.apiUser, pass: config.billings.apiPass, sendImmediately: true}
   };
   options = _.merge({}, defaultOptions, options);
@@ -62,29 +76,29 @@ var requestBilling = options => {
  * @param user  object
  * @return FIXME
  */
-var getSubscriptions = userReferenceUuid => {
+var getSubscriptions = (req, userReferenceUuid) => {
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
-  return requestBilling({
-    url: config.billings.url + '/billings/api/subscriptions/',
+  return requestBilling(req, {
+    uri: '/billings/api/subscriptions/',
     qs: {userReferenceUuid: userReferenceUuid}
   }).then(body => body && body.response && body.response.subscriptions || []);
 };
 
-var someSubscriptionActive = userReferenceUuid => {
+var someSubscriptionActive = (req, userReferenceUuid) => {
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
-  return getSubscriptions(userReferenceUuid)
+  return getSubscriptions(req, userReferenceUuid)
     .then(subscriptions => subscriptions.some(subscription => subscription.isActive === 'yes'));
 };
 
-var someSubscriptionActiveSafe = userReferenceUuid => {
+var someSubscriptionActiveSafe = (req, userReferenceUuid) => {
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
-  return someSubscriptionActive(userReferenceUuid).then(
+  return someSubscriptionActive(req, userReferenceUuid).then(
     function success (bool) {
       return bool;
     }
@@ -95,12 +109,12 @@ var someSubscriptionActiveSafe = userReferenceUuid => {
   );
 };
 
-var someSubscriptionActiveSafeTrue = userReferenceUuid => {
+var someSubscriptionActiveSafeTrue = (req, userReferenceUuid) => {
   assert(false); // FIXME: differencier un timeout d'un 404 (user non subscribed)
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
-  return someSubscriptionActive(userReferenceUuid).then(
+  return someSubscriptionActive(req, userReferenceUuid).then(
     function success (bool) {
       return bool;
     }
@@ -117,11 +131,12 @@ var someSubscriptionActiveSafeTrue = userReferenceUuid => {
  * @param subscriptionBillingData  object
  * @return FIXME
  */
-var createSubscription = subscriptionBillingData => requestBilling({
-  method: 'POST'
-  , url: config.billings.url + '/billings/api/subscriptions/'
+var createSubscription = (req, subscriptionBillingData) =>
+  requestBilling(req, {
+    method: 'POST'
+  , uri: '/billings/api/subscriptions/'
   , body: subscriptionBillingData
-})
+  })
   .then(body => body && body.response && body.response.subscription || {});
 
 /**
@@ -130,13 +145,13 @@ var createSubscription = subscriptionBillingData => requestBilling({
  * @param subscriptionBillingUuid  string
  * @return FIXME
  */
-var updateSubscription = (subscriptionBillingUuid, status) => {
+var updateSubscription = (req, subscriptionBillingUuid, status) => {
   assert(typeof status === 'string' && status);
-  return requestBilling({
+  return requestBilling(req, {
     method: 'PUT'
-    , url: config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/' + status
+  , uri: '/billings/api/subscriptions/' + subscriptionBillingUuid + '/' + status
   })
-    .then(body => body && body.response && body.response.subscription || {});
+  .then(body => body && body.response && body.response.subscription || {});
 };
 
 /**
@@ -147,13 +162,13 @@ var updateSubscription = (subscriptionBillingUuid, status) => {
  * @param providerName       string  'recurly'
  * @return FIXME
  */
-var getUser = (userReferenceUuid, providerName) => {
+var getUser = (req, userReferenceUuid, providerName) => {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
   assert(['stripe', 'gocardless', 'recurly', 'celery', 'bachat', 'afr', 'cashway', 'bouygues', 'orange', 'braintree', 'netsize', 'wecashup'].indexOf(providerName) !== -1); // add other providers here later.
 
-  return requestBilling({
-    url: config.billings.url + '/billings/api/users/'
-    , qs: {providerName: providerName, userReferenceUuid: userReferenceUuid}
+  return requestBilling(req, {
+    uri: '/billings/api/users/'
+  , qs: {providerName: providerName, userReferenceUuid: userReferenceUuid}
   });
 };
 
@@ -163,13 +178,13 @@ var getUser = (userReferenceUuid, providerName) => {
  * @param userBillingUuid    string  billing user id
  * @param data               object
  */
-var updateUser = (userBillingUuid, data) => {
+var updateUser = (req, userBillingUuid, data) => {
   assert(userBillingUuid);
   assert(data && typeof data === 'object');
 
-  return requestBilling({
+  return requestBilling(req, {
     method: 'PUT'
-  , url: config.billings.url + '/billings/api/users/' + userBillingUuid
+  , uri: '/billings/api/users/' + userBillingUuid
   , body: data
   });
 };
@@ -189,16 +204,16 @@ var updateUser = (userBillingUuid, data) => {
  *  }
  * @return FIXME
  */
-var createUser = billingsData => {
+var createUser = (req, billingsData) => {
   assert(typeof billingsData === 'object' && billingsData);
   assert(typeof billingsData.providerName === 'string');
   assert(typeof billingsData.userReferenceUuid === 'number');
   assert(billingsData.userReferenceUuid);
 
-  return requestBilling({
+  return requestBilling(req, {
     method: 'POST'
-    , url: config.billings.url + '/billings/api/users/'
-    , body: billingsData
+  , uri: '/billings/api/users/'
+  , body: billingsData
   });
 };
 
@@ -218,47 +233,34 @@ var createUser = billingsData => {
  *  }
  * @return FIXME
  */
-var getOrCreateUser = billingsData => {
+var getOrCreateUser = (req, billingsData) => {
   assert(typeof billingsData === 'object' && billingsData);
   assert(typeof billingsData.providerName === 'string');
   assert(typeof billingsData.userReferenceUuid === 'number');
   assert(billingsData.userReferenceUuid);
 
-  return getUser(billingsData.userReferenceUuid, billingsData.providerName)
+  return getUser(req, billingsData.userReferenceUuid, billingsData.providerName)
     .then(billingsResponse => billingsResponse, err => {
       if (err.statusCode !== 404) {
         throw err; // unknown error
       }
       // the user doesn't exist => create
-      return createUser(billingsData);
+      return createUser(req, billingsData);
     });
 };
 
-/**
- * FIXME: unused yet
- */
-/*
- var updateUser = function (userBillingUuid, billingsData) {
- return requestBilling({
- url: config.billings.url + 'billings/api/users/' + userBillingUuid
- , method: 'PUT'
- , body: billingsData
- });
- };
- */
-
-var getInternalPlans = billingsData => {
+var getInternalPlans = (req, billingsData) => {
   assert(typeof billingsData === 'object' && billingsData);
-  return requestBilling({
-    url: config.billings.url + '/billings/api/internalplans/',
+  return requestBilling(req, {
+    uri: '/billings/api/internalplans/',
     qs: billingsData
   }).then(body => body && body.response && body.response.internalPlans || []);
 };
 
-var getInternalPlan = internalPlanUuid => {
+var getInternalPlan = (req, internalPlanUuid) => {
   assert(typeof internalPlanUuid === 'string' && internalPlanUuid);
-  return requestBilling({
-    url: config.billings.url + '/billings/api/internalplans/'+internalPlanUuid
+  return requestBilling(req, {
+    uri: '/billings/api/internalplans/'+internalPlanUuid
   }).then(body => body && body.response && body.response.internalPlan || null);
 };
 
@@ -301,7 +303,7 @@ var subscriptionToPromo = subscription => {
     d < new Date(new Date().getTime() - config.billings.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
 };
 
-var getSubscriptionsStatus = userId => getSubscriptions(userId)
+var getSubscriptionsStatus = (req, userId) => getSubscriptions(req, userId)
   .then(subscriptions => {
     var lastSubscription = subscriptions[0];
     var subscriptionsStatus = {
@@ -315,38 +317,46 @@ var getSubscriptionsStatus = userId => getSubscriptions(userId)
   promo: true
 }));
 
-var validateCoupons = (providerName, couponCode) => requestBilling({
-  url: config.billings.url + '/billings/api/coupons/',
-  qs: {
-    providerName: providerName,
-    couponCode: couponCode
-  }
-}).then(body => body && body.response && body.response || {});
+var validateCoupons = (req, providerName, couponCode) => {
+  return requestBilling(req, {
+    uri: '/billings/api/coupons/',
+    qs: {
+      providerName: providerName,
+      couponCode: couponCode
+    }
+  }).then(body => body && body.response && body.response || {});
+};
 
-var listCoupons = (userBillingUuid, couponsCampaignBillingUuid) => requestBilling({
-  url: config.billings.url + '/billings/api/coupons/list/',
-  qs: {
-    userBillingUuid: userBillingUuid,
-    couponsCampaignBillingUuid: couponsCampaignBillingUuid
-  }
-}).then(body => body && body.response && body.response || {});
+var listCoupons = (req, userBillingUuid, couponsCampaignBillingUuid) => {
+  return requestBilling(req, {
+    uri: '/billings/api/coupons/list/',
+    qs: {
+      userBillingUuid: userBillingUuid,
+      couponsCampaignBillingUuid: couponsCampaignBillingUuid
+    }
+  }).then(body => body && body.response && body.response || {});
+};
 
-var createCoupons = (userBillingUuid, couponsCampaignBillingUuid, couponOpts) => requestBilling({
-  method: 'POST',
-  url: config.billings.url + '/billings/api/coupons/',
-  body: {
-    userBillingUuid: userBillingUuid,
-    couponsCampaignBillingUuid: couponsCampaignBillingUuid,
-    couponOpts: couponOpts
-  }
-}).then(body => body && body.response && body.response || {});
+var createCoupons = (req, userBillingUuid, couponsCampaignBillingUuid, couponOpts) => {
+  return requestBilling(req, {
+    method: 'POST',
+    uri: '/billings/api/coupons/',
+    body: {
+      userBillingUuid: userBillingUuid,
+      couponsCampaignBillingUuid: couponsCampaignBillingUuid,
+      couponOpts: couponOpts
+    }
+  }).then(body => body && body.response && body.response || {});
+};
 
-var getCouponCampains = (providerName, couponsCampaignBillingUuid) => requestBilling({
-  url: config.billings.url + '/billings/api/couponscampaigns/' + couponsCampaignBillingUuid,
-  qs: {
-    providerName: providerName
-  }
-}).then(body => body && body.response && body.response || []);
+var getCouponCampains = (req, providerName, couponsCampaignBillingUuid) => {
+  return requestBilling(req, {
+    uri: '/billings/api/couponscampaigns/' + couponsCampaignBillingUuid,
+    qs: {
+      providerName: providerName
+    }
+  }).then(body => body && body.response && body.response || []);
+};
 
 // very high level
 module.exports.getSubscriptionsStatus = getSubscriptionsStatus;

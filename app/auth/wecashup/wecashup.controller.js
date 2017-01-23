@@ -132,7 +132,7 @@ module.exports.callback = (req, res) => {
           }
           const internalPlanUuid = data.response_content.transactions[0].transaction_sender_reference;
 
-          return billingApi.getOrCreateUser({
+          return billingApi.getOrCreateUser(req, {
             providerName: config.wecashup.billingProviderName,
             userReferenceUuid: user._id,
             userProviderUuid: undefined, //  le champs 'userProviderUuid' ne doit pas être fourni
@@ -142,7 +142,7 @@ module.exports.callback = (req, res) => {
               lastName: signedCokkie.lastName || user.get('last_name')
             }
           }).then(billingsResponse => {
-            return billingApi.createSubscription({
+            return billingApi.createSubscription(req, {
               userBillingUuid: billingsResponse.response.user.userBillingUuid,
               internalPlanUuid: internalPlanUuid,
               subscriptionProviderUuid: undefined, // généré par le billing
