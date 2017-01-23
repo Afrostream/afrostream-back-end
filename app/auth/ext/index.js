@@ -47,7 +47,7 @@ router.get('/token', (req, res) => {
           refreshToken: result[1],
           expires_in: result[2].expires_in
         };
-      })
+      });
     })
     .then(
       res.json.bind(res),
