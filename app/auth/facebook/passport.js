@@ -17,6 +17,7 @@ exports.setup = function (User, config) {
       profileFields: [
         'displayName',
         'email',
+        'emails',
         'name'
       ],
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
