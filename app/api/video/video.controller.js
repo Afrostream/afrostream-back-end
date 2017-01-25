@@ -213,12 +213,13 @@ exports.show = (req, res) => {
         }
         if (video._id === "3db799ed-147c-49d7-9423-91e47d226bc0") {
           return video;
-      }
-        /*
-        if (req.passport.client.isAfrostreamAdmin()) {
-          return; // skip pf part for the admin.
         }
-        */
+        if (req.passport.client.isAfrostreamExportsBouygues()) {
+          return; // skip pf part for export bouygues
+                  // getManifests() would end in "sql: no rows in result set"
+                  //  in the PF api.
+                  // ex: http://p-afsmsch-001.afrostream.tv:4000/api/pfManifest?contentId=248&broadcaster=BOUYGUES
+        }
         if (!video.pfMd5Hash) {
           // fallback, on cherche les sources dans l'ancienne table Assets
           return Asset.findAll({
@@ -287,7 +288,7 @@ exports.show = (req, res) => {
           }
         ];
       }
-    
+
        if (video._id === "3db799ed-147c-49d7-9423-91e47d226bc0") {
         logger.warn('live: faking sources indies live  tv');
         video.sources = [
@@ -379,7 +380,7 @@ exports.show = (req, res) => {
       // lb add indies live tv
       if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
         return video;
-      } 
+      }
       if (video._id === "3db799ed-147c-49d7-9423-91e47d226bc0") {
         return video;
       }
