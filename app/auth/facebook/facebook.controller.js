@@ -11,15 +11,16 @@ var User = sqldb.User;
  * Scope authorizations
  * @type {string[]}
  */
-var scope = [
-  'email',
-  'publish_actions',
-  'user_birthday',
-  'user_actions.video',
-  'user_actions.news',
-  'public_profile',
-  'user_friends'
-];
+//var scope = [
+//  'email',
+//  'publish_actions',
+//  'user_birthday',
+//  'user_actions.video',
+//  'user_actions.news',
+//  'public_profile',
+//  'user_friends'
+//];
+var scope = ['email', 'public_profile', 'user_friends'];
 
 var strategyOptions = function(options) {
   return function(req, res, next) {
