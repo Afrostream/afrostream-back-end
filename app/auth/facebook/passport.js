@@ -15,9 +15,7 @@ exports.setup = function (User, config) {
       callbackURL: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/auth/facebook/callback',
       enableProof: true,
       profileFields: [
-        'displayName',
-        'emails',
-        'name'
+        'id', 'displayName', 'email', 'birthday', 'friends', 'first_name', 'last_name', 'middle_name', 'gender', 'link'
       ],
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
