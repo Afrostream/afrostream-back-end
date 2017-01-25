@@ -12,7 +12,7 @@ exports.setup = function (User, config) {
   passport.use(new FacebookStrategy({
       clientID: config.facebook.clientID,
       clientSecret: config.facebook.clientSecret,
-      profileURL: 'https://graph.facebook.com/v2.6/me',
+      profileURL: 'https://graph.facebook.com/v2.8/me',
       callbackURL: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/auth/facebook/callback',
       enableProof: true,
       profileFields: [
