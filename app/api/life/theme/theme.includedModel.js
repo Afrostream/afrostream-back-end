@@ -23,7 +23,8 @@ module.exports.get = () => [
       'imageUrl',
       'richMediaUrl',
       'description',
-      'date'
+      'date',
+      'translations'
     ],
     required: false,
     include: [{
