@@ -51,7 +51,7 @@ router.get('/:id', utils.middlewareCache, controller.show);
 router.get('/:movieId/seasons/first/episodes/first/video', utils.middlewareCache, controller.getFirstActiveVideo);
 router.get('/:id/seasons', utils.middlewareCache, controller.seasons);
 router.post('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.create);
-router.post('/search', utils.middlewareCache, controller.search);
+router.post('/search', utils.middlewareNoCache, controller.search);
 router.post('/algolia', utils.middlewareNoCache, auth.hasRole('admin'), controller.algolia);
 router.put('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
 router.patch('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);

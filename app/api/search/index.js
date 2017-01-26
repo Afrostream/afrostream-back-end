@@ -7,6 +7,6 @@ const router = express.Router();
 
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
-router.post('/', utils.middlewareCache, controller.search);
+router.post('/', utils.middlewareNoCache, controller.search);
 
 module.exports = router;
