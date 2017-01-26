@@ -88,7 +88,9 @@ function responseWithAdSpot(req, res, statusCode) {
       queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
 
       return entity.getAdSpots(queryOptions).then(adSpots => {
-        res.status(statusCode).json(adSpots);
+        res.status(statusCode).json(
+          filters.filterOutput(adSpots, {req:req})
+        );
       });
     }
   };
