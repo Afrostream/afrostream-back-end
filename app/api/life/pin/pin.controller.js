@@ -137,7 +137,8 @@ exports.index = (req, res) => {
         'likes',
         'imageId',
         'role',
-        'userId'
+        'userId',
+        'translations'
       ],
       include: [
         includeThemesModel, {
