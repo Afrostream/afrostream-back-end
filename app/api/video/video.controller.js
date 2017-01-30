@@ -200,66 +200,84 @@ exports.show = (req, res) => {
       logger.log('broadcaster.pfName='+req.broadcaster.get('pfName'));
       logger.log('req.user._id=' + req.user._id);
     })
-    .then(() => // READ VIDEO
-  //   as soon as possible, read pf infos.
-  Q.all([
-    readVideo(req.params.id)
-      .then(video => {
-        closure.video = video;
-        //! FIXME: HOTFIX 10/10/2016 live bet down.
-        // on skip la recherche côté PF, car la pf ne connait pas les manifests
-        if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
-          return;
-        }
-        if (video._id === "3db799ed-147c-49d7-9423-91e47d226bc0") {
-          return video;
-        }
-        if (req.passport.client.isAfrostreamExportsBouygues()) {
-          return; // skip pf part for export bouygues
-                  // getManifests() would end in "sql: no rows in result set"
-                  //  in the PF api.
-                  // ex: http://p-afsmsch-001.afrostream.tv:4000/api/pfManifest?contentId=248&broadcaster=BOUYGUES
-        }
-        if (!video.pfMd5Hash) {
-          // fallback, on cherche les sources dans l'ancienne table Assets
-          return Asset.findAll({
-            where: { videoId: video._id }
-          }).then(sources => {
-            if (!sources || !sources.length) {
-              throw new Error('missing pfMd5Hash, cannot fallback to Assets table');
+    .then(() => { // READ VIDEO
+      //   as soon as possible, read pf infos.
+      return Q.all([
+        readVideo(req.params.id)
+          .then(video => {
+            closure.video = video;
+            //! FIXME: HOTFIX 10/10/2016 live bet down.
+            // on skip la recherche côté PF, car la pf ne connait pas les manifests
+            if (video._id === "fce62656-81c8-4d42-b54f-726ad8bdc005") {
+              return;
             }
-            // on imite le retour de la pf
-            logger.log('missing pfMd5Hash, fallback to Assets');
-            closure.pfAssetsStreams = [];
-            closure.pfManifests = sources.map(source => ({
-              src: source.src.replace(/^https?:\/\/[^/]+/,''),
-              type: source.type
-            }));
-          });
-        }
-        closure.pfContent = new (pf.PfContent)(video.pfMd5Hash, req.broadcaster.get('pfName'));
-        return Q.all([
-          closure.pfContent.getAssetsStreams(),
-          closure.pfContent.getManifests()
-        ]).then(pfData => {
-          closure.pfAssetsStreams = pfData[0];
-          closure.pfManifests = pfData[1];
-        });
-      })
-
-    ,
-    // BILLING INFOS
-    getBillingUserSubscriptionStatus(req.user)
-      .then(active => {
-        closure.billingUserSubscriptionActive = active;
-      })
-    ,
-    // CDN-SELECTOR
-    getCdnselectorInfos(req.clientIp)
-      .then(cdnselectorInfos => {
-        closure.cdnselectorInfos = cdnselectorInfos;
-      })
-  ]))
+            if (video._id === "3db799ed-147c-49d7-9423-91e47d226bc0") {
+              return video;
+            }
+            if (req.passport.client.isAfrostreamExportsBouygues()) {
+              return; // skip pf part for export bouygues
+                      // getManifests() would end in "sql: no rows in result set"
+                      //  in the PF api.
+                      // ex: http://p-afsmsch-001.afrostream.tv:4000/api/pfManifest?contentId=248&broadcaster=BOUYGUES
+            }
+            //
+            // normal workflow is wrapped into a catch error handler
+            //
+            return Q().then(
+              () => {
+                if (!video.pfMd5Hash) {
+                  // fallback, on cherche les sources dans l'ancienne table Assets
+                  return Asset.findAll({
+                    where: { videoId: video._id }
+                  }).then(sources => {
+                    if (!sources || !sources.length) {
+                      throw new Error('missing pfMd5Hash, cannot fallback to Assets table');
+                    }
+                    // on imite le retour de la pf
+                    logger.log('missing pfMd5Hash, fallback to Assets');
+                    closure.pfAssetsStreams = [];
+                    closure.pfManifests = sources.map(source => ({
+                      src: source.src.replace(/^https?:\/\/[^/]+/,''),
+                      type: source.type
+                    }));
+                  });
+                }
+                closure.pfContent = new (pf.PfContent)(video.pfMd5Hash, req.broadcaster.get('pfName'));
+                return Q.all([
+                  closure.pfContent.getAssetsStreams(),
+                  closure.pfContent.getManifests()
+                ]).then(pfData => {
+                  closure.pfAssetsStreams = pfData[0];
+                  closure.pfManifests = pfData[1];
+                });
+              }
+            ).then(
+              o => o, // tap.
+              err => {
+                if (req.passport.client.isAfrostreamAdmin()) {
+                  // we catch the error, only if the client is the admin !
+                  logger.error(err.message);
+                  return;
+                }
+                // other clients => forwarding the error.
+                throw err;
+              }
+            );
+          })
+        ,
+        // BILLING INFOS
+        getBillingUserSubscriptionStatus(req.user)
+          .then(active => {
+            closure.billingUserSubscriptionActive = active;
+          })
+        ,
+        // CDN-SELECTOR
+        getCdnselectorInfos(req.clientIp)
+          .then(cdnselectorInfos => {
+            closure.cdnselectorInfos = cdnselectorInfos;
+          })
+      ]);
+    })
     .then(function buildingVideoObject() {
       // convert video to plain object
       const video = closure.video.get({plain: true});
