@@ -189,6 +189,25 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
     });
  };
 
+ /*
+  *
+  */
+ PfContent.prototype.getAssetsStreamsAndMockOnError = function () {
+   return this.getAssetsStreams()
+    .then(
+      o => o, // tap
+      err => {
+      logger.error(err.message);
+      //
+      logger.error('IGNORING PREVIOUS ERROR & MOCK PF-RESPONSE');
+      // mock minimaliste
+      return [
+        { "assetId": 42, "type": "video", "language": "eng" },
+        { "assetId": 43, "type": "audio", "language": "fra" }
+      ];
+    });
+ };
+
  PfContent.prototype.getManifests = function () {
    var that = this;
    if (this.manifests) {
