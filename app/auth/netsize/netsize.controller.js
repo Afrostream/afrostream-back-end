@@ -678,11 +678,6 @@ module.exports.callback = function(req, res) {
       } catch (err) {
         throw new Error('get-status: cannot harvest code or user-id or user-id-type ' + err.message);
       }
-      // 2017/01/30: hotfix: avoid: cannot harvest user-id for transaction Z5AAN39XJQEY7K76 unsupported
-      //                            feature for provider named netsize, userProviderUuid has to be provided
-      if (!json['response']['get-status'][0]['$']['user-id']) {
-        throw new Error('get-status: missing user-id in netsize get-status response');
-      }
     })
     .then(
       function isSuccessful() {
