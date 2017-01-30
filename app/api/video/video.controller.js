@@ -404,7 +404,7 @@ exports.show = (req, res) => {
       }
 
       // FIXME: shouldn't assume randomContentProfile is set.
-      if (!closure.pfContent) {
+      if (!closure.pfContent || req.passport.client.isAfrostreamAdmin()) {
         logger.warn('no pfContent => skip rewriteCaptions');
         return video;
       }
