@@ -361,6 +361,11 @@ module.exports.subscribe = function(req, res) {
           return requestNetsize(req, data);
         })
         .then(function (json) {
+          // 2017/01/30: hotfix: avoid: cannot harvest user-id for transaction Z5AAN39XJQEY7K76 unsupported
+          //                            feature for provider named netsize, userProviderUuid has to be provided
+          if (!json['response']['get-status'][0]['$']['user-id']) {
+            throw new Error('get-status: missing user-id in netsize get-status response');
+          }
           c.transactionStatus.code = json['response']['get-status'][0]['transaction-status'][0]['$']['code'];
           c.transactionStatus.userId = json['response']['get-status'][0]['$']['user-id'];
           c.transactionStatus.userIdType = json['response']['get-status'][0]['$']['user-id-type'];
@@ -672,6 +677,11 @@ module.exports.callback = function(req, res) {
         c.transactionStatus.userIdType = json['response']['get-status'][0]['$']['user-id-type'];
       } catch (err) {
         throw new Error('get-status: cannot harvest code or user-id or user-id-type ' + err.message);
+      }
+      // 2017/01/30: hotfix: avoid: cannot harvest user-id for transaction Z5AAN39XJQEY7K76 unsupported
+      //                            feature for provider named netsize, userProviderUuid has to be provided
+      if (!json['response']['get-status'][0]['$']['user-id']) {
+        throw new Error('get-status: missing user-id in netsize get-status response');
       }
     })
     .then(
