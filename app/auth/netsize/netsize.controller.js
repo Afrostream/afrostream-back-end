@@ -380,7 +380,7 @@ module.exports.subscribe = function(req, res) {
           return result;
         }, function (err) {
           logger.error('get-status: cannot harvest user-id for transaction '+ c.transactionId + ' ' + err.message);
-          return result;
+          throw err;
         });
     })
     .then(function success(result) {
