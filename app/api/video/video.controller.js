@@ -241,8 +241,22 @@ exports.show = (req, res) => {
           });
         }
         closure.pfContent = new (pf.PfContent)(video.pfMd5Hash, req.broadcaster.get('pfName'));
+
+        // hotfix: 2017/01/30: sometimes PF returns an error
+        //  because assetsStreams is empty, so for client front, mobile, bouygues, ...
+        //  we mock the PF result
+        let pGetAssetsStreams;
+        if (req.passport.client.isFrontApi() ||
+            req.passport.client.isTapptic() ||
+            req.passport.client.isOrange() ||
+            req.passport.client.isOrangeNewbox() ||
+            req.passport.client.isBouyguesMiami()) {
+          pGetAssetsStreams = closure.pfContent.getAssetsStreamsAndMockOnError();
+        } else {
+          pGetAssetsStreams = closure.pfContent.getAssetsStreams();
+        }
         return Q.all([
-          closure.pfContent.getAssetsStreams(),
+          pGetAssetsStreams,
           closure.pfContent.getManifests()
         ]).then(pfData => {
           closure.pfAssetsStreams = pfData[0];
