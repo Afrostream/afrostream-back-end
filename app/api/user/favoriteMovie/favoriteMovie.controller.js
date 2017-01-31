@@ -38,6 +38,41 @@ const index = (req, res) => {
     .catch(res.handleError(500));
 };
 
+const show = (req, res) => {
+  let queryOptions = {
+    where: {
+      _id: req.user._id
+    },
+    include: [
+      {
+        model: Movie, as: 'favoritesMovies',
+        required: false,
+        include: getIncludedModel(),
+        where: {
+          _id: req.params.movieId
+        }
+      }
+    ]
+  };
+  //
+  queryOptions = filters.filterQueryOptions(req, queryOptions, User);
+  // recursive "required: false"
+  queryOptions = sqldb.filterOptions(queryOptions, { required: false });
+  //
+  User.find(queryOptions)
+    .then(user => {
+      if (!user) {
+        res.status(401).end();
+      } else if (!Array.isArray(user.favoritesMovies) ||
+                  user.favoritesMovies.length === 0) {
+        res.handleError(404)(new Error('not a favorite movie'));
+      } else {
+        res.json(user.favoritesMovies[0]);
+      }
+    })
+    .catch(res.handleError(500));
+};
+
 const add = (req, res) => {
   if (!req.body._id) {
     return res.handleError(500)('missing movie _id');
@@ -85,5 +120,6 @@ const remove = (req, res) => {
 };
 
 module.exports.index = index;
+module.exports.show = show;
 module.exports.add = add;
 module.exports.remove = remove;
