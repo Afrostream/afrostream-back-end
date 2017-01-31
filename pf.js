@@ -193,13 +193,14 @@ function PfContent(pfMd5Hash, pfBroadcasterName) {
   *
   */
  PfContent.prototype.getAssetsStreamsAndMockOnError = function () {
+   var that = this;
    return this.getAssetsStreams()
     .then(
       o => o, // tap
       err => {
       logger.error(err.message);
       //
-      logger.error('IGNORING PREVIOUS ERROR & MOCK PF-RESPONSE');
+      logger.error('IGNORING PREVIOUS ERROR & MOCK PF-RESPONSE '+that.pfMd5Hash);
       // mock minimaliste
       return [
         { "assetId": 42, "type": "video", "language": "eng" },
