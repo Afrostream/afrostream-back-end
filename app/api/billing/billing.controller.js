@@ -34,6 +34,7 @@ module.exports.showInternalplans = (req, res) => {
                     if (!client.billingProviderName) throw new Error('unknown billingProviderName');
                     c.providerName = client.billingProviderName;
                     break;
+                case 'legacy-api.android':
                 case 'front-api.front-end':
                     {
                       const providerName = req.query.providerName || (client ? client.billingProviderName : '');
