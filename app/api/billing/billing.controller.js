@@ -22,7 +22,7 @@ const updateUserName = (req, c) => {
 };
 
 module.exports.showInternalplans = (req, res) => {
-    const c = {};
+    const billingsData = {};
     // FIXME: should be refactored with #209
     // who is initiating this request ?
     Q()
@@ -32,9 +32,16 @@ module.exports.showInternalplans = (req, res) => {
             switch (client.type) {
                 case 'legacy-api.bouygues-miami':
                     if (!client.billingProviderName) throw new Error('unknown billingProviderName');
-                    c.providerName = client.billingProviderName;
+                    billingsData.providerName = client.billingProviderName;
                     break;
                 case 'legacy-api.android':
+                    billingsData.country = req.country && req.country._id || '--';
+                    billingsData.filterEnabled = "true";
+                    billingsData.filterClientId= client._id;
+                    if (req.passport.user) {
+                      billingsData.filterUserReferenceUuid = req.passport.user._id;
+                    }
+                    break;
                 case 'front-api.front-end':
                     {
                       const providerName = req.query.providerName || (client ? client.billingProviderName : '');
@@ -42,30 +49,30 @@ module.exports.showInternalplans = (req, res) => {
                       const contextCountry = req.query.contextCountry;
                       const filterEnabled = req.query.filterEnabled;
                       if (providerName) {
-                          c.providerName = providerName;
+                          billingsData.providerName = providerName;
                       }
                       if (context) {
-                          c.contextBillingUuid = context;
+                          billingsData.contextBillingUuid = context;
                         if (contextCountry) {
-                          c.contextCountry = contextCountry;
+                          billingsData.contextCountry = contextCountry;
                         }
                       }
                       if (filterEnabled) {
-                          c.filterEnabled = filterEnabled;
+                          billingsData.filterEnabled = filterEnabled;
                           if (req.query.country) {
-                              c.country = req.query.country;
+                              billingsData.country = req.query.country;
                           }
                           if (req.query.filterUserReferenceUuid) {
-                              c.filterUserReferenceUuid = req.query.filterUserReferenceUuid;
+                              billingsData.filterUserReferenceUuid = req.query.filterUserReferenceUuid;
                           }
                       }
                     }
                     break;
                 default:
-                    throw new Error('unknown userProviderUuid for user ' + c.userId + ' client type ' + client.type);
+                    throw new Error('unknown userProviderUuid for client type ' + client.type);
             }
         })
-        .then(() => billingApi.getInternalPlans(c))
+        .then(() => billingApi.getInternalPlans(billingsData))
         .then(internalPlans => {
             res.json(internalPlans);
         }).catch(res.handleError());
@@ -75,13 +82,31 @@ module.exports.showInternalplan = (req, res) => {
     const c = {
         internalPlanUuid: req.params.internalPlanUuid
     };
-    // FIXME: should be refactored with #209
-    // who is initiating this request ?
+    const billingsData = { };
+
+    // FIXME: refactoriser showInternalplan & showInternalplans
     Q()
-        .then(() => billingApi.getInternalPlan(c.internalPlanUuid))
-        .then(internalPlans => {
-            res.json(internalPlans);
-        }).catch(res.handleError());
+      .then(() => {
+          const client = req.passport.client;
+          const clientType = client && client.type || '';
+          switch (clientType) {
+            case 'legacy-api.android':
+              billingsData.country = req.country && req.country._id || '--';
+              billingsData.filterEnabled = "true";
+              billingsData.filterClientId = client && client._id;
+              if (req.passport.user) {
+                billingsData.filterUserReferenceUuid = req.passport.user._id;
+              }
+              break;
+            default:
+              /* nothing */
+              break;
+          }
+      })
+      .then(() => billingApi.getInternalPlan(c.internalPlanUuid, billingsData))
+      .then(internalPlans => {
+          res.json(internalPlans);
+      }).catch(res.handleError());
 };
 
 /**

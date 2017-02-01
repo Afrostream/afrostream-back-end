@@ -255,10 +255,13 @@ var getInternalPlans = billingsData => {
   }).then(body => body && body.response && body.response.internalPlans || []);
 };
 
-var getInternalPlan = internalPlanUuid => {
+var getInternalPlan = (internalPlanUuid, billingsData) => {
   assert(typeof internalPlanUuid === 'string' && internalPlanUuid);
+
+  billingsData = billingsData || {};
   return requestBilling({
-    url: config.billings.url + '/billings/api/internalplans/'+internalPlanUuid
+    url: config.billings.url + '/billings/api/internalplans/'+internalPlanUuid,
+    qs: billingsData
   }).then(body => body && body.response && body.response.internalPlan || null);
 };
 
