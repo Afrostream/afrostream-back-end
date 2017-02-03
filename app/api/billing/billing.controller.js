@@ -228,6 +228,7 @@ module.exports.createSubscriptions = (req, res) => {
                     c.userProviderUuid = req.user.bouyguesId;
                     break;
                 case 'front-api.front-end':
+                case 'legacy-api.android':
                     break;
                 default:
                     throw new Error('unknown userProviderUuid for user ' + c.userId + ' client type ' + client.type);
