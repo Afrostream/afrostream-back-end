@@ -35,7 +35,7 @@ module.exports.showInternalplans = (req, res) => {
                     billingsData.providerName = client.billingProviderName;
                     break;
                 case 'legacy-api.android':
-                    billingsData.country = req.country && req.country._id || '--';
+                    billingsData.filterCountry = req.country && req.country._id || '--';
                     billingsData.filterEnabled = "true";
                     billingsData.filterClientId= client._id;
                     if (req.passport.user) {
