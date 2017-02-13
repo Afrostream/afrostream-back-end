@@ -456,6 +456,12 @@ exports.show = (req, res) => {
         return video;
       }
 
+      if (!req.passport.client ||
+          !req.passport.client.isAndroid()) {
+        // invisible field for every clients, except android app
+        delete video.sourceMp4;
+      }
+
       // orange clients mib4 & newbox have a full access
       if (req.passport.client && (req.passport.client.isOrange() || req.passport.client.isOrangeNewbox())) {
         return video;
@@ -465,11 +471,13 @@ exports.show = (req, res) => {
         logger.warn('client ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
+        delete video.sourceMp4;
       }
       if (!closure.billingUserSubscriptionActive) {
         logger.warn('user subscription inactive ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
+        delete video.sourceMp4;
       }
       return video;
     })

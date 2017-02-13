@@ -55,6 +55,11 @@ module.exports = function (sequelize, DataTypes) {
 
       isTapptic: function () {
         return this.getDataValue('type') === 'legacy-api.tapptic';
+      },
+
+      isAndroid: function () {
+        // bahri, app telephone android 
+        return this.getDataValue('type') === 'legacy-api.android';
       }
     }
   });
