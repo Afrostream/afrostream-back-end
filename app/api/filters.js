@@ -40,6 +40,7 @@ const filterQueryOptions = (req, options, rootModel) => {
     const client = req.passport && req.passport.client;
     const isAfrostreamExportsBouygues = client && client.isAfrostreamExportsBouygues();
     const isAfrostreamExportsOsearch = client && client.isAfrostreamExportsOsearch();
+    const isAfrostreamExportsOCI = client && client.isAfrostreamExportsOCI();
     const isBouyguesMiami = client && client.isBouyguesMiami();
     const isOrange = client && client.isOrange();
     const isOrangeNewbox = client && client.isOrangeNewbox();
@@ -48,7 +49,11 @@ const filterQueryOptions = (req, options, rootModel) => {
     return sqldb.filterOptions(options, function filter (options, root) {
         const model = root ? rootModel : options.model;
 
-        if (isBacko || isAfrostreamExportsBouygues || isAfrostreamExportsOsearch) {
+        if (isBacko ||
+            isAfrostreamExportsBouygues ||
+            isAfrostreamExportsOsearch ||
+            isAfrostreamExportsOCI
+          ) {
             // no restrictions.
         } else {
             if (req.country &&

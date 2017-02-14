@@ -45,6 +45,10 @@ module.exports = function (sequelize, DataTypes) {
         return this.getDataValue('type') === 'afrostream-exports-osearch';
       },
 
+      isAfrostreamExportsOCI: function () {
+        return this.getDataValue('type') === 'afrostream-exports-oci';
+      },
+
       isFrontApi: function () {
         return this.getDataValue('type') === 'front-api.front-end';
       },
@@ -58,7 +62,7 @@ module.exports = function (sequelize, DataTypes) {
       },
 
       isAndroid: function () {
-        // bahri, app telephone android 
+        // bahri, app telephone android
         return this.getDataValue('type') === 'legacy-api.android';
       }
     }
