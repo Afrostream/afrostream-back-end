@@ -18,7 +18,9 @@ var scope = [
   'user_actions.video',
   'user_actions.news',
   'public_profile',
-  'user_friends'
+  'user_friends',
+  'user_about_me',
+  'user_location'
 ];
 
 var strategyOptions = function(options) {

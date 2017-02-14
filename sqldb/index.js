@@ -398,6 +398,7 @@ db.LifeThemePins = db.sequelize.import('models/life/lifeThemePins');
 db.LifeThemeSpots = db.sequelize.import('models/life/lifeThemeSpots');
 db.LifeSpot = db.sequelize.import('models/life/lifeSpot');
 db.LifeUsersPins = db.sequelize.import('models/life/lifeUsersPins');
+db.LifeUsersFollowers = db.sequelize.import('models/life/LifeUsersFollowers');
 
 db.LifePin.belongsTo(db.Image, {as: 'image', constraints: false});
 db.LifePin.belongsTo(db.User, {as: 'user', constraints: false});
@@ -407,6 +408,7 @@ db.LifeSpot.belongsToMany(db.LifeTheme, {through: db.LifeThemeSpots, as: 'themes
 db.LifeSpot.belongsTo(db.Image, {as: 'image', constraints: false});
 db.LifeTheme.belongsToMany(db.LifeSpot, {through: db.LifeThemeSpots, as: 'spots', foreignKey: 'lifeThemeId'});
 db.User.hasMany(db.LifePin, {as: 'lifePins', foreignKey: 'userId'});
+
 //JOIN
 db.Client.belongsTo(db.PFGroup, {as: 'pfGroup', constraints: false});
 

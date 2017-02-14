@@ -123,7 +123,11 @@ module.exports = function (sequelize, DataTypes) {
                 notEmpty: true
             }
         },
-        salt: DataTypes.STRING
+        salt: DataTypes.STRING,
+        followers: {
+          type: DataTypes.INTEGER,
+          defaultValue: 0
+        }
     }, {
 
         /**
@@ -368,6 +372,7 @@ module.exports = function (sequelize, DataTypes) {
                     _id: plainUser._id,
                     picture: plainUser.picture,
                     biography: plainUser.biography,
+                    followers: plainUser.followers,
                     nickname: plainUser.nickname,
                     facebook: plainUser.facebook ? {id: plainUser.facebook.id} : null
                 };
