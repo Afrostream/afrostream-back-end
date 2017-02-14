@@ -20,8 +20,8 @@ const Image = sqldb.Image;
 const Licensor = sqldb.Licensor;
 const Video = sqldb.Video;
 const Actor = sqldb.Actor;
-const filters = rootRequire('app/api/filters.js');
-const utils = rootRequire('app/api/utils.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 const getIncludedModel = require('./movie.includedModel').get;
 

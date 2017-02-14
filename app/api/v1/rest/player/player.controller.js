@@ -3,7 +3,7 @@
 const sqldb = rootRequire('sqldb');
 const Config = sqldb.Config;
 
-const utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 exports.showConfig = (req, res) => {
   Config.find({

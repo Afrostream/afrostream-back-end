@@ -177,7 +177,7 @@
  */
 const express = require('express');
 const controller = require('./billing.controller.js');
-const auth = rootRequire('app/auth/auth.service');
+const auth = rootRequire('app/api/v1/auth/auth.service');
 const router = express.Router();
 
 // all billing routes cannot be cached.

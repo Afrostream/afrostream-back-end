@@ -2,7 +2,7 @@
 
 var Video = rootRequire('sqldb').Video;
 
-var authenticate = require('../auth/auth.service').authenticate;
+var authenticate = rootRequire('app/api/v1/auth/auth.service').authenticate;
 
 module.exports.drmtodayCallback = function (req, res, next) {
   var accessToken = req.query.sessionId;

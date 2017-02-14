@@ -14,7 +14,7 @@ const sqldb = rootRequire('sqldb');
 const Movie = sqldb.Movie;
 const Licensor = sqldb.Licensor;
 
-const utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 const getIncludedModel = () => [
   {model: Movie, as: 'movies'} // load all movies

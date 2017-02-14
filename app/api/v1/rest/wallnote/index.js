@@ -2,7 +2,7 @@
 
 const express = require('express');
 const controller = require('./wallnote.controller.js');
-const auth = rootRequire('app/auth/auth.service');
+const auth = rootRequire('app/api/v1/auth/auth.service');
 const router = express.Router();
 
 router.get('/', controller.index);

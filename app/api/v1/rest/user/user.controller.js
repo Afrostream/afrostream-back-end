@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const Q = require('q');
 
-const oauth2 = rootRequire('app/auth/oauth2/oauth2');
+const oauth2 = rootRequire('app/api/v1/auth/oauth2/oauth2');
 
 const sqldb = rootRequire('sqldb');
 const User = sqldb.User;
@@ -18,7 +18,7 @@ const billingApi = rootRequire('billing-api');
 
 const utils = require('../utils.js');
 
-const filters = rootRequire('app/api/filters.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
 
 const statsd = rootRequire('statsd');
 

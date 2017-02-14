@@ -1,6 +1,6 @@
 'use strict';
 
-const filters = rootRequire('app/api/filters.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
 const sqldb = rootRequire('sqldb');
 const User = sqldb.User;
 const Movie = sqldb.Movie;

@@ -23,7 +23,7 @@ const Promise = sqldb.Sequelize.Promise;
 
 const Q = require('q');
 
-const utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 const billingApi = rootRequire('billing-api.js');
 

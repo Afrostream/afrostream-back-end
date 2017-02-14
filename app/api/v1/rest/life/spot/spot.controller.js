@@ -14,8 +14,8 @@ const sqldb = rootRequire('sqldb');
 const Image = sqldb.Image;
 const LifeSpot = sqldb.LifeSpot;
 const LifeTheme = sqldb.LifeTheme;
-const filters = rootRequire('app/api/filters.js');
-const utils = rootRequire('app/api/utils.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 const getIncludedModel = require('./spot.includedModel').get;
 

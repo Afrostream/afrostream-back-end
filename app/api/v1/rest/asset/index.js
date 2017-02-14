@@ -2,9 +2,9 @@
 
 const express = require('express');
 const controller = require('./asset.controller.js');
-const auth = rootRequire('app/auth/auth.service');
+const auth = rootRequire('app/api/v1/auth/auth.service');
 const config = rootRequire('config');
-const utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 const router = express.Router();
 
 router.get('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.index);

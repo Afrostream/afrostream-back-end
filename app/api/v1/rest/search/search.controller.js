@@ -6,7 +6,7 @@ const algolia = rootRequire('components/algolia');
 const Movie = sqldb.Movie;
 const Actor = sqldb.Actor;
 const LifePin = sqldb.LifePin;
-const filters = rootRequire('app/api/filters.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
 
 const movieIncludedModels = require('../movie/movie.includedModel').getSearch;
 const lifePinsIncludedModels = require('../life/pin/pin.includedModel').get;

@@ -14,8 +14,8 @@ const assert = require('better-assert');
 const sqldb = rootRequire('sqldb');
 const Store = sqldb.Store;
 const Promise = sqldb.Sequelize.Promise;
-const filters = rootRequire('app/api/filters.js');
-const utils = rootRequire('app/api/utils.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 const config = rootRequire('config');
 const request = require('request');
 

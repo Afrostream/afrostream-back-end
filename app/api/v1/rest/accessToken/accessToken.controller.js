@@ -12,7 +12,7 @@
 const _ = require('lodash');
 const sqldb = rootRequire('sqldb');
 const AccessToken = sqldb.AccessToken;
-const utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 function saveUpdates(updates) {
   return entity => entity.updateAttributes(updates);

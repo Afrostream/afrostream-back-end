@@ -93,8 +93,8 @@
 
 const express = require('express');
 const controller = require('./user.controller.js');
-const auth = rootRequire('app/auth/auth.service');
-const utils = rootRequire('app/api/utils.js');
+const auth = rootRequire('app/api/v1/auth/auth.service');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 const router = express.Router();
 
 const validator = require('./user.validator.js');

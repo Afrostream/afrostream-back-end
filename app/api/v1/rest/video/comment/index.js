@@ -2,7 +2,7 @@
 
 const express = require('express');
 const controller = require('./comment.controller.js');
-const auth = rootRequire('app/auth/auth.service');
+const auth = rootRequire('app/api/v1/auth/auth.service');
 const router = express.Router({mergeParams:true});
 
 router.get('/', auth.isAuthenticated(), controller.index);

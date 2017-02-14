@@ -4,7 +4,7 @@ const utils = require('../utils.js');
 const Widget = sqldb.Widget;
 const Image = sqldb.Image;
 const getIncludedModel = require('./widget.includedModel').get;
-const filters = rootRequire('app/api/filters.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
 
 const _ = require('lodash');
 

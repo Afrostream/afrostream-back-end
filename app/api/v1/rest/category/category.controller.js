@@ -18,8 +18,8 @@ const Video = sqldb.Video;
 const Episode = sqldb.Episode;
 const Caption = sqldb.Caption;
 const Image = sqldb.Image;
-const filters = rootRequire('app/api/filters.js');
-const utils = rootRequire('app/api/utils.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 const getIncludedModel = () => [
   {

@@ -2,7 +2,7 @@
 
 const express = require('express');
 const controller = require('./waitingUser.controller.js');
-const geo = rootRequire('app/auth/geo');
+const geo = rootRequire('app/api/v1/auth/geo');
 const router = express.Router();
 
 // routes cannot be cached

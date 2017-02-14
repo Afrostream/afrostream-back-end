@@ -11,8 +11,8 @@
 
 const _ = require('lodash');
 const sqldb = rootRequire('sqldb');
-const filters = rootRequire('app/api/filters.js');
-const utils = rootRequire('app/api/utils.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 const getIncludedModel = require('./theme.includedModel.js').get;
 const LifePin = sqldb.LifePin;
 const LifeSpot = sqldb.LifeSpot;

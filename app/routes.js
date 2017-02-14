@@ -19,7 +19,6 @@ module.exports = function (app) {
   app.use('/api/v2/auth', require('./api/v1/auth/index')); // using legacy api
   app.use('/api/v2', (req, res) => res.send('fixme'));
   
-
   // drm
   app.use('/right', require('./right/index'));
 

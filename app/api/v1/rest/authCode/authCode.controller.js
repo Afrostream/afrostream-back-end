@@ -12,7 +12,7 @@
 const sqldb = rootRequire('sqldb');
 const AuthCode = sqldb.AuthCode;
 
-const utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 function saveUpdates(updates) {
   return entity => entity.updateAttributes(updates);

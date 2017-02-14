@@ -4,7 +4,7 @@ const sqldb = rootRequire('sqldb');
 const LifeUsersPins = sqldb.LifeUsersPins;
 const LifePin = sqldb.LifePin;
 
-const filters = rootRequire('/app/api/filters');
+const filters = rootRequire('app/api/v1/rest/filters');
 
 module.exports.update = (req, res) => {
   const lifeUserPinKey = { userId: req.user._id, pinId: req.params.pinId};

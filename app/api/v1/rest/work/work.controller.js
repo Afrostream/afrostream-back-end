@@ -12,8 +12,8 @@
 const _ = require('lodash');
 const sqldb = rootRequire('sqldb');
 const Work = sqldb.Work;
-const filters = rootRequire('app/api/filters.js');
-const utils = rootRequire('app/api/utils.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 function saveUpdates (updates) {
   return entity => entity.updateAttributes(updates);

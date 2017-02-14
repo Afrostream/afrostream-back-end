@@ -3,8 +3,8 @@
 const _ = require('lodash');
 const sqldb = rootRequire('sqldb');
 const Genre = sqldb.Genre;
-const filters = rootRequire('app/api/filters.js');
-const utils = rootRequire('app/api/utils.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 // Gets a list of episodes
 exports.index = (req, res) => {

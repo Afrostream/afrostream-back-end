@@ -12,7 +12,7 @@
 const sqldb = rootRequire('sqldb');
 const Client = sqldb.Client;
 
-const utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 function saveUpdates(updates) {
   return entity => entity.updateAttributes(updates);

@@ -4,7 +4,7 @@ var _ = require('lodash');
 var config = rootRequire('config');
 var crypto = require('crypto');
 var authTypes = ['github', 'twitter', 'facebook', 'google', 'bouygues', 'orange'];
-var utils = rootRequire('app/api/utils.js');
+var utils = rootRequire('app/api/v1/rest/utils.js');
 
 var validatePresenceOf = function (value) {
     return value && value.length;

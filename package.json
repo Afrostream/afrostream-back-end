@@ -24,6 +24,7 @@
     "eslint": "^3.10.2",
     "express": "^4.14.0",
     "express-cluster": "0.0.4",
+    "express-graphql": "^0.6.3",
     "express-jwt": "^5.1.0",
     "file-type": "^3.9.0",
     "graphql": "^0.9.1",

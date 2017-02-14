@@ -10,7 +10,7 @@ const Q = require('q');
 
 const Client = rootRequire('sqldb').Client;
 const User = rootRequire('sqldb').User;
-const oauth2 = rootRequire('app/auth/oauth2/oauth2');
+const oauth2 = rootRequire('app/api/v1/auth/oauth2/oauth2');
 
 router.get('/token', (req, res) => {
   Q()

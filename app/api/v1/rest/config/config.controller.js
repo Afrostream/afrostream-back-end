@@ -1,7 +1,7 @@
 'use strict';
 const sqldb = rootRequire('sqldb');
 const config = rootRequire('config');
-const utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 const Config = sqldb.Config;
 
 function mapEntitys () {

@@ -16,8 +16,8 @@ const Episode = sqldb.Episode;
 const Season = sqldb.Season;
 const Video = sqldb.Video;
 const Image = sqldb.Image;
-const filters = rootRequire('app/api/filters.js');
-const utils = rootRequire('app/api/utils.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 const getIncludedModel = require('./episode.includedModel.js').get;
 

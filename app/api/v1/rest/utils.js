@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-const filters = rootRequire('app/api/filters.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
 
 // should be 10
 // but the auto-complete require to query in 200 episodes ...

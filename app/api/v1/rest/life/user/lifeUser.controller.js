@@ -1,11 +1,11 @@
 'use strict';
 
-const filters = rootRequire('app/api/filters.js');
+const filters = rootRequire('app/api/v1/rest/filters.js');
 const sqldb = rootRequire('sqldb');
 const _ = require('lodash');
 const LifePin = sqldb.LifePin;
 const User = sqldb.User;
-const utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 const getIncludedModel = require('./lifeUser.includedModel').get;
 
 exports.index = (req, res) => {
