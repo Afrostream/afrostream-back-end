@@ -398,7 +398,7 @@ db.LifeThemePins = db.sequelize.import('models/life/lifeThemePins');
 db.LifeThemeSpots = db.sequelize.import('models/life/lifeThemeSpots');
 db.LifeSpot = db.sequelize.import('models/life/lifeSpot');
 db.LifeUsersPins = db.sequelize.import('models/life/lifeUsersPins');
-db.LifeUsersFollowers = db.sequelize.import('models/life/LifeUsersFollowers');
+db.LifeUsersFollowers = db.sequelize.import('models/life/lifeUsersFollowers');
 
 db.LifePin.belongsTo(db.Image, {as: 'image', constraints: false});
 db.LifePin.belongsTo(db.User, {as: 'user', constraints: false});
