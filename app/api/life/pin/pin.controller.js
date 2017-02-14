@@ -99,7 +99,7 @@ exports.index = (req, res) => {
       'slug',
       'sort'
     ],
-    required: !Boolean(all)
+    required: !all
   };
 
   //SearchBy themes

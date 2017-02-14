@@ -8,7 +8,6 @@ const filters = rootRequire('/app/api/filters');
 
 module.exports.update = (req, res) => {
 
-  console.log('follow')
   const lifeUserFollowKey = {userId: req.user._id, followUserId: req.params.followUserId};
   const data = _.merge({}, req.body, lifeUserFollowKey);
 
