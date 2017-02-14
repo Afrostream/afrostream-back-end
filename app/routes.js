@@ -10,10 +10,15 @@ module.exports = function (app) {
   //  /api/v2/graphql
 
   // api v1
-  app.use('/auth', require('./api/reset/auth/index'));
-  app.use('/api/auth', require('./api/reset/auth/index')); // <= used by orange
-  app.use('/api/v1', require('./api/rest/v1'));
-  app.use('/api', require('./api/rest/v1'));
+  app.use('/auth', require('./api/v1/auth/index')); // legacy
+  app.use('/api/auth', require('./api/v1/auth/index')); // <= used by orange
+  app.use('/api/v1', require('./api/v1/rest'));
+  app.use('/api', require('./api/v1/rest'));
+
+  // api v2
+  app.use('/api/v2/auth', require('./api/v1/auth/index')); // using legacy api
+  app.use('/api/v2', (req, res) => res.send('fixme'));
+  
 
   // drm
   app.use('/right', require('./right/index'));
