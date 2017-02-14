@@ -79,6 +79,7 @@ exports.setup = function (User, config) {
             // user exist => update
             user.name = user.name || profile.displayName;
             user.biography = user.biography || profile._json.about;
+            user.postalAddressCity = user.postalAddressCity || (profile._json.location && profile._json.location.name) || null;
             user.facebook = profile._json;
             return user.save();
           } else {
@@ -90,6 +91,7 @@ exports.setup = function (User, config) {
             return User.create({
               name: profile.displayName,
               biography: profile._json.about,
+              postalAddressCity: (profile._json.location && profile._json.location.name || null),
               email: email,
               first_name: profile.name.givenName,
               last_name: profile.name.familyName,
