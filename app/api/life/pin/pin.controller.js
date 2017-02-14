@@ -79,6 +79,7 @@ function addThemes (updates) {
 exports.index = (req, res) => {
   const isBacko = utils.isReqFromAfrostreamAdmin(req);
   const queryName = req.query.query;
+  const all = req.query.all;
   const queryThemeId = req.query.themeId;
   const queryUserId = req.query.userId;
   const language = req.query.language;
@@ -98,7 +99,7 @@ exports.index = (req, res) => {
       'slug',
       'sort'
     ],
-    required: true
+    required: !Boolean(all)
   };
 
   //SearchBy themes

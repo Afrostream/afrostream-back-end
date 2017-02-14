@@ -15,7 +15,7 @@ module.exports = function (sequelize, DataTypes) {
     },
     followUserId: {
       type: DataTypes.INTEGER,
-      unique: 'userId_followId'
+      unique: 'userId_followedUserId'
     },
     follow: DataTypes.BOOLEAN
   });

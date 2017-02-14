@@ -18,7 +18,8 @@ exports.setup = function (User, config) {
       profileFields: [
         'displayName',
         'emails',
-        'name'
+        'name',
+        'about'
       ],
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
@@ -77,6 +78,7 @@ exports.setup = function (User, config) {
             logger.log('user ' + user._id + ' found => updating');
             // user exist => update
             user.name = user.name || profile.displayName;
+            user.biography = user.biography || profile._json.about;
             user.facebook = profile._json;
             return user.save();
           } else {
@@ -87,6 +89,7 @@ exports.setup = function (User, config) {
             // new user => create
             return User.create({
               name: profile.displayName,
+              biography: profile._json.about,
               email: email,
               first_name: profile.name.givenName,
               last_name: profile.name.familyName,
