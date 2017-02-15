@@ -100,8 +100,7 @@ module.exports = function (sequelize, DataTypes) {
           this.applyTranslation(options.language);
         }
       }
-    }
-  }, {
+    },
     tableName: 'VueMovies'
   });
 };
