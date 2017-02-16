@@ -176,11 +176,11 @@ exports.mine = (req, res) => {
         raw: true,
         where: {userId: req.user._id},
         attributes: ['followUserId']
-      })
+      });
     })
     .then((users) => {
       if (!users) {
-        return queryOptions
+        return queryOptions;
       }
       const data = _.map(users, (user) => user.followUserId);
       data.push(req.user._id);
@@ -194,7 +194,7 @@ exports.mine = (req, res) => {
         }
       });
 
-      return queryOptions
+      return queryOptions;
     })
     .then((opts) => {
       // pagination
@@ -202,7 +202,7 @@ exports.mine = (req, res) => {
       return filters.filterQueryOptions(req, opts, LifePin);
     })
     .then((opts) => {
-      return LifePin.findAndCountAll(opts)
+      return LifePin.findAndCountAll(opts);
     })
     .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(req, res))
