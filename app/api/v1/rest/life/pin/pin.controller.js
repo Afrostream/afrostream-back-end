@@ -16,6 +16,7 @@ const algolia = rootRequire('components/algolia');
 const Image = sqldb.Image;
 const LifePin = sqldb.LifePin;
 const LifeTheme = sqldb.LifeTheme;
+const LifeUsersFollowers = sqldb.LifeUsersFollowers;
 const User = sqldb.User;
 const filters = rootRequire('app/api/v1/rest/filters.js');
 const utils = rootRequire('app/api/v1/rest/utils.js');
@@ -76,6 +77,139 @@ function addThemes (updates) {
 
 // Gets a list of life/pins
 // ?query=... (search in the title)
+exports.mine = (req, res) => {
+  const isBacko = utils.isReqFromAfrostreamAdmin(req);
+  const language = req.query.language;
+
+  let queryOptions = {
+    order: [
+      ['date', 'DESC']
+    ]
+  };
+
+  let includeThemesModel = {
+    model: LifeTheme,
+    as: 'themes',
+    attributes: [
+      '_id',
+      'label',
+      'slug',
+      'sort'
+    ],
+    required: false
+  };
+
+  if (isBacko) {
+    // aucune restriction sur les objets liés
+    queryOptions = _.merge(queryOptions, {
+      include: getIncludedModel()
+    });
+  } else {
+    // on ne remonte pas les pins sans themes.
+    queryOptions = _.merge(queryOptions, {
+      attributes: [
+        '_id',
+        'type',
+        'title',
+        'date',
+        'originalUrl',
+        'imageUrl',
+        'providerName',
+        'providerUrl',
+        'description',
+        'likes',
+        'imageId',
+        'role',
+        'userId',
+        'translations'
+      ],
+      include: [
+        includeThemesModel, {
+          model: Image,
+          as: 'image',
+          required: false
+        }, {
+          model: User,
+          as: 'user',
+          required: false
+        }
+      ]
+    });
+  }
+  // pagination
+  utils.mergeReqRange(queryOptions, req);
+
+  //FIlter outbut only object with language translation
+  if (language) {
+    const langObj = {};
+    langObj[language] = {$ne: null};
+    queryOptions = _.merge(queryOptions, {
+      translations: {
+        title: langObj
+      }
+    });
+  }
+  if (req.query.limit) {
+    queryOptions = _.merge(queryOptions, {
+      limit: req.query.limit,
+      subQuery: false
+    });
+  }
+
+  if (req.query.order) {
+    queryOptions = _.merge(queryOptions, {
+      order: [
+        [req.query.order, req.query.sort || 'DESC']
+      ]
+    });
+  }
+
+  if (req.query.offset) {
+    queryOptions = _.merge(queryOptions, {
+      offset: req.query.offset
+    });
+  }
+
+  Q()
+    .then(() => {
+      return LifeUsersFollowers.findAll({
+        raw: true,
+        where: {userId: req.user._id},
+        attributes: ['followUserId']
+      });
+    })
+    .then((users) => {
+      if (!users) {
+        return queryOptions;
+      }
+      const data = _.map(users, (user) => user.followUserId);
+      data.push(req.user._id);
+      console.log('users ', users, data);
+
+      queryOptions = _.merge(queryOptions, {
+        where: {
+          userId: {
+            $in: data
+          }
+        }
+      });
+
+      return queryOptions;
+    })
+    .then((opts) => {
+      // pagination
+      utils.mergeReqRange(opts, req);
+      return filters.filterQueryOptions(req, opts, LifePin);
+    })
+    .then((opts) => {
+      return LifePin.findAndCountAll(opts);
+    })
+    .then(utils.handleEntityNotFound(res))
+    .then(utils.responseWithResultAndTotal(req, res))
+    .catch(res.handleError());
+
+};
+
 exports.index = (req, res) => {
   const isBacko = utils.isReqFromAfrostreamAdmin(req);
   const queryName = req.query.query;
@@ -186,8 +320,6 @@ exports.index = (req, res) => {
     });
   }
 
-  // pagination
-  utils.mergeReqRange(queryOptions, req);
 
   if (req.query.limit) {
     queryOptions = _.merge(queryOptions, {
@@ -210,6 +342,8 @@ exports.index = (req, res) => {
     });
   }
 
+  // pagination
+  utils.mergeReqRange(queryOptions, req);
   queryOptions = filters.filterQueryOptions(req, queryOptions, LifePin);
 
   LifePin.findAndCountAll(queryOptions)

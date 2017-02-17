@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
+router.get('/mine', utils.middlewareCache, controller.mine);
 router.get('/', utils.middlewareCache, controller.index);
 router.get('/:id', utils.middlewareCache, controller.show);
 router.post('/scrap', utils.middlewareNoCache, controller.scrap);
