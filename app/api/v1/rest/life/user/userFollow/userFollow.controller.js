@@ -4,7 +4,7 @@ const sqldb = rootRequire('sqldb');
 const LifeUsersFollowers = sqldb.LifeUsersFollowers;
 const User = sqldb.User;
 
-const filters = rootRequire('/app/api/filters');
+const filters = rootRequire('app/api/v1/rest/filters');
 
 module.exports.update = (req, res) => {
 
