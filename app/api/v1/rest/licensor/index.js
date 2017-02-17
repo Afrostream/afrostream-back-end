@@ -1,0 +1,16 @@
+'use strict';
+
+const express = require('express');
+const controller = require('./licensor.controller.js');
+const auth = rootRequire('app/api/v1/auth/auth.service');
+const utils = rootRequire('app/api/v1/rest/utils.js');
+const router = express.Router();
+
+router.get('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.index);
+router.get('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.show);
+router.post('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.create);
+router.put('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
+router.patch('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
+router.delete('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.destroy);
+
+module.exports = router;

@@ -3,13 +3,22 @@
 var errors = require('./../components/errors/index');
 
 module.exports = function (app) {
-  // authentification
-  app.use('/auth', require('./auth/index'));
-  app.use('/api/auth', require('./auth/index')); // <= used by orange
+  // 3 main routes :
+  //  /api/v1/* (REST)
+  //  /api/auth (no versionning, http)
+  //  /api/v2/* (REST)
+  //  /api/v2/graphql
 
-  // api
-  app.use('/api', require('./api'));
+  // api v1
+  app.use('/auth', require('./api/v1/auth/index')); // legacy
+  app.use('/api/auth', require('./api/v1/auth/index')); // <= used by orange
+  app.use('/api/v1', require('./api/v1/rest'));
+  app.use('/api', require('./api/v1/rest'));
 
+  // api v2
+  app.use('/api/v2/auth', require('./api/v1/auth/index')); // using legacy api
+  app.use('/api/v2', (req, res) => res.send('fixme'));
+  
   // drm
   app.use('/right', require('./right/index'));
 
