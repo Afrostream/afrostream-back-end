@@ -57,6 +57,10 @@ WITH (
   OIDS=FALSE
 );
 
+
+--
+-- VIDEOS
+--
 DROP TABLE IF EXISTS "ElementsVideos";
 CREATE TABLE "ElementsVideos"
 (
@@ -212,56 +216,9 @@ INNER JOIN "Movies" ON "Movies"."_id" = "Seasons"."movieId"
 INNER JOIN "Videos" ON "Episodes"."videoId" = "Videos"."_id"
 INNER JOIN "Items" ON "Items"."oldId" = "Episodes"."_id" and "Items"."oldType" = 'episode';
 
--- Acteurs => Persons
-DROP TABLE IF EXISTS "ElementsPersons";
-CREATE TABLE "ElementsPersons"
-(
-  _id integer not null,
-  "createdAt" timestamp with time zone,
-  "updatedAt" timestamp with time zone,
-  "deleted" boolean default false,
-  "type" character varying(64),
-  "firstName" character varying(255),
-  "lastName" character varying(255),
-  "imdbId" character varying(16),
-  CONSTRAINT "ElementsPersons_pkey" PRIMARY KEY (_id)
-)
-WITH (
-  OIDS=FALSE
-);
-
-
-
--- fixme: slug actors
-INSERT INTO "Items" (
-  "createdAt", "updatedAt", "deleted", "type", "tenantId",
-  "oldId", "oldUuid", "oldType",
-  "title", "description", "translations", "catchupProviderId",
-  "slug", "active", "dateFrom", "dateTo", "countries", "broadcasters"
-)
-SELECT
-  "Actors"."createdAt", "Actors"."updatedAt", false as "deleted", 'person' as "type", 1 as "tenantId",
-  "Actors"."_id" as "oldId", null as "oldUuid", 'actor' as "oldType",
-  ("Actors"."firstName"||' '||"Actors"."lastName") as "title", null as "description",
-  null as "translations", null as "catchupProviderId",
-  null as "slug", "Actors"."active", null as "dateFrom", null as "dateTo", null as "countries", null as "broadcasters"
-FROM
-  "Actors"
-WHERE
-  ("Actors"."firstName"||' '||"Actors"."lastName") is not null AND  ("Actors"."firstName" is not null OR "Actors"."lastName" is not null);
-
-INSERT INTO "ElementsPersons" (
-  "_id", "createdAt","updatedAt","deleted",
-  "type", "firstName","lastName","imdbId"
-)
-SELECT
-  "Items"."_id" as "_id",
-  "Actors"."createdAt", "Actors"."updatedAt", false as "delete",
-  'actor' as "type", "Actors"."firstName", "Actors"."lastName", "Actors"."imdbId"
-FROM
-  "Actors"
-INNER JOIN "Items" ON "Items"."oldId" = "Actors"."_id" and "Items"."oldType" = 'actor';
-
+--
+-- SERIES
+--
 -- Movies => Series
 DROP TABLE IF EXISTS "ElementsSeries";
 CREATE TABLE "ElementsSeries"
@@ -334,6 +291,8 @@ WHERE
 
 
 --
+-- SEASONS
+--
 DROP TABLE IF EXISTS "ElementsSeasons";
 CREATE TABLE "ElementsSeasons"
 (
@@ -367,7 +326,6 @@ INNER JOIN "Items" as "ItemSerie" ON "ItemSerie"."oldId" = "Seasons"."movieId" a
 WHERE
   "Seasons"."movieId" is not null;
 
-
 INSERT INTO "ElementsSeasons" (
   "_id", "createdAt", "updatedAt", "deleted",
   "numberOfEpisodes", "serieId"
@@ -383,11 +341,154 @@ INNER JOIN "Items" as "ItemSerie" ON "ItemSerie"."oldId" = "Seasons"."movieId" a
 ;
 
 --
+-- CATEGORY
+--
+DROP TABLE IF EXISTS "ElementsCategories";
+CREATE TABLE "ElementsCategories"
+(
+  _id serial not null,
+  "createdAt" timestamp with time zone,
+  "updatedAt" timestamp with time zone,
+  "deleted" boolean default false,
+  CONSTRAINT "ElementsCategories_pkey" PRIMARY KEY (_id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO "Items" (
+  "createdAt", "updatedAt", "deleted", "type", "tenantId",
+  "oldId", "oldUuid", "oldType",
+  "title", "description", "translations", "catchupProviderId",
+  "slug", "active", "dateFrom", "dateTo", "countries", "broadcasters"
+)
+SELECT
+  "Categories"."createdAt", "Categories"."updatedAt", false as "deleted", 'category' as "type", 1 as "tenantId",
+  "Categories"."_id" as "oldId", null as "oldUuid", 'category' as "oldType",
+  "Categories"."label" as "title", null as "description", "Categories"."translations", null as"catchupProviderId",
+  "Categories"."slug", "Categories"."active", null as "dateFrom", null as "dateTo", "Categories"."countries", "Categories"."broadcasters"
+FROM
+  "Categories";
+
+INSERT INTO "ElementsCategories" (
+  "_id", "createdAt", "updatedAt", "deleted"
+)
+SELECT
+  "ItemsCategories"."_id",
+  "Categories"."createdAt", "Categories"."updatedAt", false as "deleted"
+FROM
+  "Categories"
+INNER JOIN "Items" as "ItemsCategories" ON "ItemsCategories"."oldId" = "Categories"."_id" and "ItemsCategories"."oldType" = 'category'
+;
+
+--
+-- Asso Item <-> Category
+--
+DROP TABLE IF EXISTS "AssoItemsCategories";
+CREATE TABLE "AssoItemsCategories"
+(
+  _id serial not null,
+  "createdAt" timestamp with time zone,
+  "updatedAt" timestamp with time zone,
+  "deleted" boolean default false,
+  "itemId" integer not null,
+  "categoryId" integer not null,
+  "order" integer default null,
+  CONSTRAINT "AssoItemsCategories_pkey" PRIMARY KEY (_id),
+  CONSTRAINT "AssoItemsCategories_itemId_categoryId_key" UNIQUE ("itemId", "categoryId")
+)
+WITH (
+  OIDS=FALSE
+);
+
+--
+-- on fusionne CategoryMovies et CategoryAdSpots dans Category
+--
+INSERT INTO "AssoItemsCategories" (
+  "createdAt", "updatedAt", "deleted",
+  "itemId", "categoryId", "order"
+)
+SELECT
+  "CategoryAdSpots"."createdAt", "CategoryAdSpots"."updatedAt", false as "deleted",
+  "Items"."_id", "ItemsCategory"."_id", 0 as "order"
+FROM
+  "CategoryAdSpots"
+INNER JOIN "Items" ON "Items"."oldId" = "CategoryAdSpots"."MovieId" AND ("Items"."oldType" = 'movie' OR "Items"."oldType" = 'serie')
+INNER JOIN "Items" as "ItemsCategory" ON "ItemsCategory"."oldId" = "CategoryAdSpots"."CategoryId" AND "ItemsCategory"."oldType" = 'category'
+;
+
+INSERT INTO "AssoItemsCategories" (
+  "createdAt", "updatedAt", "deleted",
+  "itemId", "categoryId", "order"
+)
+SELECT
+  "CategoryMovies"."createdAt", "CategoryMovies"."updatedAt", false as "deleted",
+  "Items"."_id", "ItemsCategory"."_id", 1 as "order"
+FROM
+  "CategoryMovies"
+INNER JOIN "Items" ON "Items"."oldId" = "CategoryMovies"."MovieId" AND ("Items"."oldType" = 'movie' OR "Items"."oldType" = 'serie')
+INNER JOIN "Items" as "ItemsCategory" ON "ItemsCategory"."oldId" = "CategoryMovies"."CategoryId" AND "ItemsCategory"."oldType" = 'category'
+WHERE
+  ("Items"."_id", "ItemsCategory"."_id") NOT IN (
+    SELECT "itemId", "categoryId" FROM "AssoItemsCategories"
+  )
+;
+
+--
+-- ACTEURS
+--
+-- Acteurs => Persons
+DROP TABLE IF EXISTS "ElementsPersons";
+CREATE TABLE "ElementsPersons"
+(
+  _id integer not null,
+  "createdAt" timestamp with time zone,
+  "updatedAt" timestamp with time zone,
+  "deleted" boolean default false,
+  "type" character varying(64),
+  "firstName" character varying(255),
+  "lastName" character varying(255),
+  "imdbId" character varying(16),
+  CONSTRAINT "ElementsPersons_pkey" PRIMARY KEY (_id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+-- fixme: slug actors
+INSERT INTO "Items" (
+  "createdAt", "updatedAt", "deleted", "type", "tenantId",
+  "oldId", "oldUuid", "oldType",
+  "title", "description", "translations", "catchupProviderId",
+  "slug", "active", "dateFrom", "dateTo", "countries", "broadcasters"
+)
+SELECT
+  "Actors"."createdAt", "Actors"."updatedAt", false as "deleted", 'person' as "type", 1 as "tenantId",
+  "Actors"."_id" as "oldId", null as "oldUuid", 'actor' as "oldType",
+  ("Actors"."firstName"||' '||"Actors"."lastName") as "title", null as "description",
+  null as "translations", null as "catchupProviderId",
+  null as "slug", "Actors"."active", null as "dateFrom", null as "dateTo", null as "countries", null as "broadcasters"
+FROM
+  "Actors"
+WHERE
+  ("Actors"."firstName"||' '||"Actors"."lastName") is not null AND  ("Actors"."firstName" is not null OR "Actors"."lastName" is not null);
+
+INSERT INTO "ElementsPersons" (
+  "_id", "createdAt","updatedAt","deleted",
+  "type", "firstName","lastName","imdbId"
+)
+SELECT
+  "Items"."_id" as "_id",
+  "Actors"."createdAt", "Actors"."updatedAt", false as "delete",
+  'actor' as "type", "Actors"."firstName", "Actors"."lastName", "Actors"."imdbId"
+FROM
+  "Actors"
+INNER JOIN "Items" ON "Items"."oldId" = "Actors"."_id" and "Items"."oldType" = 'actor';
+
 -- un poil complexe, on transfert la liaison Movies -> Actors
 -- dans une liaison Item -> Actors
 -- => on recherche les item video ou item serie liées aux anciennes movies
 -- FIXME importer les series en premier
---
 DROP TABLE IF EXISTS "AssoItemsPersons";
 CREATE TABLE "AssoItemsPersons"
 (
