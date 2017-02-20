@@ -483,7 +483,16 @@ module.exports.createCoupons = (req, res) => {
       )
       .then(user => {
         if (!user) throw new Error('missing user');
-        return billingApi.getUser(user._id, c.billingProviderName);
+        return billingApi.getOrCreateUser({
+          providerName: c.billingProviderName,
+          userReferenceUuid: user._id,
+          userProviderUuid: c.userProviderUuid,
+          userOpts: {
+            email: user.email,
+            firstName: user.first_name,
+            lastName: user.last_name
+          }
+        });
       })
       .then(billingsResponse => {
         c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
