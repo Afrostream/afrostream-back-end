@@ -169,7 +169,7 @@ exports.show = (req, res) => {
       _id: req.params.id
     },
     include: [
-      {model: Video, required: false, as: 'video', attributes: ['_id', 'name', 'duration', 'sourceMp4']},
+      {model: Video, required: false, as: 'video', attributes: ['_id', 'name', 'duration', 'sourceMp4', 'sourceMp4Deciphered']},
       {model: Category, required: false, as: 'categorys'},
       {
         model: Season,
@@ -181,7 +181,7 @@ exports.show = (req, res) => {
             as: 'episodes',
             required: false,
             include: [
-              {model: Video, as: 'video', required: false, attributes: ['_id', 'name', 'duration', 'sourceMp4']},
+              {model: Video, as: 'video', required: false, attributes: ['_id', 'name', 'duration', 'sourceMp4', 'sourceMp4Deciphered']},
               {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
               {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
             ],

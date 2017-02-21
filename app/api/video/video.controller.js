@@ -460,6 +460,7 @@ exports.show = (req, res) => {
           !req.passport.client.isAndroid()) {
         // invisible field for every clients, except android app
         delete video.sourceMp4;
+        delete video.sourceMp4Deciphered;
       }
 
       // orange clients mib4 & newbox have a full access
@@ -472,12 +473,14 @@ exports.show = (req, res) => {
         video.sources = [];
         video.name = null;
         delete video.sourceMp4;
+        delete video.sourceMp4Deciphered;
       }
       if (!closure.billingUserSubscriptionActive) {
         logger.warn('user subscription inactive ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
         delete video.sourceMp4;
+        delete video.sourceMp4Deciphered;
       }
       return video;
     })
