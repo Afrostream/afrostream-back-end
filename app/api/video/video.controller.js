@@ -456,11 +456,17 @@ exports.show = (req, res) => {
         return video;
       }
 
+      const deleteAndroidTestsFields = function (video) {
+        delete video.sourceMp4;
+        delete video.sourceMp4Deciphered;
+        delete video.sourceMp4Size;
+        delete video.sourceMp4DecipheredSize;
+      };
+
       if (!req.passport.client ||
           !req.passport.client.isAndroid()) {
         // invisible field for every clients, except android app
-        delete video.sourceMp4;
-        delete video.sourceMp4Deciphered;
+        deleteAndroidTestsFields(video);
       }
 
       // orange clients mib4 & newbox have a full access
@@ -472,15 +478,13 @@ exports.show = (req, res) => {
         logger.warn('client ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
-        delete video.sourceMp4;
-        delete video.sourceMp4Deciphered;
+        deleteAndroidTestsFields(video);
       }
       if (!closure.billingUserSubscriptionActive) {
         logger.warn('user subscription inactive ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
-        delete video.sourceMp4;
-        delete video.sourceMp4Deciphered;
+        deleteAndroidTestsFields(video);
       }
       return video;
     })
