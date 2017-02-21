@@ -42,8 +42,8 @@ module.exports = function (sequelize, DataTypes) {
     // app android , tests for Warner Bross
     sourceMp4 : DataTypes.STRING(2048),
     sourceMp4Deciphered : DataTypes.STRING(2048),
-    sourceMp4Size: DataTypes.INTEGER,
-    sourceMp4DecipheredSize: DataTypes.INTEGER
+    sourceMp4Size: DataTypes.BIGINT,
+    sourceMp4DecipheredSize: DataTypes.BIGINT
   }, {
     getterMethods   : {
       sharing: function()  {
