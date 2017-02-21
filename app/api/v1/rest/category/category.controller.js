@@ -37,6 +37,7 @@ function responseWithAdSpot(req, res, statusCode) {
   statusCode = statusCode || 200;
   return entity => {
     if (entity) {
+
       let queryOptions = {
         order: [['sort', 'ASC']],
         include: [
@@ -84,6 +85,10 @@ function responseWithAdSpot(req, res, statusCode) {
           {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}   // load thumb image
         ]
       };
+
+      if (req && req.query.withYoutubeTrailer === 'true') {
+        queryOptions = _.merge(queryOptions, { where: { youtubeTrailer: { $ne: null } } });
+      }
 
       queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
 
@@ -301,21 +306,27 @@ exports.menu = (req, res) => {
 
 // Gets all submovies limited
 exports.mea = (req, res) => {
+  let movieOptions = {
+    model: Movie,
+    as: 'movies',
+    required: false,
+    order: ['sort', 'ASC'],
+    include: [
+      {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
+      {model: Image, as: 'logo', required: false, attributes: ['imgix', 'path']},
+      {model: Image, as: 'poster', required: false, attributes: ['imgix', 'path', 'profiles']},
+      {model: Image, as: 'thumb', required: false, attributes: ['imgix', 'path']}
+    ]
+  };
+
+  if (req && req.query.withYoutubeTrailer === 'true') {
+    movieOptions = _.merge(movieOptions, { where: { youtubeTrailer: { $ne: null } } });
+  }
+
   let queryOptions = {
     order: [['sort', 'ASC']],
     include: [
-      {
-        model: Movie,
-        as: 'movies',
-        required: false,
-        order: ['sort', 'ASC'],
-        include: [
-          {model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']},
-          {model: Image, as: 'logo', required: false, attributes: ['imgix', 'path']},
-          {model: Image, as: 'poster', required: false, attributes: ['imgix', 'path', 'profiles']},
-          {model: Image, as: 'thumb', required: false, attributes: ['imgix', 'path']}
-        ]
-      }
+      movieOptions
     ]
   };
 

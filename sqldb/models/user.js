@@ -368,7 +368,7 @@ module.exports = function (sequelize, DataTypes) {
         classMethods: {
             getPublicInfos: function (plainUser) {
                 plainUser = plainUser || {};
-                return {
+                const publicPlainUser = {
                     _id: plainUser._id,
                     picture: plainUser.picture,
                     biography: plainUser.biography,
@@ -376,6 +376,14 @@ module.exports = function (sequelize, DataTypes) {
                     nickname: plainUser.nickname,
                     facebook: plainUser.facebook ? {id: plainUser.facebook.id} : null
                 };
+                // tweak life - computed fields
+                if (typeof plainUser.pinscount !== 'undefined') {
+                  publicPlainUser.pinscount = plainUser.pinscount;
+                }
+                if (typeof plainUser.pinsdate !== 'undefined') {
+                  publicPlainUser.pinsdate = plainUser.pinsdate;
+                }
+                return publicPlainUser;
             }
         }
     });
