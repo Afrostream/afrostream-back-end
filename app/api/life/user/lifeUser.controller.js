@@ -86,12 +86,6 @@ exports.show = (req, res) => {
     },
     group: [
       ['_id']
-    ],
-    order: [
-      [{
-        model: LifePin,
-        as: 'lifePins'
-      }, 'date', 'DESC']
     ]
   };
 

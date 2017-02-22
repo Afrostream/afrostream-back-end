@@ -6,6 +6,7 @@ const LifePin = sqldb.LifePin;
 module.exports.get = () => [{
   model: LifePin,
   as: 'lifePins',
+  duplicating: false,
   required: false,
-  attributes: ['date']
+  attributes: []
 }];
