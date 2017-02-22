@@ -3,7 +3,8 @@
 const express = require('express');
 const controller = require('./pin.controller.js');
 const auth = rootRequire('app/auth/auth.service');
-const router = express.Router({mergeParams:true});
+const router = express.Router({mergeParams: true});
+const utils = rootRequire('app/api/utils.js');
 
 const convertUserIdMeToUserId = (req, res, next) => {
   if (req.params && req.params.userId === 'me' && req.user) {
@@ -20,8 +21,8 @@ const tokenUserMatchParamUser = (req, res, next) => {
   }
 };
 
-router.put('/:pinId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.update);
-router.get('/:pinId', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.show);
-router.get('/', auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.index);
+router.put('/:pinId', utils.middlewareNoCache, auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.update);
+router.get('/:pinId', utils.middlewareNoCache, auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.show);
+router.get('/', utils.middlewareNoCache, auth.isAuthenticated(), convertUserIdMeToUserId, tokenUserMatchParamUser, controller.index);
 
 module.exports = router;
