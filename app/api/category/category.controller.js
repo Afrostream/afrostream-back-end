@@ -38,47 +38,75 @@ function responseWithAdSpot(req, res, statusCode) {
   return entity => {
     if (entity) {
 
-      let queryOptions = {
+      let videoOptions = {
+        model: Video,
+        required: false,
+        as: 'video',
+        attributes: ['_id'],
+        include: [
+          {model: Caption, as: 'captions', attributes: ['_id'], required: false}
+        ]
+      };
+
+      if (req && req.query.withSomeSourceMp4 === 'true') {
+        videoOptions = _.merge(
+          videoOptions,
+          { required: true }, // la vidéo devient requise, on se base sur l'episode 1 dans le cas d'une serie.
+          { where: { $or: [ { sourceMp4: { $ne: null } }, { sourceMp4Deciphered: { $ne: null } } ] } }
+        );
+      }
+
+      if (req && req.query.withSourceMp4 === 'true') {
+        videoOptions = _.merge(
+          videoOptions,
+          { required: true }, // la vidéo devient requise, on se base sur l'episode 1 dans le cas d'une serie.
+          { where: { sourceMp4: { $ne: null } } }
+        );
+      }
+
+      if (req && req.query.withSourceMp4Deciphered === 'true') {
+        videoOptions = _.merge(
+          videoOptions,
+          { required: true }, // la vidéo devient requise, on se base sur l'episode 1 dans le cas d'une serie.
+          { where: { sourceMp4Deciphered: { $ne: null } } }
+        );
+      }
+
+      let seasonOptions = {
+        model: Season,
+        required: false,
+        as: 'seasons',
+        attributes: ['_id', 'slug'],
         order: [['sort', 'ASC']],
         include: [
           {
-            model: Video,
+            model: Episode,
+            order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
+            as: 'episodes',
             required: false,
-            as: 'video',
-            attributes: ['_id'],
-            include: [
-              {model: Caption, as: 'captions', attributes: ['_id'], required: false}
-            ]
-          },
-          {
-            model: Season,
-            required: false,
-            as: 'seasons',
-            attributes: ['_id', 'slug'],
-            order: [['sort', 'ASC']],
             include: [
               {
-                model: Episode,
-                order: [['episodeNumber', 'ASC'], ['sort', 'ASC']],
-                as: 'episodes',
+                model: Video,
+                as: 'video',
                 required: false,
+                attributes: ['_id'],
                 include: [
-                  {
-                    model: Video,
-                    as: 'video',
-                    required: false,
-                    attributes: ['_id'],
-                    include: [
-                      {model: Caption, as: 'captions', attributes: ['_id'], required: false}
-                    ]
-                  },
-                  {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
-                  {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
-                ],
-                attributes: ['_id', 'slug']
-              }
-            ]
-          },
+                  {model: Caption, as: 'captions', attributes: ['_id'], required: false}
+                ]
+              },
+              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
+              {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
+            ],
+            attributes: ['_id', 'slug']
+          }
+        ]
+      };
+
+      let queryOptions = {
+        order: [['sort', 'ASC']],
+        include: [
+          videoOptions,
+          seasonOptions,
           {model: Category, as: 'categorys', attributes: ['_id', 'label'], required: false},
           {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},   // load logo image
           {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']}, // load poster image
@@ -318,6 +346,46 @@ exports.mea = (req, res) => {
       {model: Image, as: 'thumb', required: false, attributes: ['imgix', 'path']}
     ]
   };
+
+  if (req &&
+      (req.query.withSomeSourceMp4 === 'true' ||
+       req.query.withSourceMp4 === 'true' ||
+       req.query.withSourceMp4Deciphered === 'true')) {
+    // adding a filter on video.
+    let videoOptions = {
+      model: Video,
+      required: true,
+      as: 'video',
+      attributes: [
+        '_id', 'name', 'duration',
+        'sourceMp4', 'sourceMp4Deciphered',
+        'sourceMp4Size', 'sourceMp4DecipheredSize'
+      ]
+    };
+
+    if (req.query.withSomeSourceMp4 === 'true') {
+      videoOptions = _.merge(
+        videoOptions,
+        { where: { $or: [ { sourceMp4: { $ne: null } }, { sourceMp4Deciphered: { $ne: null } } ] } }
+      );
+    }
+
+    if (req.query.withSourceMp4 === 'true') {
+      videoOptions = _.merge(
+        videoOptions,
+        { where: { sourceMp4: { $ne: null } } }
+      );
+    }
+
+    if (req.query.withSourceMp4Deciphered === 'true') {
+      videoOptions = _.merge(
+        videoOptions,
+        { where: { sourceMp4Deciphered: { $ne: null } } }
+      );
+    }
+
+    movieOptions.include.push(videoOptions);
+  }
 
   if (req && req.query.withYoutubeTrailer === 'true') {
     movieOptions = _.merge(movieOptions, { where: { youtubeTrailer: { $ne: null } } });
