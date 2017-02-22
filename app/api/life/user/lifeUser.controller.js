@@ -74,6 +74,7 @@ exports.index = (req, res) => {
 
 // Gets a single LifeTheme from the DB
 exports.show = (req, res) => {
+  const usersFields = Object.keys(User.rawAttributes);
   const queryOptions = {
     attributes: usersFields.concat([
       [sqldb.sequelize.fn('COUNT', sqldb.sequelize.col('lifePins._id')), 'pinscount'],
