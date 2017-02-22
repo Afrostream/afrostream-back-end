@@ -35,14 +35,57 @@ const Client = sqldb.Client;
 
 const logger = rootRequire('logger').prefix('VIDEO');
 
+const request = require('request');
+
 const getIncludedModel = () => [
   {model: Movie, as: 'movie'}, // load all sources assets
   {model: Episode, as: 'episode'}, // load all sources assets
   {model: Caption, as: 'captions', include: [{model: Language, as: 'lang'}]} // load all sources captions
 ];
 
+function fetchContentLengthSafe(url) {
+  logger.log(`fetching content-length of ${url}`);
+  return Q.nfcall(request, {
+    method: 'HEAD',
+    url: url,
+    timeout: 3000
+  })
+  .then(
+    function ([response]) {
+      const contentLength = response && response.headers && response.headers['content-length'] || null;
+      logger.log(`content-length of ${url} is ${contentLength}`);
+      return contentLength;
+    },
+    function (err) {
+      logger.error(`cannot fetch content-length of ${url}`, err.message);
+      return null;
+    }
+  );
+}
+
+
 function saveUpdates(updates) {
-  return entity => entity.updateAttributes(updates);
+  return entity => entity.updateAttributes(updates)
+    // HACK pour l'app android, on lui evite de devoir fetcher le HEAD de ces contenus.
+    // FIXME: par la suite ne mettre a jour que si sourceMp4Size a changé..
+    .then(entity => {
+      if (entity.sourceMp4) {
+        return fetchContentLengthSafe(entity.sourceMp4)
+          .then(size => {
+            return entity.updateAttributes({sourceMp4Size: size});
+          });
+      }
+      return entity;
+    })
+    .then(entity => {
+      if (entity.sourceMp4Deciphered) {
+        return fetchContentLengthSafe(entity.sourceMp4Deciphered)
+          .then(size => {
+            return entity.updateAttributes({sourceMp4DecipheredSize: size});
+          });
+      }
+      return entity;
+    });
 }
 
 function addCaptions(updates) {
@@ -456,10 +499,17 @@ exports.show = (req, res) => {
         return video;
       }
 
+      const deleteAndroidTestsFields = function (video) {
+        delete video.sourceMp4;
+        delete video.sourceMp4Deciphered;
+        delete video.sourceMp4Size;
+        delete video.sourceMp4DecipheredSize;
+      };
+
       if (!req.passport.client ||
           !req.passport.client.isAndroid()) {
         // invisible field for every clients, except android app
-        delete video.sourceMp4;
+        deleteAndroidTestsFields(video);
       }
 
       // orange clients mib4 & newbox have a full access
@@ -471,13 +521,13 @@ exports.show = (req, res) => {
         logger.warn('client ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
-        delete video.sourceMp4;
+        deleteAndroidTestsFields(video);
       }
       if (!closure.billingUserSubscriptionActive) {
         logger.warn('user subscription inactive ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
-        delete video.sourceMp4;
+        deleteAndroidTestsFields(video);
       }
       return video;
     })
