@@ -84,6 +84,9 @@ exports.show = (req, res) => {
     where: {
       _id: req.params.id
     },
+    group: [
+      ['_id']
+    ],
     order: [
       [{
         model: LifePin,
