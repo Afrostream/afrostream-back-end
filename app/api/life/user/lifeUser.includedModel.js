@@ -12,6 +12,9 @@ module.exports.get = () => [{
   include: [{
     model: Image,
     as: 'image',
+    group: [
+      ['_id']
+    ],
     required: false
   }]
 }];
