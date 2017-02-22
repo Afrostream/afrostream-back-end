@@ -7,5 +7,5 @@ module.exports.get = () => [{
   model: LifePin,
   as: 'lifePins',
   required: false,
-  attributes: []
+  attributes: ['date']
 }];
