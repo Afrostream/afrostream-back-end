@@ -2,6 +2,8 @@ var bluebird = require('bluebird');
 var passport = require('passport');
 var FacebookStrategy = require('passport-facebook');
 
+var sqldb = rootRequire('sqldb');
+
 /**
  * - si personne d’a de facebookId , je crée un user from scratch et je lui assigne le bouygueId
  * - si lors du signin je trouve deja queql’un qui a un facebookId je fail
@@ -47,7 +49,7 @@ exports.setup = function (User, config) {
           var whereUser = [{'facebook.id': profile.id}];
           if (status !== 'signin') {
             logger.log('searching user by email = ' + email);
-            whereUser.push({'email': {$iLike: email}});
+            whereUser.push(sqldb.sequelize.where(sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')), email));
           }
           return User.find({
             where: {

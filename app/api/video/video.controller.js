@@ -527,7 +527,8 @@ exports.show = (req, res) => {
         logger.warn('user subscription inactive ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;
-        deleteAndroidTestsFields(video);
+        delete video.sourceMp4;
+        delete video.sourceMp4Size;
       }
       return video;
     })

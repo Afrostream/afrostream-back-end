@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 
 const Q = require('q');
-
+const sqldb = rootRequire('sqldb');
 const Client = rootRequire('sqldb').Client;
 const User = rootRequire('sqldb').User;
 const oauth2 = rootRequire('app/auth/oauth2/oauth2');
@@ -28,7 +28,7 @@ router.get('/token', (req, res) => {
       const clientId = req.query.clientId;
       return Q.all([
         Client.findOne({where:{_id: clientId}}),
-        User.findOne({where:{email: {$iLike: email}}})
+        User.findOne({where:sqldb.sequelize.where(sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')), email)})
       ]);
     })
     .then(([client, user]) => {
