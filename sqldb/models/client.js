@@ -45,6 +45,10 @@ module.exports = function (sequelize, DataTypes) {
         return this.getDataValue('type') === 'afrostream-exports-osearch';
       },
 
+      isAfrostreamExportsAlgolia: function () {
+        return this.getDataValue('type') === 'afrostream-exports-algolia';
+      },
+
       isAfrostreamExportsOCI: function () {
         return this.getDataValue('type') === 'afrostream-exports-oci';
       },
