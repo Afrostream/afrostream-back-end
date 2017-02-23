@@ -80,7 +80,7 @@ var decrypt = function (k) {
 };
 
 var loadUserOrFail = function (email) {
-  return User.findOne({ where: { email: {$iLike: email} } })
+  return User.findOne({ where: sqldb.sequelize.where(sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')), email) })
     .then(function (user) {
       if (!user) {
         throw new Error("unknown email " + email);
