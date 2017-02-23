@@ -12,6 +12,6 @@ router.use('/:userId/pins', require('./pin'));
 router.use('/:userId/follow', require('./userFollow'));
 
 router.get('/', utils.middlewareCache, controller.index);
-router.get('/:id', utils.middlewareCache, controller.show);
+router.get('/:id', utils.middlewareNoCache, controller.show);
 
 module.exports = router;

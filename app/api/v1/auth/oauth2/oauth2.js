@@ -3,6 +3,7 @@ var passport = require('passport');
 var crypto = require('crypto');
 var utils = require('./utils');
 var config = rootRequire('config');
+var sqldb = rootRequire('sqldb');
 var Client = rootRequire('sqldb').Client;
 var User = rootRequire('sqldb').User;
 var AccessToken = rootRequire('sqldb').AccessToken;
@@ -205,11 +206,7 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
         return done(new TokenError('wrong secret', 'invalid_grant'), false);
       }
       return User.find({
-        where: {
-          email: {
-            $iLike: username
-          }
-        }
+        where: sqldb.sequelize.where(sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')), username)
       })
         .then(function (user) {
           if (user === null) {

@@ -115,9 +115,7 @@ exports.setup = function (User, config) {
               }
               // on le cherche en base, il existe chez nous
               return User.find({
-                where: {
-                  'email': {$iLike: email}
-                }
+                where: sqldb.sequelize.where(sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')), email)
               }).then(function (user) {
                 if (user) {
                   logger.log('signup: user found using email ' + email + ' => UPDATE => SIGNUP');

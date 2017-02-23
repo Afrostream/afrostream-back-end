@@ -64,9 +64,6 @@ module.exports.show = (req, res) => {
 module.exports.index = (req, res) => {
   let queryOptions = {
     where: { userId: req.user._id },
-    /*include: [
-      { model: LifePin, as: 'lifePins', required: false }
-    ],*/
     order: [ ['updatedAt', 'desc'] ]
   };
 

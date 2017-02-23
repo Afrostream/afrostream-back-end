@@ -4,6 +4,7 @@ const Q = require('q');
 
 const billingApi = rootRequire('billing-api.js');
 
+const sqldb = rootRequire('sqldb');
 const User = rootRequire('sqldb').User;
 
 const mailer = rootRequire('components/mailer');
@@ -339,11 +340,7 @@ module.exports.createGift = (req, res) => {
     //
     .then(() => {
       return User.find({
-        where: {
-          email: {
-            $iLike: c.bodySubOpts.gift.email
-          }
-        }
+        where: sqldb.sequelize.where(sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')), c.bodySubOpts.gift.email)
       }).then(giftedUser => {
         // user already exist
         if (giftedUser) {
