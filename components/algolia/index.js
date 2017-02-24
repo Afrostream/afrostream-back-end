@@ -18,7 +18,6 @@ exports = module.exports = {
           _.forOwn(current, function (value, key) {
             if (_.isUndefined(value) || _.isNull(value) || _.isNaN(value) ||
               (_.isString(value) && _.isEmpty(value)) ||
-              (_.isArray(value)) ||
               (_.isObject(value) && _.isEmpty(prune(value)))) {
 
               delete current[key];
