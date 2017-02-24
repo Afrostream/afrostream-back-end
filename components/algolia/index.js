@@ -41,9 +41,9 @@ exports = module.exports = {
         var index = client.initIndex(process.env.NODE_ENV + '_' + indexName);
         // let's use table IDS as Algolia objectIDs
         var datas = entitys.map(function (result) {
-          result = removeEmptyObjects(result);
-          result.objectID = result._id;
-          return result;
+          var item = removeEmptyObjects(result);
+          item.objectID = result._id;
+          return item;
         });
         return Q.ninvoke(index, 'saveObjects', datas);
       }
