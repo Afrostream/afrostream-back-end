@@ -37,7 +37,7 @@ exports = module.exports = {
         var index = client.initIndex(process.env.NODE_ENV + '_' + indexName);
         // let's use table IDS as Algolia objectIDs
         var datas = entitys.map(function (result) {
-          var item = removeEmptyObjects(result.dataValues);
+          var item = removeEmptyObjects(result.toJSON());
           item.objectID = result._id;
           return item;
         });
