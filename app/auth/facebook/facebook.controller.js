@@ -48,23 +48,7 @@ var signin = function (req, res, next) {
   })(req, res, next);
 };
 
-var signin = function (req, res, next) {
-  var userId = req.user ? req.user._id : null;
-  var logger = req.logger.prefix('AUTH').prefix('FACEBOOK');
-
-  logger.log('userId=' + userId);
-  passport.authenticate('facebook', {
-    display: 'popup',
-    scope: scope,
-    session: false,
-    state: new Buffer(JSON.stringify({
-      status: 'signin',
-      userId: userId
-    })).toString('base64')
-  })(req, res, next);
-};
-
-var signup = function (req, res, next) {
+var signup = function(req, res, next) {
   var logger = req.logger.prefix('AUTH').prefix('FACEBOOK');
   logger.log('start');
   passport.authenticate('facebook', {
