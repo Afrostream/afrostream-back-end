@@ -135,10 +135,10 @@ var callback = function (req, res, next) {
   })(req, res, next);
 };
 
-var token = function (req, res, next) {
+var facebookToken = function (req, res, next) {
   var logger = req.logger.prefix('AUTH').prefix('FACEBOOK').prefix('MOBILE SDK');
   logger.log('start');
-  passport.authenticate(['clientPassword', 'facebook-token'], {},
+  passport.authenticate('facebook-token', {},
     function (err, user, info) {
       if (err) {
         logger.log('authenticate done, error ' + err.message, JSON.stringify(err));
@@ -189,8 +189,29 @@ module.exports.middlewares = {
   strategyOptions: strategyOptions
 };
 
+
+module.exports.token = [
+  function (req, res, next) {
+    // FIXME: we do this because oauth2orize wasn't letting access to info
+    //   but the newest release allow req.authInfo fwding ...
+    //   we need to refactor all this (remove oauth2orize or fork it.)
+    req.body.userIp = req.clientIp;
+    req.body.userAgent = req.userAgent;
+    next();
+  },
+  passport.authenticate(['clientBasic', 'clientPassword'], {session: false}),
+  (req, res, next) => {
+    // FIXME: we need to remove oauth2orize or fork it to prevent this hack.
+    req.authInfo = Object.assign({}, req.authInfo, {
+      req: req,
+      res: res
+    });
+    next();
+  },
+  facebookToken()
+];
+
 module.exports.signin = signin;
 module.exports.signup = signup;
 module.exports.unlink = unlink;
 module.exports.callback = callback;
-module.exports.token = token;
