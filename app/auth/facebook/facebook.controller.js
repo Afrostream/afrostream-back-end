@@ -23,8 +23,8 @@ var scope = [
   'user_location'
 ];
 
-var strategyOptions = function(options) {
-  return function(req, res, next) {
+var strategyOptions = function (options) {
+  return function (req, res, next) {
     req.passportStrategyFacebookOptions = _.merge({
       createAccountIfNotFound: false
     }, options || {});
@@ -32,7 +32,7 @@ var strategyOptions = function(options) {
   };
 };
 
-var signin = function(req, res, next) {
+var signin = function (req, res, next) {
   var userId = req.user ? req.user._id : null;
   var logger = req.logger.prefix('AUTH').prefix('FACEBOOK');
 
@@ -48,7 +48,23 @@ var signin = function(req, res, next) {
   })(req, res, next);
 };
 
-var signup = function(req, res, next) {
+var signin = function (req, res, next) {
+  var userId = req.user ? req.user._id : null;
+  var logger = req.logger.prefix('AUTH').prefix('FACEBOOK');
+
+  logger.log('userId=' + userId);
+  passport.authenticate('facebook', {
+    display: 'popup',
+    scope: scope,
+    session: false,
+    state: new Buffer(JSON.stringify({
+      status: 'signin',
+      userId: userId
+    })).toString('base64')
+  })(req, res, next);
+};
+
+var signup = function (req, res, next) {
   var logger = req.logger.prefix('AUTH').prefix('FACEBOOK');
   logger.log('start');
   passport.authenticate('facebook', {
@@ -61,14 +77,24 @@ var signup = function(req, res, next) {
   })(req, res, next);
 };
 
-var unlink = function(req, res) {
+var token = function (req, res, next) {
+  var logger = req.logger.prefix('AUTH').prefix('FACEBOOK').prefix('MOBILE SDK');
+  logger.log('start');
+  passport.authenticate('facebook-token', {
+    state: new Buffer(JSON.stringify({
+      status: 'token'
+    })).toString('base64')
+  })(req, res, next);
+};
+
+var unlink = function (req, res) {
   var userId = req.user._id;
   User.find({
-      where: {
-        _id: userId
-      }
-    })
-    .then(function(user) {
+    where: {
+      _id: userId
+    }
+  })
+    .then(function (user) {
       if (!user) {
         return res.status(422).end();
       }
@@ -76,34 +102,34 @@ var unlink = function(req, res) {
       return user.save();
     })
     .then(
-      function(user) {
+      function (user) {
         res.json(user.getInfos());
       },
       res.handleError(422)
     );
 };
 
-var callback = function(req, res, next) {
+var callback = function (req, res, next) {
   var logger = req.logger.prefix('AUTH').prefix('FACEBOOK');
   logger.log('start');
   passport.authenticate('facebook', {
     display: 'popup',
     session: false
-  }, function(err, user, info) {
+  }, function (err, user, info) {
     if (err) {
       logger.log('authenticate done, error ' + err.message, JSON.stringify(err));
     } else {
       logger.log('authenticate done, no error, info = ' + JSON.stringify(info));
     }
     Q()
-      .then(function() {
+      .then(function () {
         if (err) throw err;
         //if (info) throw info;
         if (!user) throw new Error('Something went wrong, please try again.');
         logger.log('authenticate getOauth2UserTokens', user._id);
         return req.getPassport();
       })
-      .then(function(passport) {
+      .then(function (passport) {
         logger.log('generate token with client', passport.client._id, user._id);
         var deferred = Q.defer();
         oauth2.generateToken({
@@ -113,7 +139,7 @@ var callback = function(req, res, next) {
           userIp: req.clientIp,
           userAgent: req.userAgent,
           expireIn: null
-        }, function(err, accessToken, refreshToken, info) {
+        }, function (err, accessToken, refreshToken, info) {
           logger.log('token generated ');
           if (err) return deferred.reject(err);
           return deferred.resolve({
@@ -126,7 +152,7 @@ var callback = function(req, res, next) {
         return deferred.promise;
       })
       .then(
-        function success(tokens) {
+        function success (tokens) {
           logger.log('sending tokens ' + JSON.stringify(tokens));
           res.json(tokens);
         },
@@ -143,3 +169,4 @@ module.exports.signin = signin;
 module.exports.signup = signup;
 module.exports.unlink = unlink;
 module.exports.callback = callback;
+module.exports.token = token;
