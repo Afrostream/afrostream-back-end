@@ -138,7 +138,7 @@ var callback = function (req, res, next) {
 var token = function (req, res, next) {
   var logger = req.logger.prefix('AUTH').prefix('FACEBOOK').prefix('MOBILE SDK');
   logger.log('start');
-  passport.authenticate('facebook-token', {},
+  passport.authenticate(['clientBasic', 'facebook-token'], {},
     function (err, user, info) {
       if (err) {
         logger.log('authenticate done, error ' + err.message, JSON.stringify(err));
