@@ -340,7 +340,10 @@ module.exports.createGift = (req, res) => {
     //
     .then(() => {
       return User.find({
-        where: sqldb.sequelize.where(sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')), c.bodySubOpts.gift.email)
+        where: sqldb.sequelize.where(
+          sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')),
+          sqldb.sequelize.fn('lower', c.bodySubOpts.gift.email)
+        )
       }).then(giftedUser => {
         // user already exist
         if (giftedUser) {

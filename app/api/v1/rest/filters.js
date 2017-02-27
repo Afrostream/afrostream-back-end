@@ -41,6 +41,7 @@ const filterQueryOptions = (req, options, rootModel) => {
     const isAfrostreamExportsBouygues = client && client.isAfrostreamExportsBouygues();
     const isAfrostreamExportsOsearch = client && client.isAfrostreamExportsOsearch();
     const isAfrostreamExportsOCI = client && client.isAfrostreamExportsOCI();
+    const isAfrostreamExportsAlgolia = client && client.isAfrostreamExportsAlgolia();
     const isBouyguesMiami = client && client.isBouyguesMiami();
     const isOrange = client && client.isOrange();
     const isOrangeNewbox = client && client.isOrangeNewbox();
@@ -52,7 +53,8 @@ const filterQueryOptions = (req, options, rootModel) => {
         if (isBacko ||
             isAfrostreamExportsBouygues ||
             isAfrostreamExportsOsearch ||
-            isAfrostreamExportsOCI
+            isAfrostreamExportsOCI ||
+            isAfrostreamExportsAlgolia
           ) {
             // no restrictions.
         } else {

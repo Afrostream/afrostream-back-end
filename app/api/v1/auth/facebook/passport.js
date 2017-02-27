@@ -49,7 +49,10 @@ exports.setup = function (User, config) {
           var whereUser = [{'facebook.id': profile.id}];
           if (status !== 'signin') {
             logger.log('searching user by email = ' + email);
-            whereUser.push(sqldb.sequelize.where(sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')), email));
+            whereUser.push(sqldb.sequelize.where(
+              sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')),
+              sqldb.sequelize.fn('lower', email)
+            ));
           }
           return User.find({
             where: {

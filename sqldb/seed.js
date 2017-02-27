@@ -474,6 +474,13 @@ promises.push(
       role: 'admin',
       broadcasterId: "EOSE"
     }, {
+      name: 'afrostream-exports-algolia',
+      _id: 'f304bdff-884c-4951-8e54-f1f60b4fbfd2',
+      secret: 'bc53b6de-0a2e-4c8d-b2d5-75cc31ef73bc',
+      type: 'afrostream-exports-algolia',
+      role: 'admin',
+      broadcasterId: "EALG"
+    }, {
       name: 'orange',
       _id: '610fa4d5-05ec-4493-b9a6-e50a04f7fdcc',
       secret: "b0eee6d9-8771-4d93-8407-ee67af60408c",

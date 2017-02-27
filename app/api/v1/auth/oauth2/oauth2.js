@@ -205,8 +205,12 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
       if (entity.secret !== client.secret) {
         return done(new TokenError('wrong secret', 'invalid_grant'), false);
       }
+      console.log('EXCHANGE user.find '+username);
       return User.find({
-        where: sqldb.sequelize.where(sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')), username)
+        where: sqldb.sequelize.where(
+          sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')),
+          sqldb.sequelize.fn('lower', username)
+        )
       })
         .then(function (user) {
           if (user === null) {

@@ -586,7 +586,7 @@ exports.algolia = (req, res) => {
     }
   })
     .then(utils.handleEntityNotFound(res))
-    .then(algolia.importAll(res, 'lifePins'))
+    .then(algolia.importAll(res, 'LifePin'))
     .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };

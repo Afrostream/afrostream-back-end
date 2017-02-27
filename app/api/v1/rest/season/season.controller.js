@@ -220,7 +220,7 @@ exports.algolia = (req, res) => {
     }
   })
     .then(utils.handleEntityNotFound(res))
-    .then(algolia.importAll(res, 'seasons'))
+    .then(algolia.importAll(res, 'Season'))
     .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };

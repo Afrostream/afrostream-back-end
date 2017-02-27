@@ -314,7 +314,7 @@ exports.algolia = (req, res) => {
       }
     })
     .then(utils.handleEntityNotFound(res))
-    .then(algolia.importAll(res, 'movies'))
+    .then(algolia.importAll(res, 'Movie'))
     .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
 };

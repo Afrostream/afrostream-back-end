@@ -70,7 +70,12 @@ exports.create = (req, res) => {
         // Si jamais la box miami essaye de créer un nouvel utilisateur,
         // mais que l'email existe déjà, et est déjà reliée à un bouyguesId
         //   alors on crée un nouvel utilisateur sans email avec le nvx bouyguesId
-        return User.find({where:sqldb.sequelize.where(sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')), req.body.email)})
+        return User.find({
+          where : sqldb.sequelize.where(
+            sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')),
+            sqldb.sequelize.fn('lower', req.body.email)
+          )
+        })
           .then(user => {
             // l'utilisateur existe déjà en base avec un bouyguesId différent
             //  on supprime l'email en entrée pour générer un nouvel utilisateur

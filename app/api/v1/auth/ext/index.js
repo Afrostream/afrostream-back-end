@@ -28,7 +28,12 @@ router.get('/token', (req, res) => {
       const clientId = req.query.clientId;
       return Q.all([
         Client.findOne({where:{_id: clientId}}),
-        User.findOne({where:sqldb.sequelize.where(sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')), email)})
+        User.findOne({
+          where : sqldb.sequelize.where(
+            sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')),
+            sqldb.sequelize.fn('lower', email)
+          )
+        })
       ]);
     })
     .then(([client, user]) => {
