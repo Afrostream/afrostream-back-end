@@ -19,7 +19,8 @@ exports.setup = function (User, config) {
 
     logger.log('profile = ' + JSON.stringify(profile));
     //req don't have user, so we pass it in query
-    var state = new Buffer(req.query.state, 'base64').toString('ascii');
+
+    var state = req.query.state ? new Buffer(req.query.state, 'base64').toString('ascii') : JSON.stringify({'status': 'signin'});
     logger.log('state = ' + state);
     state = JSON.parse(state);
     var status = state.status;
@@ -96,7 +97,7 @@ exports.setup = function (User, config) {
         }
       }).nodeify(done);
   };
-  
+
   passport.use(new FacebookStrategy({
       clientID: config.facebook.clientID,
       clientSecret: config.facebook.clientSecret,
