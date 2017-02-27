@@ -118,6 +118,7 @@ exports.setup = function (User, config) {
   passport.use(new FacebookTokenStrategy({
       clientID: config.facebook.clientID,
       clientSecret: config.facebook.clientSecret,
+      accessTokenField: 'facebook_token',
       passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
     },
     callBackMethod
