@@ -135,6 +135,16 @@ var callback = function(req, res, next) {
   })(req, res, next);
 };
 
+var token = function (req, res, next) {
+  var logger = req.logger.prefix('AUTH').prefix('FACEBOOK').prefix('MOBILE SDK');
+  logger.log('start');
+  passport.authenticate('facebook-token', {
+    state: new Buffer(JSON.stringify({
+      status: 'token'
+    })).toString('base64')
+  })(req, res, next);
+};
+
 module.exports.middlewares = {
   strategyOptions: strategyOptions
 };
@@ -143,3 +153,4 @@ module.exports.signin = signin;
 module.exports.signup = signup;
 module.exports.unlink = unlink;
 module.exports.callback = callback;
+module.exports.token = token;
