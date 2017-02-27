@@ -11,6 +11,4 @@ router.get('/callback', facebook.callback);
 router.get('/link', auth.isAuthenticated(), facebook.signin);
 router.get('/unlink', auth.isAuthenticated(), facebook.unlink);
 //used for mobile (IOS|ANDROID) SDK
-router.post('/token', facebook.token);
-
 module.exports = router;
