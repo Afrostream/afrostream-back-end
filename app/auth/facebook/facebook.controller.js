@@ -208,7 +208,7 @@ module.exports.token = [
     });
     next();
   },
-  facebookToken()
+  facebookToken
 ];
 
 module.exports.signin = signin;
