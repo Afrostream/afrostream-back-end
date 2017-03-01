@@ -129,7 +129,7 @@ exports.create = (req, res) => {
 exports.search = (req, res) => {
   const query = req.body.query || '';
 
-  algolia.searchIndex('episodes', query)
+  algolia.searchIndex('Episode', query)
     .then(result => {
       if (!result) {
         throw new Error('no result from algolia');

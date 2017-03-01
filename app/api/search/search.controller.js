@@ -30,15 +30,15 @@ exports.search = (req, res) => {
 
   const hitsPerPage = 10;
   const models = [{
-    name: 'movies',
+    name: 'Movie',
     model: Movie,
     include: movieIncludedModels()
   }, {
-    name: 'lifePins',
+    name: 'LifePin',
     model: LifePin,
     include: lifePinsIncludedModels()
   }, {
-    name: 'actors',
+    name: 'Actor',
     model: Actor,
     include: actorIncludedModels()
   }];
