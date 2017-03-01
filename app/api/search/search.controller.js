@@ -30,15 +30,15 @@ exports.search = (req, res) => {
 
   const hitsPerPage = 10;
   const models = [{
-    name: 'Movie',
+    name: process.env.NODE_ENV + '_Movie',
     model: Movie,
     include: movieIncludedModels()
   }, {
-    name: 'LifePin',
+    name: process.env.NODE_ENV + '_LifePin',
     model: LifePin,
     include: lifePinsIncludedModels()
   }, {
-    name: 'Actor',
+    name: process.env.NODE_ENV + '_Actor',
     model: Actor,
     include: actorIncludedModels()
   }];
