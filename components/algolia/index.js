@@ -46,9 +46,9 @@ exports = module.exports = {
   },
 
   searchIndex: function (indexName, querystring) {
-    //FIXME when export Algolia en prod, replace this line
-    // var index = client.initIndex(process.env.NODE_ENV + '_' + indexName);
-    var index = client.initIndex(indexName);
+    //01-03-2017 use new import RabbitMQ Models
+    //var index = client.initIndex(indexName);
+    var index = client.initIndex(process.env.NODE_ENV + '_' + indexName);
     return Q.ninvoke(index, 'search', querystring);
   },
 
