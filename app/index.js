@@ -15,7 +15,7 @@ var sqldb = rootRequire('sqldb');
 var logger = rootRequire('logger');
 
 // Start server
-sqldb.sequelize.sync()
+sqldb.sequelize.authenticate()
   .then(function startServer() {
     app.listen(config.port, config.ip, function () {
       logger.log('Express server listening on %d, in %s mode', config.port, app.get('env'));

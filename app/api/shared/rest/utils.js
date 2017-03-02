@@ -5,9 +5,10 @@ const _ = require('lodash');
 const express = require('express');
 
 const genericController = require('./generic.controller');
-const auth = rootRequire('app/api/v1/auth/auth.service');
 
 const { middlewareNoCache, middlewareCache } = rootRequire('app/api/v1/rest/utils');
+
+const middlewareAdminOnly = rootRequire('app/api/v2/auth/auth.service').middlewares.adminOnly;
 
 module.exports.rewriteQuery = query => {
   const defaultLimit = 100; // fixme: config
@@ -24,11 +25,11 @@ module.exports.routerCRUD = options => {
   assert(options.model);
 
   const router = express.Router();
-  router.get('/', middlewareNoCache, auth.hasRole('admin'), genericController.index(options));
+  router.get('/', middlewareNoCache, middlewareAdminOnly, genericController.index(options));
   router.get('/:id', middlewareCache, genericController.show(options));
-  router.post('/', middlewareNoCache, auth.hasRole('admin'), genericController.create(options));
-  router.put('/:id', middlewareNoCache, auth.hasRole('admin'), genericController.update(options));
-  router.patch('/:id', middlewareNoCache, auth.hasRole('admin'), genericController.update(options));
-  router.delete('/:id', middlewareNoCache, auth.hasRole('admin'), genericController.destroy(options));
+  router.post('/', middlewareNoCache, middlewareAdminOnly, genericController.create(options));
+  router.put('/:id', middlewareNoCache, middlewareAdminOnly, genericController.update(options));
+  router.patch('/:id', middlewareNoCache, middlewareAdminOnly, genericController.update(options));
+  router.delete('/:id', middlewareNoCache, middlewareAdminOnly, genericController.destroy(options));
   return router;
 };

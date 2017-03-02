@@ -90,8 +90,6 @@ module.exports.show = (req, res) => {
 
       queryOptions = filters.filterQueryOptions(req, queryOptions, ElementSerie);
 
-      console.log(require('util').inspect(queryOptions, {depth: null}));
-
       // l'api remonte forcement l'item d'un element.
       return ElementSerie.findOne(queryOptions);
     })

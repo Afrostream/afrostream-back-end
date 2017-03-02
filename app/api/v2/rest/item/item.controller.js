@@ -11,8 +11,23 @@ const Item = sqldb.Item;
 
 const Q = require('q');
 
+const _ = require('lodash');
+
 module.exports.index = (req, res) => {
   Q()
+    .then(() => {
+      // fixme: factorize this code
+      if (typeof req.query.limit !== 'undefined' && Math.isNaN(parseInt(req.query.limit, 10))) {
+        throw new Error('limit');
+      }
+      if (typeof req.query.offset !== 'undefined' && Math.isNaN(parseInt(req.query.offset, 10))) {
+        throw new Error('offset');
+      }
+      // specific tests
+      if (req.query.type && typeof sqldb.elements[req.query.type] === 'undefined') {
+        throw new Error('unknown type');
+      }
+    })
     .then(() => {
       let query = rewriteQuery(req.query);
 
@@ -31,6 +46,10 @@ module.exports.index = (req, res) => {
           as: element.elementName,
           required: true
         }];
+      }
+
+      if (query.type) {
+        queryOptions = _.merge(queryOptions, { where: { type: query.type }});
       }
 
       queryOptions = filters.filterQueryOptions(req, queryOptions, Item);

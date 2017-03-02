@@ -382,6 +382,13 @@ module.exports = function (sequelize, DataTypes) {
       }
     };
 
+    User.prototype.hasRole = function (requiredRole) {
+      const userRoleIndex = config.userRoles.indexOf(this.role);
+      const requiredRoleIndex = config.userRoles.indexOf(requiredRole);
+
+      return userRoleIndex >= requiredRoleIndex;
+    };
+
     User.getPublicInfos = function (plainUser) {
         plainUser = plainUser || {};
         const publicPlainUser = {

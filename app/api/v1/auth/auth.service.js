@@ -191,6 +191,32 @@ exports.middleware = {
       .use(middlewareHackTapptic());
   },
 
+  restrictRoutesToAuthentifiedUsers: function (options) {
+    options = options || {};
+    options.middlewarePassport = options.middlewarePassport || { preload: true };
+
+    return compose()
+      .use(middlewarePassport(options.middlewarePassport))
+      .use()
+      .use(middlewareBroadcaster())
+      .use(middlewareCountry())
+      .use(middlewareMetricsHitsByCountry())
+      .use(middlewareHackBox())
+      .use(middlewareHackTapptic());
+  },
+
+  restrictToAuthentifiedUsers: function () {
+    return (req, res, next) => {
+      if (!req.passport ||
+          !req.passport.user) {
+        const error = new Error('permission denied');
+        error.statusCode = 401;
+        throw new Error();
+      }
+      next();
+    };
+  },
+
   authentify: function (options) {
     options = options || {};
     options.middlewarePassport = options.middlewarePassport || { preload: true };

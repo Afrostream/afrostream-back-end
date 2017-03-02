@@ -258,7 +258,7 @@ INSERT INTO "Items" (
   "slug", "active", "dateFrom", "dateTo", "countries", "broadcasters"
 )
 SELECT
-  "Movies"."createdAt", "Movies"."updatedAt", false as "deleted", 'video' as "type", 1 as "tenantId",
+  "Movies"."createdAt", "Movies"."updatedAt", false as "deleted", 'serie' as "type", 1 as "tenantId",
   "Movies"."_id" as "oldId", null as "oldUuid", 'serie' as "oldType",
   "Movies"."title", "Movies"."synopsis" as "description", "Movies"."translations", "Movies"."catchupProviderId",
   "Movies"."slug", "Movies"."active", "Movies"."dateFrom", "Movies"."dateTo", "Movies"."countries", "Movies"."broadcasters"
