@@ -354,6 +354,38 @@ db.sequelize.Instance.prototype.getPlain = function (key, options) {
 
 module.exports = db;
 
+// v2
+db.Tenant = db.sequelize.import('models/tenant');
+db.Item = db.sequelize.import('models/item');
+
+db.elements = { /* type: { model, modelName, elementName} */ };
+const createElement = function (type, name, file) {
+  const elementName = name.charAt(0).toLowerCase() + name.slice(1);
+  // standard assignement
+  db[name] = db.sequelize.import(file);
+  // element.item
+  db[name].belongsTo(db.Item, { as: 'item', foreignKey: '_id', targetKey: '_id'});
+  // item.elementName
+  db.Item.hasOne(db[name], {as: elementName, foreignKey: '_id', targetKey: '_id'});
+  //
+  db.elements[type] = {
+    model: db[name],
+    modelName: name,
+    elementName: elementName
+  };
+};
+
+createElement('category', 'ElementCategory', 'models/elementCategory');
+createElement('episode', 'ElementEpisode', 'models/elementEpisode');
+createElement('film', 'ElementFilm', 'models/elementFilm');
+createElement('live', 'ElementLive', 'models/elementLive');
+createElement('person', 'ElementPerson', 'models/elementPerson');
+createElement('season', 'ElementSeason', 'models/elementSeason');
+createElement('serie', 'ElementSerie', 'models/elementSerie');
+
+db.AssoItemsCategories = db.sequelize.import('models/assoItemsCategories');
+
+// v1
 db.AccessToken = db.sequelize.import('models/accessToken');
 db.Actor = db.sequelize.import('models/actor');
 db.Asset = db.sequelize.import('models/asset');
@@ -391,6 +423,23 @@ db.WallNote = db.sequelize.import('models/wallNote');
 db.WallNotesUsers = db.sequelize.import('models/wallNotesUsers');
 db.Work = db.sequelize.import('models/work');
 
+// LINKS V2
+db.ElementSeason.hasMany(db.ElementEpisode, {as: 'episodes', foreignKey: 'seasonId'});
+db.ElementEpisode.belongsTo(db.ElementSeason, {as: 'season', foreignKey: 'seasonId', targetKey: '_id', constraints: false});
+
+db.ElementSerie.hasMany(db.ElementSeason, {as: 'seasons', foreignKey: 'serieId'});
+db.ElementSeason.belongsTo(db.ElementSerie, {as: 'serie', foreignKey: 'serieId', constraints: false});
+
+db.ElementSerie.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
+db.ElementEpisode.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
+
+// db.AssoItemsCategories.belongsTo(db.Item, {as: 'item', foreignKey: 'itemId', targetKey: '_id'});
+//db.AssoItemsCategories.belongsTo(db.Item, {as: 'category', foreignKey: 'categoryId', targetKey: '_id'});
+
+db.ElementCategory.belongsToMany(db.Item, {through: db.AssoItemsCategories, as: 'items', foreignKey: 'categoryId'});
+db.Item.belongsToMany(db.ElementCategory, {through: db.AssoItemsCategories, as: 'category', foreignKey: 'itemId'});
+
+
 //LIFE
 db.LifePin = db.sequelize.import('models/life/lifePin');
 db.LifeTheme = db.sequelize.import('models/life/lifeTheme');
@@ -399,6 +448,8 @@ db.LifeThemeSpots = db.sequelize.import('models/life/lifeThemeSpots');
 db.LifeSpot = db.sequelize.import('models/life/lifeSpot');
 db.LifeUsersPins = db.sequelize.import('models/life/lifeUsersPins');
 db.LifeUsersFollowers = db.sequelize.import('models/life/lifeUsersFollowers');
+
+db.Item.hasOne(db.ElementFilm, {as: 'element', contraints: false, foreignKey: '_id'});
 
 db.LifePin.belongsTo(db.Image, {as: 'image', constraints: false});
 db.LifePin.belongsTo(db.User, {as: 'user', constraints: false});

@@ -4,7 +4,7 @@ const express = require('express');
 const controller = require('./userFollow.controller.js');
 const auth = rootRequire('app/api/v1/auth/auth.service');
 const router = express.Router({mergeParams: true});
-const utils = rootRequire('app/api/utils.js');
+const utils = rootRequire('app/api/v1/rest/utils.js');
 
 const tokenUserMatchParamUser = (req, res, next) => {
   if (String(req.params.followUserId) === String(req.user._id)) {

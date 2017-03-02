@@ -1,12 +1,22 @@
 -- DROP ALL
+DROP MATERIALIZED VIEW IF EXISTS "VueMovies";
+
+DROP TABLE IF EXISTS "AssoItemsCategories";
+DROP TABLE IF EXISTS "AssoItemsPersons";
 DROP TABLE IF EXISTS "Tenants";
 DROP TABLE IF EXISTS "Items";
-DROP TABLE IF EXISTS "ElementsVideos";
-DROP TABLE IF EXISTS "ElementsPersons";
-DROP TABLE IF EXISTS "ElementsSeries";
-DROP TABLE IF EXISTS "ElementsSeasons";
-DROP TABLE IF EXISTS "AssoItemsPersons";
+DROP TABLE IF EXISTS "ElementPersons";
+DROP TABLE IF EXISTS "ElementSeries";
+DROP TABLE IF EXISTS "ElementSeasons";
+DROP TABLE IF EXISTS "ElementFilms";
+DROP TABLE IF EXISTS "ElementLives";
+DROP TABLE IF EXISTS "ElementEpisodes";
+DROP TABLE IF EXISTS "ElementCategories";
 
+
+--
+-- Tenants
+--
 -- creating a multi tentant database
 DROP TABLE IF EXISTS "Tenants";
 CREATE TABLE "Tenants"
@@ -22,6 +32,9 @@ WITH (
 
 INSERT INTO "Tenants" ("_id", "internalName", "name") VALUES (1, 'afrostream', 'Afrostream');
 
+--
+-- Items
+--
 DROP TABLE IF EXISTS "Items";
 CREATE TABLE "Items"
 (
@@ -59,24 +72,16 @@ WITH (
 
 
 --
--- VIDEOS
+-- FILMS
 --
-DROP TABLE IF EXISTS "ElementsVideos";
-CREATE TABLE "ElementsVideos"
+DROP TABLE IF EXISTS "ElementFilms";
+CREATE TABLE "ElementFilms"
 (
   -- champs techniques (ORM & PK)
   _id integer NOT NULL,
   "createdAt" timestamp with time zone,
   "updatedAt" timestamp with time zone,
   "deleted" boolean default false,
-  -- type
-  "type" character varying(16) not null, -- live, film, episode
-  live boolean DEFAULT false,
-  "episodeNumber" integer,
-  "seasonId" integer,
-  --
-  duration numeric,
-  drm boolean DEFAULT false,
   -- content data
   "imdbId" character varying(255),
   "productionCountry" character varying(64),
@@ -90,19 +95,13 @@ CREATE TABLE "ElementsVideos"
   "youtubeTrailer" character varying(255),
   -- cached / precomputed data
   rating numeric DEFAULT 3,
-  -- PF: fixme: should be replaced by pfUuid & pfType
-  "importId" integer,
-  "encodingId" character varying(36),
-  "pfMd5Hash" character varying(255),
-  "sourceMp4" character varying(2048),
-  CONSTRAINT "ElementsVideos_pkey" PRIMARY KEY (_id)
+  "videoId" uuid,
+  CONSTRAINT "ElementFilms_pkey" PRIMARY KEY (_id)
 )
 WITH (
   OIDS=FALSE
 );
 
--- on merge Movies,Episodes,Videos dans NewVideos
--- Movies -> NewVideos
 INSERT INTO "Items" (
   "createdAt", "updatedAt", "deleted", "type", "tenantId",
   "oldId", "oldUuid", "oldType",
@@ -110,7 +109,7 @@ INSERT INTO "Items" (
   "slug", "active", "dateFrom", "dateTo", "countries", "broadcasters"
 )
 SELECT
-  "Movies"."createdAt", "Movies"."updatedAt", false as "deleted", 'video' as "type", 1 as "tenantId",
+  "Movies"."createdAt", "Movies"."updatedAt", false as "deleted", 'film' as "type", 1 as "tenantId",
   "Movies"."_id" as "oldId", "Videos"."_id" as "oldUuid", 'movie' as "oldType",
   "Movies"."title", "Movies"."synopsis" as "description", "Movies"."translations", "Movies"."catchupProviderId",
   "Movies"."slug", "Movies"."active", "Movies"."dateFrom", "Movies"."dateTo", "Movies"."countries", "Movies"."broadcasters"
@@ -118,24 +117,20 @@ FROM
   "Movies"
 INNER JOIN "Videos" ON "Movies"."videoId" = "Videos"."_id"
 WHERE
-  "Movies"."type"='movie';
+  "Movies"."type"='movie' AND "Movies"."live" <> true;
 
-INSERT INTO "ElementsVideos" (
+INSERT INTO "ElementFilms" (
   "_id", "createdAt", "updatedAt", "deleted",
-  "type", "live", "duration", "drm", "imdbId", "productionCountry", "CSA",
+  "imdbId", "productionCountry", "CSA",
   "dateReleased", "yearReleased", "licensorId", "genre", "schedule",
-  "youtubeTrailer", "episodeNumber", "seasonId", "rating", "importId",
-  "encodingId", "pfMd5Hash", "sourceMp4"
+  "youtubeTrailer", "rating", "videoId"
 )
 SELECT
   "Items"."_id" as "_id",
   "Movies"."createdAt" as "createdAt",
   "Movies"."updatedAt" as "updatedAt",
   false as "deleted",
-  CASE WHEN "Movies".live = true THEN 'live' ELSE 'film' END as "type",
-  "Movies".live as "live",
-  "Videos".duration as "duration",
-  "Videos".drm as "drm",
+  --
   "Movies"."imdbId" as "imdbId",
   "Movies"."productionCountry" as "productionCountry",
   "Movies"."CSA" as "CSA",
@@ -145,21 +140,43 @@ SELECT
   "Movies"."genre" as "genre",
   "Movies"."schedule" as "schedule",
   "Movies"."youtubeTrailer" as "youtubeTrailer",
-  null as "episodeNumber",
-  null as "seasonId",
   "Movies"."rating" as "rating",
-  "Videos"."importId" as "importId",
-  "Videos"."encodingId" as "encodingId",
-  "Videos"."pfMd5Hash" as "pfMd5Hash",
-  "Videos"."sourceMp4" as "sourceMp4"
+  "Videos"."_id" as "videoId"
 FROM
   "Movies"
 INNER JOIN "Videos" ON "Movies"."videoId" = "Videos"."_id"
 INNER JOIN "Items" ON "Items"."oldId" = "Movies"."_id" and "Items"."oldType" = 'movie'
 WHERE
-  "Movies"."type"='movie';
+  "Movies"."type"='movie' AND "Movies"."live" <> true;
 
--- Episodes -> NewVideos
+--
+-- LIVE
+--
+DROP TABLE IF EXISTS "ElementLives";
+CREATE TABLE "ElementLives"
+(
+  -- champs techniques (ORM & PK)
+  _id integer NOT NULL,
+  "createdAt" timestamp with time zone,
+  "updatedAt" timestamp with time zone,
+  "deleted" boolean default false,
+  -- content data
+  "productionCountry" character varying(64),
+  "CSA" integer,
+  "licensorId" integer,
+  genre character varying(255),
+  schedule character varying(255),
+  -- custom
+  "youtubeTrailer" character varying(255),
+  -- cached / precomputed data
+  rating numeric DEFAULT 3,
+  "videoId" uuid,
+  CONSTRAINT "ElementLives_pkey" PRIMARY KEY (_id)
+)
+WITH (
+  OIDS=FALSE
+);
+
 INSERT INTO "Items" (
   "createdAt", "updatedAt", "deleted", "type", "tenantId",
   "oldId", "oldUuid", "oldType",
@@ -167,61 +184,49 @@ INSERT INTO "Items" (
   "slug", "active", "dateFrom", "dateTo", "countries", "broadcasters"
 )
 SELECT
-  "Episodes"."createdAt", "Episodes"."updatedAt", false as "deleted", 'video' as "type", 1 as "tenantId",
-  "Episodes"."_id" as "oldId", "Videos"."_id" as "oldUuid", 'episode' as "oldType",
-  "Episodes"."title", "Episodes"."synopsis" as "description", "Episodes"."translations", "Episodes"."catchupProviderId",
-  "Episodes"."slug", "Episodes"."active", "Episodes"."dateFrom", "Episodes"."dateTo", "Episodes"."countries", "Episodes"."broadcasters"
+  "Movies"."createdAt", "Movies"."updatedAt", false as "deleted", 'live' as "type", 1 as "tenantId",
+  "Movies"."_id" as "oldId", "Videos"."_id" as "oldUuid", 'movie' as "oldType",
+  "Movies"."title", "Movies"."synopsis" as "description", "Movies"."translations", "Movies"."catchupProviderId",
+  "Movies"."slug", "Movies"."active", "Movies"."dateFrom", "Movies"."dateTo", "Movies"."countries", "Movies"."broadcasters"
 FROM
-  "Episodes"
-INNER JOIN "Seasons" ON "Seasons"."_id" = "Episodes"."seasonId"
-INNER JOIN "Movies" ON "Movies"."_id" = "Seasons"."movieId"
-INNER JOIN "Videos" ON "Episodes"."videoId" = "Videos"."_id";
+  "Movies"
+INNER JOIN "Videos" ON "Movies"."videoId" = "Videos"."_id"
+WHERE
+  "Movies"."type"='movie' AND "Movies"."live" = true;
 
-INSERT INTO "ElementsVideos" (
+INSERT INTO "ElementLives" (
   "_id", "createdAt", "updatedAt", "deleted",
-  "type", "live", "duration", "drm", "imdbId", "productionCountry", "CSA",
-  "dateReleased", "yearReleased", "licensorId", "genre", "schedule",
-  "youtubeTrailer", "episodeNumber", "seasonId", "rating", "importId",
-  "encodingId", "pfMd5Hash", "sourceMp4"
+  "productionCountry", "CSA",
+  "licensorId", "genre", "schedule",
+  "youtubeTrailer", "rating",
+  "videoId"
 )
 SELECT
   "Items"."_id" as "_id",
-  "Episodes"."createdAt" as "createdAt",
-  "Episodes"."updatedAt" as "updatedAt",
+  "Movies"."createdAt" as "createdAt",
+  "Movies"."updatedAt" as "updatedAt",
   false as "deleted",
-  'episode' as "type",
-  "Movies".live as "live",
-  "Videos".duration as "duration",
-  "Videos".drm as "drm",
-  "Episodes"."imdbId" as "imdbId",
-  null as "productionCountry",
-  "Episodes"."CSA" as "CSA",
-  "Movies"."dateReleased" as "dateReleased",
-  "Movies"."yearReleased" as "yearReleased",
-  "Movies"."licensorId" as "licensorId", -- FIXME ?
+  "Movies"."productionCountry" as "productionCountry",
+  "Movies"."CSA" as "CSA",
+  "Movies"."licensorId" as "licensorId",
   "Movies"."genre" as "genre",
-  null as "schedule",
-  null as "youtubeTrailer",
-  "Episodes"."episodeNumber" as "episodeNumber",
-  "Episodes"."seasonId" as "seasonId",
-  "Episodes"."rating" as "rating",
-  "Videos"."importId" as "importId",
-  "Videos"."encodingId" as "encodingId",
-  "Videos"."pfMd5Hash" as "pfMd5Hash",
-  "Videos"."sourceMp4" as "sourceMp4"
+  "Movies"."schedule" as "schedule",
+  "Movies"."youtubeTrailer" as "youtubeTrailer",
+  "Movies"."rating" as "rating",
+  "Videos"."_id" as "videoId"
 FROM
-  "Episodes"
-INNER JOIN "Seasons" ON "Seasons"."_id" = "Episodes"."seasonId"
-INNER JOIN "Movies" ON "Movies"."_id" = "Seasons"."movieId"
-INNER JOIN "Videos" ON "Episodes"."videoId" = "Videos"."_id"
-INNER JOIN "Items" ON "Items"."oldId" = "Episodes"."_id" and "Items"."oldType" = 'episode';
+  "Movies"
+INNER JOIN "Videos" ON "Movies"."videoId" = "Videos"."_id"
+INNER JOIN "Items" ON "Items"."oldId" = "Movies"."_id" and "Items"."oldType" = 'movie'
+WHERE
+  "Movies"."type"='movie' AND "Movies"."live" = true;
 
 --
 -- SERIES
 --
 -- Movies => Series
-DROP TABLE IF EXISTS "ElementsSeries";
-CREATE TABLE "ElementsSeries"
+DROP TABLE IF EXISTS "ElementSeries";
+CREATE TABLE "ElementSeries"
 (
   _id integer not null,
   "createdAt" timestamp with time zone,
@@ -239,7 +244,7 @@ CREATE TABLE "ElementsSeries"
   schedule character varying(255),
   -- cached / precomputed data
   rating numeric DEFAULT 3,
-  CONSTRAINT "ElementsSeries_pkey" PRIMARY KEY (_id)
+  CONSTRAINT "ElementSeries_pkey" PRIMARY KEY (_id)
 )
 WITH (
   OIDS=FALSE
@@ -262,7 +267,7 @@ FROM
 WHERE
   "Movies"."type"='serie';
 
-INSERT INTO "ElementsSeries" (
+INSERT INTO "ElementSeries" (
   "_id", "createdAt", "updatedAt", "deleted",
   "numberOfSeasons", "imdbId", "productionCountry", "CSA",
   "dateReleased", "yearReleased", "licensorId",
@@ -293,8 +298,8 @@ WHERE
 --
 -- SEASONS
 --
-DROP TABLE IF EXISTS "ElementsSeasons";
-CREATE TABLE "ElementsSeasons"
+DROP TABLE IF EXISTS "ElementSeasons";
+CREATE TABLE "ElementSeasons"
 (
   _id integer not null,
   "createdAt" timestamp with time zone,
@@ -303,7 +308,7 @@ CREATE TABLE "ElementsSeasons"
   --
   "numberOfEpisodes" integer,
   "serieId" integer,
-  CONSTRAINT "ElementsSeasons_pkey" PRIMARY KEY (_id)
+  CONSTRAINT "ElementSeasons_pkey" PRIMARY KEY (_id)
 )
 WITH (
   OIDS=FALSE
@@ -326,7 +331,7 @@ INNER JOIN "Items" as "ItemSerie" ON "ItemSerie"."oldId" = "Seasons"."movieId" a
 WHERE
   "Seasons"."movieId" is not null;
 
-INSERT INTO "ElementsSeasons" (
+INSERT INTO "ElementSeasons" (
   "_id", "createdAt", "updatedAt", "deleted",
   "numberOfEpisodes", "serieId"
 )
@@ -340,17 +345,103 @@ INNER JOIN "Items" as "ItemSeason" ON "ItemSeason"."oldId" = "Seasons"."_id" and
 INNER JOIN "Items" as "ItemSerie" ON "ItemSerie"."oldId" = "Seasons"."movieId" and "ItemSerie"."oldType" = 'serie'
 ;
 
+
+--
+-- EPISODES
+--
+DROP TABLE IF EXISTS "ElementEpisodes";
+CREATE TABLE "ElementEpisodes"
+(
+  -- champs techniques (ORM & PK)
+  _id integer NOT NULL,
+  "createdAt" timestamp with time zone,
+  "updatedAt" timestamp with time zone,
+  "deleted" boolean default false,
+  --
+  "episodeNumber" integer,
+  "seasonId" integer,
+  -- content data
+  "productionCountry" character varying(64),
+  "CSA" integer,
+  "dateReleased" timestamp with time zone,
+  "yearReleased" integer,
+  "licensorId" integer,
+  genre character varying(255),
+  schedule character varying(255),
+  -- custom
+  "youtubeTrailer" character varying(255),
+  -- cached / precomputed data
+  rating numeric DEFAULT 3,
+  "videoId" uuid,
+  CONSTRAINT "ElementEpisodes_pkey" PRIMARY KEY (_id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO "Items" (
+  "createdAt", "updatedAt", "deleted", "type", "tenantId",
+  "oldId", "oldUuid", "oldType",
+  "title", "description", "translations", "catchupProviderId",
+  "slug", "active", "dateFrom", "dateTo", "countries", "broadcasters"
+)
+SELECT
+  "Episodes"."createdAt", "Episodes"."updatedAt", false as "deleted", 'episode' as "type", 1 as "tenantId",
+  "Episodes"."_id" as "oldId", "Videos"."_id" as "oldUuid", 'episode' as "oldType",
+  "Episodes"."title", "Episodes"."synopsis" as "description", "Episodes"."translations", "Episodes"."catchupProviderId",
+  "Episodes"."slug", "Episodes"."active", "Episodes"."dateFrom", "Episodes"."dateTo", "Episodes"."countries", "Episodes"."broadcasters"
+FROM
+  "Episodes"
+INNER JOIN "Seasons" ON "Seasons"."_id" = "Episodes"."seasonId"
+INNER JOIN "Movies" ON "Movies"."_id" = "Seasons"."movieId"
+INNER JOIN "Videos" ON "Episodes"."videoId" = "Videos"."_id";
+
+INSERT INTO "ElementEpisodes" (
+  "_id", "createdAt", "updatedAt", "deleted",
+  "episodeNumber", "seasonId",
+  "productionCountry", "CSA",
+  "dateReleased", "yearReleased", "licensorId", "genre", "schedule",
+  "youtubeTrailer",  "rating",
+  "videoId"
+)
+SELECT
+  "ItemsEpisodes"."_id" as "_id",
+  "Episodes"."createdAt" as "createdAt",
+  "Episodes"."updatedAt" as "updatedAt",
+  false as "deleted",
+  --
+  "Episodes"."episodeNumber" as "episodeNumber",
+  "ItemsSeasons"."_id" as "seasonId",
+  null as "productionCountry",
+  "Episodes"."CSA" as "CSA",
+  "Movies"."dateReleased" as "dateReleased",
+  "Movies"."yearReleased" as "yearReleased",
+  "Movies"."licensorId" as "licensorId", -- FIXME ?
+  "Movies"."genre" as "genre",
+  null as "schedule",
+  null as "youtubeTrailer",
+  "Episodes"."rating" as "rating",
+  "Videos"."_id" as "videoId"
+FROM
+  "Episodes"
+INNER JOIN "Seasons" ON "Seasons"."_id" = "Episodes"."seasonId"
+INNER JOIN "Movies" ON "Movies"."_id" = "Seasons"."movieId"
+INNER JOIN "Videos" ON "Episodes"."videoId" = "Videos"."_id"
+INNER JOIN "Items" as "ItemsEpisodes" ON "ItemsEpisodes"."oldId" = "Episodes"."_id" and "ItemsEpisodes"."oldType" = 'episode'
+INNER JOIN "Items" as "ItemsSeasons" ON "ItemsSeasons"."oldId" = "Seasons"."_id" and "ItemsSeasons"."oldType" = 'season';
+
+
 --
 -- CATEGORY
 --
-DROP TABLE IF EXISTS "ElementsCategories";
-CREATE TABLE "ElementsCategories"
+DROP TABLE IF EXISTS "ElementCategories";
+CREATE TABLE "ElementCategories"
 (
   _id serial not null,
   "createdAt" timestamp with time zone,
   "updatedAt" timestamp with time zone,
   "deleted" boolean default false,
-  CONSTRAINT "ElementsCategories_pkey" PRIMARY KEY (_id)
+  CONSTRAINT "ElementCategories_pkey" PRIMARY KEY (_id)
 )
 WITH (
   OIDS=FALSE
@@ -370,7 +461,7 @@ SELECT
 FROM
   "Categories";
 
-INSERT INTO "ElementsCategories" (
+INSERT INTO "ElementCategories" (
   "_id", "createdAt", "updatedAt", "deleted"
 )
 SELECT
@@ -438,8 +529,8 @@ WHERE
 -- ACTEURS
 --
 -- Acteurs => Persons
-DROP TABLE IF EXISTS "ElementsPersons";
-CREATE TABLE "ElementsPersons"
+DROP TABLE IF EXISTS "ElementPersons";
+CREATE TABLE "ElementPersons"
 (
   _id integer not null,
   "createdAt" timestamp with time zone,
@@ -449,7 +540,7 @@ CREATE TABLE "ElementsPersons"
   "firstName" character varying(255),
   "lastName" character varying(255),
   "imdbId" character varying(16),
-  CONSTRAINT "ElementsPersons_pkey" PRIMARY KEY (_id)
+  CONSTRAINT "ElementPersons_pkey" PRIMARY KEY (_id)
 )
 WITH (
   OIDS=FALSE
@@ -473,7 +564,7 @@ FROM
 WHERE
   ("Actors"."firstName"||' '||"Actors"."lastName") is not null AND  ("Actors"."firstName" is not null OR "Actors"."lastName" is not null);
 
-INSERT INTO "ElementsPersons" (
+INSERT INTO "ElementPersons" (
   "_id", "createdAt","updatedAt","deleted",
   "type", "firstName","lastName","imdbId"
 )
@@ -521,36 +612,80 @@ SELECT
   "Items"."dateTo" as "dateTo",
   "Items"."description" as "synopsis",
   'movie' as "type",
-  "ElementsVideos".duration as "duration",
-  "ElementsVideos"."imdbId" as "imdbId",
+  "Videos".duration as "duration",
+  "ElementFilms"."imdbId" as "imdbId",
   null as "seasonId",
   "Items"."slug",
   null as "sort", -- FIXME lorsque l'on aura migré les categories
   "Items"."active",
-  "ElementsVideos"."licensorId",
+  "ElementFilms"."licensorId",
   null as "posterId",
   null as "logoId",
   null as "thumbId",
   null as "videoId",
-  "ElementsVideos"."dateReleased",
-  "ElementsVideos"."genre",
+  "ElementFilms"."dateReleased",
+  "ElementFilms"."genre",
   null as "creation",
-  "ElementsVideos"."schedule",
+  "ElementFilms"."schedule",
   "Items"."catchupProviderId",
-  "ElementsVideos".live,
-  "ElementsVideos"."productionCountry",
-  "ElementsVideos"."CSA",
-  "ElementsVideos"."rating",
+  false as "live",
+  "ElementFilms"."productionCountry",
+  "ElementFilms"."CSA",
+  "ElementFilms"."rating",
   null as "vXstY",
   "Items"."countries",
   "Items"."broadcasters",
-  "ElementsVideos"."youtubeTrailer",
-  "ElementsVideos"."yearReleased",
+  "ElementFilms"."youtubeTrailer",
+  "ElementFilms"."yearReleased",
   "Items"."createdAt",
   "Items"."updatedAt",
   "Items"."translations" -- fixme
 FROM "Items"
-INNER JOIN "ElementsVideos" ON "Items"._id = "ElementsVideos"._id
+INNER JOIN "ElementFilms" ON "Items"._id = "ElementFilms"._id
+INNER JOIN "Videos" ON "ElementFilms"."videoId" = "Videos"."_id"
+WHERE
+  "Items"."oldId" is not null and "Items"."oldType" = 'movie'
+
+UNION
+
+SELECT
+  "Items"."oldId" as "_id",
+  "Items"."title" as "title",
+  "Items"."dateFrom" as "dateFrom",
+  "Items"."dateTo" as "dateTo",
+  "Items"."description" as "synopsis",
+  'movie' as "type",
+  null as "duration",
+  null as "imdbId",
+  null as "seasonId",
+  "Items"."slug",
+  null as "sort", -- FIXME lorsque l'on aura migré les categories
+  "Items"."active",
+  "ElementLives"."licensorId",
+  null as "posterId",
+  null as "logoId",
+  null as "thumbId",
+  null as "videoId",
+  null as "dateReleased",
+  "ElementLives"."genre",
+  null as "creation",
+  "ElementLives"."schedule",
+  "Items"."catchupProviderId",
+  false as "live",
+  "ElementLives"."productionCountry",
+  "ElementLives"."CSA",
+  "ElementLives"."rating",
+  null as "vXstY",
+  "Items"."countries",
+  "Items"."broadcasters",
+  "ElementLives"."youtubeTrailer",
+  null as "yearReleased",
+  "Items"."createdAt",
+  "Items"."updatedAt",
+  "Items"."translations" -- fixme
+FROM "Items"
+INNER JOIN "ElementLives" ON "Items"._id = "ElementLives"._id
+INNER JOIN "Videos" ON "ElementLives"."videoId" = "Videos"."_id"
 WHERE
   "Items"."oldId" is not null and "Items"."oldType" = 'movie'
 
@@ -564,35 +699,35 @@ SELECT
   "Items"."description" as "synopsis",
   'serie' as "type",
   null as "duration",
-  "ElementsSeries"."imdbId" as "imdbId",
+  "ElementSeries"."imdbId" as "imdbId",
   null as "seasonId",
   "Items"."slug",
   null as "sort", -- FIXME lorsque l'on aura migré les categories
   "Items"."active",
-  "ElementsSeries"."licensorId",
+  "ElementSeries"."licensorId",
   null as "posterId",
   null as "logoId",
   null as "thumbId",
   null as "videoId",
-  "ElementsSeries"."dateReleased",
-  "ElementsSeries"."genre",
+  "ElementSeries"."dateReleased",
+  "ElementSeries"."genre",
   null as "creation",
-  "ElementsSeries"."schedule",
+  "ElementSeries"."schedule",
   "Items"."catchupProviderId",
   false as "live",
-  "ElementsSeries"."productionCountry",
-  "ElementsSeries"."CSA",
-  "ElementsSeries"."rating",
+  "ElementSeries"."productionCountry",
+  "ElementSeries"."CSA",
+  "ElementSeries"."rating",
   null as "vXstY",
   "Items"."countries",
   "Items"."broadcasters",
   null as "youtubeTrailer", -- FIXME piocher ds le 1er episode ?
-  "ElementsSeries"."yearReleased",
+  "ElementSeries"."yearReleased",
   "Items"."createdAt",
   "Items"."updatedAt",
   "Items"."translations" -- fixme
 FROM "Items"
-INNER JOIN "ElementsSeries" ON "Items"._id = "ElementsSeries"._id
+INNER JOIN "ElementSeries" ON "Items"._id = "ElementSeries"._id
 WHERE
   "Items"."oldId" is not null and "Items"."oldType" = 'serie'
 ;

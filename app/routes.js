@@ -9,15 +9,17 @@ module.exports = function (app) {
   //  /api/v2/* (REST)
   //  /api/v2/graphql
 
-  // api v1
+  // backward compatibility
   app.use('/auth', require('./api/v1/auth/index')); // legacy
   app.use('/api/auth', require('./api/v1/auth/index')); // <= used by orange
-  app.use('/api/v1', require('./api/v1/rest'));
   app.use('/api', require('./api/v1/rest'));
 
+  // api v1
+  app.use('/api/v1/rest', require('./api/v1/rest'));
+  app.use('/api/v1/auth', require('./api/v1/auth'));
+
   // api v2
-  //app.use('/api/v2/auth', require('./api/v2/auth/index')); // using legacy api
-  app.use('/api/v2', require('./api/v2/rest'));
+  app.use('/api/v2/rest', require('./api/v2/rest'));
 
   // drm
   app.use('/right', require('./right/index'));
