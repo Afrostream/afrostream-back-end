@@ -2,7 +2,7 @@
 
 const express = require('express');
 const auth = rootRequire('app/api/v1/auth/auth.service');
-const { index, show, create, update, destroy } = rootRequire('app/api/shared/rest/generic.controller');
+const { create, update, destroy } = rootRequire('app/api/shared/rest/generic.controller');
 const { middlewareNoCache, middlewareCache } = rootRequire('app/api/v1/rest/utils');
 const router = express.Router();
 

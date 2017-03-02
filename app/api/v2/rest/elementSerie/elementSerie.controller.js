@@ -20,7 +20,7 @@ const populateToIncludedModel = populate => {
   const include = [];
 
   // item is mandatory.
-  populate.push('item')
+  populate.push('item');
   // uniq
   populate = _.uniq(populate);
 

@@ -1,19 +1,13 @@
-const assert = require('better-assert');
-
 const filters = rootRequire('app/api/v1/rest/filters.js');
 
 const utils = rootRequire('app/api/v1/rest/utils');
 
 const {
-  parseQueryOptions,
   rewriteQuery
 } = rootRequire('app/api/shared/rest/utils');
 
 const sqldb = rootRequire('sqldb');
 const Item = sqldb.Item;
-const ElementCategory = sqldb.ElementCategory;
-const ElementEpisode = sqldb.ElementEpisode;
-const ElementFilm = sqldb.ElementFilm;
 
 const Q = require('q');
 
