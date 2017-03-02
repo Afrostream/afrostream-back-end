@@ -3,7 +3,7 @@ const filters = rootRequire('app/api/v1/rest/filters.js');
 const utils = rootRequire('app/api/v1/rest/utils');
 
 const {
-  rewriteQuery
+  parseQuery
 } = rootRequire('app/api/shared/rest/utils');
 
 const sqldb = rootRequire('sqldb');
@@ -29,7 +29,7 @@ module.exports.index = (req, res) => {
       }
     })
     .then(() => {
-      let query = rewriteQuery(req.query);
+      let query = parseQuery(req.query);
 
       let queryOptions = {
         limit: query.limit,
@@ -70,7 +70,7 @@ module.exports.show = (req, res) => {
     })
     .then(utils.handleEntityNotFound(res))
     .then(item => {
-      let query = rewriteQuery(req.query);
+      let query = parseQuery(req.query);
 
       if (query.populate.indexOf('element') !== -1) {
         const element = sqldb.elements[item.type];

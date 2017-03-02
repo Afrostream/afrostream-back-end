@@ -12,9 +12,9 @@ const Item = rootRequire('sqldb').Item;
 
 router.get('/', middlewareNoCache, middlewareAdminOnly, controller.index);
 router.get('/:id', middlewareCache, controller.show);
-router.post('/', middlewareNoCache, middlewareAdminOnly, create({model: Item}));
-router.put('/:id', middlewareNoCache, middlewareAdminOnly, update({model: Item}));
-router.patch('/:id', middlewareNoCache, middlewareAdminOnly, update({model: Item}));
-router.delete('/:id', middlewareNoCache, middlewareAdminOnly, destroy({model: Item}));
+router.post('/', middlewareNoCache, middlewareAdminOnly, create({Model: Item}));
+router.put('/:id', middlewareNoCache, middlewareAdminOnly, update({Model: Item}));
+router.patch('/:id', middlewareNoCache, middlewareAdminOnly, update({Model: Item}));
+router.delete('/:id', middlewareNoCache, middlewareAdminOnly, destroy({Model: Item}));
 
 module.exports = router;
