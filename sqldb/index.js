@@ -283,6 +283,7 @@ var db = {
 /*
  * Monkey Patching Sequelize
  */
+ /*
 db.sequelize.Instance.prototype.getPlain = function (key, options) {
     if (options === undefined && typeof key === 'object') {
         options = key;
@@ -351,7 +352,7 @@ db.sequelize.Instance.prototype.getPlain = function (key, options) {
     }
     return values;
 };
-
+*/
 module.exports = db;
 
 // v2

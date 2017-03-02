@@ -197,194 +197,6 @@ module.exports = function (sequelize, DataTypes) {
                 }
                 fn();
             }
-        },
-
-        /**
-         * Instance Methods
-         */
-        instanceMethods: {
-            /**
-             * Authenticate - check if the passwords are the same
-             *
-             * @param {String} password
-             * @param {Function} callback
-             * @return {Boolean}
-             */
-            authenticate: function (password, callback) {
-                if (!callback) {
-                    return this.password === this.encryptPassword(password);
-                }
-
-                var _this = this;
-                this.encryptPassword(password, function (err, pwdGen) {
-                    if (err) {
-                        callback(err);
-                    }
-
-                    if (_this.password === pwdGen) {
-                        callback(null, true);
-                    }
-                    else {
-                        callback(null, false);
-                    }
-                });
-            },
-
-            /**
-             * Make salt
-             *
-             * @param {Number} byteSize Optional salt byte size, default to 16
-             * @param {Function} callback
-             * @return {String}
-             */
-            makeSalt: function (byteSize, callback) {
-                var defaultByteSize = 16;
-
-                if (typeof arguments[0] === 'function') {
-                    callback = arguments[0];
-                    byteSize = defaultByteSize;
-                }
-                else if (typeof arguments[1] === 'function') {
-                    callback = arguments[1];
-                }
-
-                if (!byteSize) {
-                    byteSize = defaultByteSize;
-                }
-
-                if (!callback) {
-                    return crypto.randomBytes(byteSize).toString('base64');
-                }
-
-                return crypto.randomBytes(byteSize, function (err, salt) {
-                    if (err) {
-                        callback(err);
-                    }
-                    return callback(null, salt.toString('base64'));
-                });
-            },
-
-            /**
-             * Encrypt password
-             *
-             * @param {String} password
-             * @param {Function} callback
-             * @return {String}
-             */
-            encryptPassword: function (password, callback) {
-                if (!password || !this.salt) {
-                    if (!callback) {
-                        return null;
-                    }
-                    return callback(null);
-                }
-
-                var defaultIterations = 10000;
-                var defaultKeyLength = 64;
-                var salt = new Buffer(this.salt, 'base64');
-
-                if (!callback) {
-                    return crypto.pbkdf2Sync(password, salt, defaultIterations, defaultKeyLength)
-                        .toString('base64');
-                }
-
-                return crypto.pbkdf2(password, salt, defaultIterations, defaultKeyLength,
-                    function (err, key) {
-                        if (err) {
-                            callback(err);
-                        }
-                        return callback(null, key.toString('base64'));
-                    });
-            },
-
-            /**
-             * Update password field
-             *
-             * @param {Function} fn
-             * @return {String}
-             */
-            updatePassword: function (fn) {
-                // Handle new/update passwords
-                if (this.password) {
-                    if (!validatePresenceOf(this.password) && authTypes.indexOf(this.provider) === -1) {
-                        fn(new Error('Invalid password'));
-                    }
-
-                    // Make salt with a callback
-                    var _this = this;
-                    this.makeSalt(function (saltErr, salt) {
-                        if (saltErr) {
-                            fn(saltErr);
-                        }
-                        _this.salt = salt;
-                        _this.encryptPassword(_this.password, function (encryptErr, hashedPassword) {
-                            if (encryptErr) {
-                                fn(encryptErr);
-                            }
-                            _this.password = hashedPassword;
-                            fn(null);
-                        });
-                    });
-                } else {
-                    fn(null);
-                }
-            },
-
-            getIse2FromOrangeIdentity: function () {
-                return this.orange && this.orange.identity && this.orange.identity.collectiveidentifier;
-            },
-
-            // public & private infos (removing "internal" infos)
-            getInfos: function () {
-                var userInfos = this.get({plain: true});
-                // removing internal infos
-                delete userInfos.role;
-                delete userInfos.password;
-                delete userInfos.salt;
-                return userInfos;
-            },
-
-            // public infos
-            getPublicInfos: function () {
-                return User.getPublicInfos(this.get({plain: true}));
-            },
-
-            toPlain: function (options) {
-              var caller = options.req && options.req.user ||
-                           options.req && options.req.passport && options.req.passport.user;
-
-              const isBacko = utils.isReqFromAfrostreamAdmin(options.req);
-
-              if(isBacko){
-                return;
-              }
-
-              if (!caller || caller._id !== this._id) {
-                return this.getPublicInfos();
-              }
-            }
-        },
-
-        classMethods: {
-            getPublicInfos: function (plainUser) {
-                plainUser = plainUser || {};
-                const publicPlainUser = {
-                    _id: plainUser._id,
-                    picture: plainUser.picture,
-                    biography: plainUser.biography,
-                    followers: plainUser.followers,
-                    nickname: plainUser.nickname,
-                    facebook: plainUser.facebook ? {id: plainUser.facebook.id} : null
-                };
-                // tweak life - computed fields
-                if (typeof plainUser.pinscount !== 'undefined') {
-                  publicPlainUser.pinscount = plainUser.pinscount;
-                }
-                if (typeof plainUser.pinsdate !== 'undefined') {
-                  publicPlainUser.pinsdate = plainUser.pinsdate;
-                }
-                return publicPlainUser;
-            }
         }
     });
 
@@ -407,6 +219,188 @@ module.exports = function (sequelize, DataTypes) {
      }
      };
      */
+    /**
+     * Authenticate - check if the passwords are the same
+     *
+     * @param {String} password
+     * @param {Function} callback
+     * @return {Boolean}
+     */
+    User.prototype.authenticate = function(password, callback) {
+      if (!callback) {
+        return this.password === this.encryptPassword(password);
+      }
+
+      var _this = this;
+      this.encryptPassword(password, function(err, pwdGen) {
+        if (err) {
+          callback(err);
+        }
+
+        if (_this.password === pwdGen) {
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
+      });
+    };
+
+    /**
+     * Make salt
+     *
+     * @param {Number} byteSize Optional salt byte size, default to 16
+     * @param {Function} callback
+     * @return {String}
+     */
+    User.prototype.makeSalt = function(byteSize, callback) {
+      var defaultByteSize = 16;
+
+      if (typeof arguments[0] === 'function') {
+        callback = arguments[0];
+        byteSize = defaultByteSize;
+      } else if (typeof arguments[1] === 'function') {
+        callback = arguments[1];
+      }
+
+      if (!byteSize) {
+        byteSize = defaultByteSize;
+      }
+
+      if (!callback) {
+        return crypto.randomBytes(byteSize).toString('base64');
+      }
+
+      return crypto.randomBytes(byteSize, function(err, salt) {
+        if (err) {
+          callback(err);
+        }
+        return callback(null, salt.toString('base64'));
+      });
+    };
+
+    /**
+     * Encrypt password
+     *
+     * @param {String} password
+     * @param {Function} callback
+     * @return {String}
+     */
+    User.prototype.encryptPassword = function(password, callback) {
+      if (!password || !this.salt) {
+        if (!callback) {
+          return null;
+        }
+        return callback(null);
+      }
+
+      var defaultIterations = 10000;
+      var defaultKeyLength = 64;
+      var salt = new Buffer(this.salt, 'base64');
+
+      if (!callback) {
+        return crypto.pbkdf2Sync(password, salt, defaultIterations, defaultKeyLength)
+          .toString('base64');
+      }
+
+      return crypto.pbkdf2(password, salt, defaultIterations, defaultKeyLength,
+        function(err, key) {
+          if (err) {
+            callback(err);
+          }
+          return callback(null, key.toString('base64'));
+        });
+    };
+
+    /**
+     * Update password field
+     *
+     * @param {Function} fn
+     * @return {String}
+     */
+    User.prototype.updatePassword = function(fn) {
+      // Handle new/update passwords
+      if (this.password) {
+        if (!validatePresenceOf(this.password) && authTypes.indexOf(this.provider) === -1) {
+          fn(new Error('Invalid password'));
+        }
+
+        // Make salt with a callback
+        var _this = this;
+        this.makeSalt(function(saltErr, salt) {
+          if (saltErr) {
+            fn(saltErr);
+          }
+          _this.salt = salt;
+          _this.encryptPassword(_this.password, function(encryptErr, hashedPassword) {
+            if (encryptErr) {
+              fn(encryptErr);
+            }
+            _this.password = hashedPassword;
+            fn(null);
+          });
+        });
+      } else {
+        fn(null);
+      }
+    };
+
+    User.prototype.getIse2FromOrangeIdentity = function() {
+      return this.orange && this.orange.identity && this.orange.identity.collectiveidentifier;
+    };
+
+    // public & private infos (removing "internal" infos)
+    User.prototype.getInfos = function() {
+      var userInfos = this.get({
+        plain: true
+      });
+      // removing internal infos
+      delete userInfos.role;
+      delete userInfos.password;
+      delete userInfos.salt;
+      return userInfos;
+    };
+
+    // public infos
+    User.prototype.getPublicInfos = function() {
+      return User.getPublicInfos(this.get({
+        plain: true
+      }));
+    };
+
+    User.prototype.toPlain = function(options) {
+      var caller = options.req && options.req.user ||
+        options.req && options.req.passport && options.req.passport.user;
+
+      const isBacko = utils.isReqFromAfrostreamAdmin(options.req);
+
+      if (isBacko) {
+        return;
+      }
+
+      if (!caller || caller._id !== this._id) {
+        return this.getPublicInfos();
+      }
+    };
+
+    User.getPublicInfos = function (plainUser) {
+        plainUser = plainUser || {};
+        const publicPlainUser = {
+            _id: plainUser._id,
+            picture: plainUser.picture,
+            biography: plainUser.biography,
+            followers: plainUser.followers,
+            nickname: plainUser.nickname,
+            facebook: plainUser.facebook ? {id: plainUser.facebook.id} : null
+        };
+        // tweak life - computed fields
+        if (typeof plainUser.pinscount !== 'undefined') {
+          publicPlainUser.pinscount = plainUser.pinscount;
+        }
+        if (typeof plainUser.pinsdate !== 'undefined') {
+          publicPlainUser.pinsdate = plainUser.pinsdate;
+        }
+        return publicPlainUser;
+    };
 
     return User;
 };

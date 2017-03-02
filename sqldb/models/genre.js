@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function (sequelize, DataTypes) {
-  return sequelize.define('Genre', {
+  const Genre = sequelize.define('Genre', {
     _id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -15,13 +15,11 @@ module.exports = function (sequelize, DataTypes) {
     osearchNameMovie: DataTypes.STRING(32),
     osearchNameSerie: DataTypes.STRING(32),
     translations: DataTypes.JSONB
-  }, {
-    instanceMethods: {
-      toPlain: function (options) {
-        if (options.language) {
-          this.applyTranslation(options.language);
-        }
-      }
-    }
   });
+  Genre.prototype.toPlain = function (options) {
+    if (options.language) {
+      this.applyTranslation(options.language);
+    }
+  };
+  return Genre;
 };

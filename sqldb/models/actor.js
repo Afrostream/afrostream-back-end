@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function (sequelize, DataTypes) {
-  return sequelize.define('Actor', {
+  const Actor = sequelize.define('Actor', {
     _id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -17,13 +17,11 @@ module.exports = function (sequelize, DataTypes) {
       defaultValue: true
     },
     translations: DataTypes.JSONB
-  }, {
-    instanceMethods: {
-      toPlain: function (options) {
-        if (options.language) {
-          this.applyTranslation(options.language);
-        }
-      }
-    }
   });
+  Actor.prototype.toPlain = function (options) {
+    if (options.language) {
+      this.applyTranslation(options.language);
+    }
+  };
+  return Actor;
 };

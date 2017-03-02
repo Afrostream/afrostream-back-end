@@ -3,7 +3,7 @@
 var config = rootRequire('config');
 
 module.exports = function (sequelize, DataTypes) {
-  return sequelize.define('Episode', {
+  const Episode = sequelize.define('Episode', {
     _id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -73,13 +73,12 @@ module.exports = function (sequelize, DataTypes) {
       sharing: function()  {
         return { url: config.frontEnd.protocol + '://' + config.frontEnd.authority + '/sharing/episode/' + this._id };
       }
-    },
-    instanceMethods : {
-      toPlain: function (options) {
-        if (options.language) {
-          this.applyTranslation(options.language);
-        }
-      }
     }
   });
+  Episode.prototype.toPlain = function (options) {
+    if (options.language) {
+      this.applyTranslation(options.language);
+    }
+  };
+  return Episode;
 };

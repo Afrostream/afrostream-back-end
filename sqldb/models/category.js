@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function (sequelize, DataTypes) {
-  return sequelize.define('Category', {
+  const Category = sequelize.define('Category', {
     _id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -31,13 +31,11 @@ module.exports = function (sequelize, DataTypes) {
     countries: DataTypes.ARRAY(DataTypes.STRING(2)),
     broadcasters: DataTypes.ARRAY(DataTypes.STRING(4)),
     translations: DataTypes.JSONB
-  }, {
-    instanceMethods: {
-      toPlain: function (options) {
-        if (options.language) {
-          this.applyTranslation(options.language);
-        }
-      }
-    }
   });
+  Category.prototype.toPlain = function (options) {
+    if (options.language) {
+      this.applyTranslation(options.language);
+    }
+  };
+  return Category;
 };

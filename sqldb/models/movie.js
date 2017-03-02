@@ -3,7 +3,7 @@
 var config = rootRequire('config');
 
 module.exports = function (sequelize, DataTypes) {
-  return sequelize.define('Movie', {
+  const Movie = sequelize.define('Movie', {
     _id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -94,13 +94,12 @@ module.exports = function (sequelize, DataTypes) {
         }
       }
     },
-    instanceMethods : {
-      toPlain: function (options) {
-        if (options.language) {
-          this.applyTranslation(options.language);
-        }
-      }
-    },
     tableName: 'VueMovies'
   });
+  Movie.prototype.toPlain = function (options) {
+    if (options.language) {
+      this.applyTranslation(options.language);
+    }
+  };
+  return Movie;
 };

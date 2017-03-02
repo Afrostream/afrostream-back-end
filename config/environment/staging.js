@@ -30,7 +30,7 @@ module.exports = {
   sequelize: {
     uri: process.env.DATABASE_URL,
     options: {
-      logging: false, // npm run staging | ts '[%Y-%m-%d %H:%M:%.S]' for advanced perf inspections
+      logging: console.log, // npm run staging | ts '[%Y-%m-%d %H:%M:%.S]' for advanced perf inspections
       storage: 'afrostream.postgres',
       dialect: 'postgres',
       dialectOptions: {
