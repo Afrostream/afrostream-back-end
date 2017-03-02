@@ -65,7 +65,7 @@
     "request": "^2.78.0",
     "request-promise": "^4.1.1",
     "sendgrid": "^4.7.1",
-    "sequelize": "git@github.com:sequelize/sequelize.git#master",
+    "sequelize": "https://github.com/sequelize/sequelize.git#master",
     "sha1": "^1.1.1",
     "slugify": "^1.0.2",
     "statsd-client": "^0.2.3",
