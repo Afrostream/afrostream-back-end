@@ -481,6 +481,13 @@ promises.push(
       role: 'admin',
       broadcasterId: "EALG"
     }, {
+      name: 'mdla-client-pf',
+      _id: 'a7c79782-51e5-484c-ab09-aa389f244251',
+      secret: 'cf825665-68ff-4b99-b8be-d2242ea2e4c4',
+      type: 'mdla-client-pf',
+      role: 'admin',
+      broadcasterId: "MCPF"
+    }, {
       name: 'orange',
       _id: '610fa4d5-05ec-4493-b9a6-e50a04f7fdcc',
       secret: "b0eee6d9-8771-4d93-8407-ee67af60408c",

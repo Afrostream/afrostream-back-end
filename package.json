@@ -46,6 +46,7 @@
     "node-metainspector": "^1.3.0",
     "node-uuid": "^1.4.7",
     "oauth2orize": "^1.5.1",
+    "oauth2orize-facebook": "^1.0.1",
     "oauthorize": "^0.1.0",
     "on-finished": "^2.3.0",
     "open": "0.0.5",

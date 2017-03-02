@@ -1,4 +1,5 @@
 var oauth2orize = require('oauth2orize');
+var oauth2orizeFacebook = require('oauth2orize-facebook');
 var passport = require('passport');
 var crypto = require('crypto');
 var utils = require('./utils');
@@ -189,6 +190,46 @@ var refreshAccessToken = function (client, userId, options) {
       });
     });
 };
+
+server.exchange(oauth2orizeFacebook(function (client, profile, scope, done) {
+  Client.find({
+    where: {
+      _id: client._id
+    }
+  })
+    .then(function (entity) {
+      if (entity === null) {
+        return done(new TokenError('unknown client', 'invalid_grant'), false);
+      }
+      if (entity.secret !== client.secret) {
+        return done(new TokenError('wrong secret', 'invalid_grant'), false);
+      }
+
+      console.log('facebook.id', profile);
+      User.find({
+        where: {
+          $or: [{'facebook.id': profile.id}]
+        }
+      })
+        .then(function (user) {
+          if (user === null) {
+            return done(new TokenError('unknown facebook id', 'invalid_grant'), false);
+          }
+          return generateToken({
+            client: entity,
+            user: user,
+            code: null,
+            expireIn: null
+          }, done);
+        })
+        .catch(function (err) {
+          return done(err);
+        });
+    })
+    .catch(function (err) {
+      return done(err);
+    });
+}));
 
 server.exchange(oauth2orize.exchange.password(function (client, username, password, scope, reqBody, reqAuthInfo, done) {
   reqAuthInfo = reqAuthInfo || {};
