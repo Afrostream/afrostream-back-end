@@ -161,16 +161,27 @@ var getUser = (userReferenceUuid, providerName) => {
 /**
  * update a billing user
  *
- * @param userBillingUuid    string  billing user id
- * @param data               object
+ * @param userBillingUuid       string  billing user id or reference uuid if specified in options
+ * @param data                  object
+ * @param options               object optionnal parameters
+ * @param options.useReference  bool if true, use userReferenceUuid instead of userBillingUuid
  */
-var updateUser = (userBillingUuid, data) => {
-  assert(userBillingUuid);
+var updateUser = (userUuid, data, options) => {
+  assert(userUuid);
   assert(data && typeof data === 'object');
+
+  // make url
+  var url = config.billings.url + '/billings/api/users/' + userUuid;
+  // check options
+  if (options) {
+    if (options.useReference) {
+      var url = config.billings.url + '/billings/api/users/?userReferenceUuid=' + userUuid;
+    }
+  }
 
   return requestBilling({
     method: 'PUT'
-  , url: config.billings.url + '/billings/api/users/' + userBillingUuid
+  , url: url
   , body: data
   });
 };
