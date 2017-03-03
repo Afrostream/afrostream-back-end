@@ -206,13 +206,42 @@ exports.update = (req, res) => {
     'splashList',
     'nickname'
   ];
+  // the following datas should be send to the billing API before save
+  const sendToBilling = {
+    'email': 'email',
+    'name': 'name',
+    'first_name': 'firstName',
+    'last_name': 'lastName'
+  }
   updateableFields.forEach(field => {
     if (typeof req.body[field] !== 'undefined') {
       req.user[field] = req.body[field];
     }
   });
+  var userOpts = {}
+  Object.keys(sendToBilling).forEach(field => {
+    if (req.user.changed(field)) {
+        userOpts[sendToBilling[field]] = req.body[field];
+    }
+  });
+  var callBilling = function() {
+    return new Promise(function(resolve) {
+      if (Object.keys(userOpts).length > 0) {
+        var body = {
+          "userOpts": userOpts
+        }
+        // add request here
+        return billingApi.updateUser(req.user._id, body, {useReference: true});
+      } else {
+        return resolve();
+      }
+    });
+  };
   // FIXME: security: we should ensure bouyguesId could only be updated by bouygues client.
-  req.user.save()
+  callBilling()
+    .then((function() {
+      return req.user.save()
+    }).bind(this))
     .then(() => { res.json(req.user.getInfos()); })
     .catch(res.handleError(422));
 };
