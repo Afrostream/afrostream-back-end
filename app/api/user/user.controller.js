@@ -201,13 +201,13 @@ exports.update = (req, res) => {
     'name': 'name',
     'first_name': 'firstName',
     'last_name': 'lastName'
-  }
+  };
   updateableFields.forEach(field => {
     if (typeof req.body[field] !== 'undefined') {
       req.user[field] = req.body[field];
     }
   });
-  var userOpts = {}
+  var userOpts = {};
   Object.keys(sendToBilling).forEach(field => {
     if (req.user.changed(field)) {
         userOpts[sendToBilling[field]] = req.body[field];
@@ -217,7 +217,7 @@ exports.update = (req, res) => {
     if (Object.keys(userOpts).length > 0) {
       var body = {
         "userOpts": userOpts
-      }
+      };
       return billingApi.updateUser(req.user._id, body, {useReference: true});
     } else {
       return Promise.resolve();
