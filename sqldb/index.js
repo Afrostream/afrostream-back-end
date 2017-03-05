@@ -355,15 +355,23 @@ db.sequelize.Instance.prototype.getPlain = function (key, options) {
 */
 module.exports = db;
 
-// v2
-db.Tenant = db.sequelize.import('models/tenant');
-db.Item = db.sequelize.import('models/item');
+const SequelizeHelper = require('afrostream-node-sequelize-helper');
+db.helper = new SequelizeHelper(db.sequelize);
+db.models = db.helper.loadModelsFromDirectory(__dirname+'/models');
 
-db.elements = { /* type: { model, modelName, elementName} */ };
+// backward compatibility
+Object.keys(db.models).forEach(modelName => {
+  db[modelName] = db.models[modelName];
+});
+
+// v2
+
+//db.elements = { /* type: { model, modelName, elementName} */ };
+/*
 const createElement = function (type, name, file) {
   const elementName = name.charAt(0).toLowerCase() + name.slice(1);
   // standard assignement
-  db[name] = db.sequelize.import(file);
+  // db[name] = db.sequelize.import(file);
   // element.item
   db[name].belongsTo(db.Item, { as: 'item', foreignKey: '_id', targetKey: '_id'});
   // item.elementName
@@ -423,6 +431,7 @@ db.WaitingUser = db.sequelize.import('models/waitingUser');
 db.WallNote = db.sequelize.import('models/wallNote');
 db.WallNotesUsers = db.sequelize.import('models/wallNotesUsers');
 db.Work = db.sequelize.import('models/work');
+*/
 
 // LINKS V2
 db.ElementSeason.hasMany(db.ElementEpisode, {as: 'episodes', foreignKey: 'seasonId'});
@@ -442,23 +451,14 @@ db.Item.belongsToMany(db.ElementCategory, {through: db.AssoItemsCategories, as: 
 
 
 //LIFE
-db.LifePin = db.sequelize.import('models/life/lifePin');
-db.LifeTheme = db.sequelize.import('models/life/lifeTheme');
-db.LifeThemePins = db.sequelize.import('models/life/lifeThemePins');
-db.LifeThemeSpots = db.sequelize.import('models/life/lifeThemeSpots');
-db.LifeSpot = db.sequelize.import('models/life/lifeSpot');
-db.LifeUsersPins = db.sequelize.import('models/life/lifeUsersPins');
-db.LifeUsersFollowers = db.sequelize.import('models/life/lifeUsersFollowers');
-
-db.Item.hasOne(db.ElementFilm, {as: 'element', contraints: false, foreignKey: '_id'});
 
 db.LifePin.belongsTo(db.Image, {as: 'image', constraints: false});
 db.LifePin.belongsTo(db.User, {as: 'user', constraints: false});
 db.LifePin.belongsToMany(db.LifeTheme, {through: db.LifeThemePins, as: 'themes', foreignKey: 'lifePinId'});
 db.LifeTheme.belongsToMany(db.LifePin, {through: db.LifeThemePins, as: 'pins', foreignKey: 'lifeThemeId'});
 db.LifeSpot.belongsToMany(db.LifeTheme, {through: db.LifeThemeSpots, as: 'themes', foreignKey: 'lifeSpotId'});
-db.LifeSpot.belongsTo(db.Image, {as: 'image', constraints: false});
 db.LifeTheme.belongsToMany(db.LifeSpot, {through: db.LifeThemeSpots, as: 'spots', foreignKey: 'lifeThemeId'});
+db.LifeSpot.belongsTo(db.Image, {as: 'image', constraints: false});
 db.User.hasMany(db.LifePin, {as: 'lifePins', foreignKey: 'userId'});
 
 //JOIN
@@ -469,12 +469,6 @@ db.Broadcaster.belongsTo(db.Country, {as: 'defaultCountry', constraints: false})
 db.WallNote.belongsTo(db.User, {as: 'user', foreignKey: 'userId'});
 db.WallNote.belongsToMany(db.User, {through: db.WallNotesUsers, as: 'movies', foreignKey: 'wallNoteId'});
 db.User.belongsToMany(db.WallNote, {through: db.WallNotesUsers, as: 'actors', foreignKey: 'userId'});
-
-db.CategoryMovies = db.sequelize.import('models/categoryMovies');
-db.CategoryAdSpots = db.sequelize.import('models/categoryAdSpots');
-db.MoviesActors = db.sequelize.import('models/moviesActors.js');
-db.UsersVideos = db.sequelize.import('models/usersVideos.js');
-db.VideosComments = db.sequelize.import('models/videosComments.js');
 
 db.Actor.belongsTo(db.Image, {as: 'picture', constraints: false});
 db.Actor.belongsToMany(db.Movie, {through: db.MoviesActors, as: 'movies'});
@@ -526,19 +520,15 @@ db.UsersVideos.belongsTo(db.User, {as: 'user', foreignKey: 'userId', targetKey: 
 db.VideosComments.belongsTo(db.Video, {as: 'video', foreignKey: 'videoId', targetKey: '_id'});
 db.VideosComments.belongsTo(db.User, {as: 'user', foreignKey: 'userId', targetKey: '_id'});
 
-db.PFGroupsProfiles = db.sequelize.import('models/pfGroupsProfiles');
 db.PFProfile.belongsToMany(db.PFGroup, {through: db.PFGroupsProfiles, as: 'pfGroups', foreignKey: 'pfProfileId'});
 db.PFGroup.belongsToMany(db.PFProfile, {through: db.PFGroupsProfiles, as: 'pfProfiles', foreignKey: 'pfGroupId'});
 
-db.UsersFavoritesEpisodes = db.sequelize.import('models/usersFavoritesEpisodes');
 db.Episode.belongsToMany(db.User, {through: db.UsersFavoritesEpisodes, as: 'users', foreignKey: 'episodeId'});
 db.User.belongsToMany(db.Episode, {through: db.UsersFavoritesEpisodes, as: 'favoritesEpisodes', foreignKey: 'userId'});
 
-db.UsersFavoritesMovies = db.sequelize.import('models/usersFavoritesMovies');
 db.Movie.belongsToMany(db.User, {through: db.UsersFavoritesMovies, as: 'users', foreignKey: 'movieId'});
 db.User.belongsToMany(db.Movie, {through: db.UsersFavoritesMovies, as: 'favoritesMovies', foreignKey: 'userId'});
 
-db.UsersFavoritesSeasons = db.sequelize.import('models/usersFavoritesSeasons');
 db.Season.belongsToMany(db.User, {through: db.UsersFavoritesSeasons, as: 'users', foreignKey: 'seasonId'});
 db.User.belongsToMany(db.Season, {through: db.UsersFavoritesSeasons, as: 'favoritesSeasons', foreignKey: 'userId'});
 
