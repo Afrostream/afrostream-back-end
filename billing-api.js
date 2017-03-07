@@ -29,7 +29,6 @@ var requestBilling = options => {
 
   logger.log('request ', JSON.stringify(options));
   statsd.client.increment('request.billing-api.hit');
-
   return Q.nfcall(request, options)
     .then(data => {
       var response = data[0]
@@ -51,7 +50,6 @@ var requestBilling = options => {
 
       logger.log('200 ok' + JSON.stringify(body));
       statsd.client.increment('request.billing-api.success');
-
       return body;
     });
 };
@@ -178,12 +176,11 @@ var updateUser = (userUuid, data, options) => {
       var url = config.billings.url + '/billings/api/users/?userReferenceUuid=' + userUuid;
     }
   }
-
   return requestBilling({
     method: 'PUT'
   , url: url
   , body: data
-  });
+  })
 };
 
 /**
