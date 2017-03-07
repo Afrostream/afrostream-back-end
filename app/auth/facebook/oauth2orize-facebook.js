@@ -123,7 +123,7 @@ module.exports = function (opts, issue) {
 };
 
 function parseProfile (json) {
-  console.log('[FACEBOOK] Strategy try parse Profile : ' + profile);
+  console.log('[FACEBOOK] Strategy try parse Profile : ' + json);
 
   if ('string' == typeof json) {
     json = JSON.parse(json);
