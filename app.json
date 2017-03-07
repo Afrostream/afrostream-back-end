@@ -1,0 +1,15 @@
+{
+  "name": "afr-back-end-staging",
+  "description": "api staging",
+  "scripts": {},
+  "env": {
+    "BOUYGUES_CALLBACK_DOMAIN": "https://staging.afrostream.tv",
+    "CLOUDAMQP_URL": "amqp://yvkmghav:Uu-J25iHVqXV7C0_60e1V2JSgb0sEQ-3@chicken.rmq.cloudamqp.com/yvkmghav",
+    "DATABASE_URL": "postgres://u4fp4ad34q8qvi:pt7eht3e9v3lnehhh27m7sfeol@ec2-79-125-120-32.eu-west-1.compute.amazonaws.com:5542/d71on7act83b7i",
+    "FACEBOOK_ID": "828887693868980",
+    "FACEBOOK_SECRET": "25130290468ec21fbefd1604218cc57c",
+    "NODE_ENV": "staging",
+    "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+  },
+  "addons": []
+}

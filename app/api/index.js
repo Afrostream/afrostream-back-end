@@ -3,6 +3,11 @@
 const express = require('express');
 const router = express.Router();
 
+router.get('/w00t', function (req, res) {
+  res.noCache();
+  res.json({w00t:4242,date:new Date()});
+});
+
 router.use('/broadcasters', require('./broadcaster/index'));
 router.use('/posts', require('./post/index'));
 router.use('/actors', require('./actor/index'));
