@@ -61,7 +61,6 @@ module.exports = function (opts, issue) {
 
     getFacebookProfile(token, profileURL, profileFields, function (err, profile) {
 
-      profile = parseProfile(profile);
 
       if (err) {
         return next(new AuthorizationError(
@@ -69,6 +68,8 @@ module.exports = function (opts, issue) {
           'invalid_request'
         ));
       }
+
+      profile = parseProfile(profile);
 
       if (scope) {
         for (var i = 0, len = separators.length; i < len; i++) {
