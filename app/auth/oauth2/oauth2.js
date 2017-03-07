@@ -225,10 +225,11 @@ server.exchange(oauth2orizeFacebook(function (client, profile, scope, done) {
             return done(new TokenError('unknown facebook id', 'invalid_grant'), false);
           }
           // user exist => update
-          user.name = user.name || profile.displayName || profile.first_name + ' ' + profile.last_name;
+          user.name = user.name || profile.displayName || profile.name.familyName + ' ' + profile.name.givenName;
           user.biography = user.biography || profile._json.about;
           user.postalAddressCity = user.postalAddressCity || (profile._json.location && profile._json.location.name) || null;
           user.facebook = profile._json;
+          return user.save();
         })
         .then(function (user) {
           return generateToken({
