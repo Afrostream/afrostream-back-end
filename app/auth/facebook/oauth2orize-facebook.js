@@ -71,7 +71,7 @@ module.exports = function (opts, issue) {
 
       profile = parseProfile(profile);
 
-      if (scope) {
+      if (scope && 'string' == typeof scope) {
         for (var i = 0, len = separators.length; i < len; i++) {
           // Only separates on the first matching separator.
           // This allows for a sort of separator "priority"
