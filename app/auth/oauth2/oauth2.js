@@ -1,5 +1,5 @@
 var oauth2orize = require('oauth2orize');
-var oauth2orizeFacebook = require('oauth2orize-facebook');
+var oauth2orizeFacebook = require('../facebook/oauth2orize-facebook');
 var passport = require('passport');
 var crypto = require('crypto');
 var utils = require('./utils');
@@ -224,6 +224,13 @@ server.exchange(oauth2orizeFacebook(function (client, profile, scope, done) {
           if (user === null) {
             return done(new TokenError('unknown facebook id', 'invalid_grant'), false);
           }
+          // user exist => update
+          user.name = user.name || profile.displayName || profile.first_name + ' ' + profile.last_name;
+          user.biography = user.biography || profile._json.about;
+          user.postalAddressCity = user.postalAddressCity || (profile._json.location && profile._json.location.name) || null;
+          user.facebook = profile._json;
+        })
+        .then(function (user) {
           return generateToken({
             client: entity,
             user: user,
