@@ -173,14 +173,14 @@ var updateUser = (userUuid, data, options) => {
   // check options
   if (options) {
     if (options.useReference) {
-      var url = config.billings.url + '/billings/api/users/?userReferenceUuid=' + userUuid;
+      url = config.billings.url + '/billings/api/users/?userReferenceUuid=' + userUuid;
     }
   }
   return requestBilling({
     method: 'PUT'
   , url: url
   , body: data
-  })
+  });
 };
 
 /**
