@@ -149,24 +149,13 @@ exports.search = (req, res) => {
 
 /**
  * Update a user
- *   currently, only used for bouygues
+ *   currently, only used for bouygues and in the admin interface
  *
- **********************************************
- * FIXME_023
- * /!\ l'objet User côté backoffice ne reflète que les infos utilisateurs, pas les infos de billing
- *     ex: quand on paye et que l'on change d'addresse, les infos de l'ancien paiement s'affiche avec l'ancienne adresse
- *         le first_name, name, last_name, email doivent se comporter de la même façon.
- *
- *     les infos Users.{name,first_name,last_name,email} doivent etre décorellées des infos de billing
- *     permettre la mise a jour de ces infos ici, par une GUI front,
- *     doit être implémentée en parallèle avec la création d'une api de mise a jour
- *     de ces informations côté billing.
- ***********************************************
  */
 exports.update = (req, res) => {
   // FIXME : use joi.
   const updateableFields = [
-    /* 'email', */ // FIXME_023 Please read the comment above before changing this.
+    'email',
     'name',
     'first_name',
     'last_name',
@@ -225,22 +214,19 @@ exports.update = (req, res) => {
     }
   });
   var callBilling = function() {
-    return new Promise(function(resolve) {
-      if (Object.keys(userOpts).length > 0) {
-        var body = {
-          "userOpts": userOpts
-        }
-        // add request here
-        return billingApi.updateUser(req.user._id, body, {useReference: true});
-      } else {
-        return resolve();
+    if (Object.keys(userOpts).length > 0) {
+      var body = {
+        "userOpts": userOpts
       }
-    });
+      return billingApi.updateUser(req.user._id, body, {useReference: true});
+    } else {
+      return Promise.resolve();
+    }
   };
   // FIXME: security: we should ensure bouyguesId could only be updated by bouygues client.
-  callBilling()
+  return callBilling()
     .then((function() {
-      return req.user.save()
+      return req.user.save();
     }).bind(this))
     .then(() => { res.json(req.user.getInfos()); })
     .catch(res.handleError(422));
