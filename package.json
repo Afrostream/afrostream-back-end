@@ -25,6 +25,7 @@
     "express": "^4.14.0",
     "express-cluster": "0.0.4",
     "express-jwt": "^5.1.0",
+    "fcm-push": "^1.1.2",
     "file-type": "^3.9.0",
     "http-proxy": "^1.15.2",
     "image-size": "^0.5.0",

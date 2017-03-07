@@ -10,21 +10,33 @@ module.exports = function (sequelize, DataTypes) {
       primaryKey: true
     },
     type: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(32),
       defaultValue: 'notification'
     },
-    title: DataTypes.STRING,
+    to: DataTypes.STRING(255),
+    messageId: DataTypes.STRING(255),
+    priority: {
+      type: DataTypes.STRING(32),
+      defaultValue: 'normal'
+    },
+    title: DataTypes.STRING(255),
+    icon: DataTypes.STRING(32),
+    action: DataTypes.STRING(255),
+    sound: {
+      type: DataTypes.STRING(32),
+      defaultValue: 'default'
+    },
+    body: DataTypes.TEXT,
+    data: DataTypes.JSON,
     date: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW
     },
-    endpoint: DataTypes.STRING,
-    body: DataTypes.TEXT,
     sort: DataTypes.INTEGER,
     active: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false
+      defaultValue: true
     }
   });
 };
