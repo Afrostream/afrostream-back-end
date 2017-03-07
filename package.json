@@ -25,6 +25,7 @@
     "express": "^4.14.0",
     "express-cluster": "0.0.4",
     "express-jwt": "^5.1.0",
+    "fcm-push": "^1.1.2",
     "file-type": "^3.9.0",
     "http-proxy": "^1.15.2",
     "image-size": "^0.5.0",
@@ -68,6 +69,7 @@
     "slugify": "^1.0.2",
     "statsd-client": "^0.2.3",
     "urlsafe-base64": "^1.0.0",
+    "web-push": "^3.2.1",
     "winston": "^2.3.0",
     "xml2js": "^0.4.17",
     "xmlbuilder": "^8.2.2"
