@@ -131,6 +131,7 @@ function parseProfile (json) {
   }
 
   var profile = {};
+  profile._json = json;
   profile.id = json.id;
   profile.username = json.username;
   profile.displayName = json.name;
