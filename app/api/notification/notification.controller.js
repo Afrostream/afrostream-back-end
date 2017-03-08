@@ -182,6 +182,7 @@ exports.deploy = (req, res) => {
     }
   })
     .then(utils.handleEntityNotFound(res))
+    .then(saveUpdates(req.body))
     .then(publishNotification(res))
     .then(utils.responseWithResult(req, res))
     .catch(res.handleError());
