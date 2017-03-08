@@ -263,6 +263,10 @@ exports.show = (req, res) => {
                       //  in the PF api.
                       // ex: http://p-afsmsch-001.afrostream.tv:4000/api/pfManifest?contentId=248&broadcaster=BOUYGUES
             }
+            if (req.passport.client.isAfrostreamExportsOCI()) {
+              return; // skip pf part for export OCI
+                      // multiple PF errors on assetsStreams / profile.
+            }
             //
             // normal workflow is wrapped into a catch error handler
             //
