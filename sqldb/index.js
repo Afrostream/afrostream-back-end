@@ -12,6 +12,8 @@ var Sequelize = require('sequelize');
 
 var hooks = require('./hooks');
 
+const logger = rootRequire('logger').prefix('SQLDB');
+
 var options = _.merge({}, config.sequelize.options, {
     define: {
         hooks: hooks,
@@ -356,7 +358,7 @@ db.sequelize.Instance.prototype.getPlain = function (key, options) {
 module.exports = db;
 
 const SequelizeHelper = require('afrostream-node-sequelize-helper');
-db.helper = new SequelizeHelper(db.sequelize);
+db.helper = new SequelizeHelper({sequelize: db.sequelize, logger: logger});
 db.models = db.helper.loadModelsFromDirectory(__dirname+'/models');
 
 // backward compatibility
@@ -364,193 +366,98 @@ Object.keys(db.models).forEach(modelName => {
   db[modelName] = db.models[modelName];
 });
 
-// v2
+db.helper.associateModels(`
+  ## LIAISON 1-1 (belongsTo)
+  # V2
+  ElementCategory -> Item        foreignKey:_id
+  ElementEpisode  -> Item        foreignKey:_id
+  ElementEpisode  -> ElementSeason
+  ElementEpisode  -> Licensor
+  ElementFilm     -> Item        foreignKey:_id
+  ElementLive     -> Item        foreignKey:_id
+  ElementPerson   -> Item        foreignKey:_id
+  ElementSeason   -> Item        foreignKey:_id
+  ElementSeason   -> ElementSerie
+  ElementSerie    -> Item        foreignKey:_id
+  ElementSerie    -> Licensor
+  # V1 - Life
+  LifePin         -> Image
+  LifePin         -> User
+  LifeSpot        -> Image
+  # V1
+  AccessToken     -> User
+  AccessToken     -> Client
+  Actor           -> Image
+  Broadcaster.defaultCountry     -> Country
+  Caption.lang    -> Language
+  CatchupProvider -> Category
+  CatchupProvider -> Licensor
+  Client.pfGroup  -> PFGroup
+  Client          -> Broadcaster
+  Comment         -> Movie
+  Comment         -> Video
+  Episode         -> Season
+  Episode.poster  -> Image
+  Episode.thumb   -> Image
+  Episode         -> Video
+  Episode         -> CatchupProvider
+  Log             -> User
+  Log             -> Client
+  Movie           -> Licensor
+  Movie -> CatchupProvider
+  Movie.poster -> Image
+  Movie.logo -> Image
+  Movie.thumb -> Image
+  Movie.video -> Video
+  Post.poster -> Image
+  Press.pdf -> Image
+  Press -> Image
+  Season->Movie
+  Season.poster -> Image
+  Season.thumb -> Image
+  Season -> CatchupProvider
+  UsersVideos -> Video
+  UsersVideos -> User
+  Video -> CatchupProvider
+  VideosComments -> Video
+  VideosComments -> User
+  Widget -> Image
+  WallNote        -> User
 
-//db.elements = { /* type: { model, modelName, elementName} */ };
-/*
-const createElement = function (type, name, file) {
-  const elementName = name.charAt(0).toLowerCase() + name.slice(1);
-  // standard assignement
-  // db[name] = db.sequelize.import(file);
-  // element.item
-  db[name].belongsTo(db.Item, { as: 'item', foreignKey: '_id', targetKey: '_id'});
-  // item.elementName
-  db.Item.hasOne(db[name], {as: elementName, foreignKey: '_id', targetKey: '_id'});
-  //
-  db.elements[type] = {
-    model: db[name],
-    modelName: name,
-    elementName: elementName
-  };
-};
+  # Liaisons 1-N (hasMany)
+  ## V2
+  ElementSeason.episodes[] -> ElementEpisode
+  ElementSerie.seasons[] -> ElementSeason
+  # V1
+  User.lifePins[] -> LifePin
+  Licensor.movies[] -> Movie
+  Movie.comments[] -> Comment
+  Movie.tags[] -> Tag
+  Movie.seasons[] -> Season
+  Season.episodes[] -> Episode
+  Video.captions[] -> Caption
 
-createElement('category', 'ElementCategory', 'models/elementCategory');
-createElement('episode', 'ElementEpisode', 'models/elementEpisode');
-createElement('film', 'ElementFilm', 'models/elementFilm');
-createElement('live', 'ElementLive', 'models/elementLive');
-createElement('person', 'ElementPerson', 'models/elementPerson');
-createElement('season', 'ElementSeason', 'models/elementSeason');
-createElement('serie', 'ElementSerie', 'models/elementSerie');
+  # Liaonsns N-N (belongsToMany)
+  ## V2
+  ElementCategory.items[]  -> AssoItemsCategories -> Item
+  Item.elementCategories[] -> AssoItemsCategories -> ElementCategory
+  ## V1 - Life
+  LifePin.themes[] -> LifeThemePins -> LifeTheme
+  LifeTheme.pins[] -> LifeThemePins -> LifePin
+  LifeSpot.themes[] -> LifeThemeSpots -> LifeTheme
+  LifeTheme.spots[] -> LifeThemeSpots -> LifeSpot
+  ## V1
+  Actor.movies[] -> MoviesActors -> Movie
+  Movie.actors[] -> MoviesActors -> Actor
 
-db.AssoItemsCategories = db.sequelize.import('models/assoItemsCategories');
+  Movie.categorys[] -> CategoryMovies -> Category
+  Category.movies[]  -> CategoryMovies  -> Movie
+  Category.adspots[] -> CategoryAdSpots -> Movie
 
-// v1
-db.AccessToken = db.sequelize.import('models/accessToken');
-db.Actor = db.sequelize.import('models/actor');
-db.Asset = db.sequelize.import('models/asset');
-db.AuthCode = db.sequelize.import('models/authCode');
-db.Broadcaster = db.sequelize.import('models/broadcaster');
-db.Caption = db.sequelize.import('models/caption');
-db.CatchupProvider = db.sequelize.import('models/catchupProvider');
-db.Category = db.sequelize.import('models/category');
-db.Client = db.sequelize.import('models/client');
-db.Comment = db.sequelize.import('models/comment');
-db.Country = db.sequelize.import('models/country');
-db.Episode = db.sequelize.import('models/episode');
-db.Genre = db.sequelize.import('models/genre');
-db.GiftGiver = db.sequelize.import('models/giftGiver');
-db.Image = db.sequelize.import('models/image');
-db.Language = db.sequelize.import('models/language');
-db.Licensor = db.sequelize.import('models/licensor');
-db.Log = db.sequelize.import('models/logs');
-db.LogsPixel = db.sequelize.import('models/logspixel');
-db.Movie = db.sequelize.import('models/movie');
-db.PFGroup = db.sequelize.import('models/pfGroup');
-db.PFProfile = db.sequelize.import('models/pfProfile');
-db.Press = db.sequelize.import('models/press');
-db.Post = db.sequelize.import('models/post');
-db.RefreshToken = db.sequelize.import('models/refreshToken');
-db.Season = db.sequelize.import('models/season');
-db.Store = db.sequelize.import('models/store');
-db.Tag = db.sequelize.import('models/tag');
-db.User = db.sequelize.import('models/user');
-db.Video = db.sequelize.import('models/video');
-db.Config = db.sequelize.import('models/config');
-db.Widget = db.sequelize.import('models/widget');
-db.WaitingUser = db.sequelize.import('models/waitingUser');
-db.WallNote = db.sequelize.import('models/wallNote');
-db.WallNotesUsers = db.sequelize.import('models/wallNotesUsers');
-db.Work = db.sequelize.import('models/work');
-*/
-
-// LINKS V2
-db.ElementSeason.hasMany(db.ElementEpisode, {as: 'episodes', foreignKey: 'seasonId'});
-db.ElementEpisode.belongsTo(db.ElementSeason, {as: 'season', foreignKey: 'seasonId', targetKey: '_id', constraints: false});
-
-db.ElementSerie.hasMany(db.ElementSeason, {as: 'seasons', foreignKey: 'serieId'});
-db.ElementSeason.belongsTo(db.ElementSerie, {as: 'serie', foreignKey: 'serieId', constraints: false});
-
-db.ElementSerie.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
-db.ElementEpisode.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
-
-// db.AssoItemsCategories.belongsTo(db.Item, {as: 'item', foreignKey: 'itemId', targetKey: '_id'});
-//db.AssoItemsCategories.belongsTo(db.Item, {as: 'category', foreignKey: 'categoryId', targetKey: '_id'});
-
-db.ElementCategory.belongsToMany(db.Item, {through: db.AssoItemsCategories, as: 'items', foreignKey: 'categoryId'});
-db.Item.belongsToMany(db.ElementCategory, {through: db.AssoItemsCategories, as: 'category', foreignKey: 'itemId'});
-
-
-//LIFE
-
-db.LifePin.belongsTo(db.Image, {as: 'image', constraints: false});
-db.LifePin.belongsTo(db.User, {as: 'user', constraints: false});
-db.LifePin.belongsToMany(db.LifeTheme, {through: db.LifeThemePins, as: 'themes', foreignKey: 'lifePinId'});
-db.LifeTheme.belongsToMany(db.LifePin, {through: db.LifeThemePins, as: 'pins', foreignKey: 'lifeThemeId'});
-db.LifeSpot.belongsToMany(db.LifeTheme, {through: db.LifeThemeSpots, as: 'themes', foreignKey: 'lifeSpotId'});
-db.LifeTheme.belongsToMany(db.LifeSpot, {through: db.LifeThemeSpots, as: 'spots', foreignKey: 'lifeThemeId'});
-db.LifeSpot.belongsTo(db.Image, {as: 'image', constraints: false});
-db.User.hasMany(db.LifePin, {as: 'lifePins', foreignKey: 'userId'});
-
-//JOIN
-db.Client.belongsTo(db.PFGroup, {as: 'pfGroup', constraints: false});
-
-db.Broadcaster.belongsTo(db.Country, {as: 'defaultCountry', constraints: false});
-
-db.WallNote.belongsTo(db.User, {as: 'user', foreignKey: 'userId'});
-db.WallNote.belongsToMany(db.User, {through: db.WallNotesUsers, as: 'movies', foreignKey: 'wallNoteId'});
-db.User.belongsToMany(db.WallNote, {through: db.WallNotesUsers, as: 'actors', foreignKey: 'userId'});
-
-db.Actor.belongsTo(db.Image, {as: 'picture', constraints: false});
-db.Actor.belongsToMany(db.Movie, {through: db.MoviesActors, as: 'movies'});
-db.Movie.belongsToMany(db.Actor, {through: db.MoviesActors, as: 'actors'});
-
-db.Client.belongsTo(db.Broadcaster, {as: 'broadcaster', constraints: false});
-
-db.Licensor.hasMany(db.Movie, {as: 'movies', foreignKey: 'licensorId'});
-db.Movie.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId'});
-
-db.Movie.belongsToMany(db.Category, {through: db.CategoryMovies, as: 'categorys'});
-db.Category.belongsToMany(db.Movie, {through: db.CategoryMovies, as: 'movies'});
-db.Category.belongsToMany(db.Movie, {through: db.CategoryAdSpots, as: 'adSpots'});
-
-db.Movie.belongsTo(db.Image, {as: 'poster', constraints: false});
-db.Movie.belongsTo(db.Image, {as: 'logo', constraints: false});
-db.Movie.belongsTo(db.Image, {as: 'thumb', constraints: false});
-db.Movie.belongsTo(db.Video, {as: 'video', constraints: false});
-
-db.Movie.hasMany(db.Comment, {as: 'comments'});
-db.Movie.hasMany(db.Tag, {as: 'tags'});
-db.Comment.belongsTo(db.Movie, {as: 'movie', constraints: false});
-db.Comment.belongsTo(db.Video, {as: 'video', constraints: false});
-
-db.Movie.hasMany(db.Season, {as: 'seasons', foreignKey: 'movieId'});
-db.Season.belongsTo(db.Movie, {as: 'movie', foreignKey: 'movieId', constraints: false});
-
-db.Season.belongsTo(db.Image, {as: 'poster', constraints: false});
-db.Season.belongsTo(db.Image, {as: 'thumb', constraints: false});
-
-db.Season.hasMany(db.Episode, {as: 'episodes', foreignKey: 'seasonId'});
-db.Episode.belongsTo(db.Season, {as: 'season', foreignKey: 'seasonId', constraints: false});
-
-db.Episode.belongsTo(db.Image, {as: 'poster', constraints: false});
-db.Episode.belongsTo(db.Image, {as: 'thumb', constraints: false});
-db.Episode.belongsTo(db.Video, {as: 'video', constraints: false});
-
-db.Video.hasMany(db.Caption, {as: 'captions', foreignKey: 'videoId'});
-db.Caption.belongsTo(db.Video, {as: 'videos', foreignKey: 'videoId', constraints: false});
-
-db.Video.hasOne(db.Movie, {as: 'movie', foreignKey: 'videoId'});
-db.Video.hasOne(db.Episode, {as: 'episode', foreignKey: 'videoId'});
-
-db.Caption.belongsTo(db.Language, {as: 'lang', foreignKey: 'langId', constraints: false});
-
-db.UsersVideos.belongsTo(db.Video, {as: 'video', foreignKey: 'videoId', targetKey: '_id'});
-db.UsersVideos.belongsTo(db.User, {as: 'user', foreignKey: 'userId', targetKey: '_id'});
-
-db.VideosComments.belongsTo(db.Video, {as: 'video', foreignKey: 'videoId', targetKey: '_id'});
-db.VideosComments.belongsTo(db.User, {as: 'user', foreignKey: 'userId', targetKey: '_id'});
-
-db.PFProfile.belongsToMany(db.PFGroup, {through: db.PFGroupsProfiles, as: 'pfGroups', foreignKey: 'pfProfileId'});
-db.PFGroup.belongsToMany(db.PFProfile, {through: db.PFGroupsProfiles, as: 'pfProfiles', foreignKey: 'pfGroupId'});
-
-db.Episode.belongsToMany(db.User, {through: db.UsersFavoritesEpisodes, as: 'users', foreignKey: 'episodeId'});
-db.User.belongsToMany(db.Episode, {through: db.UsersFavoritesEpisodes, as: 'favoritesEpisodes', foreignKey: 'userId'});
-
-db.Movie.belongsToMany(db.User, {through: db.UsersFavoritesMovies, as: 'users', foreignKey: 'movieId'});
-db.User.belongsToMany(db.Movie, {through: db.UsersFavoritesMovies, as: 'favoritesMovies', foreignKey: 'userId'});
-
-db.Season.belongsToMany(db.User, {through: db.UsersFavoritesSeasons, as: 'users', foreignKey: 'seasonId'});
-db.User.belongsToMany(db.Season, {through: db.UsersFavoritesSeasons, as: 'favoritesSeasons', foreignKey: 'userId'});
-
-db.Post.belongsTo(db.Image, {as: 'poster', constraints: false});
-
-db.Video.belongsTo(db.CatchupProvider, {as: 'catchupProvider', foreignKey: 'catchupProviderId', constraints: false});
-db.Episode.belongsTo(db.CatchupProvider, {as: 'catchupProvider', foreignKey: 'catchupProviderId', constraints: false});
-db.Season.belongsTo(db.CatchupProvider, {as: 'catchupProvider', foreignKey: 'catchupProviderId', constraints: false});
-db.Movie.belongsTo(db.CatchupProvider, {as: 'catchupProvider', foreignKey: 'catchupProviderId', constraints: false});
-
-db.CatchupProvider.belongsTo(db.Category, {as: 'category', foreignKey: 'categoryId', constraints: false});
-db.CatchupProvider.belongsTo(db.Licensor, {as: 'licensor', foreignKey: 'licensorId', constraints: false});
-
-db.AccessToken.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false});
-db.AccessToken.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', targetKey: '_id', constraints: false});
-
-db.Log.belongsTo(db.User, {as: 'user', foreignKey: 'userId', constraints: false});
-db.Log.belongsTo(db.Client, {as: 'client', foreignKey: 'clientId', targetKey: '_id', constraints: false});
-
-db.Widget.belongsTo(db.Image, {as: 'image', constraints: false});
-db.Press.belongsTo(db.Image, {as: 'pdf', constraints: false});
-db.Press.belongsTo(db.Image, {as: 'image', constraints: false});
+  User.favoritesEpisodes[] -> UsersFavoritesEpisodes -> Episode
+  User.favoritesMovies[]   -> UsersFavoritesMovies   -> Movie
+  User.favoritesSeasons[]  -> UsersFavoritesSeasons  -> Season
+`);
 
 ///// HELPERS FUNCTIONS /////
 
@@ -594,3 +501,33 @@ db.noInnerJoin = function (options) {
         return _.merge(options, {required: false});
     });
 };
+
+
+// v2 - OLD
+
+//db.elements = { /* type: { model, modelName, elementName} */ };
+/*
+const createElement = function (type, name, file) {
+  const elementName = name.charAt(0).toLowerCase() + name.slice(1);
+  // standard assignement
+  // db[name] = db.sequelize.import(file);
+  // element.item
+  db[name].belongsTo(db.Item, { as: 'item', foreignKey: '_id', targetKey: '_id'});
+  // item.elementName
+  db.Item.hasOne(db[name], {as: elementName, foreignKey: '_id', targetKey: '_id'});
+  //
+  db.elements[type] = {
+    model: db[name],
+    modelName: name,
+    elementName: elementName
+  };
+};
+
+createElement('category', 'ElementCategory', 'models/elementCategory');
+createElement('episode', 'ElementEpisode', 'models/elementEpisode');
+createElement('film', 'ElementFilm', 'models/elementFilm');
+createElement('live', 'ElementLive', 'models/elementLive');
+createElement('person', 'ElementPerson', 'models/elementPerson');
+createElement('season', 'ElementSeason', 'models/elementSeason');
+createElement('serie', 'ElementSerie', 'models/elementSerie');
+*/
