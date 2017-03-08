@@ -13,17 +13,15 @@ exports.showConfig = (req, res) => {
       ['_id', 'DESC']
     ]
   })
-    .then(() => {
-      return entity => {
-        if (!entity) {
-          return {
-            data: {
-              backgroundImage: 'https://images.cdn.afrostream.net/production/screen/blackish-home-v5.jpg'
-            }
-          };
-        }
-        return entity;
-      };
+    .then(entity => {
+      if (!entity) {
+        return {
+          data: {
+            backgroundImage: 'https://images.cdn.afrostream.net/production/screen/blackish-home-v5.jpg'
+          }
+        };
+      }
+      return entity;
     })
     .then(
       entity => {
