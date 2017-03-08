@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 
+router.use('/app', require('./app/index'));
 router.use('/broadcasters', require('./broadcaster/index'));
 router.use('/posts', require('./post/index'));
 router.use('/actors', require('./actor/index'));
