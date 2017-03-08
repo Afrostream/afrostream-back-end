@@ -14,6 +14,6 @@ router.post('/', utils.middlewareNoCache, auth.hasRole('admin'), controller.crea
 router.put('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
 router.patch('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.update);
 router.delete('/:id', utils.middlewareNoCache, auth.hasRole('admin'), controller.destroy);
-router.post('/:id/deploy', utils.middlewareNoCache, auth.hasRole('admin'), controller.deploy);
+router.put('/:id/deploy', utils.middlewareNoCache, auth.hasRole('admin'), controller.deploy);
 
 module.exports = router;
