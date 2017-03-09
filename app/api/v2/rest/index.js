@@ -12,9 +12,6 @@ const middlewareBroadcaster = rootRequire('app/middlewares/middleware-broadcaste
 const middlewareCountry = rootRequire('app/middlewares/middleware-country.js');
 const middlewareMetricsHitsByCountry = rootRequire('app/middlewares/middleware-metricshitsbycountry.js');
 
-const middlewareError = rootRequire('app/middlewares/middleware-error.js');
-const middlewareCacheHandler = rootRequire('app/middlewares/middleware-cachehandler.js');
-
 router.use(middlewarePassport({ preload: true }));
 router.use(auth.middleware.restrictToAuthentifiedUsers());
 router.use(middlewareBroadcaster());
