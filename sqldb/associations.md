@@ -70,8 +70,8 @@ WallNote        -> User
 ## V2
 
 ```
-ElementSeason.episodes[] -> ElementEpisode
-ElementSerie.seasons[] -> ElementSeason
+ElementSeason.elementEpisodes[] -> ElementEpisode
+ElementSerie.elementSeasons[] -> ElementSeason
 ```
 
 ## V1
