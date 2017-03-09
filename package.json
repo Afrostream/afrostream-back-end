@@ -5,7 +5,7 @@
   "dependencies": {
     "afrostream-node-request": "git+https://afrostream-tech:39378b0626f1b2d4c733eeb5c5be73908b3c8c53@github.com/Afrostream/afrostream-node-request.git#v2.3.2",
     "afrostream-node-statsd": "git+https://afrostream-tech:39378b0626f1b2d4c733eeb5c5be73908b3c8c53@github.com/Afrostream/afrostream-node-statsd.git#v1.3.0",
-    "afrostream-node-sequelize-helper": "git+https://afrostream-tech:39378b0626f1b2d4c733eeb5c5be73908b3c8c53@github.com/Afrostream/afrostream-node-sequelize-helper.git#v1.0.0",
+    "afrostream-node-sequelize-helper": "git+https://afrostream-tech:39378b0626f1b2d4c733eeb5c5be73908b3c8c53@github.com/Afrostream/afrostream-node-sequelize-helper.git#v1.1.0",
     "algoliasearch": "^3.19.1",
     "amqplib": "^0.5.1",
     "async": "^2.1.2",
