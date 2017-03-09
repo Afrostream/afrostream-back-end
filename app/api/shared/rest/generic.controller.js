@@ -48,12 +48,13 @@ module.exports.index = function (options) {
         //
         return Model.findAndCountAll(queryOptions);
       })
-      .then(instances => {
-        if (!Array.isArray(instances)) {
+      .then(result => {
+        if (!Array.isArray(result.rows)) {
           const error = new Error('malformed result');
           error.statusCode = 500;
           throw error;
         }
+        return result;
       })
       .then(utils.responseWithResultAndTotal(req, res))
       .catch(res.handleError());
