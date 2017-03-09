@@ -211,7 +211,6 @@ exports.middleware = {
 
     return compose()
       .use(middlewarePassport(options.middlewarePassport))
-      .use()
       .use(middlewareBroadcaster())
       .use(middlewareCountry())
       .use(middlewareMetricsHitsByCountry())
