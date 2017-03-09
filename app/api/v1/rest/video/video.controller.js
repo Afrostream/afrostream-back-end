@@ -149,8 +149,8 @@ exports.index = (req, res) => {
 };
 
 function ensureAccessToVideo(req) {
-  if (!(req.user instanceof User.Instance) &&
-      !(req.user instanceof Client.Instance)) {
+  if (!(req.user instanceof User) &&
+      !(req.user instanceof Client)) {
     throw new Error('missing user/client');
   }
   if (!req.passport || !req.passport.client) {
@@ -198,7 +198,7 @@ function readVideo(videoId) {
 }
 
 function getBillingUserSubscriptionStatus(user) {
-  if (user instanceof User.Instance) {
+  if (user instanceof User) {
     return billingApi.someSubscriptionActiveSafe(parseInt(user._id, 10));
   }
   return Q();
@@ -517,7 +517,7 @@ exports.show = (req, res) => {
         return video;
       }
       //
-      if (!(req.user instanceof User.Instance)) {
+      if (!(req.user instanceof User)) {
         logger.warn('client ' + req.user._id + ' request video => disabling sources');
         video.sources = [];
         video.name = null;

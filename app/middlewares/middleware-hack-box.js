@@ -6,7 +6,7 @@ var urlRegexBoxId = /box_._(\d+)/g;
 function getClient(req) {
   return req.passport && req.passport.client ||
          // should be removed ...
-         req.user && req.user instanceof Client.Instance && req.user ||
+         req.user && (req.user instanceof Client) && req.user ||
          null;
 }
 

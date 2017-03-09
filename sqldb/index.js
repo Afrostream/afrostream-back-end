@@ -386,7 +386,7 @@ db.helper.associateModels(`
   LifeSpot        -> Image
   # V1
   AccessToken     -> User
-  AccessToken     -> Client
+  AccessToken     -> Client      targetKey:_id
   Actor           -> Image
   Broadcaster.defaultCountry     -> Country
   Caption.lang    -> Language
@@ -486,22 +486,6 @@ db._filterOptionsRec = function (options, obj, root) {
 db.filterOptions = function (options, obj) {
     return db._filterOptionsRec(options, obj, true);
 };
-
-/**
- * Add the field : { required: false } in all included submodels.
- *
- * @param options object              input query options (mutable)
- * @return        object              new options
- */
-db.noInnerJoin = function (options) {
-    return db.filterOptions(options, function (options, root) {
-        if (root) {
-            return options;
-        }
-        return _.merge(options, {required: false});
-    });
-};
-
 
 // v2 - OLD
 

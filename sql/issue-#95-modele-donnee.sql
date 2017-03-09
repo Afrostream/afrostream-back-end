@@ -307,7 +307,7 @@ CREATE TABLE "ElementSeasons"
   "deleted" boolean default false,
   --
   "numberOfEpisodes" integer,
-  "serieId" integer,
+  "elementSerieId" integer,
   CONSTRAINT "ElementSeasons_pkey" PRIMARY KEY (_id)
 )
 WITH (
@@ -333,12 +333,12 @@ WHERE
 
 INSERT INTO "ElementSeasons" (
   "_id", "createdAt", "updatedAt", "deleted",
-  "numberOfEpisodes", "serieId"
+  "numberOfEpisodes", "elementSerieId"
 )
 SELECT
   "ItemSeason"."_id",
   "Seasons"."createdAt", "Seasons"."updatedAt", false as "deleted",
-  "Seasons"."numberOfEpisodes", "ItemSerie"."_id" as "serieId"
+  "Seasons"."numberOfEpisodes", "ItemSerie"."_id" as "elementSerieId"
 FROM
   "Seasons"
 INNER JOIN "Items" as "ItemSeason" ON "ItemSeason"."oldId" = "Seasons"."_id" and "ItemSeason"."oldType" = 'season'
@@ -359,7 +359,7 @@ CREATE TABLE "ElementEpisodes"
   "deleted" boolean default false,
   --
   "episodeNumber" integer,
-  "seasonId" integer,
+  "elementSeasonId" integer,
   -- content data
   "productionCountry" character varying(64),
   "CSA" integer,
@@ -398,7 +398,7 @@ INNER JOIN "Videos" ON "Episodes"."videoId" = "Videos"."_id";
 
 INSERT INTO "ElementEpisodes" (
   "_id", "createdAt", "updatedAt", "deleted",
-  "episodeNumber", "seasonId",
+  "episodeNumber", "elementSeasonId",
   "productionCountry", "CSA",
   "dateReleased", "yearReleased", "licensorId", "genre", "schedule",
   "youtubeTrailer",  "rating",
@@ -411,7 +411,7 @@ SELECT
   false as "deleted",
   --
   "Episodes"."episodeNumber" as "episodeNumber",
-  "ItemsSeasons"."_id" as "seasonId",
+  "ItemsSeasons"."_id" as "elementSeasonId",
   null as "productionCountry",
   "Episodes"."CSA" as "CSA",
   "Movies"."dateReleased" as "dateReleased",

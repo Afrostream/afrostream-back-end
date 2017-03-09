@@ -6,7 +6,9 @@ const utils = rootRequire('app/api/v1/rest/utils');
 
 const Q = require('q');
 
-const { buildIncludes } = rootRequire('app/api/v2/rest/associations');
+const sqldb = rootRequire('sqldb');
+
+const { mandatoryAssociations, optionalAssociations } = rootRequire('app/api/v2/rest/associations');
 
 /*
  * generic resource index code
@@ -29,11 +31,17 @@ module.exports.index = function (options) {
         }
       })
       .then(() => {
-        let queryOptions = {
-          offset: req.query.offset || 0,
-          limit: req.query.limit || 100,
-          include: buildIncludes(Model, req.query.populate || '')
-        };
+        const qb = sqldb.helper.createQueryOptionsBuilder();
+        qb.setRootModel(Model)
+          .setInitialQueryOptions({
+            offset: req.query.offset || 0,
+            limit: req.query.limit || 100
+          })
+          .populate(req.query.populate || '',  mandatoryAssociations, optionalAssociations);
+
+        let queryOptions = qb.getQueryOptions();
+
+        console.log(queryOptions);
 
         queryOptions = filters.filterQueryOptions(req, queryOptions, Model);
 
@@ -59,12 +67,21 @@ module.exports.show = function (options) {
   const { Model } = options;
 
   return (req, res) => {
-    let queryOptions = {
-      where: { _id: req.params.id },
-      include: buildIncludes(Model, req.query.populate || '')
-    };
+    const qb = sqldb.helper.createQueryOptionsBuilder();
+    qb.setRootModel(Model)
+      .setInitialQueryOptions({
+        where: { _id: req.params.id }
+      })
+      .populate(req.query.populate || '',  mandatoryAssociations, optionalAssociations);
 
-    console.log(require('util').inspect(buildIncludes(Model, req.query.populate || ''), {depth:3}));
+    let queryOptions = qb.getQueryOptions();
+
+    /*
+    console.log('***************************************************');
+    console.log(require('util').inspect(queryOptions, {depth:5}));
+    console.log('***************************************************');
+    console.log("\n\n\n");
+    */
 
     Model.findOne(queryOptions)
       .then(utils.handleEntityNotFound(res))
