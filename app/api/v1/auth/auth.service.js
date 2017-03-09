@@ -19,7 +19,7 @@ var middlewareMetricsHitsByCountry = () => (req, res, next) => {
   // metrics: authentified hits by country
   const country = req.country && req.country._id || 'unknown';
   statsd.client.increment('route.authentified.all.hit');
-  statsd.client.increment('route.authentified.all.infos.country.'+country);
+  statsd.client.increment('route.authentified.all.infos.country.' + country);
   next();
 };
 
@@ -27,8 +27,8 @@ var middlewareMetricsHitsByCountry = () => (req, res, next) => {
  * Attaches the user object to the request if authenticated
  * Otherwise returns 403
  */
-function isAuthenticated () {
-  return function (req, res, next) {
+function isAuthenticated() {
+  return function(req, res, next) {
     // optim, avoiding double hits to AccessTokens & ...
     /* HOTFIX 2017/01/16: disabling optim, side effect on /api/users/me (missing plancode)
     if (req.passport &&
@@ -46,7 +46,7 @@ function isAuthenticated () {
         where: {
           email: req.get('user-email')
         }
-      }).then(function (user) {
+      }).then(function(user) {
         if (!user) {
           var error = new Error('missing header user-email while using bypass-auth ?');
           error.statusCode = 401;
@@ -54,7 +54,9 @@ function isAuthenticated () {
         }
         req.user = user;
       }).then(
-        function () { next(); },
+        function() {
+          next();
+        },
         res.handleError()
       );
     } else {
@@ -65,8 +67,10 @@ function isAuthenticated () {
       // FIXME: we should backup cache & trigger no-cache HERE
       // FIXME: we should restore cache functionnality after...
 
-      return passport.authenticate('bearer', {session: false}, function (err, authentified/*, challenge, status*/) {
-        if (err || !authentified){
+      return passport.authenticate('bearer', {
+        session: false
+      }, function(err, authentified /*, challenge, status*/ ) {
+        if (err || !authentified) {
           var error = new Error(err && err.message || 'unauthorized');
           error.statusCode = err && err.statusCode || 401;
           return res.handleError()(error);
@@ -79,7 +83,7 @@ function isAuthenticated () {
   };
 }
 
-function validRole (req, roleRequired) {
+function validRole(req, roleRequired) {
   return req.user && config.userRoles.indexOf(req.user.role) >=
     config.userRoles.indexOf(roleRequired);
 }
@@ -87,18 +91,17 @@ function validRole (req, roleRequired) {
 /**
  * Checks if the user role meets the minimum requirements of the route
  */
-function hasRole (roleRequired) {
+function hasRole(roleRequired) {
   if (!roleRequired) {
     throw new Error('Required role needs to be set');
   }
 
   return compose()
     .use(isAuthenticated())
-    .use(function meetsRequirements (req, res, next) {
+    .use(function meetsRequirements(req, res, next) {
       if (validRole(req, roleRequired)) {
         next();
-      }
-      else {
+      } else {
         res.status(403).send('Forbidden');
       }
     });
@@ -107,7 +110,7 @@ function hasRole (roleRequired) {
 /**
  * OAuth2 user token
  */
-function getOauth2UserTokens (user, options) {
+function getOauth2UserTokens(user, options) {
   options = options || {};
   const userIp = options.userIp;
   const userAgent = options.userAgent;
@@ -127,8 +130,8 @@ function getOauth2UserTokens (user, options) {
       expireIn: null,
       req: req,
       res: res
-    }, function (err, accessToken, refreshToken, info) {
-      if (err)  return deferred.reject(err);
+    }, function(err, accessToken, refreshToken, info) {
+      if (err) return deferred.reject(err);
       return deferred.resolve({
         token: accessToken, // backward compatibility
         access_token: accessToken,
@@ -143,19 +146,26 @@ function getOauth2UserTokens (user, options) {
 /**
  * respond oauth2 user token.
  */
-function respondOauth2UserTokens (req, res) {
-  getOauth2UserTokens(req.user, { userIp: req.clientIp, userAgent: req.userAgent, req: req, res: res})
-    .then(function (tokens) {
+function respondOauth2UserTokens(req, res) {
+  getOauth2UserTokens(req.user, {
+      userIp: req.clientIp,
+      userAgent: req.userAgent,
+      req: req,
+      res: res
+    })
+    .then(function(tokens) {
       res.json(tokens);
     })
-    .catch(function () {
+    .catch(function() {
       return res.status(404).send('Something went wrong, please try again.');
     });
 }
 
-var authenticate = function (req, res, next) {
+var authenticate = function(req, res, next) {
   var deferred = Q.defer();
-  passport.authenticate('bearer', {session: false}, function (err, user, info) {
+  passport.authenticate('bearer', {
+    session: false
+  }, function(err, user, info) {
     if (err) {
       deferred.reject(err);
     } else {
@@ -177,9 +187,11 @@ exports.middleware = {
    * Will ensure the route can only be access by an authentified client / user
    * Will pre-load the passport
    */
-  restrictRoutesToAuthentified: function (options) {
+  restrictRoutesToAuthentified: function(options) {
     options = options || {};
-    options.middlewarePassport = options.middlewarePassport || { preload: true };
+    options.middlewarePassport = options.middlewarePassport || {
+      preload: true
+    };
 
     return compose()
       .use(middlewarePassport(options.middlewarePassport))
@@ -191,9 +203,11 @@ exports.middleware = {
       .use(middlewareHackTapptic());
   },
 
-  restrictRoutesToAuthentifiedUsers: function (options) {
+  restrictRoutesToAuthentifiedUsers: function(options) {
     options = options || {};
-    options.middlewarePassport = options.middlewarePassport || { preload: true };
+    options.middlewarePassport = options.middlewarePassport || {
+      preload: true
+    };
 
     return compose()
       .use(middlewarePassport(options.middlewarePassport))
@@ -205,21 +219,27 @@ exports.middleware = {
       .use(middlewareHackTapptic());
   },
 
-  restrictToAuthentifiedUsers: function () {
+  restrictToAuthentifiedUsers: function() {
     return (req, res, next) => {
-      if (!req.passport ||
+      try {
+        if (!req.passport ||
           !req.passport.user) {
-        const error = new Error('permission denied');
-        error.statusCode = 401;
-        throw new Error();
+          const error = new Error('permission denied');
+          error.statusCode = 401;
+          throw error;
+        }
+        next();
+      } catch (err) {
+        res.handleError()(err);
       }
-      next();
     };
   },
 
-  authentify: function (options) {
+  authentify: function(options) {
     options = options || {};
-    options.middlewarePassport = options.middlewarePassport || { preload: true };
+    options.middlewarePassport = options.middlewarePassport || {
+      preload: true
+    };
 
     return compose()
       .use(middlewarePassport(options.middlewarePassport))

@@ -1,21 +1,25 @@
 const restrictToUserRole = requiredRole => {
   return (req, res, next) => {
-    if (!req.passport) {
-      const error = new Error('passport not loaded');
-      error.statusCode = 401;
-      throw error;
+    try {
+      if (!req.passport) {
+        const error = new Error('passport not loaded');
+        error.statusCode = 401;
+        throw error;
+      }
+      if (!req.passport.user) {
+        const error = new Error('no user logged in');
+        error.statusCode = 401;
+        throw error;
+      }
+      if (!req.passport.user.hasRole(requiredRole)) {
+        const error = new Error('missing privilege');
+        error.statusCode = 401;
+        throw error;
+      }
+      next();
+    } catch (err) {
+      res.handleError()(err);
     }
-    if (!req.passport.user) {
-      const error = new Error('no user logged in');
-      error.statusCode = 401;
-      throw error;
-    }
-    if (!req.passport.user.hasRole(requiredRole)) {
-      const error = new Error('missing privilege');
-      error.statusCode = 401;
-      throw error;
-    }
-    next();
   };
 };
 
