@@ -50,7 +50,7 @@ CREATE TABLE "Items"
   -- champs de compatibilité ascendante
   "oldId" integer,
   "oldUuid" uuid,
-  "oldType" character varying(32) not null,
+  "oldType" character varying(32),
   -- champs partagés
   title character varying(255) not null,
   description text,
