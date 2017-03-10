@@ -202,17 +202,31 @@ exports.update = (req, res) => {
     'first_name': 'firstName',
     'last_name': 'lastName'
   };
-  updateableFields.forEach(field => {
-    if (typeof req.body[field] !== 'undefined') {
-      req.user[field] = req.body[field];
-    }
-  });
+  var userToEdit = null;
   var userOpts = {};
-  Object.keys(sendToBilling).forEach(field => {
-    if (req.user.changed(field)) {
-        userOpts[sendToBilling[field]] = req.body[field];
+
+  var prepareUpdate = function(findedUser) {
+    userToEdit = findedUser;
+    updateableFields.forEach(field => {
+      if (typeof req.body[field] !== 'undefined') {
+        userToEdit[field] = req.body[field];
+      }
+    });
+    
+    Object.keys(sendToBilling).forEach(field => {
+      if (userToEdit.changed(field)) {
+          userOpts[sendToBilling[field]] = req.body[field];
+      }
+    });
+    return Promise.resolve(true);
+  };
+  var getUserToEdit = function(bodyId, currentUser) {
+    if (currentUser._id != bodyId && currentUser.role === 'admin') {
+      return User.findById(bodyId);
+    } else {
+      return Promise.resolve(currentUser);
     }
-  });
+  };
   var callBilling = function() {
     if (Object.keys(userOpts).length > 0) {
       var body = {
@@ -224,11 +238,11 @@ exports.update = (req, res) => {
     }
   };
   // FIXME: security: we should ensure bouyguesId could only be updated by bouygues client.
-  return callBilling()
-    .then((function() {
-      return req.user.save();
-    }).bind(this))
-    .then(() => { res.json(req.user.getInfos()); })
+  return getUserToEdit(req.body._id, req.user)
+    .then((function(findedUser) {return prepareUpdate(findedUser);}).bind(this))
+    .then((function() {return callBilling();}).bind(this))
+    .then((function() {return userToEdit.save();}).bind(this))
+    .then(() => { res.json(userToEdit.getInfos()); })
     .catch(res.handleError(422));
 };
 
