@@ -315,6 +315,34 @@ nock(config.billings.url)
 
 nock(config.billings.url)
   .persist() // FIXME: we should call nock on demand
+  .put('/billings/api/users/')
+  .query({userReferenceUuid: /.*/})
+  .reply(200, {
+    status: "done",
+    statusMessage: "success",
+    statusCode: 0,
+    response: {
+      users: [
+        {
+          userBillingUuid: "130fc45a-7fbe-89f9-19bf-00c06edeeac9",
+          userReferenceUuid: "249235",
+          userProviderUuid: "d0ea6246-dd62-a6f4-ccd3-437c3ead983b",
+          provider: {
+            providerName: "recurly",
+            providerBillingUuid: "418dbf78-2479-4adb-937a-e6de0d55de2b"
+          },
+          userOpts: {
+            lastName: "coelho",
+            firstName: "nelson",
+            email: "akiffywu-5141@yopmail.com"
+          }
+        }
+      ]
+    }
+  });
+
+nock(config.billings.url)
+  .persist() // FIXME: we should call nock on demand
   .get('/billings/api/internalplans/')
   .query({providerName: 'bachat'}) // , userReferenceUuid: /.*/
   .reply(200, {
