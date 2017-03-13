@@ -19,7 +19,7 @@ router.use(middlewareCountry());
 router.use(middlewareMetricsHitsByCountry());
 
 // CRUD
-router.use('/items', require('./item'));
+router.use('/items', utils.routerCRUD({Model: sqldb.Item}))
 router.use('/elementCategories', utils.routerCRUD({Model: sqldb.ElementCategory}));
 router.use('/elementEpisodes', utils.routerCRUD({Model: sqldb.ElementEpisode}));
 router.use('/elementFilms', utils.routerCRUD({Model: sqldb.ElementFilm}));
