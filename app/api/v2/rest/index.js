@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sqldb = rootRequire('sqldb');
-const utils = rootRequire('/app/api/shared/rest/utils');
+const utils = rootRequire('/app/api/v2/rest/utils');
 
 // kiss:
 // l'api-v2 n'est accessible qu'aux users authentifés (inscrits ou abonnés).

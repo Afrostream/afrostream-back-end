@@ -6,14 +6,14 @@ const Q = require('q');
 
 const sqldb = rootRequire('sqldb');
 
-const { mandatoryAssociations, optionalAssociations } = rootRequire('app/api/shared/orm/associations.js');
+const { mandatoryAssociations, optionalAssociations } = rootRequire('app/api/v2/orm/associations.js');
 
-const filterActive  = rootRequire('app/api/shared/orm/filters/active.js');
-const filterBet  = rootRequire('app/api/shared/orm/filters/bet.js');
-const filterBroadcaster  = rootRequire('app/api/shared/orm/filters/broadcaster.js');
-const filterCountry  = rootRequire('app/api/shared/orm/filters/country.js');
-const filterDateFromTo  = rootRequire('app/api/shared/orm/filters/dateFromTo.js');
-const filterLive  = rootRequire('app/api/shared/orm/filters/live.js');
+const filterActive  = rootRequire('app/api/v2/orm/filters/active.js');
+const filterBet  = rootRequire('app/api/v2/orm/filters/bet.js');
+const filterBroadcaster  = rootRequire('app/api/v2/orm/filters/broadcaster.js');
+const filterCountry  = rootRequire('app/api/v2/orm/filters/country.js');
+const filterDateFromTo  = rootRequire('app/api/v2/orm/filters/dateFromTo.js');
+const filterLive  = rootRequire('app/api/v2/orm/filters/live.js');
 
 /*
  * generic resource index code
