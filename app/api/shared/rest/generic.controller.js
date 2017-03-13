@@ -1,14 +1,19 @@
 const assert = require('better-assert');
 
-const filters = rootRequire('app/api/v1/rest/filters.js');
-
 const utils = rootRequire('app/api/v1/rest/utils');
 
 const Q = require('q');
 
 const sqldb = rootRequire('sqldb');
 
-const { mandatoryAssociations, optionalAssociations } = rootRequire('app/api/v2/rest/associations');
+const { mandatoryAssociations, optionalAssociations } = rootRequire('app/api/shared/orm/associations.js');
+
+const filterActive  = rootRequire('app/api/shared/orm/filters/active.js');
+const filterBet  = rootRequire('app/api/shared/orm/filters/bet.js');
+const filterBroadcaster  = rootRequire('app/api/shared/orm/filters/broadcaster.js');
+const filterCountry  = rootRequire('app/api/shared/orm/filters/country.js');
+const filterDateFromTo  = rootRequire('app/api/shared/orm/filters/dateFromTo.js');
+const filterLive  = rootRequire('app/api/shared/orm/filters/live.js');
 
 /*
  * generic resource index code
@@ -32,18 +37,26 @@ module.exports.index = function (options) {
       })
       .then(() => {
         const qb = sqldb.helper.createQueryOptionsBuilder();
-        qb.setRootModel(Model)
+
+        const queryOptions = qb
+          .setRootModel(Model)
           .setInitialQueryOptions({
             offset: req.query.offset || 0,
             limit: req.query.limit || 100
           })
-          .populate(req.query.populate || '',  mandatoryAssociations, optionalAssociations);
+          .populate(req.query.populate || '',  mandatoryAssociations, optionalAssociations)
+          .filter(filterActive, {req: req})
+          .filter(filterBet, {req: req})
+          .filter(filterBroadcaster, {req: req})
+          .filter(filterCountry, {req: req})
+          .filter(filterDateFromTo, {req: req})
+          .filter(filterLive, {req: req})
+          .getQueryOptions();
 
-        let queryOptions = qb.getQueryOptions();
-
-        console.log(queryOptions);
-
-        queryOptions = filters.filterQueryOptions(req, queryOptions, Model);
+        console.log('***************************************************');
+        console.log(require('util').inspect(queryOptions, {depth:5}));
+        console.log('***************************************************');
+        console.log("\n\n\n");
 
         //
         return Model.findAndCountAll(queryOptions);
@@ -69,20 +82,24 @@ module.exports.show = function (options) {
 
   return (req, res) => {
     const qb = sqldb.helper.createQueryOptionsBuilder();
-    qb.setRootModel(Model)
+    const queryOptions = qb
+      .setRootModel(Model)
       .setInitialQueryOptions({
         where: { _id: req.params.id }
       })
-      .populate(req.query.populate || '',  mandatoryAssociations, optionalAssociations);
+      .populate(req.query.populate || '',  mandatoryAssociations, optionalAssociations)
+      .filter(filterActive, {req: req})
+      .filter(filterBet, {req: req})
+      .filter(filterBroadcaster, {req: req})
+      .filter(filterCountry, {req: req})
+      .filter(filterDateFromTo, {req: req})
+      .filter(filterLive, {req: req})
+      .getQueryOptions();
 
-    let queryOptions = qb.getQueryOptions();
-
-    /*
     console.log('***************************************************');
     console.log(require('util').inspect(queryOptions, {depth:5}));
     console.log('***************************************************');
     console.log("\n\n\n");
-    */
 
     Model.findOne(queryOptions)
       .then(utils.handleEntityNotFound(res))
