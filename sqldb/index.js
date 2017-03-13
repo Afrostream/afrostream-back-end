@@ -1,9 +1,6 @@
 /**
  * Sequelize initialization module
  */
-
-'use strict';
-
 const assert = require('better-assert');
 const _ = require('lodash');
 const config = rootRequire('config');
@@ -283,6 +280,20 @@ var db = {
     }
 };
 
+module.exports = db;
+
+const SequelizeHelper = require('afrostream-node-sequelize-helper');
+db.helper = new SequelizeHelper({sequelize: db.sequelize, logger: logger});
+db.models = db.helper.loadModelsFromDirectory(__dirname+'/models');
+
+// backward compatibility
+Object.keys(db.models).forEach(modelName => {
+  db[modelName] = db.models[modelName];
+});
+
+const associations = fs.readFileSync(__dirname + '/associations.md').toString();
+db.helper.associateModels(associations);
+
 /*
  * Monkey Patching Sequelize
  */
@@ -355,74 +366,4 @@ db.sequelize.Instance.prototype.getPlain = function (key, options) {
     }
     return values;
 };
-*/
-module.exports = db;
-
-const SequelizeHelper = require('afrostream-node-sequelize-helper');
-db.helper = new SequelizeHelper({sequelize: db.sequelize, logger: logger});
-db.models = db.helper.loadModelsFromDirectory(__dirname+'/models');
-
-// backward compatibility
-Object.keys(db.models).forEach(modelName => {
-  db[modelName] = db.models[modelName];
-});
-
-const associations = fs.readFileSync(__dirname + '/associations.md').toString();
-db.helper.associateModels(associations);
-
-///// HELPERS FUNCTIONS /////
-
-db._filterOptionsRec = function (options, obj, root) {
-    if (Array.isArray(options.include)) {
-        options.include = options.include.map(function (subOptions) {
-            return db._filterOptionsRec(subOptions, obj);
-        });
-    }
-    if (typeof obj === 'function') {
-        return obj(options, (root === true)); // filter function
-    }
-    return _.merge(options, obj);
-};
-
-//
-// @param options object             input options (mutable)
-// @param o       object|function    input mutator
-// @return        object             new options
-//
-// example:
-// db.filterOptions({ where: { id: 42 }, include: [ { model: Foo } ] }, { required: false });
-//  => { where: { id: 42 }, include: [ { model: Foo, required: false } ], required: false }
-// db.filterOptions(options, function (options, root) { options.foo = 'bar'; return options; }
-//  =>
-db.filterOptions = function (options, obj) {
-    return db._filterOptionsRec(options, obj, true);
-};
-
-// v2 - OLD
-
-//db.elements = { /* type: { model, modelName, elementName} */ };
-/*
-const createElement = function (type, name, file) {
-  const elementName = name.charAt(0).toLowerCase() + name.slice(1);
-  // standard assignement
-  // db[name] = db.sequelize.import(file);
-  // element.item
-  db[name].belongsTo(db.Item, { as: 'item', foreignKey: '_id', targetKey: '_id'});
-  // item.elementName
-  db.Item.hasOne(db[name], {as: elementName, foreignKey: '_id', targetKey: '_id'});
-  //
-  db.elements[type] = {
-    model: db[name],
-    modelName: name,
-    elementName: elementName
-  };
-};
-
-createElement('category', 'ElementCategory', 'models/elementCategory');
-createElement('episode', 'ElementEpisode', 'models/elementEpisode');
-createElement('film', 'ElementFilm', 'models/elementFilm');
-createElement('live', 'ElementLive', 'models/elementLive');
-createElement('person', 'ElementPerson', 'models/elementPerson');
-createElement('season', 'ElementSeason', 'models/elementSeason');
-createElement('serie', 'ElementSerie', 'models/elementSerie');
 */
