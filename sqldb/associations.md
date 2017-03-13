@@ -2,17 +2,24 @@
 ## V2
 
 ```
-ElementCategory -> Item        foreignKey:_id
-ElementEpisode  -> Item        foreignKey:_id
+ElementCategory -> Item              foreignKey:_id
+ElementEpisode  -> Item              foreignKey:_id
 ElementEpisode  -> ElementSeason
 ElementEpisode  -> Licensor
-ElementFilm     -> Item        foreignKey:_id
-ElementLive     -> Item        foreignKey:_id
-ElementPerson   -> Item        foreignKey:_id
-ElementSeason   -> Item        foreignKey:_id
+ElementFilm     -> Item              foreignKey:_id
+ElementLive     -> Item              foreignKey:_id
+ElementPerson   -> Item              foreignKey:_id
+ElementSeason   -> Item              foreignKey:_id
 ElementSeason   -> ElementSerie
-ElementSerie    -> Item        foreignKey:_id
+ElementSerie    -> Item              foreignKey:_id
 ElementSerie    -> Licensor
+Item            -> ElementCategory   foreignKey:_id
+Item            -> ElementEpisode    foreignKey:_id
+Item            -> ElementFilm       foreignKey:_id
+Item            -> ElementLive       foreignKey:_id
+Item            -> ElementPerson     foreignKey:_id
+Item            -> ElementSeason     foreignKey:_id
+Item            -> ElementSerie      foreignKey:_id
 ```
 
 # V1 - Life
