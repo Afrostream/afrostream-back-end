@@ -16,7 +16,7 @@ var TokenError = oauth2orize.TokenError;
 // custom oauth2 exchange
 var exchangeBouygues = require('./exchange/bouygues.js');
 var exchangeIse2 = require('./exchange/ise2.js');
-var exchangeFacebook = require('./facebook');
+var exchangeFacebook = require('./exchange/facebook.js');
 
 var logger = rootRequire('logger').prefix('AUTH');
 
