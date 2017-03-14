@@ -19,13 +19,11 @@ router.use(middlewareCountry());
 router.use(middlewareMetricsHitsByCountry());
 
 // CRUD
-router.use('/items', utils.routerCRUD({Model: sqldb.Item}));
-router.use('/elementCategories', utils.routerCRUD({Model: sqldb.ElementCategory}));
-router.use('/elementEpisodes', utils.routerCRUD({Model: sqldb.ElementEpisode}));
-router.use('/elementFilms', utils.routerCRUD({Model: sqldb.ElementFilm}));
-router.use('/elementLives', utils.routerCRUD({Model: sqldb.ElementLive}));
-router.use('/elementPersons', utils.routerCRUD({Model: sqldb.ElementPerson}));
-router.use('/elementSeasons', utils.routerCRUD({Model: sqldb.ElementSeason}));
-router.use('/elementSeries', utils.routerCRUD({Model: sqldb.ElementSerie}));
+router.use('/films', utils.routerCRUD({Model: sqldb.Film}));
+router.use('/lives', utils.routerCRUD({Model: sqldb.Live}));
+router.use('/series', utils.routerCRUD({Model: sqldb.Serie}));
+router.use('/seasons', utils.routerCRUD({Model: sqldb.Season}));
+router.use('/episodes', utils.routerCRUD({Model: sqldb.Episode}));
+router.use('/categorys', utils.routerCRUD({Model: sqldb.Category}));
 
 module.exports = router;

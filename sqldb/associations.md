@@ -2,24 +2,34 @@
 ## V2
 
 ```
-ElementCategory -> Item              foreignKey:_id
-ElementEpisode  -> Item              foreignKey:_id
-ElementEpisode  -> ElementSeason
-ElementEpisode  -> Licensor
-ElementFilm     -> Item              foreignKey:_id
-ElementLive     -> Item              foreignKey:_id
-ElementPerson   -> Item              foreignKey:_id
-ElementSeason   -> Item              foreignKey:_id
-ElementSeason   -> ElementSerie
-ElementSerie    -> Item              foreignKey:_id
-ElementSerie    -> Licensor
-Item            -> ElementCategory   foreignKey:_id
-Item            -> ElementEpisode    foreignKey:_id
-Item            -> ElementFilm       foreignKey:_id
-Item            -> ElementLive       foreignKey:_id
-Item            -> ElementPerson     foreignKey:_id
-Item            -> ElementSeason     foreignKey:_id
-Item            -> ElementSerie      foreignKey:_id
+Client          -> Tenant
+Film            -> Licensor
+Film            -> CatchupProvider
+Film.poster     -> Image
+Film.logo       -> Image
+Film.thumb      -> Image
+Film.video      -> Video
+Live            -> Licensor
+Live            -> CatchupProvider
+Live.poster     -> Image
+Live.logo       -> Image
+Live.thumb      -> Image
+Live.video      -> Video
+Serie           -> Licensor
+Serie           -> CatchupProvider
+Serie.poster    -> Image
+Serie.logo      -> Image
+Serie.thumb     -> Image
+Serie.video     -> Video
+CategoryElement -> Category
+CategoryElement -> Film
+CategoryElement -> Live
+CategoryElement -> Serie
+
+# backward compatibility
+Film            -> Movie
+Live            -> Movie
+Serie           -> Movie
 ```
 
 # V1 - Life
@@ -42,8 +52,6 @@ CatchupProvider -> Category
 CatchupProvider -> Licensor
 Client.pfGroup  -> PFGroup
 Client          -> Broadcaster
-Comment         -> Movie
-Comment         -> Video
 Episode         -> Season
 Episode.poster  -> Image
 Episode.thumb   -> Image
@@ -52,24 +60,24 @@ Episode         -> CatchupProvider
 Log             -> User
 Log             -> Client
 Movie           -> Licensor
-Movie -> CatchupProvider
-Movie.poster -> Image
-Movie.logo -> Image
-Movie.thumb -> Image
-Movie.video -> Video
-Post.poster -> Image
-Press.pdf -> Image
-Press -> Image
-Season->Movie
-Season.poster -> Image
-Season.thumb -> Image
-Season -> CatchupProvider
-UsersVideos -> Video
-UsersVideos -> User
-Video -> CatchupProvider
-VideosComments -> Video
-VideosComments -> User
-Widget -> Image
+Movie           -> CatchupProvider
+Movie.poster    -> Image
+Movie.logo      -> Image
+Movie.thumb     -> Image
+Movie.video     -> Video
+Post.poster     -> Image
+Press.pdf       -> Image
+Press           -> Image
+Season          -> Movie
+Season.poster   -> Image
+Season.thumb    -> Image
+Season          -> CatchupProvider
+UsersVideos     -> Video
+UsersVideos     -> User
+Video           -> CatchupProvider
+VideosComments  -> Video
+VideosComments  -> User
+Widget          -> Image
 WallNote        -> User
 ```
 
@@ -77,8 +85,12 @@ WallNote        -> User
 ## V2
 
 ```
-ElementSeason.elementEpisodes[] -> ElementEpisode
-ElementSerie.elementSeasons[] -> ElementSeason
+Serie.seasons[] -> Season
+# asso category <-> elements
+Film.categoryElements[]  -> CategoryElement
+Live.categoryElements[]  -> CategoryElement
+Serie.categoryElements[] -> CategoryElement
+Category.elements[] -> CategoryElement
 ```
 
 ## V1
@@ -86,7 +98,6 @@ ElementSerie.elementSeasons[] -> ElementSeason
 ```
 User.lifePins[] -> LifePin
 Licensor.movies[] -> Movie
-Movie.comments[] -> Comment
 Movie.tags[] -> Tag
 Movie.seasons[] -> Season
 Season.episodes[] -> Episode
@@ -94,11 +105,7 @@ Video.captions[] -> Caption
 ```
 
 # Liaonsns N-N (belongsToMany)
-## V2
-```
-ElementCategory.items[]  -> AssoItemsCategories -> Item
-Item.elementCategories[] -> AssoItemsCategories -> ElementCategory
-```
+
 ## V1 - Life
 ```
 LifePin.themes[] -> LifeThemePins -> LifeTheme
