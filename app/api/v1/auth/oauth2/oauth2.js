@@ -1,5 +1,5 @@
 var oauth2orize = require('oauth2orize');
-var oauth2orizeFacebook = require('oauth2orize-facebook');
+
 var passport = require('passport');
 var crypto = require('crypto');
 var utils = require('./utils');
@@ -16,6 +16,7 @@ var TokenError = oauth2orize.TokenError;
 // custom oauth2 exchange
 var exchangeBouygues = require('./exchange/bouygues.js');
 var exchangeIse2 = require('./exchange/ise2.js');
+var exchangeFacebook = require('./facebook');
 
 var logger = rootRequire('logger').prefix('AUTH');
 
@@ -80,7 +81,7 @@ const trySetAuthCookie = function (req, res, tokenEntity, refreshTokenEntity) {
         version: 1,
         access_token: tokenEntity.token,
         refresh_token: refreshTokenEntity && refreshTokenEntity.token || null,
-        expires_in:  tokenEntity.expirationTimespan
+        expires_in: tokenEntity.expirationTimespan
       },
       {
         domain: config.cookies.auth.domain,
@@ -95,9 +96,8 @@ const trySetAuthCookie = function (req, res, tokenEntity, refreshTokenEntity) {
 };
 
 var generateToken = function (options, done) {
-
-  console.log('GENERATE TOKEN ' + typeof options.req + ' ' + typeof options.res);
   if (!options.req || !options.res) {
+    console.log('GENERATE TOKEN ' + typeof options.req + ' ' + typeof options.res);
     console.log('DEBUG STACK ', (new Error()).stack);
   }
 
@@ -157,9 +157,9 @@ var generateToken = function (options, done) {
           trySetAuthCookie(options.req, options.res, tokenEntity, refreshTokenEntity);
           return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
         }).catch(function (err) {
-        logger.error('RefreshToken', err.message);
-        return done(err);
-      });
+          logger.error('RefreshToken', err.message);
+          return done(err);
+        });
     }).catch(function (err) {
       logger.error('AccessToken', err.message);
       return done(err);
@@ -184,14 +184,14 @@ var refreshAccessToken = function (client, userId, options) {
         expirationDate: tokenData.expirationDate,
         expirationTimespan: tokenData.expirationTimespan
       })
-      .then(refreshToken => {
-        trySetAuthCookie(options.req, options.res, accessToken, refreshToken);
-        return refreshToken;
-      });
+        .then(refreshToken => {
+          trySetAuthCookie(options.req, options.res, accessToken, refreshToken);
+          return refreshToken;
+        });
     });
 };
 
-server.exchange(oauth2orizeFacebook(function (client, profile, scope, done) {
+server.exchange(exchangeFacebook(function (client, profile, scope, done) {
   Client.find({
     where: {
       _id: client._id
@@ -206,15 +206,32 @@ server.exchange(oauth2orizeFacebook(function (client, profile, scope, done) {
       }
 
       console.log('facebook.id', profile);
+
+      var email = ( profile._json && profile._json.email) || (profile.emails && profile.emails.length && profile.emails[0].value ) || profile.email;
+
+      var whereUser = [{'facebook.id': profile.id}];
+      whereUser.push(sqldb.sequelize.where(
+        sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')),
+        sqldb.sequelize.fn('lower', email)
+      ));
+
       User.find({
         where: {
-          $or: [{'facebook.id': profile.id}]
+          $or: whereUser
         }
       })
         .then(function (user) {
           if (user === null) {
             return done(new TokenError('unknown facebook id', 'invalid_grant'), false);
           }
+          // user exist => update
+          user.name = user.name || profile.displayName || profile.name.familyName + ' ' + profile.name.givenName;
+          user.biography = user.biography || profile._json.about;
+          user.postalAddressCity = user.postalAddressCity || (profile._json.location && profile._json.location.name) || null;
+          user.facebook = profile._json;
+          return user.save();
+        })
+        .then(function (user) {
           return generateToken({
             client: entity,
             user: user,
@@ -246,7 +263,7 @@ server.exchange(oauth2orize.exchange.password(function (client, username, passwo
       if (entity.secret !== client.secret) {
         return done(new TokenError('wrong secret', 'invalid_grant'), false);
       }
-      console.log('EXCHANGE user.find '+username);
+      console.log('EXCHANGE user.find ' + username);
       return User.find({
         where: sqldb.sequelize.where(
           sqldb.sequelize.fn('lower', sqldb.sequelize.col('email')),
@@ -354,8 +371,8 @@ server.exchange(exchangeIse2(function (client, id, scope, reqBody, done) {
         return done(new TokenError('wrong secret', 'invalid_grant'), false);
       }
       return User.find({
-          where: {ise2: id}
-        })
+        where: {ise2: id}
+      })
         .then(function (user) {
           if (user === null) {
             ise2Logger.error('UNKNOWN_ISE2 ' + id + ' => invalid_grant');
@@ -422,7 +439,7 @@ server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken
       if (refreshToken.clientId !== client._id) {
         throw new Error("clientId missmatch");
       }
-      return refreshAccessToken(client, refreshToken.userId, { req: reqAuthInfo.req, res: reqAuthInfo.res });
+      return refreshAccessToken(client, refreshToken.userId, {req: reqAuthInfo.req, res: reqAuthInfo.res});
     }).then(function (accessToken) {
     done(null, accessToken.token, refreshTokenToken, {expires_in: accessToken.expirationTimespan});
   }).catch(done);

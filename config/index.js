@@ -69,7 +69,8 @@ var all = {
   google: {
     clientID: process.env.GOOGLE_ID || 'id',
     clientSecret: process.env.GOOGLE_SECRET || 'secret',
-    cloudKey: 'AIzaSyBSoU5ntLUsSDZs_xMKpflf7W9ZF7jfGEQ'
+    cloudKey: 'AIzaSyBSoU5ntLUsSDZs_xMKpflf7W9ZF7jfGEQ',
+    firebaseKey: 'AAAAj7oJLV4:APA91bH1EMO6tdbxgfFSeIDdd8Sc0gv7-tnGZM_C9qPkzSkpH1kXgAs4ua16EP18RT7s43TxzmxiT9fo5OHuuhn5BYaLev-lFAMamZU1_NDyb6eN3nAP-WDu7HEJ9k9I2zM2JTAioUW0'
   },
 
   pagination: {

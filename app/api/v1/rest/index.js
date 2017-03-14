@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 
+router.use('/app', require('./app/index'));
 router.use('/broadcasters', require('./broadcaster/index'));
 router.use('/posts', require('./post/index'));
 router.use('/actors', require('./actor/index'));
@@ -31,6 +32,7 @@ router.use('/episodes', require('./episode/index'));
 router.use('/seasons', require('./season/index'));
 router.use('/tags', require('./tag/index'));
 router.use('/categorys', require('./category/index'));
+router.use('/notifications', require('./notification/index'));
 router.use('/movies', require('./movie/index'));
 router.use('/press', require('./press/index'));
 router.use('/search', require('./search/index'));
