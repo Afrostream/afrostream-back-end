@@ -8,6 +8,7 @@ const sqldb = rootRequire('sqldb');
 
 const { mandatoryAssociations, optionalAssociations } = rootRequire('app/api/v2/orm/associations.js');
 
+const filterTenant = rootRequire('app/api/v2/orm/filters/tenant.js');
 const filterActive  = rootRequire('app/api/v2/orm/filters/active.js');
 const filterBet  = rootRequire('app/api/v2/orm/filters/bet.js');
 const filterBroadcaster  = rootRequire('app/api/v2/orm/filters/broadcaster.js');
@@ -45,6 +46,7 @@ module.exports.index = function (options) {
             limit: req.query.limit || 100
           })
           .populate(req.query.populate || '',  mandatoryAssociations, optionalAssociations)
+          .filter(filterTenant, {req: req})
           .filter(filterActive, {req: req})
           .filter(filterBet, {req: req})
           .filter(filterBroadcaster, {req: req})
@@ -88,6 +90,7 @@ module.exports.show = function (options) {
         where: { _id: req.params.id }
       })
       .populate(req.query.populate || '',  mandatoryAssociations, optionalAssociations)
+      .filter(filterTenant, {req: req})
       .filter(filterActive, {req: req})
       .filter(filterBet, {req: req})
       .filter(filterBroadcaster, {req: req})
