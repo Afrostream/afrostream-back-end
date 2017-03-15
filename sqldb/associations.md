@@ -2,7 +2,6 @@
 ## V2
 
 ```
-Client          -> Tenant
 Film            -> Licensor
 Film            -> CatchupProvider
 Film.poster     -> Image
@@ -30,6 +29,67 @@ CategoryElement -> Serie
 Film            -> Movie
 Live            -> Movie
 Serie           -> Movie
+
+# Tenants
+AccessToken              -> Tenant
+Actor                    -> Tenant
+Asset                    -> Tenant
+AssoItemsCategories      -> Tenant
+AuthCode                 -> Tenant
+Broadcaster              -> Tenant
+Caption                  -> Tenant
+CatchupProvider          -> Tenant
+CategoryAdSpots          -> Tenant
+CategoryElement          -> Tenant
+Category                 -> Tenant
+CategoryMovies           -> Tenant
+Client                   -> Tenant
+Comment                  -> Tenant
+Config                   -> Tenant
+Country                  -> Tenant
+Episode                  -> Tenant
+Film                     -> Tenant
+Genre                    -> Tenant
+GiftGiver                -> Tenant
+Image                    -> Tenant
+Language                 -> Tenant
+Licensor                 -> Tenant
+LifePin                  -> Tenant
+LifeSpot                 -> Tenant
+LifeTheme                -> Tenant
+LifeThemePins            -> Tenant
+LifeThemeSpots           -> Tenant
+LifeUsersFollowers       -> Tenant
+LifeUsersPins            -> Tenant
+Live                     -> Tenant
+Log                      -> Tenant
+LogsPixel                -> Tenant
+Movie                    -> Tenant
+MoviesActors             -> Tenant
+Notification             -> Tenant
+PFGroup                  -> Tenant
+PFGroupsProfiles         -> Tenant
+PFProfile                -> Tenant
+Post                     -> Tenant
+Press                    -> Tenant
+RefreshToken             -> Tenant
+Season                   -> Tenant
+Serie                    -> Tenant
+Store                    -> Tenant
+Tag                      -> Tenant
+Tenant                   -> Tenant
+User                     -> Tenant
+UsersFavoritesEpisodes   -> Tenant
+UsersFavoritesMovies     -> Tenant
+UsersFavoritesSeasons    -> Tenant
+UsersVideos              -> Tenant
+Video                    -> Tenant
+VideosComments           -> Tenant
+WaitingUser              -> Tenant
+WallNote                 -> Tenant
+WallNotesUsers           -> Tenant
+Widget                   -> Tenant
+Work                     -> Tenant
 ```
 
 # V1 - Life
