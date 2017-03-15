@@ -485,7 +485,12 @@ INSERT INTO "CategoryElements"(
   "order",
   "spot"
 )
-SELECT * FROM (
+SELECT
+  max("createdAt") as "createdAt", max("updatedAt") as "updatedAt",
+  "tenantId", "categoryId", "filmId", "liveId", "serieId",
+  max("sort") as "order",
+  bool_or("spot") as "spot"
+ FROM (
   (
     SELECT
       "CategoryMovies"."createdAt",
@@ -507,39 +512,29 @@ SELECT * FROM (
   UNION
   (
     SELECT
-      "CategoryMovies"."createdAt",
-      "CategoryMovies"."updatedAt",
+      "CategoryAdSpots"."createdAt",
+      "CategoryAdSpots"."updatedAt",
       1 as "tenantId",
-      "CategoryMovies"."CategoryId" as "categoryId",
+      "CategoryAdSpots"."CategoryId" as "categoryId",
       "Films"."_id" as "filmId",
       "Lives"."_id" as "liveId",
       "Series"."_id" as "serieId",
       CASE WHEN "Movies"."sort" IS NULL THEN 0 ELSE "Movies"."sort" END as "sort",
       true as "spot"
     FROM
-      "CategoryMovies"
-    INNER JOIN "Movies" ON "Movies"."_id" = "CategoryMovies"."MovieId"
-    LEFT JOIN "Films" ON "Films"."movieId" = "CategoryMovies"."MovieId"
-    LEFT JOIN "Lives" ON "Lives"."movieId" = "CategoryMovies"."MovieId"
-    LEFT JOIN "Series" ON "Series"."movieId" = "CategoryMovies"."MovieId"
+      "CategoryAdSpots"
+    INNER JOIN "Movies" ON "Movies"."_id" = "CategoryAdSpots"."MovieId"
+    LEFT JOIN "Films" ON "Films"."movieId" = "CategoryAdSpots"."MovieId"
+    LEFT JOIN "Lives" ON "Lives"."movieId" = "CategoryAdSpots"."MovieId"
+    LEFT JOIN "Series" ON "Series"."movieId" = "CategoryAdSpots"."MovieId"
   )
 ) as warf
 WHERE
   "filmId" IS NOT NULL OR
   "liveId" IS NOT NULL OR
-  "serieId" IS NOT NULL;
-
---
--- reversing process: creating vues
---
-
-
-
-
-
-
-
-
+  "serieId" IS NOT NULL
+GROUP BY "tenantId", "categoryId", "filmId", "liveId", "serieId"
+;
 
 --
 -- Tenants
