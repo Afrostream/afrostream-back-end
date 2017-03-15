@@ -2,8 +2,8 @@
 
 -- DROP ALL
 DROP MATERIALIZED VIEW IF EXISTS "VueMovies";
-DROP MATERIALIZED VIEW IF EXISTS "VueCategoryAdSpots";
 DROP MATERIALIZED VIEW IF EXISTS "VueCategoryMovies";
+DROP MATERIALIZED VIEW IF EXISTS "VueCategoryAdSpots";
 
 DROP TABLE IF EXISTS "CategoryElements";
 DROP TABLE IF EXISTS "Tenants";
@@ -672,3 +672,220 @@ ALTER TABLE "Widgets" DROP COLUMN IF EXISTS "tenantId";
 ALTER TABLE "Widgets" ADD COLUMN "tenantId" integer DEFAULT 1;
 ALTER TABLE "Works" DROP COLUMN IF EXISTS "tenantId";
 ALTER TABLE "Works" ADD COLUMN "tenantId" integer DEFAULT 1;
+
+--
+-- reversing process: creating vues
+--
+DROP MATERIALIZED VIEW IF EXISTS "VueMovies";
+CREATE MATERIALIZED VIEW "VueMovies" AS
+SELECT
+  "Films"."movieId" as "_id",
+  "Films"."title",
+  "Films"."dateFrom",
+  "Films"."dateTo",
+  "Films".synopsis,
+  'movie' as "type",
+  "Films".duration,
+  "Films"."imdbId",
+  null as "seasonId",
+  "Films".slug,
+  null as "sort", -- FIXME: will this cause a problem ?
+  "Films".active,
+  "Films"."licensorId",
+  "Films"."posterId",
+  "Films"."logoId",
+  "Films"."thumbId",
+  "Films"."videoId",
+  null as "dateReleased",
+  "Films".genre,
+  "Films".creation,
+  "Films".schedule,
+  "Films"."catchupProviderId",
+  false as "live",
+  "Films"."productionCountry",
+  "Films"."CSA",
+  "Films".rating,
+  null as "vXstY",
+  "Films".countries,
+  "Films".broadcasters,
+  "Films"."youtubeTrailer",
+  "Films"."yearReleased",
+  "Films"."createdAt",
+  "Films"."updatedAt",
+  "Films".translations
+FROM "Films"
+WHERE
+  "Films"."tenantId" = 1
+
+UNION
+
+SELECT
+  "Lives"."movieId" as "_id",
+  "Lives"."title",
+  "Lives"."dateFrom",
+  "Lives"."dateTo",
+  "Lives".synopsis,
+  'movie' as "type",
+  null as "duration",
+  null as "imdbId",
+  null as "seasonId",
+  "Lives".slug,
+  null as "sort", -- FIXME: will this cause a problem ?
+  "Lives".active,
+  "Lives"."licensorId",
+  "Lives"."posterId",
+  "Lives"."logoId",
+  "Lives"."thumbId",
+  "Lives"."videoId",
+  null as "dateReleased",
+  "Lives".genre,
+  "Lives".creation,
+  "Lives".schedule,
+  "Lives"."catchupProviderId",
+  true as "live",
+  "Lives"."productionCountry",
+  "Lives"."CSA",
+  "Lives".rating,
+  null as "vXstY",
+  "Lives".countries,
+  "Lives".broadcasters,
+  "Lives"."youtubeTrailer",
+  null as "yearReleased",
+  "Lives"."createdAt",
+  "Lives"."updatedAt",
+  "Lives".translations
+FROM "Lives"
+WHERE
+  "Lives"."tenantId" = 1
+
+UNION
+
+SELECT
+  "Series"."movieId" as "_id",
+  "Series"."title",
+  "Series"."dateFrom",
+  "Series"."dateTo",
+  "Series".synopsis,
+  'serie' as "type",
+  null as "duration",
+  "Series"."imdbId",
+  null as "seasonId",
+  "Series".slug,
+  null as "sort", -- FIXME: will this cause a problem ?
+  "Series".active,
+  "Series"."licensorId",
+  "Series"."posterId",
+  "Series"."logoId",
+  "Series"."thumbId",
+  "Series"."videoId",
+  null as "dateReleased",
+  "Series".genre,
+  "Series".creation,
+  "Series".schedule,
+  "Series"."catchupProviderId",
+  false as "live",
+  "Series"."productionCountry",
+  "Series"."CSA",
+  "Series".rating,
+  null as "vXstY",
+  "Series".countries,
+  "Series".broadcasters,
+  "Series"."youtubeTrailer",
+  "Series"."yearReleased",
+  "Series"."createdAt",
+  "Series"."updatedAt",
+  "Series".translations
+FROM "Series"
+WHERE
+  "Series"."tenantId" = 1;
+
+DROP MATERIALIZED VIEW IF EXISTS "VueCategoryMovies";
+CREATE MATERIALIZED VIEW "VueCategoryMovies" AS
+SELECT
+  "CategoryElements"."categoryId" as "CategoryId",
+  "Films"."movieId" as "MovieId",
+  "CategoryElements"."createdAt",
+  "CategoryElements"."updatedAt",
+  "CategoryElements"."tenantId"
+FROM
+  "CategoryElements"
+INNER JOIN
+  "Films" ON "CategoryElements"."filmId" = "Films"."_id"
+WHERE
+  "CategoryElements"."tenantId" = 1
+
+UNION
+
+SELECT
+  "CategoryElements"."categoryId" as "CategoryId",
+  "Lives"."movieId" as "MovieId",
+  "CategoryElements"."createdAt",
+  "CategoryElements"."updatedAt",
+  "CategoryElements"."tenantId"
+FROM
+  "CategoryElements"
+INNER JOIN
+  "Lives" ON "CategoryElements"."filmId" = "Lives"."_id"
+WHERE
+  "CategoryElements"."tenantId" = 1
+
+UNION
+
+SELECT
+  "CategoryElements"."categoryId" as "CategoryId",
+  "Series"."movieId" as "MovieId",
+  "CategoryElements"."createdAt",
+  "CategoryElements"."updatedAt",
+  "CategoryElements"."tenantId"
+FROM
+  "CategoryElements"
+INNER JOIN
+  "Series" ON "CategoryElements"."filmId" = "Series"."_id"
+WHERE
+  "CategoryElements"."tenantId" = 1;
+
+-- same but restricted on CategoryElements.spot=true
+DROP MATERIALIZED VIEW IF EXISTS "VueCategoryAdSpots";
+CREATE MATERIALIZED VIEW "VueCategoryAdSpots" AS
+SELECT
+  "CategoryElements"."categoryId" as "CategoryId",
+  "Films"."movieId" as "MovieId",
+  "CategoryElements"."createdAt",
+  "CategoryElements"."updatedAt",
+  "CategoryElements"."tenantId"
+FROM
+  "CategoryElements"
+INNER JOIN
+  "Films" ON "CategoryElements"."filmId" = "Films"."_id"
+WHERE
+  "CategoryElements"."tenantId" = 1 AND "CategoryElements"."spot" = true
+
+UNION
+
+SELECT
+  "CategoryElements"."categoryId" as "CategoryId",
+  "Lives"."movieId" as "MovieId",
+  "CategoryElements"."createdAt",
+  "CategoryElements"."updatedAt",
+  "CategoryElements"."tenantId"
+FROM
+  "CategoryElements"
+INNER JOIN
+  "Lives" ON "CategoryElements"."filmId" = "Lives"."_id"
+WHERE
+  "CategoryElements"."tenantId" = 1 AND "CategoryElements"."spot" = true
+
+UNION
+
+SELECT
+  "CategoryElements"."categoryId" as "CategoryId",
+  "Series"."movieId" as "MovieId",
+  "CategoryElements"."createdAt",
+  "CategoryElements"."updatedAt",
+  "CategoryElements"."tenantId"
+FROM
+  "CategoryElements"
+INNER JOIN
+  "Series" ON "CategoryElements"."filmId" = "Series"."_id"
+WHERE
+  "CategoryElements"."tenantId" = 1 AND "CategoryElements"."spot" = true;
