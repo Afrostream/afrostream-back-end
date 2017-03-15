@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function (sequelize, DataTypes) {
-  return sequelize.define('Logs', {
+  return sequelize.define('Log', {
     _id: {
       type: DataTypes.INTEGER,
       allowNull: false,

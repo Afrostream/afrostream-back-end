@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function (sequelize, DataTypes) {
-  return sequelize.define('WallNotes', {
+  return sequelize.define('WallNote', {
     _id: {
       type: DataTypes.INTEGER,
       allowNull: false,
