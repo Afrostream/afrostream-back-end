@@ -47,7 +47,8 @@ var signin = function (req, res, next) {
     scope: [],
     session: false,
     state: btoa(JSON.stringify({
-      status: 'signin'
+      status: 'signin',
+      signupClientType: req.query.clientType || null // forward caller type
     }))
   })(req, res, next);
 };

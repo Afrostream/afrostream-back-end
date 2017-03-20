@@ -41,7 +41,8 @@ var signin = function (req, res, next) {
     session: false,
     additionalParams: {
       RelayState: btoa(JSON.stringify({
-        status: 'signin'
+        status: 'signin',
+        signupClientType: req.query.clientType || null // forward caller type
       }))
     }
   })(req, res, next);
