@@ -14,6 +14,9 @@ router.use((req, res, next) => {
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
 // FIXME: should be in the billing...
+router.put('/cancel', controller.cancel);
+router.put('/expire', controller.expire);
+router.put('/reactive', controller.reactivate);
 router.get('/status', controller.status);
 
 module.exports = router;
