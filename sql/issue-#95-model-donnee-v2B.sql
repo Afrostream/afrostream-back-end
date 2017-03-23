@@ -2,14 +2,25 @@
 
 -- DROP ALL
 DROP MATERIALIZED VIEW IF EXISTS "VueMovies";
+DROP MATERIALIZED VIEW IF EXISTS "VueActors";
 DROP MATERIALIZED VIEW IF EXISTS "VueCategoryMovies";
 DROP MATERIALIZED VIEW IF EXISTS "VueCategoryAdSpots";
+DROP MATERIALIZED VIEW IF EXISTS "VueActors";
+DROP MATERIALIZED VIEW IF EXISTS "VueMoviesActors";
+DROP MATERIALIZED VIEW IF EXISTS "VueUsersFavoritesMovies";
+
 
 DROP TABLE IF EXISTS "CategoryElements";
 DROP TABLE IF EXISTS "Tenants";
 DROP TABLE IF EXISTS "Films";
 DROP TABLE IF EXISTS "Lives";
 DROP TABLE IF EXISTS "Series";
+DROP TABLE IF EXISTS "Persons";
+DROP TABLE IF EXISTS "AssoPersonsFilms";
+DROP TABLE IF EXISTS "AssoPersonsSeries";
+DROP TABLE IF EXISTS "AssoUsersFavoritesFilms";
+DROP TABLE IF EXISTS "AssoUsersFavoritesLives";
+DROP TABLE IF EXISTS "AssoUsersFavoritesSeries";
 
 --
 -- Tenants
@@ -537,6 +548,263 @@ GROUP BY "tenantId", "categoryId", "filmId", "liveId", "serieId"
 ;
 
 --
+-- Actors => Persons
+--
+DROP TABLE IF EXISTS "Persons";
+CREATE TABLE "Persons"
+(
+  _id serial NOT NULL,
+  -- system
+  "createdAt" timestamp with time zone,
+  "updatedAt" timestamp with time zone,
+  -- filters
+  active boolean DEFAULT false,
+  -- data
+  "type" character varying(16) default 'actor'::character varying,
+  "firstName" character varying(255),
+  "lastName" character varying(255),
+  translations jsonb,
+  -- fk
+  "tenantId" integer DEFAULT 1,
+  "pictureId" uuid,
+  "imdbId" character varying(16),
+  "actorId" integer,
+  CONSTRAINT "Persons_pkey" PRIMARY KEY (_id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO "Persons" (
+  "createdAt",
+  "updatedAt",
+  "active",
+  "type",
+  "firstName",
+  "lastName",
+  "translations",
+  "tenantId",
+  "pictureId",
+  "imdbId",
+  "actorId"
+)
+SELECT
+  "createdAt",
+  "updatedAt",
+  "active",
+  'actor' as "type",
+  "firstName",
+  "lastName",
+  "translations",
+  1 as "tenantId",
+  "pictureId",
+  "imdbId",
+  "_id" as "actorId"
+FROM
+  "Actors";
+
+--
+--
+--
+DROP TABLE IF EXISTS "AssoPersonsFilms";
+CREATE TABLE "AssoPersonsFilms"
+(
+  -- system
+  "createdAt" timestamp with time zone,
+  "updatedAt" timestamp with time zone,
+  --
+  "tenantId" integer NOT NULL,
+  --
+  "filmId" integer,
+  "personId" integer,
+  CONSTRAINT "AssoPersonsFilms_pkey"  PRIMARY KEY ("filmId", "personId"),
+  CONSTRAINT "AssoPersonsFilms_filmId_fkey" FOREIGN KEY ("filmId")
+      REFERENCES "Films" (_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE SET NULL,
+  CONSTRAINT "AssoPersonsFilms_personId_fkey" FOREIGN KEY ("personId")
+      REFERENCES "Persons" (_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE SET NULL
+)
+WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO "AssoPersonsFilms" (
+  "createdAt", "updatedAt", "tenantId", "filmId", "personId"
+)
+SELECT
+  "MoviesActors"."createdAt",
+  "MoviesActors"."updatedAt",
+  1 as "tenantId",
+  "Films"."_id" as "filmId",
+  "Persons"."_id" as "personId"
+FROM
+  "MoviesActors"
+INNER JOIN "Films" ON "Films"."movieId" = "MoviesActors"."MovieId"
+INNER JOIN "Persons" ON "Persons"."actorId" = "MoviesActors"."ActorId";
+
+
+DROP TABLE IF EXISTS "AssoPersonsSeries";
+CREATE TABLE "AssoPersonsSeries"
+(
+  -- system
+  "createdAt" timestamp with time zone,
+  "updatedAt" timestamp with time zone,
+  --
+  "tenantId" integer NOT NULL,
+  --
+  "serieId" integer,
+  "personId" integer,
+  CONSTRAINT "AssoPersonsSeries_pkey"  PRIMARY KEY ("serieId", "personId"),
+  CONSTRAINT "AssoPersonsSeries_filmId_fkey" FOREIGN KEY ("serieId")
+      REFERENCES "Series" (_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE SET NULL,
+  CONSTRAINT "AssoPersonsSeries_personId_fkey" FOREIGN KEY ("personId")
+      REFERENCES "Persons" (_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE SET NULL
+)
+WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO "AssoPersonsSeries" (
+  "createdAt", "updatedAt", "tenantId", "serieId", "personId"
+)
+SELECT
+  "MoviesActors"."createdAt",
+  "MoviesActors"."updatedAt",
+  1 as "tenantId",
+  "Series"."_id" as "serieId",
+  "Persons"."_id" as "personId"
+FROM
+  "MoviesActors"
+INNER JOIN "Series" ON "Series"."movieId" = "MoviesActors"."MovieId"
+INNER JOIN "Persons" ON "Persons"."actorId" = "MoviesActors"."ActorId";
+
+
+DROP TABLE IF EXISTS "AssoUsersFavoritesFilms";
+CREATE TABLE "AssoUsersFavoritesFilms"
+(
+  -- system
+  "createdAt" timestamp with time zone,
+  "updatedAt" timestamp with time zone,
+  --
+  "tenantId" integer NOT NULL,
+  --
+  "userId" integer,
+  "filmId" integer,
+  CONSTRAINT "AssoUsersFavoritesFilms_pkey"  PRIMARY KEY ("userId", "filmId"),
+  CONSTRAINT "AssoUsersFavoritesFilms_userId_fkey" FOREIGN KEY ("userId")
+      REFERENCES "Users" (_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE SET NULL,
+  CONSTRAINT "AssoUsersFavoritesFilms_filmId_fkey" FOREIGN KEY ("filmId")
+      REFERENCES "Films" (_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE SET NULL
+)
+WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO "AssoUsersFavoritesFilms" (
+  "createdAt",
+  "updatedAt",
+  "tenantId",
+  "userId",
+  "filmId"
+)
+SELECT
+  "UsersFavoritesMovies"."createdAt",
+  "UsersFavoritesMovies"."updatedAt",
+  1 as "tenantId",
+  "UsersFavoritesMovies"."userId",
+  "Films"."_id" as "filmId"
+FROM
+  "UsersFavoritesMovies"
+INNER JOIN "Films" ON "Films"."movieId" = "UsersFavoritesMovies"."movieId";
+
+
+DROP TABLE IF EXISTS "AssoUsersFavoritesLives";
+CREATE TABLE "AssoUsersFavoritesLives"
+(
+  -- system
+  "createdAt" timestamp with time zone,
+  "updatedAt" timestamp with time zone,
+  --
+  "tenantId" integer NOT NULL,
+  --
+  "userId" integer,
+  "liveId" integer,
+  CONSTRAINT "AssoUsersFavoritesLives_pkey"  PRIMARY KEY ("userId", "liveId"),
+  CONSTRAINT "AssoUsersFavoritesLives_userId_fkey" FOREIGN KEY ("userId")
+      REFERENCES "Users" (_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE SET NULL,
+  CONSTRAINT "AssoUsersFavoritesLives_liveId_fkey" FOREIGN KEY ("liveId")
+      REFERENCES "Lives" (_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE SET NULL
+)
+WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO "AssoUsersFavoritesLives" (
+  "createdAt",
+  "updatedAt",
+  "tenantId",
+  "userId",
+  "liveId"
+)
+SELECT
+  "UsersFavoritesMovies"."createdAt",
+  "UsersFavoritesMovies"."updatedAt",
+  1 as "tenantId",
+  "UsersFavoritesMovies"."userId",
+  "Lives"."_id" as "liveId"
+FROM
+  "UsersFavoritesMovies"
+INNER JOIN "Lives" ON "Lives"."movieId" = "UsersFavoritesMovies"."movieId";
+
+
+DROP TABLE IF EXISTS "AssoUsersFavoritesSeries";
+CREATE TABLE "AssoUsersFavoritesSeries"
+(
+  -- system
+  "createdAt" timestamp with time zone,
+  "updatedAt" timestamp with time zone,
+  --
+  "tenantId" integer NOT NULL,
+  --
+  "userId" integer,
+  "serieId" integer,
+  CONSTRAINT "AssoUsersFavoritesSeries_pkey"  PRIMARY KEY ("userId", "serieId"),
+  CONSTRAINT "AssoUsersFavoritesSeries_userId_fkey" FOREIGN KEY ("userId")
+      REFERENCES "Users" (_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE SET NULL,
+  CONSTRAINT "AssoUsersFavoritesSeries_liveId_fkey" FOREIGN KEY ("serieId")
+      REFERENCES "Series" (_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE SET NULL
+)
+WITH (
+  OIDS=FALSE
+);
+
+INSERT INTO "AssoUsersFavoritesSeries" (
+  "createdAt",
+  "updatedAt",
+  "tenantId",
+  "userId",
+  "serieId"
+)
+SELECT
+  "UsersFavoritesMovies"."createdAt",
+  "UsersFavoritesMovies"."updatedAt",
+  1 as "tenantId",
+  "UsersFavoritesMovies"."userId",
+  "Series"."_id" as "liveId"
+FROM
+  "UsersFavoritesMovies"
+INNER JOIN "Series" ON "Series"."movieId" = "UsersFavoritesMovies"."movieId";
+
+--
 -- Tenants
 --
 -- adding tenant to all existing tables
@@ -889,3 +1157,88 @@ INNER JOIN
   "Series" ON "CategoryElements"."filmId" = "Series"."_id"
 WHERE
   "CategoryElements"."tenantId" = 1 AND "CategoryElements"."spot" = true;
+
+--
+DROP MATERIALIZED VIEW IF EXISTS "VueActors";
+CREATE MATERIALIZED VIEW "VueActors" AS
+SELECT
+  "Persons"."actorId" as _id,
+  "Persons"."firstName",
+  "Persons"."lastName",
+  "Persons"."pictureId",
+  "Persons"."imdbId",
+  "Persons"."active",
+  "Persons"."createdAt" ,
+  "Persons"."updatedAt",
+  "Persons"."translations",
+  "Persons"."tenantId"
+FROM
+  "Persons"
+WHERE
+  "Persons"."type"='actor';
+
+DROP MATERIALIZED VIEW IF EXISTS "VueMoviesActors";
+CREATE MATERIALIZED VIEW "VueMoviesActors" AS
+SELECT
+  "Films"."movieId" as "MovieId",
+  "Persons"."actorId" as "ActorId",
+  "AssoPersonsFilms"."createdAt",
+  "AssoPersonsFilms"."updatedAt" ,
+  "AssoPersonsFilms"."tenantId"
+FROM
+  "AssoPersonsFilms"
+INNER JOIN "Persons" ON "AssoPersonsFilms"."personId" = "Persons"."_id"
+INNER JOIN "Films" ON "AssoPersonsFilms"."filmId" = "Films"."_id"
+WHERE
+  "Persons"."type" = 'actor'
+
+UNION
+
+SELECT
+  "Series"."movieId" as "MovieId",
+  "Persons"."actorId" as "ActorId",
+  "AssoPersonsSeries"."createdAt",
+  "AssoPersonsSeries"."updatedAt" ,
+  "AssoPersonsSeries"."tenantId"
+FROM
+  "AssoPersonsSeries"
+INNER JOIN "Persons" ON "AssoPersonsSeries"."personId" = "Persons"."_id"
+INNER JOIN "Series" ON "AssoPersonsSeries"."serieId" = "Series"."_id"
+WHERE
+  "Persons"."type" = 'actor';
+
+DROP MATERIALIZED VIEW IF EXISTS "VueUsersFavoritesMovies";
+CREATE MATERIALIZED VIEW "VueUsersFavoritesMovies" AS
+SELECT
+  "AssoUsersFavoritesFilms"."userId",
+  "Films"."movieId",
+  "AssoUsersFavoritesFilms"."createdAt",
+  "AssoUsersFavoritesFilms"."updatedAt",
+  "AssoUsersFavoritesFilms"."tenantId"
+FROM
+  "AssoUsersFavoritesFilms"
+INNER JOIN "Films" ON "AssoUsersFavoritesFilms"."filmId" = "Films"."_id"
+
+UNION
+
+SELECT
+  "AssoUsersFavoritesLives"."userId",
+  "Lives"."movieId",
+  "AssoUsersFavoritesLives"."createdAt",
+  "AssoUsersFavoritesLives"."updatedAt",
+  "AssoUsersFavoritesLives"."tenantId"
+FROM
+  "AssoUsersFavoritesLives"
+INNER JOIN "Lives" ON "AssoUsersFavoritesLives"."liveId" = "Lives"."_id"
+
+UNION
+
+SELECT
+  "AssoUsersFavoritesSeries"."userId",
+  "Series"."movieId",
+  "AssoUsersFavoritesSeries"."createdAt",
+  "AssoUsersFavoritesSeries"."updatedAt",
+  "AssoUsersFavoritesSeries"."tenantId"
+FROM
+  "AssoUsersFavoritesSeries"
+INNER JOIN "Series" ON "AssoUsersFavoritesSeries"."serieId" = "Series"."_id";
