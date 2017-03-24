@@ -124,15 +124,30 @@ var createSubscription = subscriptionBillingData => requestBilling({
 
 /**
  * cancel/reactivate a subscription in the billing-api
- *
+ * options could be :
+ * {
+ *   "forceBeforeEndsDate" : <boolean>,
+ *   "isRefundEnabled" : <boolean>,
+ *   "isRefundProrated" : <boolean>
+ * }
+ * 
  * @param subscriptionBillingUuid  string
+ * @param options object data to send to the backend
  * @return FIXME
  */
-var updateSubscription = (subscriptionBillingUuid, status) => {
+var updateSubscription = (subscriptionBillingUuid, status, options) => {
   assert(typeof status === 'string' && status);
+  var data = {};
+  var acceptedOptions = ['forceBeforeEndsDate', 'isRefundEnabled', 'isRefundProrated'];
+  acceptedOptions.forEach(option => {
+    if (options[option] && typeof(options[option]) === 'boolean') {
+      data[option] = options[option];
+    }
+  });
   return requestBilling({
     method: 'PUT'
     , url: config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/' + status
+    , body: data
   })
     .then(body => body && body.response && body.response.subscription || {});
 };

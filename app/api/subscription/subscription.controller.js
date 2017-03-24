@@ -96,6 +96,21 @@ exports.expire = (req, res) => {
         throw new Error('not enough rights');
       }
       var status = 'expire';
+
+      /** get datas
+        *   "forceBeforeEndsDate" : <boolean>,
+        *   "isRefundEnabled" : <boolean>,
+        *   "isRefundProrated" : <boolean>
+        */
+      var data = {};
+      var mandatoryOptions = ['forceBeforeEndsDate', 'isRefundEnabled', 'isRefundProrated'];
+      mandatoryOptions.forEach(option => {
+        if (req.body[option]) {
+          data[option] = req.body[option];
+        } else {
+          throw new Error('missing arguments');
+        }
+      });
       return billingApi.updateSubscription(req.query.subscriptionId, status);
     })
     .then(
