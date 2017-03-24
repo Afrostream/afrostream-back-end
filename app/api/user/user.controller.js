@@ -232,7 +232,7 @@ exports.update = (req, res) => {
       var body = {
         "userOpts": userOpts
       };
-      return billingApi.updateUser(req.user._id, body, {useReference: true});
+      return billingApi.updateUser(userToEdit._id, body, {useReference: true});
     } else {
       return Promise.resolve();
     }
