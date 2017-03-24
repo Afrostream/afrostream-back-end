@@ -119,7 +119,8 @@ var callback = function (req, res, next) {
       .then(function (passport) {
         if (req.signupClientType) {
           // whitelisting client types
-          if (req.signupClientType !== "legacy-api.tapptic") {
+          if (req.signupClientType !== "legacy-api.tapptic" &&
+              req.signupClientType !== "legacy-api.android") {
             throw new Error('unallowed signupClientType');
           }
           return Client.findOne({where:{type:req.signupClientType}}).then(function (c) {
