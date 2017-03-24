@@ -105,13 +105,13 @@ exports.expire = (req, res) => {
       var data = {};
       var mandatoryOptions = ['forceBeforeEndsDate', 'isRefundEnabled', 'isRefundProrated'];
       mandatoryOptions.forEach(option => {
-        if (req.body[option]) {
-          data[option] = req.body[option];
+        if (req.query[option]) {
+          data[option] = req.query[option];
         } else {
           throw new Error('missing arguments');
         }
       });
-      return billingApi.updateSubscription(req.query.subscriptionId, status);
+      return billingApi.updateSubscription(req.query.subscriptionId, status, data);
     })
     .then(
       subscriptionsStatus => {

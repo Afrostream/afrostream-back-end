@@ -140,8 +140,8 @@ var updateSubscription = (subscriptionBillingUuid, status, options) => {
   var data = {};
   var acceptedOptions = ['forceBeforeEndsDate', 'isRefundEnabled', 'isRefundProrated'];
   acceptedOptions.forEach(option => {
-    if (options[option] && typeof(options[option]) === 'boolean') {
-      data[option] = options[option];
+    if (options && options[option]) {
+      data[option] = Boolean(options[option]);
     }
   });
   return requestBilling({
