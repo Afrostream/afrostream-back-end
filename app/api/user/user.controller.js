@@ -202,47 +202,53 @@ exports.update = (req, res) => {
     'first_name': 'firstName',
     'last_name': 'lastName'
   };
-  var userToEdit = null;
-  var userOpts = {};
 
-  var prepareUpdate = function(findedUser) {
-    userToEdit = findedUser;
-    updateableFields.forEach(field => {
-      if (typeof req.body[field] !== 'undefined') {
-        userToEdit[field] = req.body[field];
-      }
-    });
-    
-    Object.keys(sendToBilling).forEach(field => {
-      if (userToEdit.changed(field)) {
-          userOpts[sendToBilling[field]] = req.body[field];
-      }
-    });
-    return Promise.resolve(true);
-  };
-  var getUserToEdit = function(bodyId, currentUser) {
-    if (currentUser._id != bodyId && currentUser.role === 'admin') {
-      return User.findById(bodyId);
-    } else {
-      return Promise.resolve(currentUser);
-    }
-  };
-  var callBilling = function() {
-    if (Object.keys(userOpts).length > 0) {
-      var body = {
-        "userOpts": userOpts
-      };
-      return billingApi.updateUser(userToEdit._id, body, {useReference: true});
-    } else {
-      return Promise.resolve();
-    }
-  };
   // FIXME: security: we should ensure bouyguesId could only be updated by bouygues client.
-  return getUserToEdit(req.body._id, req.user)
-    .then((function(findedUser) {return prepareUpdate(findedUser);}).bind(this))
-    .then((function() {return callBilling();}).bind(this))
-    .then((function() {return userToEdit.save();}).bind(this))
-    .then(() => { res.json(userToEdit.getInfos()); })
+  return Q()
+    .then(() => {
+      // first, searching which user we need to update
+      if (req.user.role === 'admin' && req.body._id && req.user._id !== req.body._id) {
+        // we are admin, and we want to update someone else
+        return User.findById(req.body._id)
+          .then(u => {
+            if (!u) {
+              throw new Error(`unknown user ${req.body._id}`);
+            }
+            return u;
+          });
+      }
+      // we want to update ourselves
+      return req.user;
+    })
+    .then(u => {
+      // updating user fields
+      //  (restricting update to updateableFields)
+      updateableFields.forEach(field => {
+        if (typeof req.body[field] !== 'undefined') {
+          u[field] = req.body[field];
+        }
+      });
+      return u;
+    })
+    .then(u => {
+      const userOpts = {};
+      let callTheBilling = false;
+
+      // inform the billing
+      Object.keys(sendToBilling).forEach(field => {
+        if (u.changed(field)) {
+          callTheBilling = true;
+          userOpts[sendToBilling[field]] = req.body[field];
+        }
+      });
+      if (callTheBilling) {
+        return billingApi.updateUser(u._id, {"userOpts": userOpts}, {useReference: true})
+          .then(() => u);
+      }
+      return u;
+    })
+    .then(u => u.save())
+    .then(u => res.json(u.getInfos()))
     .catch(res.handleError(422));
 };
 
