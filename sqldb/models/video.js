@@ -38,6 +38,7 @@ module.exports = function (sequelize, DataTypes) {
     },
     pfMd5Hash: DataTypes.STRING(32),
     countries: DataTypes.ARRAY(DataTypes.STRING(2)),
+    countriesOut: DataTypes.ARRAY(DataTypes.STRING(2)),
     broadcasters: DataTypes.ARRAY(DataTypes.STRING(4)),
     // app android , tests for Warner Bross
     sourceMp4 : DataTypes.STRING(2048),
