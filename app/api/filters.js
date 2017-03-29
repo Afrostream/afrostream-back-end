@@ -81,6 +81,29 @@ const filterQueryOptions = (req, options, rootModel) => {
                 });
             }
 
+            if (req.country &&
+                model &&
+                model.attributes &&
+                model.attributes.countriesOut &&
+                req.query.filterCountry !== "false") {
+                if (options && options.where && options.where.$or && options.where.$and) {
+                    options.where.$and = {$and: options.where.$and, $or: options.where.$or};
+                    delete options.where.$or;
+                } else if (options && options.where && options.where.$or) {
+                    options.where.$and = {$or: options.where.$or};
+                    delete options.where.$or;
+                }
+                options = _.merge(options, {
+                    where: {
+                        $or: [
+                            {countriesOut: {$eq: []}},
+                            {countriesOut: {$eq: null}},
+                            { $not: { countriesOut: { $contains: [req.country._id] } } }
+                        ]
+                    }
+                });
+            }
+
             if (req.broadcaster &&
                 model &&
                 model.attributes &&
