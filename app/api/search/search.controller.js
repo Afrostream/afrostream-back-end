@@ -81,12 +81,12 @@ exports.search = (req, res) => {
           queryOptions = filters.filterQueryOptions(req, queryOptions, modelInstance);
 
           const c = modelInstance.findAll(queryOptions)
-            .then(result => {
-              return filters.filterOutput(result, {req: req});
+            .then(entity => {
+              return filters.filterOutput(entity, {req: req});
             })
-            .then(result => {
-              result.hits = result;
-              result.nbHits = result.length;
+            .then(entity => {
+              result.hits = entity;
+              result.nbHits = entity.length;
               return result;
             });
 
