@@ -152,7 +152,9 @@ exports.setup = function (User, config) {
             userOpts: {
               email: user.email || '',
               firstName: user.first_name || '',
-              lastName: user.last_name || ''
+              lastName: user.last_name || '',
+              countryCode: req.query.country || undefined,
+              languageCode: req.query.language && String(req.query.language).toLowerCase() || undefined
             }
           }).then(function () { return user; });
         })

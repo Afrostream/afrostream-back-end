@@ -250,7 +250,9 @@ module.exports.createSubscriptions = (req, res) => {
         userOpts: {
           email: c.userEmail,
           firstName: c.bodyFirstName || req.user.first_name || '',
-          lastName: c.bodyLastName || req.user.last_name || ''
+          lastName: c.bodyLastName || req.user.last_name || '',
+          countryCode: req.query.country || undefined,
+          languageCode: req.query.language && String(req.query.language).toLowerCase() || undefined
         }
       }).then(billingsResponse => {
         c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
@@ -374,7 +376,9 @@ module.exports.createGift = (req, res) => {
         userOpts: {
           email: giftUser.email,
           firstName: giftUser.first_name || '',
-          lastName: giftUser.last_name || ''
+          lastName: giftUser.last_name || '',
+          countryCode: req.query.country || undefined,
+          languageCode: req.query.language && String(req.query.language).toLowerCase() || undefined
         }
       }).then(billingsResponse => {
         c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
@@ -490,7 +494,9 @@ module.exports.createCoupons = (req, res) => {
           userOpts: {
             email: user.email,
             firstName: user.first_name,
-            lastName: user.last_name
+            lastName: user.last_name,
+            countryCode: req.query.country || undefined,
+            languageCode: req.query.language && String(req.query.language).toLowerCase() || undefined
           }
         });
       })
