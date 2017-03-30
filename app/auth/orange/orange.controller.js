@@ -41,7 +41,8 @@ var signin = function (req, res, next) {
     session: false,
     additionalParams: {
       RelayState: btoa(JSON.stringify({
-        status: 'signin'
+        status: 'signin',
+        signupClientType: req.query.clientType || null // forward caller type
       }))
     }
   })(req, res, next);
@@ -118,7 +119,8 @@ var callback = function (req, res, next) {
       .then(function (passport) {
         if (req.signupClientType) {
           // whitelisting client types
-          if (req.signupClientType !== "legacy-api.tapptic") {
+          if (req.signupClientType !== "legacy-api.tapptic" &&
+              req.signupClientType !== "legacy-api.android") {
             throw new Error('unallowed signupClientType');
           }
           return Client.findOne({where:{type:req.signupClientType}}).then(function (c) {

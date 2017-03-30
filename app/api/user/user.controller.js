@@ -149,24 +149,13 @@ exports.search = (req, res) => {
 
 /**
  * Update a user
- *   currently, only used for bouygues
+ *   currently, only used for bouygues and in the admin interface
  *
- **********************************************
- * FIXME_023
- * /!\ l'objet User côté backoffice ne reflète que les infos utilisateurs, pas les infos de billing
- *     ex: quand on paye et que l'on change d'addresse, les infos de l'ancien paiement s'affiche avec l'ancienne adresse
- *         le first_name, name, last_name, email doivent se comporter de la même façon.
- *
- *     les infos Users.{name,first_name,last_name,email} doivent etre décorellées des infos de billing
- *     permettre la mise a jour de ces infos ici, par une GUI front,
- *     doit être implémentée en parallèle avec la création d'une api de mise a jour
- *     de ces informations côté billing.
- ***********************************************
  */
 exports.update = (req, res) => {
   // FIXME : use joi.
   const updateableFields = [
-    /* 'email', */ // FIXME_023 Please read the comment above before changing this.
+    'email',
     'name',
     'first_name',
     'last_name',
@@ -206,14 +195,60 @@ exports.update = (req, res) => {
     'splashList',
     'nickname'
   ];
-  updateableFields.forEach(field => {
-    if (typeof req.body[field] !== 'undefined') {
-      req.user[field] = req.body[field];
-    }
-  });
+  // the following datas should be send to the billing API before save
+  const sendToBilling = {
+    'email': 'email',
+    'name': 'name',
+    'first_name': 'firstName',
+    'last_name': 'lastName'
+  };
+
   // FIXME: security: we should ensure bouyguesId could only be updated by bouygues client.
-  req.user.save()
-    .then(() => { res.json(req.user.getInfos()); })
+  return Q()
+    .then(() => {
+      // first, searching which user we need to update
+      if (req.user.role === 'admin' && req.body._id && req.user._id !== req.body._id) {
+        // we are admin, and we want to update someone else
+        return User.findById(req.body._id)
+          .then(u => {
+            if (!u) {
+              throw new Error(`unknown user ${req.body._id}`);
+            }
+            return u;
+          });
+      }
+      // we want to update ourselves
+      return req.user;
+    })
+    .then(u => {
+      // updating user fields
+      //  (restricting update to updateableFields)
+      updateableFields.forEach(field => {
+        if (typeof req.body[field] !== 'undefined') {
+          u[field] = req.body[field];
+        }
+      });
+      return u;
+    })
+    .then(u => {
+      const userOpts = {};
+      let callTheBilling = false;
+
+      // inform the billing
+      Object.keys(sendToBilling).forEach(field => {
+        if (u.changed(field)) {
+          callTheBilling = true;
+          userOpts[sendToBilling[field]] = req.body[field];
+        }
+      });
+      if (callTheBilling) {
+        return billingApi.updateUser(u._id, {"userOpts": userOpts}, {useReference: true})
+          .then(() => u);
+      }
+      return u;
+    })
+    .then(u => u.save())
+    .then(u => res.json(u.getInfos()))
     .catch(res.handleError(422));
 };
 

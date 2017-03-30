@@ -135,9 +135,8 @@ const convertUserIdMeToUserId = (req, res, next) => {
  * @param req
  * @returns {*}
  */
-
 const tokenUserMatchParamUser = (req, res, next) => {
-  if (String(req.params.userId) === String(req.user._id)) {
+  if (String(req.params.userId) === String(req.user._id) || req.user.role === 'admin') {
     next();
   } else {
     res.status(401).json({error: 'userId param/token mismatch.'});

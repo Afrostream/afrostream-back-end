@@ -358,7 +358,7 @@ exports.show = (req, res) => {
             type: "application/vnd.apple.mpegurl"
           },
           {
-            src: "/live/bet.isml/bet.mpd",
+            src: "/live/betdev.isml/bet.mpd",
             type: "application/dash+xml"
           },
           {

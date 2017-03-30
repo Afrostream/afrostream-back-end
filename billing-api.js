@@ -29,7 +29,6 @@ var requestBilling = options => {
 
   logger.log('request ', JSON.stringify(options));
   statsd.client.increment('request.billing-api.hit');
-
   return Q.nfcall(request, options)
     .then(data => {
       var response = data[0]
@@ -51,7 +50,6 @@ var requestBilling = options => {
 
       logger.log('200 ok' + JSON.stringify(body));
       statsd.client.increment('request.billing-api.success');
-
       return body;
     });
 };
@@ -126,15 +124,30 @@ var createSubscription = subscriptionBillingData => requestBilling({
 
 /**
  * cancel/reactivate a subscription in the billing-api
- *
+ * options could be :
+ * {
+ *   "forceBeforeEndsDate" : <boolean>,
+ *   "isRefundEnabled" : <boolean>,
+ *   "isRefundProrated" : <boolean>
+ * }
+ * 
  * @param subscriptionBillingUuid  string
+ * @param options object data to send to the backend
  * @return FIXME
  */
-var updateSubscription = (subscriptionBillingUuid, status) => {
+var updateSubscription = (subscriptionBillingUuid, status, options) => {
   assert(typeof status === 'string' && status);
+  var data = {};
+  var acceptedOptions = ['forceBeforeEndsDate', 'isRefundEnabled', 'isRefundProrated'];
+  acceptedOptions.forEach(option => {
+    if (options && options[option]) {
+      data[option] = Boolean(options[option]);
+    }
+  });
   return requestBilling({
     method: 'PUT'
     , url: config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/' + status
+    , body: data
   })
     .then(body => body && body.response && body.response.subscription || {});
 };
@@ -161,16 +174,26 @@ var getUser = (userReferenceUuid, providerName) => {
 /**
  * update a billing user
  *
- * @param userBillingUuid    string  billing user id
- * @param data               object
+ * @param userBillingUuid       string  billing user id or reference uuid if specified in options
+ * @param data                  object
+ * @param options               object optionnal parameters
+ * @param options.useReference  bool if true, use userReferenceUuid instead of userBillingUuid
  */
-var updateUser = (userBillingUuid, data) => {
-  assert(userBillingUuid);
+var updateUser = (userUuid, data, options) => {
+  assert(userUuid);
   assert(data && typeof data === 'object');
 
+  // make url
+  var url = config.billings.url + '/billings/api/users/' + userUuid;
+  // check options
+  if (options) {
+    if (options.useReference) {
+      url = config.billings.url + '/billings/api/users/?userReferenceUuid=' + userUuid;
+    }
+  }
   return requestBilling({
     method: 'PUT'
-  , url: config.billings.url + '/billings/api/users/' + userBillingUuid
+  , url: url
   , body: data
   });
 };
