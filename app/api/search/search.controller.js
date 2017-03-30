@@ -82,7 +82,7 @@ exports.search = (req, res) => {
 
           const c = modelInstance.findAll(queryOptions)
             .then(result => {
-              return filters.filterOutput(result.rows, {req: req});
+              return filters.filterOutput(result, {req: req});
             })
             .then(result => {
               result.hits = result;
