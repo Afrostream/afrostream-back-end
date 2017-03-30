@@ -68,7 +68,7 @@ exports.search = (req, res) => {
         promises.push(new Promise(resolve => {
 
           const modelInstance = models[key].model;
-          console.log(modelInstance);
+
           let queryOptions = {
             where: {
               _id: {
@@ -81,6 +81,9 @@ exports.search = (req, res) => {
           queryOptions = filters.filterQueryOptions(req, queryOptions, modelInstance);
 
           const c = modelInstance.findAll(queryOptions)
+            .then(entity => {
+              return filters.filterOutput(entity, {req: req})
+            })
             .then(entity => {
               result.hits = entity;
               result.nbHits = entity.length;
