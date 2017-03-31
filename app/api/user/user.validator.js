@@ -4,7 +4,8 @@ const assert = require('better-assert');
 
 const createBody = Joi.object().keys({
   email: Joi.string().max(255).email().required(),
-  password: Joi.string().max(50).min(6).required()
+  password: Joi.string().max(50).min(6).required(),
+  telephone: Joi.string().regex(/^\+?[1-9]\d{1,14}$/)
 });
 
 const createBodyBouygues = Joi.object().keys({
@@ -27,7 +28,8 @@ const updateBody = Joi.object().keys({
     {
       _id: Joi.string().required()
     }
-  ))
+  )),
+  telephone: Joi.string().regex(/^\+?[1-9]\d{1,14}$/)
 });
 
 module.exports.validateCreateBody = (req, res, next) => {

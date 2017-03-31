@@ -145,7 +145,9 @@ exports.setup = function (User, config) {
               email: user.email || '',
               firstName: user.first_name || '',
               lastName: user.last_name || '',
-              OrangeApiToken: orange.identity.OrangeAPIToken
+              OrangeApiToken: orange.identity.OrangeAPIToken,
+              countryCode: req.query.country || undefined,
+              languageCode: req.query.language && String(req.query.language).toLowerCase() || undefined
             }
           })
           .then(function (data) {

@@ -139,7 +139,9 @@ module.exports.callback = (req, res) => {
             userOpts: {
               email: user.get('email'),
               firstName: signedCokkie.firstName || user.get('first_name'),
-              lastName: signedCokkie.lastName || user.get('last_name')
+              lastName: signedCokkie.lastName || user.get('last_name'),
+              countryCode: req.query.country || undefined,
+              languageCode: req.query.language && String(req.query.language).toLowerCase() || undefined
             }
           }).then(billingsResponse => {
             return billingApi.createSubscription({

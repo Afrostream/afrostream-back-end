@@ -377,7 +377,9 @@ module.exports.subscribe = function(req, res) {
                 transactionId: c.transactionId,
                 email: req.passport.user.get('email'),
                 firstName: cookieInfos.firstName || req.passport.user.get('first_name'),
-                lastName: cookieInfos.lastName ||req.passport.user.get('last_name')
+                lastName: cookieInfos.lastName ||req.passport.user.get('last_name'),
+                countryCode: req.query.country || undefined,
+                languageCode: req.query.language && String(req.query.language).toLowerCase() || undefined
               }
             });
         })
@@ -736,7 +738,9 @@ module.exports.callback = function(req, res) {
                   transactionId: c.cookieInfos.transactionId,
                   email: req.passport.user.get('email'),
                   firstName: c.cookieInfos.firstName || req.passport.user.get('first_name'),
-                  lastName: c.cookieInfos.lastName ||req.passport.user.get('last_name')
+                  lastName: c.cookieInfos.lastName ||req.passport.user.get('last_name'),
+                  countryCode: req.query.country || undefined,
+                  languageCode: req.query.language && String(req.query.language).toLowerCase() || undefined
                 }
               })
               .then(function(billingsResponse) {

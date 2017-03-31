@@ -47,7 +47,16 @@ module.exports = function (sequelize, DataTypes) {
         postalAddressLocality: DataTypes.STRING(32),
         postalAddressCountry: DataTypes.STRING(2),
 
-        telephone: DataTypes.STRING(16),
+        telephone: {
+          type: DataTypes.STRING(16),
+          set: function (value) {
+            // stripping "+"
+            if (value) {
+              value = String(value).replace(/\+/g, '');
+            }
+            this.setDataValue('telephone', value);
+          }
+        },
 
         jobTitle: DataTypes.STRING(32),
 
