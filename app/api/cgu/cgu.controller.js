@@ -12,10 +12,10 @@ module.exports.index = (req, res) => {
   let clientCgu = cgu;
   switch (language) {
     case 'EN':
-      clientCgu = cguEn
+      clientCgu = cguEn;
       break;
     default:
-      clientCgu = cgu
+      clientCgu = cgu;
       break;
   }
 
