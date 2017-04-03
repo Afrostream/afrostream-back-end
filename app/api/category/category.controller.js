@@ -224,6 +224,14 @@ exports.index = (req, res) => {
     }
   }
 
+  if (req.query.type) {
+    queryOptions = _.merge(queryOptions, {
+      where: {
+        type: req.query.type
+      }
+    });
+  }
+
   if (queryName) {
     queryOptions = _.merge(queryOptions, {
       where: {

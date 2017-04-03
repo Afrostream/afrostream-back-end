@@ -18,6 +18,7 @@ module.exports = function (sequelize, DataTypes) {
     },
     label: DataTypes.STRING,
     slug: DataTypes.STRING,
+    category: DataTypes.STRING(32),
     sort: DataTypes.INTEGER,
     active: {
       type: DataTypes.BOOLEAN,
