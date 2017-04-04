@@ -230,8 +230,18 @@ module.exports.createSubscriptions = (req, res) => {
           c.billingProviderName = client.billingProviderName;
           c.userProviderUuid = req.user.bouyguesId;
           break;
-        case 'front-api.front-end':
         case 'legacy-api.android':
+          // security, we prevent the android client to POST
+          //  without using an authentified user
+          if (!req.user) {
+            throw new Error('no user');
+          }
+          if (!(req.user instanceof User.Instance)) {
+            // fail fast.
+            throw new Error('client token');
+          }
+          break;
+        case 'front-api.front-end':
           break;
         default:
           throw new Error('unknown userProviderUuid for user ' + c.userId + ' client type ' + client.type);
