@@ -189,7 +189,7 @@ exports.index = (req, res) => {
 
   const adSpotsIncludes = [];
   if (populate.indexOf('adSpots.categorys') !== -1) {
-    adSpotsIncludes.push({model: Category, as: 'categorys', required: false, attributes: ['_id', 'label']});
+    adSpotsIncludes.push({model: Category, as: 'categorys', required: false, attributes: ['_id', 'label', 'translations']});
   }
   if (populate.indexOf('adSpots.logo') !== -1) {
     adSpotsIncludes.push({model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']});
