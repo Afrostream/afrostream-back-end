@@ -130,7 +130,7 @@ var createSubscription = subscriptionBillingData => requestBilling({
  *   "isRefundEnabled" : <boolean>,
  *   "isRefundProrated" : <boolean>
  * }
- * 
+ *
  * @param subscriptionBillingUuid  string
  * @param options object data to send to the backend
  * @return FIXME
@@ -350,11 +350,12 @@ var validateCoupons = (providerName, couponCode) => requestBilling({
   }
 }).then(body => body && body.response && body.response || {});
 
-var listCoupons = (userBillingUuid, couponsCampaignBillingUuid) => requestBilling({
+var listCoupons = (userBillingUuid, couponsCampaignBillingUuid, couponsCampaignType) => requestBilling({
   url: config.billings.url + '/billings/api/coupons/list/',
   qs: {
     userBillingUuid: userBillingUuid,
-    couponsCampaignBillingUuid: couponsCampaignBillingUuid
+    couponsCampaignBillingUuid: couponsCampaignBillingUuid,
+    couponsCampaignType: couponsCampaignType
   }
 }).then(body => body && body.response && body.response || {});
 

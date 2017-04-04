@@ -428,7 +428,8 @@ module.exports.listCoupons = (req, res) => {
     userId: req.user._id,
     userBillingUuid: req.query.userBillingUuid,
     billingProviderName: req.query.billingProviderName || req.query.billingProvider,
-    couponsCampaignBillingUuid: req.query.couponsCampaignBillingUuid
+    couponsCampaignBillingUuid: req.query.couponsCampaignBillingUuid,
+    couponsCampaignType: req.query.couponsCampaignType
   }; // closure
 
   Q()
@@ -443,7 +444,8 @@ module.exports.listCoupons = (req, res) => {
     .then(() => {
       const userBillingUuid = c.userBillingUuid;
       const couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
-      return billingApi.listCoupons(userBillingUuid, couponsCampaignBillingUuid);
+      const couponsCampaignType = c.couponsCampaignType;
+      return billingApi.listCoupons(userBillingUuid, couponsCampaignBillingUuid, couponsCampaignType);
     })
     .then(couponsList => {
       res.json(couponsList);
