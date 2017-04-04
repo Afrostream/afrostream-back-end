@@ -82,7 +82,7 @@ module.exports.authorizations = {
   "FO": false, // Faroe Islands
   "FR": true, // France
   "GA": true, // Gabon
-  "GB": false, // United Kingdom
+  "GB": true, // United Kingdom
   "GD": false, // Grenada
   "GE": false, // Georgia
   "GF": true, // French Guiana
