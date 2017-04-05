@@ -70,7 +70,37 @@ exports = module.exports = {
     return send(email);
   },
 
-  sendResetPasswordEmail: function(emailAddress, token) {
+  sendResetPasswordEmail: function(emailAddress, token, language) {
+    switch (language) {
+      case 'FR':
+        break;
+      default:
+        language = 'EN';
+        break;
+    }
+
+    var translations = {
+      subject: {
+        FR: 'Mise à jour de votre mot de passe Afrostream',
+        EN: 'Afrostream password update'
+      },
+      contentValue: {
+        FR: 'Bonjour, \n\n' +
+          'Veuillez cliquer sur le lien suivant pour confirmer la mise à jour de votre mot de passe : ' +
+          config.frontEnd.protocol + '://' + config.frontEnd.authority + '/reset?k=' + token + ' \n\n' +
+          'Si le lien ne fonctionne pas, veuillez le copier-coller dans votre navigateur.\n\n' +
+          '\n\n' +
+          '--\n\n' +
+          'AFROSTREAM',
+        EN: 'Hi, \n\n' +
+          'please click on the link below (or copy paste the link into a web browser) to confirm your password update : ' +
+          config.frontEnd.protocol + '://' + config.frontEnd.authority + '/reset?k=' + token + ' \n\n' +
+          '\n\n' +
+          '--\n\n' +
+          'AFROSTREAM'
+      }
+    };
+
     var email = {
       personalizations: [{
         to: [{
@@ -79,20 +109,14 @@ exports = module.exports = {
         bcc: [{
           email: 'reset@afrostream.tv'
         }],
-        subject: 'Mise à jour de votre mot de passe Afrostream'
+        subject: translations.subject[language]
       }],
       from: {
         email: 'no-reply@afrostream.tv'
       },
       content: [{
         type: 'text/plain',
-        value: 'Bonjour, \n\n' +
-          'Veuillez cliquer sur le lien suivant pour confirmer la mise à jour de votre mot de passe : ' +
-          config.frontEnd.protocol + '://' + config.frontEnd.authority + '/reset?k=' + token + ' \n\n' +
-          'Si le lien ne fonctionne pas, veuillez le copier-coller dans votre navigateur.\n\n' +
-          '\n\n' +
-          '--\n\n' +
-          'AFROSTREAM'
+        value: translations.contentValue[language]
       }]
     };
     return send(email);

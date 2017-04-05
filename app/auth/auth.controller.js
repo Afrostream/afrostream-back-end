@@ -132,7 +132,8 @@ var reset = function (req, res) {
         return loadUserOrFail(req.body.email)
           .then(function sendEmail() {
             var token = encrypt(req.body.email, req.body.password);
-            return mailer.sendResetPasswordEmail(req.body.email, token);
+            var language = req.country && req.country._id;
+            return mailer.sendResetPasswordEmail(req.body.email, token, language);
           });
       }
     })

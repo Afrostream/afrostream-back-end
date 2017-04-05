@@ -8,6 +8,8 @@ var AccessToken = rootRequire('sqldb').AccessToken;
 
 var auth = rootRequire('app/auth/auth.service');
 
+var middlewareCountry = rootRequire('app/middlewares/middleware-country.js');
+
 // Passport Configuration
 require('./local/passport').setup(User, config);
 require('./oauth2/passport').setup(Client, User, AccessToken, config);
@@ -36,6 +38,6 @@ router.use('/orange', require('./orange'));
 router.use('/netsize', require('./netsize'));
 router.use('/wecashup', require('./wecashup'));
 router.use('/ext', require('./ext'));
-router.post('/reset', auth.isAuthenticated(), require('./auth.controller.js').reset);
+router.post('/reset', auth.isAuthenticated(), middlewareCountry(), require('./auth.controller.js').reset);
 
 module.exports = router;
