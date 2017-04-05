@@ -39,6 +39,7 @@ module.exports.showInternalplans = (req, res) => {
           billingsData.filterCountry = req.country && req.country._id || '--';
           billingsData.filterEnabled = "true";
           billingsData.filterClientId = client._id;
+          billingsData.clientVersion = req.query.clientVersion || '';
           if (req.passport.user) {
             billingsData.filterUserReferenceUuid = req.passport.user._id;
           }
@@ -95,6 +96,7 @@ module.exports.showInternalplan = (req, res) => {
           billingsData.country = req.country && req.country._id || '--';
           billingsData.filterEnabled = "true";
           billingsData.filterClientId = client && client._id;
+          billingsData.clientVersion = req.query.clientVersion || '';
           if (req.passport.user) {
             billingsData.filterUserReferenceUuid = req.passport.user._id;
           }
