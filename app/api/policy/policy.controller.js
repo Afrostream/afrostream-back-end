@@ -1,12 +1,23 @@
 'use strict';
 
 const fs = require('fs');
-let policy = fs.readFileSync(__dirname + '/policy.html').toString();
+const policy = fs.readFileSync(__dirname + '/policy.html').toString();
 
 module.exports.index = (req, res) => {
+
+  const language = req.query.language;
+
+  let clientPolicy = policy;
+  switch (language) {
+    default:
+      clientPolicy = policy;
+      break;
+  }
+
+
   // hack hack hack: preprocessing for wiztivi: removing tabs & \n
-  policy = policy.replace(/\r?\n|\t/gm, '').replace(/ +/gm, ' ');
-  policy = policy.replace(/>\s+</mg, '><');
+  clientPolicy = policy.replace(/\r?\n|\t/gm, '').replace(/ +/gm, ' ');
+  clientPolicy = policy.replace(/>\s+</mg, '><');
   //
-  res.json({html:policy});
+  res.json({html: clientPolicy});
 };

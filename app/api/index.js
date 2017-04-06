@@ -18,6 +18,7 @@ router.use('/clients', require('./client/index'));
 router.use('/policy', require('./policy'));
 router.use('/cgu', require('./cgu'));
 router.use('/countries', require('./country/index'));
+router.use('/faq', require('./faq'));
 router.use('/genres', require('./genre/index'));
 router.use('/licensors', require('./licensor/index'));
 router.use('/languages', require('./language/index'));
