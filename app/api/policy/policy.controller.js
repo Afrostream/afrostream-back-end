@@ -19,8 +19,8 @@ module.exports.index = (req, res) => {
 
 
   // hack hack hack: preprocessing for wiztivi: removing tabs & \n
-  clientPolicy = policy.replace(/\r?\n|\t/gm, '').replace(/ +/gm, ' ');
-  clientPolicy = policy.replace(/>\s+</mg, '><');
+  clientPolicy = clientPolicy.replace(/\r?\n|\t/gm, '').replace(/ +/gm, ' ');
+  clientPolicy = clientPolicy.replace(/>\s+</mg, '><');
   //
   res.json({html: clientPolicy});
 };
