@@ -19,6 +19,8 @@ var exchangeIse2 = require('./exchange/ise2.js');
 
 var logger = rootRequire('logger').prefix('AUTH');
 
+const Q = require('q');
+
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
 server.serializeClient(function (client, done) {
@@ -95,20 +97,9 @@ const trySetAuthCookie = function (req, res, tokenEntity, refreshTokenEntity) {
 };
 
 var generateToken = function (options, done) {
+  const { client, user, code, userIp, userAgent, expireIn } = options;
 
-  console.log('GENERATE TOKEN ' + typeof options.req + ' ' + typeof options.res);
-  if (!options.req || !options.res) {
-    console.log('DEBUG STACK ', (new Error()).stack);
-  }
-
-  const client = options.client;
-  const user = options.user;
-  const code = options.code;
-  const userIp = options.userIp;
-  const userAgent = options.userAgent;
-  const expireIn = options.expireIn;
-
-  var tokenData = generateTokenData(client, user, code, expireIn);
+  const tokenData = generateTokenData(client, user, code, expireIn);
 
   // log accessToken (duplicate with db)
   logger.log(
@@ -129,41 +120,45 @@ var generateToken = function (options, done) {
       userIp: userIp || null,
       userAgent: userAgent
     }
-  }).then(function () {
-  }, function (err) {
-    logger.error(err.message);
-  });
-  // fixme: revoir complètement cette fonction !
-  // pas d'attente d'async, error handler incorrects, etc..
-  return AccessToken.create({
-    token: tokenData.token,
-    clientId: tokenData.clientId,
-    userId: tokenData.userId,
-    expirationDate: tokenData.expirationDate,
-    expirationTimespan: tokenData.expirationTimespan
-  })
-    .then(function (tokenEntity) {
-      if (client === null) {
-        trySetAuthCookie(options.req, options.res, tokenEntity, null);
-        return done(null, tokenEntity.token, null, {expires_in: tokenEntity.expirationTimespan});
-      }
+  }).then(
+    () => {},
+    err => logger.error(err.message)
+  );
 
+  const c = {
+    tokenEntity: null,
+    refreshTokenEntity: null
+  };
+
+  return Q()
+    .then(() => {
+      return AccessToken.create({
+        token: tokenData.token,
+        clientId: tokenData.clientId,
+        userId: tokenData.userId,
+        expirationDate: tokenData.expirationDate,
+        expirationTimespan: tokenData.expirationTimespan
+      })
+      .then(o => c.accessTokenEntity = o);
+    })
+    .then(() => {
+      if (client === null) return;
       return RefreshToken.create({
         token: tokenData.refresh,
         clientId: tokenData.clientId,
         userId: tokenData.userId
       })
-        .then(function (refreshTokenEntity) {
-          trySetAuthCookie(options.req, options.res, tokenEntity, refreshTokenEntity);
-          return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
-        }).catch(function (err) {
-          logger.error('RefreshToken', err.message);
-          return done(err);
-        });
-    }).catch(function (err) {
-      logger.error('AccessToken', err.message);
-      return done(err);
-    });
+      .then(o => c.refreshTokenEntity = o);
+    })
+    .then(() => {
+        trySetAuthCookie(options.req, options.res, c.accessTokenEntity, c.refreshTokenEntity);
+        done(null, c.accessTokenEntity.token, c.refreshTokenEntity.token, {expires_in: c.accessTokenEntity.expirationTimespan});
+      },
+      err => {
+        logger.error(err.message);
+        done(err);
+      }
+    );
 };
 
 var refreshAccessToken = function (client, userId, options) {
