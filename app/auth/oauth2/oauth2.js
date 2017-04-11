@@ -155,24 +155,7 @@ var generateToken = function (options, done) {
     .then(() => {
         trySetAuthCookie(options.req, options.res, c.accessTokenEntity, c.refreshTokenEntity);
 
-        // HACK billing, on cree un user rattaché au provider "afr" systématiquement
-        Q()
-          .then(() => {
-            return billingApi.getOrCreateUser({
-              providerName: 'afr',
-              userId: tokenData.userId,
-              userOpts: {
-                email: user.email,
-                firstName: user.first_name,
-                lastName: user.last_name
-              }
-            });
-          })
-          // being safe...
-          .then(
-            () => { },
-            err => { logger.error(err.message); }
-          )
+        return createBillingUserProviderAFRSafe(tokenData.userId)
           .then(
             () => {
               done(null, c.accessTokenEntity.token, c.refreshTokenEntity.token, {expires_in: c.accessTokenEntity.expirationTimespan});
@@ -183,6 +166,30 @@ var generateToken = function (options, done) {
         logger.error(err.message);
         done(err);
       }
+    );
+};
+
+var createBillingUserProviderAFRSafe = function (userId) {
+  return Q()
+    .then(() => {
+      return User.find({where: {_id: userId}});
+    })
+    .then(user => {
+      if (!user) throw new Error('cannot find user '+userId);
+      return billingApi.getOrCreateUser({
+        providerName: 'afr',
+        userId: user._id,
+        userOpts: {
+          email: user.email,
+          firstName: user.first_name,
+          lastName: user.last_name
+        }
+      });
+    })
+    // being safe...
+    .then(
+      () => { },
+      err => { logger.error(err.message); }
     );
 };
 
@@ -198,11 +205,14 @@ var refreshAccessToken = function (client, userId) {
   })
     .then(function (accessToken) {
       if (!accessToken) throw "missing access token";
-      return accessToken.updateAttributes({
-        token: tokenData.token,
-        expirationDate: tokenData.expirationDate,
-        expirationTimespan: tokenData.expirationTimespan
-      });
+      return createBillingUserProviderAFRSafe(userId)
+        .then(() => {
+          return accessToken.updateAttributes({
+            token: tokenData.token,
+            expirationDate: tokenData.expirationDate,
+            expirationTimespan: tokenData.expirationTimespan
+          });
+        });
     });
 };
 
