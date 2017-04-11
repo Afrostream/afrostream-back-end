@@ -60,51 +60,35 @@ var requestBilling = options => {
  * @param user  object
  * @return FIXME
  */
-var getSubscriptions = userReferenceUuid => {
+var getSubscriptions = (userReferenceUuid, clientId) => {
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
   return requestBilling({
     url: config.billings.url + '/billings/api/subscriptions/',
-    qs: {userReferenceUuid: userReferenceUuid}
+    qs: {userReferenceUuid: userReferenceUuid, clientId: clientId}
   }).then(body => body && body.response && body.response.subscriptions || []);
 };
 
-var someSubscriptionActive = userReferenceUuid => {
+var someSubscriptionActive = (userReferenceUuid, clientId) => {
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
-  return getSubscriptions(userReferenceUuid)
+  return getSubscriptions(userReferenceUuid, clientId)
     .then(subscriptions => subscriptions.some(subscription => subscription.isActive === 'yes'));
 };
 
-var someSubscriptionActiveSafe = userReferenceUuid => {
+var someSubscriptionActiveSafe = (userReferenceUuid, clientId) => {
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
-  return someSubscriptionActive(userReferenceUuid).then(
+  return someSubscriptionActive(userReferenceUuid, clientId).then(
     function success (bool) {
       return bool;
     }
     , function error (err) {
       logger.error(err.message);
       return false;
-    }
-  );
-};
-
-var someSubscriptionActiveSafeTrue = userReferenceUuid => {
-  assert(false); // FIXME: differencier un timeout d'un 404 (user non subscribed)
-  assert(typeof userReferenceUuid === 'number');
-  assert(userReferenceUuid);
-
-  return someSubscriptionActive(userReferenceUuid).then(
-    function success (bool) {
-      return bool;
-    }
-    , function error (err) {
-      logger.error('DOWN => subscribed=true', err);
-      return true;
     }
   );
 };
@@ -328,7 +312,7 @@ var subscriptionToPromo = subscription => {
     d < new Date(new Date().getTime() - config.billings.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
 };
 
-var getSubscriptionsStatus = userId => getSubscriptions(userId)
+var getSubscriptionsStatus = (userId, clientId) => getSubscriptions(userId, clientId)
   .then(subscriptions => {
     var lastSubscription = subscriptions[0];
     var subscriptionsStatus = {
@@ -382,7 +366,6 @@ module.exports.getSubscriptionsStatus = getSubscriptionsStatus;
 module.exports.getSubscriptions = getSubscriptions;
 module.exports.someSubscriptionActive = someSubscriptionActive;
 module.exports.someSubscriptionActiveSafe = someSubscriptionActiveSafe;
-module.exports.someSubscriptionActiveSafeTrue = someSubscriptionActiveSafeTrue;
 module.exports.createSubscription = createSubscription;
 module.exports.updateSubscription = updateSubscription;
 // user manipulation
