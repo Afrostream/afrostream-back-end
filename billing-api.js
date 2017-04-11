@@ -312,6 +312,28 @@ var subscriptionToPromo = subscription => {
     d < new Date(new Date().getTime() - config.billings.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
 };
 
+var isSubscriptionABonus = subscription =>
+  subscription &&
+  subscription.internalPlan &&
+  subscription.internalPlan.internalPlanOpts &&
+  subscription.internalPlan.internalPlanOpts.bonus === 'true' &&
+  subscription.internalPlan.isActive === 'yes';
+
+var subscriptionsToPromoAfr = subscriptions => {
+  if (!Array.isArray(subscriptions) || subscriptions.length === 0) {
+    return false;
+  }
+  return isSubscriptionABonus(subscriptions[0]);
+};
+
+var subscriptionsToPromoAfrAlreadyUsed = subscriptions => {
+  if (!Array.isArray(subscriptions) && subscriptions.length <= 1) {
+    return false;
+  }
+  subscriptions.shift();
+  return subscriptions.some(isSubscriptionABonus);
+};
+
 var getSubscriptionsStatus = (userId, clientId) => getSubscriptions(userId, clientId)
   .then(subscriptions => {
     var lastSubscription = subscriptions[0];
@@ -319,7 +341,9 @@ var getSubscriptionsStatus = (userId, clientId) => getSubscriptions(userId, clie
       subscriptions: subscriptions,
       status: subscriptionToStatus(lastSubscription),
       planCode: subscriptionToPlanCode(lastSubscription),
-      promo: subscriptionToPromo(lastSubscription)
+      promo: subscriptionToPromo(lastSubscription),
+      promoAfr: subscriptionsToPromoAfr(subscriptions),
+      promoAfrAlreadyUsed: subscriptionsToPromoAfrAlreadyUsed(subscriptions),
     };
     return subscriptionsStatus;
   }, () => ({
