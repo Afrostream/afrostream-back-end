@@ -178,7 +178,7 @@ var createBillingUserProviderAFRSafe = function (userId) {
       if (!user) throw new Error('cannot find user '+userId);
       return billingApi.getOrCreateUser({
         providerName: 'afr',
-        userId: user._id,
+        userReferenceUuid: user._id,
         userOpts: {
           email: user.email,
           firstName: user.first_name,
