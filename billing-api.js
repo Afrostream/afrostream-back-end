@@ -75,7 +75,7 @@ var someSubscriptionActive = (userReferenceUuid, clientId) => {
   assert(userReferenceUuid);
 
   return getSubscriptions(userReferenceUuid, clientId)
-    .then(subscriptions => subscriptions.some(subscription => subscription.isActive === 'yes'));
+    .then(subscriptions => subscriptions.some(isSubscriptionActive));
 };
 
 var someSubscriptionActiveSafe = (userReferenceUuid, clientId) => {
