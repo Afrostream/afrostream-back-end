@@ -317,7 +317,16 @@ var isSubscriptionABonus = subscription =>
   subscription.internalPlan &&
   subscription.internalPlan.internalPlanOpts &&
   subscription.internalPlan.internalPlanOpts.bonus === 'true' &&
-  subscription.internalPlan.isActive === 'yes';
+  isSubscriptionActive(subscription);
+
+var isSubscriptionActive = subscription =>
+  subscription &&
+  subscription.isActive === 'yes';
+
+var isLastSubscriptionActive = subscriptions =>
+  subscriptions &&
+  subscriptions[0] &&
+  isSubscriptionActive(subscriptions[0]);
 
 var subscriptionsToPromoAfr = subscriptions => {
   if (!Array.isArray(subscriptions) || subscriptions.length === 0) {
@@ -344,6 +353,7 @@ var getSubscriptionsStatus = (userId, clientId) => getSubscriptions(userId, clie
       promo: subscriptionToPromo(lastSubscription),
       promoAfr: subscriptionsToPromoAfr(subscriptions),
       promoAfrAlreadyUsed: subscriptionsToPromoAfrAlreadyUsed(subscriptions),
+      lastSubscriptionActive: isLastSubscriptionActive(subscriptions)
     };
     return subscriptionsStatus;
   }, () => ({
