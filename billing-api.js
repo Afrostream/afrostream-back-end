@@ -339,8 +339,9 @@ var subscriptionsToPromoAfrAlreadyUsed = subscriptions => {
   if (!Array.isArray(subscriptions) && subscriptions.length <= 1) {
     return false;
   }
-  subscriptions.shift();
-  return subscriptions.some(isSubscriptionABonus);
+  return subscriptions
+    .filter((_,i)=>i) // skip index 0
+    .some(isSubscriptionABonus);
 };
 
 var getSubscriptionsStatus = (userId, clientId) => getSubscriptions(userId, clientId)
