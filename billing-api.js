@@ -352,9 +352,7 @@ var getSubscriptionsStatus = (userId, clientId) => getSubscriptions(userId, clie
       status: subscriptionToStatus(lastSubscription),
       planCode: subscriptionToPlanCode(lastSubscription),
       promo: subscriptionToPromo(lastSubscription),
-      promoAfr: subscriptionsToPromoAfr(subscriptions),
-      promoAfrAlreadyUsed: subscriptionsToPromoAfrAlreadyUsed(subscriptions),
-      lastSubscriptionActive: isLastSubscriptionActive(subscriptions)
+      promoAfr: subscriptionsToPromoAfr(subscriptions)
     };
     return subscriptionsStatus;
   }, () => ({
