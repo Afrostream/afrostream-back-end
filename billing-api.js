@@ -323,10 +323,12 @@ var isSubscriptionActive = subscription =>
   subscription &&
   subscription.isActive === 'yes';
 
+/*
 var isLastSubscriptionActive = subscriptions =>
   subscriptions &&
   subscriptions[0] &&
   isSubscriptionActive(subscriptions[0]);
+*/
 
 var subscriptionsToPromoAfr = subscriptions => {
   if (!Array.isArray(subscriptions) || subscriptions.length === 0) {
@@ -335,6 +337,7 @@ var subscriptionsToPromoAfr = subscriptions => {
   return isSubscriptionABonus(subscriptions[0]);
 };
 
+/*
 var subscriptionsToPromoAfrAlreadyUsed = subscriptions => {
   if (!Array.isArray(subscriptions) && subscriptions.length <= 1) {
     return false;
@@ -343,6 +346,7 @@ var subscriptionsToPromoAfrAlreadyUsed = subscriptions => {
     .filter((_,i)=>i) // skip index 0
     .some(isSubscriptionABonus);
 };
+*/
 
 var getSubscriptionsStatus = (userId, clientId) => getSubscriptions(userId, clientId)
   .then(subscriptions => {
