@@ -192,7 +192,7 @@ var createBillingUserProviderAFRSafe = function (userId) {
 
       return billingApi.getOrCreateUser({
         providerName: 'afr',
-        userId: user._id,
+        userReferenceUuid: user._id,
         userOpts: {
           email: user.email,
           firstName: user.first_name,
