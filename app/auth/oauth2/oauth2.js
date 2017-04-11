@@ -19,6 +19,8 @@ var exchangeIse2 = require('./exchange/ise2.js');
 
 var logger = rootRequire('logger').prefix('AUTH');
 
+const billingApi = rootRequire('billing-api');
+
 const Q = require('q');
 
 // create OAuth 2.0 server
@@ -152,7 +154,30 @@ var generateToken = function (options, done) {
     })
     .then(() => {
         trySetAuthCookie(options.req, options.res, c.accessTokenEntity, c.refreshTokenEntity);
-        done(null, c.accessTokenEntity.token, c.refreshTokenEntity.token, {expires_in: c.accessTokenEntity.expirationTimespan});
+
+        // HACK billing, on cree un user rattaché au provider "afr" systématiquement
+        Q()
+          .then(() => {
+            return billingApi.getOrCreateUser({
+              providerName: 'afr',
+              userId: tokenData.userId,
+              userOpts: {
+                email: user.email,
+                firstName: user.first_name,
+                lastName: user.last_name
+              }
+            });
+          })
+          // being safe...
+          .then(
+            () => { },
+            err => { logger.error(err.message); }
+          )
+          .then(
+            () => {
+              done(null, c.accessTokenEntity.token, c.refreshTokenEntity.token, {expires_in: c.accessTokenEntity.expirationTimespan});
+            }
+          );
       },
       err => {
         logger.error(err.message);
