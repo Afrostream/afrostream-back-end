@@ -99,6 +99,8 @@ const trySetAuthCookie = function (req, res, tokenEntity, refreshTokenEntity) {
 };
 
 var generateToken = function (options, done) {
+  logger.log("DEBUG MARC: generateToken");
+
   const { client, user, code, userIp, userAgent, expireIn } = options;
 
   const tokenData = generateTokenData(client, user, code, expireIn);
@@ -132,6 +134,8 @@ var generateToken = function (options, done) {
     refreshTokenEntity: null
   };
 
+  logger.log("DEBUG MARC: generateToken accessToken");
+
   return Q()
     .then(() => {
       return AccessToken.create({
@@ -145,6 +149,9 @@ var generateToken = function (options, done) {
     })
     .then(() => {
       if (client === null) return;
+
+      logger.log("DEBUG MARC: refreshToken");
+
       return RefreshToken.create({
         token: tokenData.refresh,
         clientId: tokenData.clientId,
@@ -154,6 +161,8 @@ var generateToken = function (options, done) {
     })
     .then(() => {
         trySetAuthCookie(options.req, options.res, c.accessTokenEntity, c.refreshTokenEntity);
+
+        logger.log("DEBUG MARC: createBillingUserProviderAFRSafe");
 
         return createBillingUserProviderAFRSafe(tokenData.userId)
           .then(
@@ -172,10 +181,15 @@ var generateToken = function (options, done) {
 var createBillingUserProviderAFRSafe = function (userId) {
   return Q()
     .then(() => {
+      logger.log("DEBUG MARC: searching user");
+
       return User.find({where: {_id: userId}});
     })
     .then(user => {
       if (!user) throw new Error('cannot find user '+userId);
+
+      logger.log("DEBUG MARC: userfound, calling billing");
+
       return billingApi.getOrCreateUser({
         providerName: 'afr',
         userId: user._id,
@@ -188,7 +202,9 @@ var createBillingUserProviderAFRSafe = function (userId) {
     })
     // being safe...
     .then(
-      () => { },
+      () => {
+        logger.log("DEBUG MARC: billing called");
+      },
       err => { logger.error(err.message); }
     );
 };
