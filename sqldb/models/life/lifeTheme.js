@@ -10,6 +10,8 @@ module.exports = function (sequelize, DataTypes) {
             autoIncrement: true
         },
         label: DataTypes.STRING,
+        description: DataTypes.TEXT,
+        keywords: DataTypes.Array(DataTypes.STRING(50)),
         slug: DataTypes.STRING,
         sort: DataTypes.INTEGER,
         active: {
