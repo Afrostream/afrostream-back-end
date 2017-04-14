@@ -11,7 +11,7 @@ module.exports = function (sequelize, DataTypes) {
         },
         label: DataTypes.STRING,
         description: DataTypes.TEXT,
-        keywords: DataTypes.Array(DataTypes.STRING(50)),
+        keywords: DataTypes.ARRAY(DataTypes.STRING(50)),
         slug: DataTypes.STRING,
         sort: DataTypes.INTEGER,
         active: {
