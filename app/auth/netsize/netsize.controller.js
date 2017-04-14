@@ -531,7 +531,8 @@ module.exports.unsubscribe = function(req, res) {
       if (!req.passport.accessToken) {
         throw new Error('missing accessToken in passport');
       }
-      return billingApi.getSubscriptions(req.passport.user._id);
+      const clientId = req.passport && req.passport.client && req.passport.client._id || undefined;
+      return billingApi.getSubscriptions(req.passport.user._id, clientId);
     })
     .then(function(subscriptions) {
       var netsizeSubscriptionsActive = (subscriptions || []).filter(function(subscription) {

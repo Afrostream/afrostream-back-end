@@ -19,6 +19,10 @@ var exchangeIse2 = require('./exchange/ise2.js');
 
 var logger = rootRequire('logger').prefix('AUTH');
 
+const billingApi = rootRequire('billing-api');
+
+const Q = require('q');
+
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
 server.serializeClient(function (client, done) {
@@ -95,20 +99,9 @@ const trySetAuthCookie = function (req, res, tokenEntity, refreshTokenEntity) {
 };
 
 var generateToken = function (options, done) {
+  const { client, user, code, userIp, userAgent, expireIn } = options;
 
-  console.log('GENERATE TOKEN ' + typeof options.req + ' ' + typeof options.res);
-  if (!options.req || !options.res) {
-    console.log('DEBUG STACK ', (new Error()).stack);
-  }
-
-  const client = options.client;
-  const user = options.user;
-  const code = options.code;
-  const userIp = options.userIp;
-  const userAgent = options.userAgent;
-  const expireIn = options.expireIn;
-
-  var tokenData = generateTokenData(client, user, code, expireIn);
+  const tokenData = generateTokenData(client, user, code, expireIn);
 
   // log accessToken (duplicate with db)
   logger.log(
@@ -129,47 +122,80 @@ var generateToken = function (options, done) {
       userIp: userIp || null,
       userAgent: userAgent
     }
-  }).then(function () {
-  }, function (err) {
-    logger.error(err.message);
-  });
-  // fixme: revoir complètement cette fonction !
-  // pas d'attente d'async, error handler incorrects, etc..
-  return AccessToken.create({
-    token: tokenData.token,
-    clientId: tokenData.clientId,
-    userId: tokenData.userId,
-    expirationDate: tokenData.expirationDate,
-    expirationTimespan: tokenData.expirationTimespan
-  })
-    .then(function (tokenEntity) {
-      if (client === null) {
-        trySetAuthCookie(options.req, options.res, tokenEntity, null);
-        return done(null, tokenEntity.token, null, {expires_in: tokenEntity.expirationTimespan});
-      }
+  }).then(
+    () => {},
+    err => logger.error(err.message)
+  );
 
+  const c = {
+    tokenEntity: null,
+    refreshTokenEntity: null
+  };
+
+  return Q()
+    .then(() => {
+      return AccessToken.create({
+        token: tokenData.token,
+        clientId: tokenData.clientId,
+        userId: tokenData.userId,
+        expirationDate: tokenData.expirationDate,
+        expirationTimespan: tokenData.expirationTimespan
+      })
+      .then(o => c.accessTokenEntity = o);
+    })
+    .then(() => {
+      if (client === null) return;
       return RefreshToken.create({
         token: tokenData.refresh,
         clientId: tokenData.clientId,
         userId: tokenData.userId
       })
-        .then(function (refreshTokenEntity) {
-          trySetAuthCookie(options.req, options.res, tokenEntity, refreshTokenEntity);
-          return done(null, tokenEntity.token, refreshTokenEntity.token, {expires_in: tokenEntity.expirationTimespan});
-        }).catch(function (err) {
-          logger.error('RefreshToken', err.message);
-          return done(err);
-        });
-    }).catch(function (err) {
-      logger.error('AccessToken', err.message);
-      return done(err);
-    });
+      .then(o => c.refreshTokenEntity = o);
+    })
+    .then(() => {
+        trySetAuthCookie(options.req, options.res, c.accessTokenEntity, c.refreshTokenEntity);
+
+        return createBillingUserProviderAFRSafe(tokenData.userId)
+          .then(
+            () => {
+              done(null, c.accessTokenEntity.token, c.refreshTokenEntity.token, {expires_in: c.accessTokenEntity.expirationTimespan});
+            }
+          );
+      },
+      err => {
+        logger.error(err.message);
+        done(err);
+      }
+    );
 };
 
-var refreshAccessToken = function (client, userId, options) {
+var createBillingUserProviderAFRSafe = function (userId) {
+  return Q()
+    .then(() => {
+      return User.find({where: {_id: userId}});
+    })
+    .then(user => {
+      if (!user) throw new Error('cannot find user '+userId);
+      return billingApi.getOrCreateUser({
+        providerName: 'afr',
+        userReferenceUuid: user._id,
+        userOpts: {
+          email: user.email,
+          firstName: user.first_name,
+          lastName: user.last_name
+        }
+      });
+    })
+    // being safe...
+    .then(
+      () => { },
+      err => { logger.error(err.message); }
+    );
+};
+
+var refreshAccessToken = function (client, userId) {
   var user = userId ? {_id: userId} : null; // yeark...
   var tokenData = generateTokenData(client, user, null);
-  options = options || {};
 
   return AccessToken.find({
     where: {
@@ -179,14 +205,13 @@ var refreshAccessToken = function (client, userId, options) {
   })
     .then(function (accessToken) {
       if (!accessToken) throw "missing access token";
-      return accessToken.updateAttributes({
-        token: tokenData.token,
-        expirationDate: tokenData.expirationDate,
-        expirationTimespan: tokenData.expirationTimespan
-      })
-        .then(refreshToken => {
-          trySetAuthCookie(options.req, options.res, accessToken, refreshToken);
-          return refreshToken;
+      return createBillingUserProviderAFRSafe(userId)
+        .then(() => {
+          return accessToken.updateAttributes({
+            token: tokenData.token,
+            expirationDate: tokenData.expirationDate,
+            expirationTimespan: tokenData.expirationTimespan
+          });
         });
     });
 };
@@ -439,10 +464,12 @@ server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken
       if (refreshToken.clientId !== client._id) {
         throw new Error("clientId missmatch");
       }
-      return refreshAccessToken(client, refreshToken.userId, {req: reqAuthInfo.req, res: reqAuthInfo.res});
-    }).then(function (accessToken) {
-    done(null, accessToken.token, refreshTokenToken, {expires_in: accessToken.expirationTimespan});
-  }).catch(done);
+      return refreshAccessToken(client, refreshToken.userId)
+        .then(function (accessToken) {
+          trySetAuthCookie(reqAuthInfo.req, reqAuthInfo.res, accessToken, refreshToken);
+          done(null, accessToken.token, refreshTokenToken, {expires_in: accessToken.expirationTimespan});
+        });
+    }).catch(done);
 }));
 
 exports.authorization = [

@@ -458,9 +458,10 @@ exports.verify = (req, res) => {
  */
 exports.me = (req, res) => {
   const userInfos = req.user.getInfos();
+  const clientId = req.passport && req.passport.client && req.passport.client._id || undefined;
 
   // on enrichi le profile avec des infos de souscriptions
-  billingApi.getSubscriptionsStatus(req.user._id)
+  billingApi.getSubscriptionsStatus(req.user._id, clientId)
     .then(subscriptionsStatus => {
       // utilisateur inscrit
       userInfos.subscriptionsStatus = subscriptionsStatus;

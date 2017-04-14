@@ -27,7 +27,8 @@ exports.status = (req, res) => {
       } else {
         userId = req.passport.user.get('_id');
       }
-      return billingApi.getSubscriptionsStatus(userId);
+      const clientId = req.passport && req.passport.client && req.passport.client._id || undefined;
+      return billingApi.getSubscriptionsStatus(userId, clientId);
     })
     .then(
       subscriptionsStatus => {

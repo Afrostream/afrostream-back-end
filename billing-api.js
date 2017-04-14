@@ -60,51 +60,35 @@ var requestBilling = options => {
  * @param user  object
  * @return FIXME
  */
-var getSubscriptions = userReferenceUuid => {
+var getSubscriptions = (userReferenceUuid, clientId) => {
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
   return requestBilling({
     url: config.billings.url + '/billings/api/subscriptions/',
-    qs: {userReferenceUuid: userReferenceUuid}
+    qs: {userReferenceUuid: userReferenceUuid, clientId: clientId}
   }).then(body => body && body.response && body.response.subscriptions || []);
 };
 
-var someSubscriptionActive = userReferenceUuid => {
+var someSubscriptionActive = (userReferenceUuid, clientId) => {
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
-  return getSubscriptions(userReferenceUuid)
-    .then(subscriptions => subscriptions.some(subscription => subscription.isActive === 'yes'));
+  return getSubscriptions(userReferenceUuid, clientId)
+    .then(subscriptions => subscriptions.some(isSubscriptionActive));
 };
 
-var someSubscriptionActiveSafe = userReferenceUuid => {
+var someSubscriptionActiveSafe = (userReferenceUuid, clientId) => {
   assert(typeof userReferenceUuid === 'number');
   assert(userReferenceUuid);
 
-  return someSubscriptionActive(userReferenceUuid).then(
+  return someSubscriptionActive(userReferenceUuid, clientId).then(
     function success (bool) {
       return bool;
     }
     , function error (err) {
       logger.error(err.message);
       return false;
-    }
-  );
-};
-
-var someSubscriptionActiveSafeTrue = userReferenceUuid => {
-  assert(false); // FIXME: differencier un timeout d'un 404 (user non subscribed)
-  assert(typeof userReferenceUuid === 'number');
-  assert(userReferenceUuid);
-
-  return someSubscriptionActive(userReferenceUuid).then(
-    function success (bool) {
-      return bool;
-    }
-    , function error (err) {
-      logger.error('DOWN => subscribed=true', err);
-      return true;
     }
   );
 };
@@ -328,14 +312,51 @@ var subscriptionToPromo = subscription => {
     d < new Date(new Date().getTime() - config.billings.promoLastSubscriptionMinDays * 24 * 3600 * 1000);
 };
 
-var getSubscriptionsStatus = userId => getSubscriptions(userId)
+var isSubscriptionABonus = subscription =>
+  subscription &&
+  subscription.internalPlan &&
+  subscription.internalPlan.internalPlanOpts &&
+  subscription.internalPlan.internalPlanOpts.bonus === 'true' &&
+  isSubscriptionActive(subscription);
+
+var isSubscriptionActive = subscription =>
+  subscription &&
+  subscription.isActive === 'yes';
+
+/*
+var isLastSubscriptionActive = subscriptions =>
+  subscriptions &&
+  subscriptions[0] &&
+  isSubscriptionActive(subscriptions[0]);
+*/
+
+var subscriptionsToPromoAfr = subscriptions => {
+  if (!Array.isArray(subscriptions) || subscriptions.length === 0) {
+    return false;
+  }
+  return isSubscriptionABonus(subscriptions[0]);
+};
+
+/*
+var subscriptionsToPromoAfrAlreadyUsed = subscriptions => {
+  if (!Array.isArray(subscriptions) && subscriptions.length <= 1) {
+    return false;
+  }
+  return subscriptions
+    .filter((_,i)=>i) // skip index 0
+    .some(isSubscriptionABonus);
+};
+*/
+
+var getSubscriptionsStatus = (userId, clientId) => getSubscriptions(userId, clientId)
   .then(subscriptions => {
     var lastSubscription = subscriptions[0];
     var subscriptionsStatus = {
       subscriptions: subscriptions,
       status: subscriptionToStatus(lastSubscription),
       planCode: subscriptionToPlanCode(lastSubscription),
-      promo: subscriptionToPromo(lastSubscription)
+      promo: subscriptionToPromo(lastSubscription),
+      promoAfr: subscriptionsToPromoAfr(subscriptions)
     };
     return subscriptionsStatus;
   }, () => ({
@@ -382,7 +403,6 @@ module.exports.getSubscriptionsStatus = getSubscriptionsStatus;
 module.exports.getSubscriptions = getSubscriptions;
 module.exports.someSubscriptionActive = someSubscriptionActive;
 module.exports.someSubscriptionActiveSafe = someSubscriptionActiveSafe;
-module.exports.someSubscriptionActiveSafeTrue = someSubscriptionActiveSafeTrue;
 module.exports.createSubscription = createSubscription;
 module.exports.updateSubscription = updateSubscription;
 // user manipulation

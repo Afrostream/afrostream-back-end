@@ -197,9 +197,10 @@ function readVideo(videoId) {
   });
 }
 
-function getBillingUserSubscriptionStatus(user) {
+function getBillingUserSubscriptionStatus(user, client) {
   if (user instanceof User.Instance) {
-    return billingApi.someSubscriptionActiveSafe(parseInt(user._id, 10));
+    const clientId = client && client._id || undefined;
+    return billingApi.someSubscriptionActiveSafe(parseInt(user._id, 10), clientId);
   }
   return Q();
 }
@@ -327,7 +328,7 @@ exports.show = (req, res) => {
           })
         ,
         // BILLING INFOS
-        getBillingUserSubscriptionStatus(req.user)
+        getBillingUserSubscriptionStatus(req.user, req.passport && req.passport.client)
           .then(active => {
             closure.billingUserSubscriptionActive = active;
           })
