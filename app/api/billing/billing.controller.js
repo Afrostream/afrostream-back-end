@@ -23,7 +23,7 @@ const updateUserName = (req, c) => {
 };
 
 module.exports.getConfig = (req, res) => {
-  Q()
+  return Q()
     .then(() => billingApi.getConfig())
     .then(config => {
       res.json(config);
