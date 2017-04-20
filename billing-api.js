@@ -151,12 +151,14 @@ var updateSubscription = (subscriptionBillingUuid, status, options) => {
 var switchSubscription = (subscriptionBillingUuid, internalPlanUuid, timeframe) => {
   assert(typeof timeframe === 'string' && timeframe);
   var data = {
-    timeframe:timeframe
+    timeframe: timeframe
   };
   return requestBilling({
     method: 'PUT'
-    , url: config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/updateinternalplan/' + internalPlanUuid
-    , body: data
+    ,
+    url: config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/updateinternalplan/' + internalPlanUuid
+    ,
+    body: data
   })
     .then(body => body && body.response && body.response.subscription || {});
 };
@@ -171,7 +173,7 @@ var switchSubscription = (subscriptionBillingUuid, internalPlanUuid, timeframe) 
  */
 var getConfig = () => {
   return requestBilling({
-    url: config.billings.url + '/billings/api/config/'
+    url: config.billings.url + '/billings/api/config'
     , qs: {}
   });
 };
