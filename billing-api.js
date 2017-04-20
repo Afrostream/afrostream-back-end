@@ -83,10 +83,10 @@ var someSubscriptionActiveSafe = (userReferenceUuid, clientId) => {
   assert(userReferenceUuid);
 
   return someSubscriptionActive(userReferenceUuid, clientId).then(
-    function success (bool) {
+    function success(bool) {
       return bool;
     }
-    , function error (err) {
+    , function error(err) {
       logger.error(err.message);
       return false;
     }
@@ -137,6 +137,45 @@ var updateSubscription = (subscriptionBillingUuid, status, options) => {
 };
 
 /**
+ * switch a subscription in the billing-api
+ * options could be :
+ * {
+ *   "timeframe" : <string>
+ * }
+ *
+ * @param subscriptionBillingUuid  string
+ * @param internalPlanUuid  string
+ * @param timeframe string type to send to the backend
+ * @return FIXME
+ */
+var switchSubscription = (subscriptionBillingUuid, internalPlanUuid, timeframe) => {
+  assert(typeof timeframe === 'string' && timeframe);
+  var data = {
+    timeframe:timeframe
+  };
+  return requestBilling({
+    method: 'PUT'
+    , url: config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/updateinternalplan/' + internalPlanUuid
+    , body: data
+  })
+    .then(body => body && body.response && body.response.subscription || {});
+};
+
+/**
+ * get a config from billing api,
+ *   userReferenceUuid is the backend postgresql user id
+ *
+ * @param userReferenceUuid  number  backend user id
+ * @param providerName       string  'recurly'
+ * @return FIXME
+ */
+var getConfig = () => {
+  return requestBilling({
+    url: config.billings.url + '/billings/api/config/'
+    , qs: {}
+  });
+};
+/**
  * get a user from billing api,
  *   userReferenceUuid is the backend postgresql user id
  *
@@ -147,7 +186,7 @@ var updateSubscription = (subscriptionBillingUuid, status, options) => {
 var getUser = (userReferenceUuid, providerName) => {
   assert(typeof userReferenceUuid === 'number' && userReferenceUuid);
   assert(['stripe', 'gocardless', 'recurly', 'celery', 'bachat', 'afr', 'cashway',
-          'bouygues', 'orange', 'braintree', 'netsize', 'wecashup', 'google'].indexOf(providerName) !== -1); // add other providers here later.
+      'bouygues', 'orange', 'braintree', 'netsize', 'wecashup', 'google'].indexOf(providerName) !== -1); // add other providers here later.
 
   return requestBilling({
     url: config.billings.url + '/billings/api/users/'
@@ -177,8 +216,8 @@ var updateUser = (userUuid, data, options) => {
   }
   return requestBilling({
     method: 'PUT'
-  , url: url
-  , body: data
+    , url: url
+    , body: data
   });
 };
 
@@ -268,7 +307,7 @@ var getInternalPlan = (internalPlanUuid, billingsData) => {
 
   billingsData = billingsData || {};
   return requestBilling({
-    url: config.billings.url + '/billings/api/internalplans/'+internalPlanUuid,
+    url: config.billings.url + '/billings/api/internalplans/' + internalPlanUuid,
     qs: billingsData
   }).then(body => body && body.response && body.response.internalPlan || null);
 };
@@ -313,22 +352,22 @@ var subscriptionToPromo = subscription => {
 };
 
 var isSubscriptionABonus = subscription =>
-  subscription &&
-  subscription.internalPlan &&
-  subscription.internalPlan.internalPlanOpts &&
-  subscription.internalPlan.internalPlanOpts.bonus === 'true' &&
-  isSubscriptionActive(subscription);
+subscription &&
+subscription.internalPlan &&
+subscription.internalPlan.internalPlanOpts &&
+subscription.internalPlan.internalPlanOpts.bonus === 'true' &&
+isSubscriptionActive(subscription);
 
 var isSubscriptionActive = subscription =>
-  subscription &&
-  subscription.isActive === 'yes';
+subscription &&
+subscription.isActive === 'yes';
 
 /*
-var isLastSubscriptionActive = subscriptions =>
-  subscriptions &&
-  subscriptions[0] &&
-  isSubscriptionActive(subscriptions[0]);
-*/
+ var isLastSubscriptionActive = subscriptions =>
+ subscriptions &&
+ subscriptions[0] &&
+ isSubscriptionActive(subscriptions[0]);
+ */
 
 var subscriptionsToPromoAfr = subscriptions => {
   if (!Array.isArray(subscriptions) || subscriptions.length === 0) {
@@ -338,15 +377,15 @@ var subscriptionsToPromoAfr = subscriptions => {
 };
 
 /*
-var subscriptionsToPromoAfrAlreadyUsed = subscriptions => {
-  if (!Array.isArray(subscriptions) && subscriptions.length <= 1) {
-    return false;
-  }
-  return subscriptions
-    .filter((_,i)=>i) // skip index 0
-    .some(isSubscriptionABonus);
-};
-*/
+ var subscriptionsToPromoAfrAlreadyUsed = subscriptions => {
+ if (!Array.isArray(subscriptions) && subscriptions.length <= 1) {
+ return false;
+ }
+ return subscriptions
+ .filter((_,i)=>i) // skip index 0
+ .some(isSubscriptionABonus);
+ };
+ */
 
 var getSubscriptionsStatus = (userId, clientId) => getSubscriptions(userId, clientId)
   .then(subscriptions => {
@@ -360,8 +399,8 @@ var getSubscriptionsStatus = (userId, clientId) => getSubscriptions(userId, clie
     };
     return subscriptionsStatus;
   }, () => ({
-  promo: true
-}));
+    promo: true
+  }));
 
 var validateCoupons = (providerName, couponCode) => requestBilling({
   url: config.billings.url + '/billings/api/coupons/',
@@ -398,6 +437,7 @@ var getCouponCampains = (providerName, couponsCampaignBillingUuid) => requestBil
 }).then(body => body && body.response && body.response || []);
 
 // very high level
+module.exports.getConfig = getConfig;
 module.exports.getSubscriptionsStatus = getSubscriptionsStatus;
 // subscriptions manipulation
 module.exports.getSubscriptions = getSubscriptions;
@@ -405,6 +445,7 @@ module.exports.someSubscriptionActive = someSubscriptionActive;
 module.exports.someSubscriptionActiveSafe = someSubscriptionActiveSafe;
 module.exports.createSubscription = createSubscription;
 module.exports.updateSubscription = updateSubscription;
+module.exports.switchSubscription = switchSubscription;
 // user manipulation
 module.exports.getUser = getUser;
 module.exports.createUser = createUser;

@@ -188,6 +188,7 @@ router.use((req, res, next) => {
 
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
+router.get('/config', controller.getConfig);
 router.get('/internalplans', controller.showInternalplans);
 router.get('/internalplan/:internalPlanUuid', controller.showInternalplan);
 router.post('/subscriptions', controller.createSubscriptions);
@@ -199,5 +200,6 @@ router.get('/couponscampaigns', controller.getCouponCampains);
 router.get('/couponscampaigns/:couponsCampaignBillingUuid', controller.getCouponCampains);
 router.put('/subscriptions/:subscriptionUuid/cancel', controller.cancelSubscriptions);
 router.put('/subscriptions/:subscriptionUuid/reactivate', controller.reactivateSubscriptions);
+router.put('/subscriptions/:subscriptionUuid/updateinternalplan/:internalPlanUuid', controller.switchSubscriptions);
 
 module.exports = router;

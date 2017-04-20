@@ -22,6 +22,14 @@ const updateUserName = (req, c) => {
     });
 };
 
+module.exports.getConfig = (req, res) => {
+  Q()
+    .then(() => billingApi.getConfig())
+    .then(config => {
+      res.json(config);
+    }).catch(res.handleError());
+};
+
 module.exports.showInternalplans = (req, res) => {
   const billingsData = {};
   // FIXME: should be refactored with #209
@@ -44,31 +52,30 @@ module.exports.showInternalplans = (req, res) => {
             billingsData.filterUserReferenceUuid = req.passport.user._id;
           }
           break;
-        case 'front-api.front-end':
-          {
-            const providerName = req.query.providerName || (client ? client.billingProviderName : '');
-            const context = req.query.contextBillingUuid;
-            const contextCountry = req.query.contextCountry;
-            const filterEnabled = req.query.filterEnabled;
-            if (providerName) {
-              billingsData.providerName = providerName;
-            }
-            if (context) {
-              billingsData.contextBillingUuid = context;
-              if (contextCountry) {
-                billingsData.contextCountry = contextCountry;
-              }
-            }
-            if (filterEnabled) {
-              billingsData.filterEnabled = filterEnabled;
-              if (req.query.country) {
-                billingsData.country = req.query.country;
-              }
-              if (req.query.filterUserReferenceUuid) {
-                billingsData.filterUserReferenceUuid = req.query.filterUserReferenceUuid;
-              }
+        case 'front-api.front-end': {
+          const providerName = req.query.providerName || (client ? client.billingProviderName : '');
+          const context = req.query.contextBillingUuid;
+          const contextCountry = req.query.contextCountry;
+          const filterEnabled = req.query.filterEnabled;
+          if (providerName) {
+            billingsData.providerName = providerName;
+          }
+          if (context) {
+            billingsData.contextBillingUuid = context;
+            if (contextCountry) {
+              billingsData.contextCountry = contextCountry;
             }
           }
+          if (filterEnabled) {
+            billingsData.filterEnabled = filterEnabled;
+            if (req.query.country) {
+              billingsData.country = req.query.country;
+            }
+            if (req.query.filterUserReferenceUuid) {
+              billingsData.filterUserReferenceUuid = req.query.filterUserReferenceUuid;
+            }
+          }
+        }
           break;
         default:
           throw new Error('unknown userProviderUuid for client type ' + client.type);
@@ -128,15 +135,15 @@ module.exports.cancelSubscriptions = (req, res) => {
   }; // closure
 
   Q()
-    //
-    // grab client billingProviderName ex: recurly, bachat
-    //
+  //
+  // grab client billingProviderName ex: recurly, bachat
+  //
     .then(() => {
       const client = req.passport.client;
       if (!client) throw new Error('unknown client');
       if (!client.isFrontApi() &&
-          !client.isBouyguesMiami() &&
-          !client.isAndroid()) {
+        !client.isBouyguesMiami() &&
+        !client.isAndroid()) {
         throw new Error('unknown subscriptionUuid for user ' + c.userId + ' client type ' + client.type);
       }
     })
@@ -144,6 +151,44 @@ module.exports.cancelSubscriptions = (req, res) => {
     // we create the user in the billing-api if he doesn't exist yet
     //
     .then(() => billingApi.updateSubscription(c.subscriptionUuid, 'cancel'))
+    .then(function success(subscription) {
+      res.json(subscription);
+    }).catch(res.handleError());
+};
+
+/**
+ * PUT
+ * @param req :{
+ * params :{
+ *      subscriptionUuid,
+ *      internalPlanUuid
+ *    }
+ * }
+ * @param res
+ */
+module.exports.switchSubscriptions = (req, res) => {
+  const c = {
+    userId: req.user._id,
+    subscriptionUuid: req.params.subscriptionUuid,
+    internalPlanUuid: req.params.internalPlanUuid,
+    timeframe: req.body.timeframe || 'now'
+  }; // closure
+
+  Q()
+  //
+  // grab client billingProviderName ex: recurly, bachat
+  //
+    .then(() => {
+      const client = req.passport.client;
+      if (!client) throw new Error('unknown client');
+      if (!client.isFrontApi() && !client.isBouyguesMiami()) {
+        throw new Error('unknown subscriptionUuid for user ' + c.userId + ' client type ' + client.type);
+      }
+    })
+    //
+    // we create the user in the billing-api if he doesn't exist yet
+    //
+    .then(() => billingApi.switchSubscription(c.subscriptionUuid, c.internalPlanUuid, c.timeframe))
     .then(function success(subscription) {
       res.json(subscription);
     }).catch(res.handleError());
@@ -165,9 +210,9 @@ module.exports.reactivateSubscriptions = (req, res) => {
   }; // closure
 
   Q()
-    //
-    // grab client billingProviderName ex: recurly, bachat
-    //
+  //
+  // grab client billingProviderName ex: recurly, bachat
+  //
     .then(() => {
       const client = req.passport.client;
       if (!client) throw new Error('unknown client');
@@ -220,9 +265,9 @@ module.exports.createSubscriptions = (req, res) => {
   }; // closure
 
   Q()
-    //
-    // grab client billingProviderName ex: recurly, bachat
-    //
+  //
+  // grab client billingProviderName ex: recurly, bachat
+  //
     .then(() => {
       const client = req.passport.client;
       if (!client) throw new Error('unknown client');
@@ -325,9 +370,9 @@ module.exports.createGift = (req, res) => {
   }; // closure
 
   Q()
-    //
-    // grab client billingProviderName ex: recurly, bachat
-    //
+  //
+  // grab client billingProviderName ex: recurly, bachat
+  //
     .then(() => {
       const client = req.passport.client;
       if (!client) throw new Error('unknown client');
@@ -478,9 +523,9 @@ module.exports.createCoupons = (req, res) => {
   }; // closure
 
   Q()
-    //
-    // we create the user in the billing-api if he doesn't exist yet
-    //
+  //
+  // we create the user in the billing-api if he doesn't exist yet
+  //
     .then(() => {
       if (c.userBillingUuid) {
         return;
@@ -501,24 +546,24 @@ module.exports.createCoupons = (req, res) => {
           }) :
           req.user
       )
-      .then(user => {
-        if (!user) throw new Error('missing user');
-        return billingApi.getOrCreateUser({
-          providerName: c.billingProviderName,
-          userReferenceUuid: user._id,
-          userProviderUuid: c.userProviderUuid,
-          userOpts: {
-            email: user.email,
-            firstName: user.first_name,
-            lastName: user.last_name,
-            countryCode: req.query.country || undefined,
-            languageCode: req.query.language && String(req.query.language).toLowerCase() || undefined
-          }
+        .then(user => {
+          if (!user) throw new Error('missing user');
+          return billingApi.getOrCreateUser({
+            providerName: c.billingProviderName,
+            userReferenceUuid: user._id,
+            userProviderUuid: c.userProviderUuid,
+            userOpts: {
+              email: user.email,
+              firstName: user.first_name,
+              lastName: user.last_name,
+              countryCode: req.query.country || undefined,
+              languageCode: req.query.language && String(req.query.language).toLowerCase() || undefined
+            }
+          });
+        })
+        .then(billingsResponse => {
+          c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
         });
-      })
-      .then(billingsResponse => {
-        c.userBillingUuid = billingsResponse.response.user.userBillingUuid;
-      });
     })
     .then(() => {
       const couponsCampaignBillingUuid = c.couponsCampaignBillingUuid;
