@@ -238,7 +238,7 @@ module.exports.authorizations = {
   "UA": false, // Ukraine
   "UG": false, // Uganda
   "UM": false, // United States Minor Outlying Islands
-  "US": false, // United States
+  "US": true, // United States
   "UY": false, // Uruguay
   "UZ": false, // Uzbekistan
   "VA": false, // Holy See (Vatican City State)
