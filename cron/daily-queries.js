@@ -20,7 +20,15 @@ var requireText = function (filename) {
 
 var files = [
   './daily-queries/update-episodes-duration.sql',
-  './daily-queries/update-movies-duration.sql'
+  './daily-queries/update-movies-duration.sql',
+
+  './daily-queries/refresh-mview-billing_internal_plans.sql',
+  './daily-queries/refresh-mview-billing_plans.sql',
+  './daily-queries/refresh-mview-billing_providers.sql',
+  './daily-queries/refresh-mview-billing_subscriptions.sql',
+  './daily-queries/refresh-mview-billing_users_opts.sql',
+  './daily-queries/refresh-mview-billing_users.sql'
+
 ];
 
 var queries = files.map(requireText);
