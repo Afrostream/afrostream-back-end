@@ -171,6 +171,7 @@ module.exports.switchSubscriptions = (req, res) => {
     userId: req.user._id,
     subscriptionUuid: req.params.subscriptionUuid,
     internalPlanUuid: req.params.internalPlanUuid,
+    couponCode: req.params.couponCode,
     timeframe: req.body.timeframe || 'now'
   }; // closure
 
@@ -188,7 +189,7 @@ module.exports.switchSubscriptions = (req, res) => {
     //
     // we create the user in the billing-api if he doesn't exist yet
     //
-    .then(() => billingApi.switchSubscription(c.subscriptionUuid, c.internalPlanUuid, c.timeframe))
+    .then(() => billingApi.switchSubscription(c.subscriptionUuid, c.internalPlanUuid, c.timeframe, c.couponCode))
     .then(function success(subscription) {
       res.json(subscription);
     }).catch(res.handleError());

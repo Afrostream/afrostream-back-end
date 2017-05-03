@@ -148,16 +148,20 @@ var updateSubscription = (subscriptionBillingUuid, status, options) => {
  * @param timeframe string type to send to the backend
  * @return FIXME
  */
-var switchSubscription = (subscriptionBillingUuid, internalPlanUuid, timeframe) => {
+var switchSubscription = (subscriptionBillingUuid, internalPlanUuid, timeframe, couponCode) => {
   assert(typeof timeframe === 'string' && timeframe);
-  var data = {
+  let data = {
     timeframe: timeframe
   };
+
+  let url = config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/updateinternalplan/' + internalPlanUuid
+  if (couponCode) {
+    url = config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/coupons/' + couponCode + '/redeem'
+  }
+
   return requestBilling({
-    method: 'PUT'
-    ,
-    url: config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/updateinternalplan/' + internalPlanUuid
-    ,
+    method: 'PUT',
+    url: url,
     body: data
   })
     .then(body => body && body.response && body.response.subscription || {});
