@@ -6,19 +6,22 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 global.__basedir = __dirname + '/..';
 global.rootRequire = function (name) { return require(global.__basedir + '/' + (name[0] === '/' ? name.substr(1) : name)); };
 
-var sqldb = rootRequire('sqldb');
-var Q = require('q');
+const sqldb = rootRequire('sqldb');
+const Q = require('q');
 
-var logger = rootRequire('logger').prefix('CRON').prefix('DAILY-QUERIES');
+const logger = rootRequire('logger').prefix('CRON').prefix('DAILY-QUERIES');
 
 logger.log('start');
 
-var requireText = function (filename) {
+const requireText = function (filename) {
   var fs = require('fs');
   return fs.readFileSync(__dirname + '/' + filename).toString();
 };
 
-var files = [
+/*
+ * first batch
+ */
+const files = [
   './daily-queries/update-episodes-duration.sql',
   './daily-queries/update-movies-duration.sql',
 
@@ -28,22 +31,39 @@ var files = [
   './daily-queries/refresh-mview-billing_subscriptions.sql',
   './daily-queries/refresh-mview-billing_users_opts.sql',
   './daily-queries/refresh-mview-billing_users.sql'
-
 ];
+const queries = files.map(requireText);
 
-var queries = files.map(requireText);
+/*
+ * 2nd batch (we need to wait for daily billing views to be refreshed
+ * FIXME: order should be generic.
+ */
+const files2 = [
+  './daily-queries/refresh-mview-unsubscribedusers.sql',
+  './daily-queries/refresh-mview-subscribedusers.sql',
+];
+const queries2 = files2.map(requireText);
 
 // logs
-queries.forEach(function (q, i) {
-  logger.log(i + '=' + q);
-});
+queries.forEach((q, i) => logger.log(i + '=' + q));
 
 Q.all(
-  queries.map(function (q) { return sqldb.sequelize.query(q); })
-).then(function () {
-  logger.log('stop');
-  process.exit();
-}, function (e) {
-  logger.error(e.message);
-  process.exit();
-});
+  queries.map(q => sqldb.sequelize.query(q))
+)
+.then(() => {
+  queries2.forEach((q, i) => logger.log(i + '=' + q));
+
+  return Q.all(
+    queries2.map(q => sqldb.sequelize.query(q))
+  );
+})
+.then(
+  () => {
+    logger.log('stop');
+    process.exit();
+  },
+  e => {
+    logger.error(e.message);
+    process.exit();
+  }
+);
