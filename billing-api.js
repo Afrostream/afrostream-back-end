@@ -154,9 +154,9 @@ var switchSubscription = (subscriptionBillingUuid, internalPlanUuid, timeframe, 
     timeframe: timeframe
   };
 
-  let url = config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/updateinternalplan/' + internalPlanUuid
+  let url = config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/updateinternalplan/' + internalPlanUuid;
   if (couponCode) {
-    url = config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/coupons/' + couponCode + '/redeem'
+    url = config.billings.url + '/billings/api/subscriptions/' + subscriptionBillingUuid + '/coupons/' + couponCode + '/redeem';
   }
 
   return requestBilling({
