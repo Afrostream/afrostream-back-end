@@ -30,7 +30,12 @@ const files = [
   './daily-queries/refresh-mview-billing_providers.sql',
   './daily-queries/refresh-mview-billing_subscriptions.sql',
   './daily-queries/refresh-mview-billing_users_opts.sql',
-  './daily-queries/refresh-mview-billing_users.sql'
+  './daily-queries/refresh-mview-billing_users.sql',
+
+  './daily-queries/refresh-mview-billing_internal_coupons_campaigns.sql',
+  './daily-queries/refresh-mview-billing_internal_coupons.sql',
+  './daily-queries/refresh-mview-billing_transactions.sql',
+  './daily-queries/refresh-mview-billing_users_internal_coupons.sql'
 ];
 const queries = files.map(requireText);
 
