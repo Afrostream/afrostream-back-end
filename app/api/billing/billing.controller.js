@@ -590,3 +590,25 @@ module.exports.getCouponCampains = (req, res) => {
       res.json(couponStatus);
     }).catch(res.handleError());
 };
+
+module.exports.updateUser = (req, res) => {
+  Q()
+    .then(() => {
+      // security: currently, this method is only used to update
+      //  the customerBankAccountToken.
+      // we restrict the call.
+      const { userOpts: { customerBankAccountToken } } = req.body;
+
+      if (!customerBankAccountToken) {
+        throw new Error('missing customerBankAccountToken');
+      }
+
+      return billingApi.updateUser(req.params.userUuid, {
+        userOpts: { customerBankAccountToken: customerBankAccountToken }
+      });
+    })
+    .then(
+      () => { res.json({}); },
+      res.handleError()
+    );
+};
