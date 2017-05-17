@@ -597,7 +597,10 @@ module.exports.updateUser = (req, res) => {
       // security: currently, this method is only used to update
       //  the customerBankAccountToken.
       // we restrict the call.
-      const { userOpts: { customerBankAccountToken } } = req.body;
+
+      console.log(req.body);
+
+      const { subOpts: { customerBankAccountToken } } = req.body;
 
       if (!customerBankAccountToken) {
         throw new Error('missing customerBankAccountToken');

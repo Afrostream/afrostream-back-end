@@ -202,6 +202,6 @@ router.put('/subscriptions/:subscriptionUuid/cancel', controller.cancelSubscript
 router.put('/subscriptions/:subscriptionUuid/reactivate', controller.reactivateSubscriptions);
 router.put('/subscriptions/:subscriptionUuid/updateinternalplan/:internalPlanUuid', controller.switchSubscriptions);
 router.put('/subscriptions/:subscriptionUuid/coupons/:couponCode/redeem', controller.switchSubscriptions);
-router.put('/user/:userUuid', controller.updateUser);
+router.put('/users/:userUuid', controller.updateUser);
 
 module.exports = router;
