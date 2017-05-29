@@ -5,6 +5,7 @@ DROP TABLE "MailerWorkers";
 DROP TABLE "MailerAssoListsWorkers";
 DROP TABLE "MailerSubscribers";
 DROP TABLE "MailerAssoListsSubscribers";
+DROP TABLE "MailerTemplates";
 DROP TABLE "MailerTransactions";
 
 CREATE TABLE "MailerLists"
@@ -14,7 +15,8 @@ CREATE TABLE "MailerLists"
   "updatedAt" timestamp with time zone,
   name character varying(255),
   query text,
-  "disabled" boolean default false
+  "disabled" boolean default false,
+  CONSTRAINT "MailerLists_pkey" PRIMARY KEY (_id)
 )
 WITH (
   OIDS=FALSE
@@ -27,7 +29,8 @@ CREATE TABLE "MailerProviders"
   "createdAt" timestamp with time zone,
   "updatedAt" timestamp with time zone,
   name character varying(255),
-  token character varying(255)
+  token character varying(255),
+  CONSTRAINT "MailerProviders_pkey" PRIMARY KEY (_id)
 )
 WITH (
   OIDS=FALSE
@@ -53,7 +56,8 @@ CREATE TABLE "MailerWorkers"
   _id uuid NOT NULL,
   "createdAt" timestamp with time zone,
   "updatedAt" timestamp with time zone,
-  name character varying(255)
+  name character varying(255),
+  CONSTRAINT "MailerWorkers_pkey" PRIMARY KEY (_id)
 )
 WITH (
   OIDS=FALSE
@@ -77,7 +81,8 @@ CREATE TABLE "MailerSubscribers"
   "createdAt" timestamp with time zone,
   "updatedAt" timestamp with time zone,
   "referenceUuid"  character varying(255),
-  "referenceEmail" character varying(255)
+  "referenceEmail" character varying(255),
+  CONSTRAINT "MailerSubscribers_pkey" PRIMARY KEY (_id)
 )
 WITH (
   OIDS=FALSE
@@ -103,7 +108,8 @@ CREATE TABLE "MailerTemplates"
   "updatedAt" timestamp with time zone,
   "subject" text,
   "text" text,
-  "html" text
+  "html" text,
+  CONSTRAINT "MailerTemplates_pkey" PRIMARY KEY (_id)
 )
 WITH (
   OIDS=FALSE
@@ -117,7 +123,7 @@ CREATE TABLE "MailerTransactions"
   "updatedAt" timestamp with time zone,
   "listId" uuid NOT NULL,
   "providerId" uuid NOT NULL,
-  "providerUuid" uuid character varying(64),
+  "providerReferenceUuid" character varying(64),
   "workerId" uuid,
   "userId" integer NOT NULL,
   "templateId" uuid,
@@ -126,7 +132,8 @@ CREATE TABLE "MailerTransactions"
   -- quelques stats
   "sentToProviderDate" timestamp with time zone,
   "sentDate" timestamp with time zone,
-  "openedDate" timestamp with time zone
+  "openedDate" timestamp with time zone,
+  CONSTRAINT "MailerTransactions_pkey" PRIMARY KEY (_id)
 )
 WITH (
   OIDS=FALSE
