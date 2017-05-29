@@ -34,6 +34,7 @@ router.use('/seasons', require('./season/index'));
 router.use('/tags', require('./tag/index'));
 router.use('/categorys', require('./category/index'));
 router.use('/notifications', require('./notification/index'));
+router.use('/mailer', require('./mailer/index'));
 router.use('/movies', require('./movie/index'));
 router.use('/press', require('./press/index'));
 router.use('/search', require('./search/index'));
