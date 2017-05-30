@@ -138,3 +138,7 @@ CREATE TABLE "MailerTransactions"
 WITH (
   OIDS=FALSE
 );
+
+INSERT INTO "MailerProviders" ("_id", "name", "token") VALUES
+('00000000-0000-0000-0000-000000000001', 'mailblast', 'y5MS3F4vq9X-g7o328vrZHszYxueSA'),
+('00000000-0000-0000-0000-000000000002', 'sendgrid', 'FIXME');
