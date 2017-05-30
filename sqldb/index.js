@@ -401,6 +401,10 @@ db.MailerTemplate = db.sequelize.import('models/MailerTemplates');
 db.MailerTransaction = db.sequelize.import('models/MailerTransactions');
 db.MailerWorker = db.sequelize.import('models/MailerWorkers');
 
+db.MailerList.belongsToMany(db.MailerProvider, {through: db.MailerAssoProvidersLists, as: 'providers', foreignKey: 'listId'});
+db.MailerProvider.belongsToMany(db.MailerList, {through: db.MailerAssoProvidersLists, as: 'lists', foreignKey: 'providerId'});
+
+
 //LIFE
 db.LifePin = db.sequelize.import('models/life/lifePin');
 db.LifeTheme = db.sequelize.import('models/life/lifeTheme');
