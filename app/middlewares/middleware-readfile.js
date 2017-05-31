@@ -1,6 +1,6 @@
-'use strict';
+const Busboy = require('busboy');
 
-var Q = require('q');
+const Q = require('q');
 
 /**
  * req.readFile().then(function (result) { ... });
@@ -18,33 +18,37 @@ var Q = require('q');
 module.exports = function () {
   return function (req, res, next) {
     req.readFile = function () {
-      var deferred = Q.defer();
+      const logger = req.logger.prefix('BUSBOY');
+      const deferred = Q.defer();
+      const busboy = new Busboy({ headers: req.headers });
+      let parseStatus = 'unknown';
 
-      req.busboy.on('error', function (err) {
-        deferred.reject(err);
-      });
-      req.busboy.on('file', function (fieldname, file, filename, encoding, mimeType) {
-        if (!filename) {
-          return deferred.reject(new Error('no filename'));
-        }
-        // Create the initial array containing the stream's chunks
+      busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+        logger.log(`fieldname ${fieldname} filename ${filename} encoding ${encoding} mimetype ${mimetype}`);
+
         file.fileRead = [];
-        file.on('error', function (err) {
-          return deferred.reject(err);
-        });
-        file.on('data', function (chunk) {
+        file.on('data', function(chunk) {
+          logger.log(`file data: chunk received, length = ${chunk.length} bytes`);
           this.fileRead.push(chunk);
         });
-        file.on('end', function () {
+        file.on('end', function() {
+          logger.log('file end');
+          parseStatus = 'success';
           return deferred.resolve({
-            buffer: Buffer.concat(this.fileRead),
+            buffer: Buffer.concat(file.fileRead),
             name: filename,
             encoding: encoding,
-            mimeType: mimeType
+            mimeType: mimetype
           });
         });
       });
-      req.pipe(req.busboy);
+      busboy.on('finish', function() {
+        logger.log(`finished, status=${parseStatus}`);
+        if (parseStatus !== 'success') {
+          deferred.reject(new Error('no file parsed'));
+        }
+      });
+      req.pipe(busboy);
       return deferred.promise;
     };
     next();
