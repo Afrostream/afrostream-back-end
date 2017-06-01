@@ -15,6 +15,8 @@ const Caption = sqldb.Caption;
 
 const utils = rootRequire('app/api/utils.js');
 
+const Q = require('q');
+
 function saveUpdates(updates) {
   return entity => entity.updateAttributes(updates);
 }
@@ -51,11 +53,16 @@ exports.show = (req, res) => {
 
 // Creates a new caption in the DB
 exports.create = (req, res) => {
-  req.readFile()
-    .then(file => {
+  Q()
+    .then(() => {
+      if (!Array.isArray(req.files) || req.files.length !== 1) {
+        throw new Error('missing file');
+      }
+      const file = req.files[0];
       const bucket = aws.getBucket('tracks.afrostream.tv');
       return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/caption/{date}/{rand}-'+file.name);
-    }).then(data => Caption.create({ src: data.req.url }))
+    })
+    .then(data => Caption.create({ src: data.req.url }))
     .then(utils.responseWithResult(req, res, 201))
     .catch(res.handleError());
 };

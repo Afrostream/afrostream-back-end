@@ -15,7 +15,7 @@ const Q = require('q');
  * @param options
  * @returns {Function} (req, res, next) middleware.
  */
-module.exports = function () {
+module.exports = function (options) {
   return function (req, res, next) {
     req.readFile = function () {
       const logger = req.logger.prefix('BUSBOY');
@@ -42,6 +42,11 @@ module.exports = function () {
           });
         });
       });
+      /*
+      busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated) {
+        console.log('Field [' + fieldname + ']: value: ', val);
+      });
+      */
       busboy.on('finish', function() {
         logger.log(`finished, status=${parseStatus}`);
         if (parseStatus !== 'success') {
@@ -51,6 +56,36 @@ module.exports = function () {
       req.pipe(busboy);
       return deferred.promise;
     };
-    next();
+
+    /////// HACKY ///////
+    /// req._readableState.flowing <= seems to be true (is it the default req stream status ?)
+    /// => if you call req.readFile() too late => you miss the file !
+    ///    <=> no file event
+    ///    <=> error.
+    ///
+    /// to prevent this, we check the method & content-type, if it's method=POST & multipart
+    ///  then, we need to read the file as soon as possible ... to prevent any loss.
+    /// or pause the stream...  => req.pause()
+    ///
+    /// we decide that this middleware will call readFile() automaticaly on multipart POST requests.
+    ///
+    /// FIXME: this is not a determinist algorithm, we should fix this !
+    /////////////////////
+    if (!options || options.doNotAutoReadFile !== true) {
+      // we try to auto read
+      if (req.method === 'POST' && (req.get('content-type') || '').indexOf('multipart/form-data') !== -1) {
+        req.readFile().then(
+          file => {
+            req.files = [ file ];
+            next();
+          },
+          res.handleError()
+        );
+      } else {
+        next();
+      }
+    } else {
+      next();
+    }
   };
 };
