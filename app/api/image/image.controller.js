@@ -15,6 +15,8 @@ const Image = sqldb.Image;
 const config = rootRequire('config');
 const aws = rootRequire('aws');
 
+const Q = require('q');
+
 const utils = rootRequire('app/api/utils.js');
 
 function saveUpdates(updates) {
@@ -62,13 +64,17 @@ exports.show = (req, res) => {
     .catch(res.handleError());
 };
 
-// Creates a new image in the DB
 exports.create = (req, res) => {
   const type = req.param('type') || req.query.type || 'poster';
 
-  req.readFile()
-    .then(file => {
+  Q()
+    .then(() => {
+      if (!Array.isArray(req.files) || req.files.length !== 1) {
+        throw new Error('missing file');
+      }
+      const file = req.files[0];
       const bucket = aws.getBucket('afrostream-img');
+
       return aws.putBufferIntoBucket(bucket, file.buffer, file.mimeType, '{env}/'+type+'/{date}/{rand}-'+file.name)
         .then(data => Image.create({
         type: type,

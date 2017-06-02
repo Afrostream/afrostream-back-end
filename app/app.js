@@ -40,9 +40,7 @@ app.use(logger());
 app.use(require('body-parser').text({type: 'text/xml'}));
 app.use(require('body-parser').urlencoded({extended: false, limit:'500kb'}));
 app.use(require('body-parser').json({limit:'500kb'}));
-
 app.use(require('method-override')());
-app.use(require('connect-busboy')());
 app.use(require('passport').initialize());
 app.use(clientIp());
 app.use(userAgent());
@@ -62,6 +60,9 @@ app.use(middlewareAllowPreflight());
 //  to present res.handleError()
 var middlewareError = require('./middlewares/middleware-error.js');
 app.use(middlewareError());
+
+// need all the other functions in order to work
+app.use(require('./middlewares/middleware-readfile')());
 
 if (config.dumpPostData) {
   app.use(dumpPostData());
