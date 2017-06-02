@@ -44,8 +44,8 @@ const queries = files.map(requireText);
  * FIXME: order should be generic.
  */
 const files2 = [
-  './daily-queries/refresh-mview-unsubscribedusers.sql',
-  './daily-queries/refresh-mview-subscribedusers.sql',
+  './daily-queries/refresh-mview-unsubscribed_users.sql',
+  './daily-queries/refresh-mview-subscribed_users.sql',
 ];
 const queries2 = files2.map(requireText);
 
