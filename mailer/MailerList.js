@@ -34,6 +34,18 @@ class MailerList {
     return this.model._id;
   }
 
+  getName() {
+    return this.model.get('name');
+  }
+
+  getModel() {
+    return this.model;
+  }
+
+  update(infos) {
+    return this.model.update(infos).then(() => this);
+  }
+
   setQuery (query) {
     return this.model.update({query: query});
   }
@@ -114,7 +126,40 @@ class MailerList {
         return asso.destroy();
       });
   }
+
+  destroy() {
+    return Q()
+      .then(() => {
+        // first, we need to remove all associated providers
+        const assoProviders = this.getAssoProviders();
+        // foreach of this provider
+        return Q.all(
+          assoProviders.map(asso => {
+            // we load the associated provider
+            return Mailer.Provider.loadById(asso.providerId)
+              .then(provider => {
+                // we remove the provider
+                return this.removeProvider(provider);
+              });
+          }));
+      });
+  }
+
+  toJSON() {
+    return {
+      _id: this.getId(),
+      name: this.get('name'),
+      assoProviders: this.getAssoProviders()
+    };
+  }
 }
+
+/*
+ * FIXME: REFACTOR: MailerList should facade the database
+ *   the code doing the link between the model & database
+ *   should be all in the instance, or all static, or elsewhere
+ *   but not dispatched/splitted between instance & static methods.
+ */
 
 /*
  * Statics Methods.
@@ -125,7 +170,14 @@ MailerList.loadFromDB = dbInstance => {
   assert(dbInstance instanceof sqldb.MailerList.Instance);
 
   const mailerList = new MailerList();
-  return mailerList.loadFromDB(dbInstance._id);
+  return mailerList.loadById(dbInstance._id);
+};
+
+MailerList.loadById = id => {
+  assert(id);
+
+  const mailerList = new MailerList();
+  return mailerList.loadById(id);
 };
 
 MailerList.create = options => {
@@ -141,6 +193,32 @@ MailerList.create = options => {
       return sqldb.MailerList.create(options);
     })
     .then(MailerList.loadFromDB);
+};
+
+MailerList.destroy = id => {
+  assert(id);
+
+  return Q()
+    .then(() => {
+      return MailerList.loadById(id);
+    })
+    .then(mailerList => {
+      return mailerList.destroy();
+    });
+};
+
+MailerList.find = options => {
+  sqldb.MailerList.find(options)
+    .then(result => {
+      // we map result.rows
+      result.rows = result.rows.map(row => {
+        const mailerList = new MailerList();
+        mailerList.model = row; // hack, for performance.
+                                // here, we should use mailerList.loadById(...)
+                                //  & use promise
+      });
+      return result;
+    });
 };
 
 module.exports = MailerList;
