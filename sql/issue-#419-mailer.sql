@@ -30,6 +30,7 @@ CREATE TABLE "MailerProviders"
   "updatedAt" timestamp with time zone,
   name character varying(255),
   token character varying(255),
+  interface character varying(255), -- name of the pApi interface
   -- capabilities
   "canHandleList"  boolean default false,
   CONSTRAINT "MailerProviders_pkey" PRIMARY KEY (_id)
@@ -141,6 +142,6 @@ WITH (
   OIDS=FALSE
 );
 
-INSERT INTO "MailerProviders" ("_id", "name", "token") VALUES
-('00000000-0000-0000-0000-000000000001', 'mailblast', 'y5MS3F4vq9X-g7o328vrZHszYxueSA'),
-('00000000-0000-0000-0000-000000000002', 'sendgrid', 'FIXME');
+INSERT INTO "MailerProviders" ("_id", "name", "token", "interface", "canHandleList") VALUES
+('00000000-0000-0000-0000-000000000001', 'mailblast', 'y5MS3F4vq9X-g7o328vrZHszYxueSA', 'Mailblast', true),
+('00000000-0000-0000-0000-000000000002', 'sendgrid', 'FIXME', 'Sendgrid', false);

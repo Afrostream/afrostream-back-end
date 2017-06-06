@@ -7,14 +7,9 @@ module.exports = function (sequelize, DataTypes) {
       unique: true,
       allowNull: false
     },
-    name: {
-      type: DataTypes.STRING,
-      length: 255
-    },
-    token: {
-      type: DataTypes.STRING,
-      length: 255
-    },
+    name: DataTypes.STRING,
+    token: DataTypes.STRING,
+    interface: DataTypes.STRING,
     canHandleList: {
       type: DataTypes.BOOLEAN,
       default: false
