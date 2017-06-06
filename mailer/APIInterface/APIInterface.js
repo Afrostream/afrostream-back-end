@@ -1,14 +1,7 @@
 const assert = require('better-assert');
 
-const MailerProvider = require('../MailerProvider');
-
 class APIInterface {
-  constructor (mailerProvider) {
-    assert(mailerProvider instanceof MailerProvider);
-
-    this.mailerProvider = mailerProvider;
-  }
-
+  constructor () { }
   canHandleList() { return false; }
 
   // disaling lint for interface definition.

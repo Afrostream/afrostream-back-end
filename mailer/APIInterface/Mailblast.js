@@ -69,12 +69,6 @@ const requestMailblast = options => {
  */
 
 class Mailblast extends ApiInterface {
-  constructor(options) {
-    assert(options);
-    assert(options.mailerProvider);
-
-    super(options.mailerProvider);
-  }
   // this provider can handle lists.
   canHandleList() { return true; }
 
