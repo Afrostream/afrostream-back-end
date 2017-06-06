@@ -85,14 +85,12 @@ mailer.Provider.loadByName("mailblast")
 mailer.Subscriber.loadByEmail("foo@bar.com")
   .then(mailerSubscriber => { })
 
-// underlying database object using static methods
+// underlying database object
 const MailerList = mailer.List.getDbModel()
-const MailerProvider = mailer.Provider.getDbModel()
-
-// mailer objects instance using the underlying database objects
 MailerList.find({where: { name: "list name" } })
-  .then(list => mailer.List.loadFromDb(list))
-  .then(mailerList => { })
+  .then(list => { })
+// convert a database list to a mailerList
+mailerList = mailer.List.loadFromDB(list)
 
 // subscribers management
 mailerList.addSubscriber(mailerSubscriber).then(mailerSubscriber => {})
@@ -105,11 +103,28 @@ mailerList.findSubscriber({"email":"foo@bar.com"}).then(mailerSubscriber => {})
 mailerList.addProvider(mailerProvider).then()
 mailerList.removeProvider(mailerProvider).then()
 
-mailerList.providerGetStatus(mailerProvider).then()
-mailerList.providerSync(mailerProvider).then()
+// we can associate a SQL query to a list.
+mailerList.setQuery("SELECT email FROM ...")
+mailerList.hasQuery().then(bool => {})
+mailerList.getQuery().then(sql => {})
+mailerList.runQuery().then(bool => {})
 
-mailerList.setSubscribersQuery("SELECT email FROM ...")
+// synch the mailer list with all providers
+mailerList.startSync().then(status => { })
+mailerList.stopSync().then()
+mailerList.getSyncStatus().then(status => { console.log(status) })
 
+// underlying database object
+const MailerProvider = mailer.Provider.getDbModel()
+MailerProvider.find({where: { name: "mailblast" } })
+  .then(provider => { })
+// convert a database list to a mailerList
+mailerProvider = mailer.List.loadFromDb(provider)
+//
+mailerProvider.getQuota().then(quota => { })
+mailerProvider.setQuota().then();
+mailerProvider.canSendEmails();
+mailerProvider.decreaseQuota();
 
 //
 mailer.Subscriber.create({"email":"foo@bar.com"})
@@ -134,6 +149,9 @@ const pApi = mailerProvider.getAPIInterface()
 mailer.Provider.APIInterface.List
 mailer.Provider.APIInterface.Subscriber
 
+// the interface should be registered to the mailer using provider's name
+mailer.registerProviderAPIInterface('mailblast', pApiMailblast);
+
 // you can convert mailer object instance to api interface objects
 const providerList = mailerList.toProvider()
 const providerSubscriber = mailerSubscriber.toProvider()
@@ -141,10 +159,10 @@ const providerSubscriber = mailerSubscriber.toProvider()
 // the provider API interface has low level methods
 //  you shouldn't call it directy.
 pApi.createList(providerList).then(providerList => { })
+pApi.getList(pListId);
 pApi.getAllLists().then(arrayOfProviderList => { })
 pAPI.updateList(providerList).then(providerList => { })
 pApi.deleteList(providerList).then()
-
 
 
 //
@@ -185,6 +203,3 @@ POST /api/mailer/pools/2/addresses
 { email: ... }
 PUT  /api/mailer/pools/2/addresses
 DELETE /api/mailer/pools/2/addresses/4242
-
-
-# Fichiers
