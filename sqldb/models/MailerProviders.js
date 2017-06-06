@@ -14,6 +14,10 @@ module.exports = function (sequelize, DataTypes) {
     token: {
       type: DataTypes.STRING,
       length: 255
+    },
+    canHandleList: {
+      type: DataTypes.BOOLEAN,
+      default: false
     }
   });
 };

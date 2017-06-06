@@ -30,6 +30,8 @@ CREATE TABLE "MailerProviders"
   "updatedAt" timestamp with time zone,
   name character varying(255),
   token character varying(255),
+  -- capabilities
+  "canHandleList"  boolean default false,
   CONSTRAINT "MailerProviders_pkey" PRIMARY KEY (_id)
 )
 WITH (
