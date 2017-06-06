@@ -401,8 +401,11 @@ db.MailerTemplate = db.sequelize.import('models/MailerTemplates');
 db.MailerTransaction = db.sequelize.import('models/MailerTransactions');
 db.MailerWorker = db.sequelize.import('models/MailerWorkers');
 
-db.MailerList.belongsToMany(db.MailerProvider, {through: db.MailerAssoProvidersLists, as: 'providers', foreignKey: 'listId'});
-db.MailerProvider.belongsToMany(db.MailerList, {through: db.MailerAssoProvidersLists, as: 'lists', foreignKey: 'providerId'});
+// db.Movie.hasMany(db.Comment, {as: 'comments'});
+db.MailerList.hasMany(db.MailerAssoProvidersLists, {as: 'assoProviders', foreignKey: 'listId'});
+
+//db.MailerList.belongsToMany(db.MailerProvider, {through: db.MailerAssoProvidersLists, as: 'providers', foreignKey: 'listId'});
+//db.MailerProvider.belongsToMany(db.MailerList, {through: db.MailerAssoProvidersLists, as: 'lists', foreignKey: 'providerId'});
 
 
 //LIFE
