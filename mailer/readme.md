@@ -64,25 +64,25 @@ FIXME
 
 ```js
 //
-const mailer = require('afrostream-mailer')
+const Mailer = require('afrostream-mailer')
 
 // classes
-mailer.List
-mailer.Provider
+Mailer.List
+Mailer.Provider
 
 // mailer objects
-mailer.List
-mailer.Provider
-mailer.Subscriber
+Mailer.List
+Mailer.Provider
+Mailer.Subscriber
 
 // mailer objects instance
-mailer.List.create({name:"list name"})
+Mailer.List.create({name:"list name"})
   .then(mailerList => { })
-mailer.List.loadByName("list name")
+Mailer.List.loadByName("list name")
   .then(mailerList => { })
-mailer.Provider.loadByName("mailblast")
+Mailer.Provider.loadByName("mailblast")
   .then(mailerProvider => { })
-mailer.Subscriber.loadByEmail("foo@bar.com")
+Mailer.Subscriber.loadByEmail("foo@bar.com")
   .then(mailerSubscriber => { })
 
 // underlying database object
