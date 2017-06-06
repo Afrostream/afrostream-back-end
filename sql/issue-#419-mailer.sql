@@ -43,8 +43,8 @@ CREATE TABLE "MailerAssoProvidersLists"
   "updatedAt" timestamp with time zone,
   "listId" uuid NOT NULL,
   "providerId" uuid NOT NULL,
-  "synced" boolean default false,
-  "lastSynced" timestamp with time zone
+  "pApiId" character varying(255),
+  "pApiStatus" json
 )
 WITH (
   OIDS=FALSE

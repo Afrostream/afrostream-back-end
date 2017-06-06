@@ -9,10 +9,7 @@ module.exports = function (sequelize, DataTypes) {
     },
     listId: DataTypes.UUID,
     providerId:  DataTypes.UUID,
-    synced: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
-    },
-    lastSynced: DataTypes.DATE
+    pApiId: DataTypes.STRING,
+    pApiStatus: DataTypes.JSON
   });
 };
