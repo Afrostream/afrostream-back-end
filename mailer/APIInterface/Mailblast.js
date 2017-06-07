@@ -4,9 +4,6 @@ const Q = require('q');
 const ApiInterface = require('./APIInterface');
 const IList = ApiInterface.List;
 
-const Mailer = require('../Mailer');
-const MailerList = Mailer.List;
-
 const request = require('request');
 
 // fixme: this dependency should be injected
@@ -73,31 +70,58 @@ class Mailblast extends ApiInterface {
   canHandleList() { return true; }
 
   /*
-   * @param mailerList  MailerList
+   * @param list  IList
    * @return IList
    */
-  createList(mailerList) {
-    assert(mailerList instanceof MailerList);
+  createList(list) {
+    assert(list instanceof IList);
 
-    logger.log(`creating list ${mailerList.name}`);
+    logger.log(`creating list ${list.name}`);
 
     return requestMailblast({
       method: 'POST',
       uri: 'https://api.mailblast.io/v1/lists',
       body: {
         data: {
-          attributes: { name: mailerList.name }
+          attributes: { name: list.name }
         }
       }
     })
       .then(([response, body]) => {
-        if (!response.statusCode !== 201) throw new Error('http status should be 201');
+        if (response.statusCode !== 201) {
+          throw new Error(`http status should be 201 ${body && body.detail}`);
+        }
         if (!body || !body.data) throw new Error('missing response.data');
         if (!Mailblast.isPList) throw new Error('malformated response');
         // everything seems ok in mailblast system.
-        const iList = Mailblast.PListToIList(body.data);
-        logger.log(`iList created from ${JSON.stringify(body)}`);
-        return iList;
+        const list = Mailblast.PListToIList(body.data);
+        logger.log(`iList created from ${JSON.stringify(body)} => ${JSON.stringify(list)}`);
+        return list;
+      });
+  }
+
+  updateList(list) {
+    assert(list instanceof IList);
+
+    logger.log(`updating list ${list.name}`);
+
+    return requestMailblast({
+      method: 'PATCH',
+      uri: 'https://api.mailblast.io/v1/lists',
+      body: {
+        data: {
+          attributes: { name: list.name }
+        }
+      }
+    })
+      .then(([response, body]) => {
+        if (response.statusCode !== 200) throw new Error('http status should be 200');
+        if (!body || !body.data) throw new Error('missing response.data');
+        if (!Mailblast.isPList) throw new Error('malformated response');
+        // everything seems ok in mailblast system.
+        const list = Mailblast.PListToIList(body.data);
+        logger.log(`iList created from ${JSON.stringify(body)} => ${JSON.stringify(list)}`);
+        return list;
       });
   }
 
@@ -109,7 +133,7 @@ class Mailblast extends ApiInterface {
       uri: `https://api.mailblast.io/v1/lists/${id}`
     })
     .then(([response]) => {
-      if (!response.statusCode !== 204) throw new Error('http status should be 204');
+      if (response.statusCode !== 204) throw new Error('http status should be 204');
       return true;
     });
   }
