@@ -22,7 +22,6 @@ class MailerList {
       ]
     })
     .then(model => {
-      console.log(model);
       // check if already linked to this provider ?
       if (!model) throw new Error('cannot read from db');
       if (!Array.isArray(model.assoProviders)) throw new Error('missing assoProviders');
@@ -78,7 +77,7 @@ class MailerList {
 
   addProvider(mailerProvider) {
     assert(mailerProvider instanceof Mailer.Provider);
-    assert(mailerProvider.model instanceof sqldb.MailerProvider);
+    assert(mailerProvider.model instanceof sqldb.MailerProvider.Instance);
 
     return Q()
       .then(() => {
@@ -89,9 +88,12 @@ class MailerList {
           throw new Error('already linked');
         }
         // seems not => linking
-        return pApi.createList(this);
+        return pApi.createList(this.toIList());
       })
       .then(iList => {
+        if (!iList.id) {
+          throw new Error('cannot grab provider list id');
+        }
         // saving this info to asso
         return sqldb.MailerAssoProvidersLists.create({
           listId: this.getId(),
@@ -129,6 +131,55 @@ class MailerList {
       });
   }
 
+  getProviders() {
+    const assoProviders = this.getAssoProviders();
+
+    return Q.all(
+      assoProviders.map(asso => Mailer.Provider.loadById(asso.providerId))
+    );
+  }
+
+  getPAPIs() {
+    return this.getProviders()
+      .then(providers => {
+        return providers.map(
+          provider => provider.getAPIInterface()
+        );
+      });
+  }
+
+  callPAPIs(func, ...params) {
+    return this.getPAPIs()
+      .then(pAPIs => Q.all(
+        pAPIs.map(pAPI => pAPI[func](...params))
+      ));
+  }
+
+  /*
+   * to update the name, we need to
+   *  - update the providers
+   *  - update in the database
+   *
+   * to update the providers, we need to fetch each pAPI of each associated providers
+   *  & call the function update with the new name.
+   *
+   * if everything is ok => we save in the database
+   */
+  updateName(name) {
+    return Q()
+      .then(() => {
+        // we create an iList with the new name
+        const iList = this.toIList();
+        iList.name = name;
+        // we update the pAPIs using this iList
+        return this.callPAPIs('updateList', iList);
+      })
+      .then(() => {
+        return this.model.update({'name': name});
+      })
+      .then(() => this);
+  }
+
   destroy() {
     return Q()
       .then(() => {
@@ -153,6 +204,14 @@ class MailerList {
       name: this.getName(),
       assoProviders: this.getAssoProviders()
     };
+  }
+
+  toIList(asso) {
+    return Mailer.APIInterface.List.build({
+      id: asso && asso.pApiId || null,
+      name: this.getName(),
+      subscribers: []
+    });
   }
 }
 

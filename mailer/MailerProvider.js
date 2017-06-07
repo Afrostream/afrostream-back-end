@@ -9,6 +9,10 @@ class MailerProvider {
     this.apiInterface = null;
   }
 
+  getId() {
+    return this.model._id;
+  }
+
   loadById(id) {
     return sqldb.MailerProvider.find({
       where: { _id: id }
