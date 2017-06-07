@@ -41,13 +41,14 @@ WITH (
 
 CREATE TABLE "MailerAssoProvidersLists"
 (
-  _id serial NOT NULL,
+  _id uuid NOT NULL,
   "createdAt" timestamp with time zone,
   "updatedAt" timestamp with time zone,
   "listId" uuid NOT NULL,
   "providerId" uuid NOT NULL,
   "pApiId" character varying(255),
-  "pApiStatus" json
+  "pApiStatus" json,
+  CONSTRAINT "MailerAssoProvidersLists_pkey" PRIMARY KEY ("listId", "providerId")
 )
 WITH (
   OIDS=FALSE
