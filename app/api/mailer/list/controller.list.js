@@ -105,5 +105,18 @@ exports.addProvider = (req, res) => {
 };
 
 exports.removeProvider = (req, res) => {
-
+  return Q.all([
+    Mailer.List.loadById(req.params.listId),
+    Mailer.Provider.loadById(req.params.providerId)
+  ])
+  .then(([mailerList, mailerProvider]) => {
+    return mailerList.removeProvider(mailerProvider);
+  })
+  .then(
+    () => Mailer.List.loadById(req.params.listId)
+  )
+  .then(
+    mailerList => res.json(mailerList)
+  )
+  .catch(res.handleError());
 };
