@@ -1,5 +1,3 @@
-const sqldb = rootRequire('sqldb');
-
 const Mailer = rootRequire('mailer');
 
 const _ = require('lodash');
