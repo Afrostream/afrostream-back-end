@@ -24,6 +24,11 @@ exports.index = (req, res) => {
       })
     });
   }
+
+  if (req.query.canHandleList === 'true') {
+    queryOptions = _.merge(queryOptions, { where : { canHandleList: true } });
+  }
+
   //
   queryOptions = filters.filterQueryOptions(req, queryOptions, MailerProvider);
   //
