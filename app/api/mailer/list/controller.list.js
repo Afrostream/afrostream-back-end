@@ -27,11 +27,9 @@ exports.index = (req, res) => {
 
   if (queryName) {
     queryOptions = _.merge(queryOptions, {
-      where: sqldb.Sequelize.or({
-        firstName: {$iLike: '%' + queryName + '%'}
-      }, {
-        lastName: {$iLike: '%' + queryName + '%'}
-      })
+      where: {
+        name: {$iLike: '%' + queryName + '%'}
+      }
     });
   }
   //
