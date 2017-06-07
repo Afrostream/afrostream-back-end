@@ -6,9 +6,9 @@ class APIInterface {
 
   // disaling lint for interface definition.
   /*eslint-disable*/
-  createList(mailerList) { assert(false); }
+  createList(iList) { assert(false); }
   removeList(id) { assert(false); }
-  updateList(data) { assert(false); }
+  updateList(iList) { assert(false); }
   hasList(id) { assert(false); }
   /*eslint-enable*/
 }
@@ -22,7 +22,7 @@ class List {
 
   load(data) {
     assert(data);
-    assert(data.id && typeof data.id === 'string');
+    assert((data.id && typeof data.id === 'string') || data.id === null);
     assert(data.name && typeof data.name === 'string');
 
     this.id = data.id;
@@ -55,7 +55,9 @@ List.build = data => {
   if (List.isIList(data)) {
     throw new Error('data is not an IList ' + JSON.stringify(data));
   }
-  return new List(data);
+  const iList = new List();
+  iList.load(data);
+  return iList;
 };
 
 class Subscriber {
