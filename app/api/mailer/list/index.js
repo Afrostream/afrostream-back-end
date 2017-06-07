@@ -3,10 +3,13 @@ const router = express.Router();
 
 const controller = require('./controller.list.js');
 
-router.get('/:id', controller.show);
+router.get('/:listId', controller.show);
 router.get('/', controller.index);
 router.post('/', controller.create);
-router.put('/:id', controller.update);
-router.delete('/:id', controller.destroy);
+router.put('/:listId', controller.update);
+router.delete('/:listId', controller.destroy);
+
+router.post('/:listId/providers/', controller.addProvider);
+router.delete('/:listId/providers/:providerId', controller.removeProvider);
 
 module.exports = router;
