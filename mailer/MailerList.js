@@ -13,14 +13,16 @@ class MailerList {
   loadById(id) {
     return sqldb.MailerList.find({
       where: { _id: id },
-      includes: [
+      include: [
         {
           model: sqldb.MailerAssoProvidersLists,
+          as: 'assoProviders',
           required: false
         }
       ]
     })
     .then(model => {
+      console.log(model);
       // check if already linked to this provider ?
       if (!model) throw new Error('cannot read from db');
       if (!Array.isArray(model.assoProviders)) throw new Error('missing assoProviders');
@@ -148,7 +150,7 @@ class MailerList {
   toJSON() {
     return {
       _id: this.getId(),
-      name: this.get('name'),
+      name: this.getName(),
       assoProviders: this.getAssoProviders()
     };
   }
@@ -207,11 +209,11 @@ MailerList.destroy = id => {
     });
 };
 
-MailerList.find = options => {
-  sqldb.MailerList.find(options)
+MailerList.findAndCountAll = options => {
+  return sqldb.MailerList.findAndCountAll(options)
     .then(result => {
       // we map result.rows
-      result.rows = result.rows.map(row => {
+      result.rows.forEach(row => {
         const mailerList = new MailerList();
         mailerList.model = row; // hack, for performance.
                                 // here, we should use mailerList.loadById(...)

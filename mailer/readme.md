@@ -86,7 +86,7 @@ Mailer.Subscriber.loadByEmail("foo@bar.com")
   .then(mailerSubscriber => { })
 
 // underlying database object
-const MailerList = mailer.List.getDbModel()
+const MailerList = Mailer.List.getDbModel()
 MailerList.find({where: { name: "list name" } })
   .then(list => { })
 // convert a database list to a mailerList

@@ -35,7 +35,7 @@ exports.index = (req, res) => {
   //
   queryOptions = filters.filterQueryOptions(req, queryOptions, Mailer.List.getDBModel());
 
-  Mailer.List.find(queryOptions)
+  Mailer.List.findAndCountAll(queryOptions)
     .then(utils.handleEntityNotFound(res))
     .then(utils.responseWithResultAndTotal(req, res))
     .catch(res.handleError());
@@ -55,7 +55,7 @@ exports.create = (req, res) => {
 };
 
 exports.update = (req, res) => {
-  Mailer.List.loadById(req.params._id)
+  Mailer.List.loadById(req.params.id)
     .then(mailerList => {
       return mailerList.update(req.body);
     })

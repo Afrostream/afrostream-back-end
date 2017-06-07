@@ -292,6 +292,10 @@ const filterOutput = (() => {
     if (Array.isArray(entity)) {
       return entity.map(v => filter(v, options));
     }
+    // ex: array[undefined]
+    if (!entity) {
+      return entity;
+    }
     // single entity
     if (typeof entity.getPlain === 'function') {
       return entity.getPlain(options);

@@ -1,7 +1,7 @@
 const assert = require('better-assert');
 const Q = require('q');
 
-const ApiInterface = require('./interface');
+const ApiInterface = require('./APIInterface');
 const IList = ApiInterface.List;
 
 const Mailer = require('../Mailer');
