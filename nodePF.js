@@ -1,7 +1,3 @@
-const Q = require('q');
-
-const config = rootRequire('config');
-
 const anr = require('afrostream-node-request');
 
 // fixme: this dependency should be injected

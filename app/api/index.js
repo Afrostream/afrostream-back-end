@@ -42,6 +42,7 @@ router.use('/series', require('./movie/index'));
 router.use('/users', require('./user/index'));
 router.use('/dashboard', require('./dashboard/index'));
 router.use('/pf', require('./pf/index'));
+router.use('/nodePF', require('./nodePF/index'));
 router.use('/usersvideos', require('./usersvideos/index'));
 router.use('/waitingUsers', require('./waitingUser/index'));
 router.use('/widgets', require('./widget/index'));
