@@ -145,3 +145,20 @@ module.exports.profiles.index = (req, res) => {
     })
     .catch(res.handleError());
 };
+
+// FIXME: should also be able to take ?pfMd5Hash
+module.exports.uploadToBouyguesSFTP = (req, res) => {
+  Q()
+    .then(() => {
+      return NodePF.request({
+        uri: '/api/uploadToBouyguesSFTP',
+        qs: {
+          contentId: req.query.contentId
+        }
+      });
+    })
+    .then(assets => {
+      res.json(assets);
+    })
+    .catch(res.handleError());
+};

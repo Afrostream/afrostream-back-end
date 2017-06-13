@@ -10,4 +10,6 @@ router.use(auth.middleware.restrictRoutesToAuthentified());
 router.get('/contents', controller.contents.index);
 router.get('/profiles', controller.profiles.index);
 
+router.get('/uploadToBouyguesSFTP', controller.uploadToBouyguesSFTP);
+
 module.exports = router;
