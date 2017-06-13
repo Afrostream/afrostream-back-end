@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
-router.get('/contents', controller.index);
+router.get('/contents', controller.contents.index);
+router.get('/profiles', controller.profiles.index);
 
 module.exports = router;

@@ -42,10 +42,13 @@ function findPfMd5HashOfEpisodesByTitle(title) {
   });
 }
 
+module.exports.contents = {};
+module.exports.profiles = {};
+
 /*
  * exports content with metadata.
  */
-module.exports.index = (req, res) => {
+module.exports.contents.index = (req, res) => {
   const limit = req.query.limit || 5;
 
   Q()
@@ -123,6 +126,22 @@ module.exports.index = (req, res) => {
     })
     .then(contents => {
       res.json(contents);
+    })
+    .catch(res.handleError());
+};
+
+
+module.exports.profiles.index = (req, res) => {
+  Q()
+    .then(() => {
+      return NodePF.request({
+        uri: '/api/profiles'
+      }).then(data => {
+        return data && data.rows;
+      });
+    })
+    .then(profiles => {
+      res.json(profiles);
     })
     .catch(res.handleError());
 };

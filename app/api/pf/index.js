@@ -9,5 +9,6 @@ const router = express.Router();
 router.use(auth.middleware.restrictRoutesToAuthentified());
 
 router.get('/contents', utils.middlewareNoCache, auth.hasRole('admin'), controller.contents);
+router.get("/transcode", utils.middlewareNoCache, auth.hasRole('admin'), controller.transcode);
 
 module.exports = router;

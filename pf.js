@@ -296,6 +296,7 @@ var getContents = function (state) {
 
 var pf = {
   PfContent: PfContent,
+  requestPF: requestPF,
   getContents: getContents
 };
 
