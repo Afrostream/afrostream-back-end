@@ -67,6 +67,12 @@ exports.update = (req, res) => {
       }
       return mailerList;
     })
+    .then(mailerList => {
+      if (mailerList.getQuery() !== req.body.query) {
+        return mailerList.updateQuery(req.body.query);
+      }
+      return mailerList;
+    })
     .then(mailerList => res.status(200).json(mailerList))
     .catch(res.handleError());
 };
