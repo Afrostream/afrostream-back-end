@@ -39,6 +39,10 @@ class MailerList {
     return this.model.get('name');
   }
 
+  getQuery() {
+    return this.model.get('query');
+  }
+
   getModel() {
     return this.model;
   }
@@ -47,16 +51,8 @@ class MailerList {
     return this.model.update(infos).then(() => this);
   }
 
-  setQuery (query) {
-    return this.model.update({query: query});
-  }
-
   hasQuery() {
-    return Q(Boolean(this.model.query));
-  }
-
-  getQuery() {
-    return Q(this.model.query);
+    return Boolean(this.model.get('query'));
   }
 
   getAssoProviders() {
@@ -64,14 +60,17 @@ class MailerList {
   }
 
   runQuery() {
-    this.hasQuery()
-      .then(hasQuery => {
-        if (!hasQuery) throw new Error('missing query');
-        return this.getQuery();
-      })
-      .then(query => {
-        // restricting to "SELECT" kind of query injection...
+    return Q()
+      .then(() => {
+        if (!this.hasQuery()) throw new Error('missing query');
+        const query = this.getQuery();
         return sqldb.sequelize.query(query, { type: sqldb.sequelize.QueryTypes.SELECT});
+      })
+      .then(results => {
+        const emails = results.map(row => row.email).filter(email => email);
+
+        // forEach emails, we check if they already exists.
+        
       });
   }
 
@@ -106,7 +105,7 @@ class MailerList {
 
   removeProvider(mailerProvider) {
     assert(mailerProvider instanceof Mailer.Provider);
-    assert(mailerProvider.model instanceof sqldb.MailerProvider);
+    assert(mailerProvider.model instanceof sqldb.MailerProvider.Instance);
 
     let asso;
 
@@ -116,7 +115,7 @@ class MailerList {
         const assoProviders = this.getAssoProviders();
         const pApi = mailerProvider.getAPIInterface();
 
-        asso = assoProviders.find(asso => asso.providerId === this.mailerProvider.getId());
+        asso = assoProviders.find(asso => asso.providerId === mailerProvider.getId());
         if (!asso) {
           throw new Error('cannot find link between list & provider, already unlinked ?');
         }
@@ -178,6 +177,16 @@ class MailerList {
         return this.model.update({'name': name});
       })
       .then(() => this);
+  }
+
+  updateQuery (query) {
+    return Q()
+      .then(() => {
+        return MailerList.isQueryValid(query);
+      })
+      .then(() => {
+        return this.model.update({query: query});
+      });
   }
 
   destroy() {
@@ -251,6 +260,9 @@ MailerList.create = options => {
       }
     })
     .then(() => {
+      return MailerList.isQueryValid(options.query);
+    })
+    .then(() => {
       return sqldb.MailerList.create(options);
     })
     .then(MailerList.loadFromDB);
@@ -279,6 +291,22 @@ MailerList.findAndCountAll = options => {
                                 //  & use promise
       });
       return result;
+    });
+};
+
+// the list query is a "SELECT".
+MailerList.isQueryValid = query => {
+  if (query === "") {
+    return Q(true);
+  }
+  return sqldb.sequelize.query(query, { type: sqldb.sequelize.QueryTypes.SELECT})
+    .then(result => {
+      console.log(result);
+      const ok = result.every(row => typeof row.email !== 'undefined');
+      if (!ok) {
+        throw new Error('malformated query');
+      }
+      return true;
     });
 };
 
