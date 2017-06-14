@@ -105,8 +105,8 @@ mailerList.removeProvider(mailerProvider).then()
 
 // we can associate a SQL query to a list.
 mailerList.setQuery("SELECT email FROM ...")
-mailerList.hasQuery().then(bool => {})
-mailerList.getQuery().then(sql => {})
+mailerList.getQuery()
+mailerList.hasQuery()
 mailerList.runQuery().then(bool => {})
 
 // synch the mailer list with all providers
