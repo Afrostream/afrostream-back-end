@@ -52,6 +52,21 @@ exports.create = (req, res) => {
     .catch(res.handleError());
 };
 
+exports.updateQuery = (req, res) => {
+  return Q()
+    .then(() => {
+      return Mailer.List.loadById(req.params.listId);
+    })
+    .then(mailerList => {
+      if (mailerList.getQuery() !== req.body.query) {
+        return mailerList.updateQuery(req.body.query);
+      }
+      return mailerList;
+    })
+    .then(mailerList => res.status(200).json(mailerList))
+    .catch(res.handleError());
+};
+
 exports.update = (req, res) => {
   return Q()
     .then(() => {
@@ -61,7 +76,6 @@ exports.update = (req, res) => {
       return Mailer.List.loadById(req.params.listId);
     })
     .then(mailerList => {
-      // check if the name has been updated
       if (mailerList.getName() !== req.body.name) {
         return mailerList.updateName(req.body.name);
       }
@@ -121,4 +135,33 @@ exports.removeProvider = (req, res) => {
     mailerList => res.json(mailerList)
   )
   .catch(res.handleError());
+};
+
+/*
+ * this function run the query & create subscribers
+ *
+ * this can be slow.
+ *
+ *
+ */
+exports.runQuery = (req, res) => {
+  Mailer.List.loadById(req.params.listId)
+    .then(mailerList => {
+      return mailerList.runQuery();
+    })
+    .then(
+      r => res.json(r)
+    )
+    .catch(res.handleError());
+};
+
+exports.assoSubscribers = (req, res) => {
+  Mailer.List.loadById(req.params.listId)
+    .then(mailerList => {
+      return mailerList.getAssoSubscribers({includeDisabled:true});
+    })
+    .then(
+      r => res.json(r)
+    )
+    .catch(res.handleError());
 };
