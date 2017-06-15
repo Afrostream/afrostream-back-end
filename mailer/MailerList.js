@@ -4,6 +4,8 @@ const Q = require('q');
 
 const sqldb = rootRequire('sqldb');
 
+const logger = rootRequire('logger').prefix('MAILER').prefix('LIST');
+
 const Mailer = require('./Mailer.js');
 
 class MailerList {
@@ -60,18 +62,162 @@ class MailerList {
   }
 
   runQuery() {
+    logger.log('[RUNQUERY] start');
+
+    let numberOfSubscribers;
+
     return Q()
       .then(() => {
         if (!this.hasQuery()) throw new Error('missing query');
-        const query = this.getQuery();
-        return sqldb.sequelize.query(query, { type: sqldb.sequelize.QueryTypes.SELECT});
       })
-      .then(results => {
-        const emails = results.map(row => row.email).filter(email => email);
+      .then(() => {
+        const query = this.getQuery();
 
-        // forEach emails, we check if they already exists.
-        
+        logger.log(`[RUNQUERY] ${query}`);
+
+        // we only accept user with valid email & uuid
+        return sqldb.sequelize.query(query, { type: sqldb.sequelize.QueryTypes.SELECT})
+          // rows <=> { email: "...", uuid: "..." }
+          .then(rows => rows.filter(row => row.email && row.uuid));
+      })
+      .then(rows => {
+        numberOfSubscribers = rows.length;
+        logger.log(`[RUNQUERY] numberOfSubscribers = ${numberOfSubscribers}`);
+        logger.log(`[RUNQUERY] ${rows.map(o=>o.uuid+':'+o.email).join('|')}`);
+        return Mailer.Subscriber.bulkCreateOrUpdate(
+          rows.map(row => {
+            return { referenceEmail: row.email, referenceUuid: String(row.uuid) };
+          })
+        );
+      })
+      .then(mailerSubscribers => {
+        // we need to update the list with these subscribers
+        return this.updateSubscribers(mailerSubscribers);
+      })
+      .then(() => {
+        logger.log(`[RUNQUERY] updating model.numberOfSubscribers = ${numberOfSubscribers}`);
+        return this.update({numberOfSubscribers: numberOfSubscribers});
       });
+  }
+
+  getAssoSubscribers(options) {
+    options = options || {};
+
+    const where = { listId: this.getId() };
+    if (!options.includeDisabled) {
+      Object.assign(where, { disabled: false });
+    }
+    return sqldb.MailerAssoListsSubscribers.findAll({
+      where: where,
+      include: [
+        {
+            model: sqldb.MailerSubscriber,
+            as: 'subscriber',
+            required: true
+        }
+      ]
+    });
+  }
+
+  getSubscribers(options) {
+    return this.getAssoSubscribers(options).then(assoListsSubscribers => {
+      return Mailer.Subscriber.loadFromModels(
+        assoListsSubscribers.map(asso => asso.subscriber)
+      );
+    });
+  }
+
+  updateSubscribers(mailerSubscribers) {
+    logger.log(`[updateSubscribers] updating ${mailerSubscribers.length} subscribers`);
+
+    return this.getSubscribers()
+      .then(currentMailerSubscribers => {
+        logger.log(`[updateSubscribers] current ${currentMailerSubscribers.length} subscribers`);
+
+        const toAdd = Mailer.Subscriber.diffList(mailerSubscribers, currentMailerSubscribers);
+        const toDisable = Mailer.Subscriber.diffList(currentMailerSubscribers, mailerSubscribers);
+
+        logger.log(`[updateSubscribers] toAdd ${toAdd.length} subscribers`);
+        logger.log(`[updateSubscribers] toDisable ${toDisable.length} subscribers`);
+
+        return Q.all([
+          this.addSubscribers(toAdd),
+          this.disableSubscribers(toDisable)
+        ]);
+      });
+  }
+
+  // adds => activate or create
+  addSubscribers(mailerSubscribers) {
+    logger.log(`[addSubscribers] ${mailerSubscribers.length} subscribers`);
+
+    if (mailerSubscribers.length === 0) {
+      logger.log(`[addSubscribers] nothing => skip`);
+      return Q(this);
+    }
+    const mailerSubscribersId = mailerSubscribers.map(o => o.getId());
+
+    return sqldb.MailerAssoListsSubscribers.findAll({
+      where: { listId: this.getId(), subscriberId : { $in : mailerSubscribersId } }
+    }).then(assoMailerSubscribers => {
+      const assoMailerSubscribersIds = assoMailerSubscribers.map(o => o.subscriberId);
+
+      const toCreate = mailerSubscribers.filter(mailerSubscriber => {
+        return assoMailerSubscribersIds.indexOf(mailerSubscriber.getId()) === -1;
+      });
+      const toActivate = mailerSubscribers.filter(mailerSubscriber => {
+        return assoMailerSubscribersIds.indexOf(mailerSubscriber.getId()) !== -1;
+      });
+
+      logger.log(`[addSubscribers] toCreate: ${toCreate.length} subscribers`);
+      logger.log(`[addSubscribers] toActivate: ${toActivate.length} subscribers`);
+
+      return Q.all([
+        // adding associations
+        sqldb.MailerAssoListsSubscribers.bulkCreate(
+          toCreate.map(mailerSubscriber => {
+            return {
+              subscriberId: mailerSubscriber.getId(),
+              state: 'ACTIVE',
+              disabled: false,
+              dateActive: new Date(),
+              listId: this.getId()
+            };
+          })
+        ),
+        // updating associations
+        sqldb.MailerAssoListsSubscribers.update({
+          state: 'ACTIVE', // should it be RE-ACTIVE ?
+          disabled: false,
+          dateActive: new Date()
+        }, {
+          where: {
+            subscriberId : { $in : toActivate.map(o => o.getId()) }
+          }
+        })
+      ]);
+    })
+    .then(() => this);
+  }
+
+  disableSubscribers(mailerSubscribers) {
+    logger.log(`[disableSubscribers] ${mailerSubscribers.length} subscribers`);
+
+    if (mailerSubscribers.length === 0) {
+      logger.log(`[disableSubscribers] nothing => skip`);
+      return Q(this);
+    }
+    const mailerSubscribersId = mailerSubscribers.map(o => o.getId());
+
+    return sqldb.MailerAssoListsSubscribers.update({
+      state: 'UNSUBSCRIBED',
+      disabled: true,
+      dateUnsubscribed: new Date()
+    }, {
+      where: {
+        subscriberId : { $in : mailerSubscribersId }
+      }
+    }).then(() => this);
   }
 
   addProvider(mailerProvider) {
@@ -211,7 +357,8 @@ class MailerList {
     return {
       _id: this.getId(),
       name: this.getName(),
-      assoProviders: this.getAssoProviders()
+      assoProviders: this.getAssoProviders(),
+      numberOfSubscribers: this.model && this.model.get('numberOfSubscribers')
     };
   }
 
@@ -301,8 +448,7 @@ MailerList.isQueryValid = query => {
   }
   return sqldb.sequelize.query(query, { type: sqldb.sequelize.QueryTypes.SELECT})
     .then(result => {
-      console.log(result);
-      const ok = result.every(row => typeof row.email !== 'undefined');
+      const ok = result.every(row => typeof row.email !== 'undefined' && typeof row.uuid !== 'undefined');
       if (!ok) {
         throw new Error('malformated query');
       }
