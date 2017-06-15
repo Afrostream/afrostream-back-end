@@ -12,6 +12,10 @@ module.exports = function (sequelize, DataTypes) {
       length: 255
     },
     query: DataTypes.TEXT,
+    numberOfSubscribers: {
+      type: DataTypes.INTEGER,
+      default: 0
+    },
     disabled: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
