@@ -19,7 +19,11 @@ module.exports = {
       storage: 'dev.postgres'
     },
     hooks: {
-      mqModelBlacklist: [ 'Logs', 'AccessToken', 'RefreshToken', 'UsersVideos' ],
+      mqModelBlacklist: [ 'Logs', 'AccessToken', 'RefreshToken', 'UsersVideos',
+        // excluding all mailer stuff.
+        'MailerAssoListsSubscribers', 'MailerAssoListsWorkers', 'MailerAssoProvidersList', 'MailerAssoSubscribersProviders',
+        'MailerList', 'MailerProvider', 'MailerSubscriber', 'MailerTemplate', 'MailerTransaction', 'MailerWorker'
+      ],
       mqFields: [ '_id', 'title' ]
     }
   },
