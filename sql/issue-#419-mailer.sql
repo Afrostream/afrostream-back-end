@@ -1,6 +1,6 @@
 DROP TABLE "MailerLists";
 DROP TABLE "MailerProviders";
-DROP TABLE "MailerAssoProvidersLists";
+DROP TABLE "MailerAssoListsProviders";
 DROP TABLE "MailerWorkers";
 DROP TABLE "MailerAssoListsWorkers";
 DROP TABLE "MailerSubscribers";
@@ -40,7 +40,7 @@ WITH (
   OIDS=FALSE
 );
 
-CREATE TABLE "MailerAssoProvidersLists"
+CREATE TABLE "MailerAssoListsProviders"
 (
   _id uuid NOT NULL,
   "createdAt" timestamp with time zone,
@@ -49,7 +49,7 @@ CREATE TABLE "MailerAssoProvidersLists"
   "providerId" uuid NOT NULL,
   "pApiId" character varying(255),
   "pApiStatus" json,
-  CONSTRAINT "MailerAssoProvidersLists_pkey" PRIMARY KEY ("listId", "providerId")
+  CONSTRAINT "MailerAssoListsProviders_pkey" PRIMARY KEY ("listId", "providerId")
 )
 WITH (
   OIDS=FALSE
@@ -75,7 +75,7 @@ CREATE TABLE "MailerAssoListsWorkers"
   "updatedAt" timestamp with time zone,
   "listId" uuid NOT NULL,
   "workerId" uuid NOT NULL
-  CONSTRAINT "MailerAssoProvidersLists_pkey" PRIMARY KEY ("listId", "providerId")
+  CONSTRAINT "MailerAssoListsWorkers_pkey" PRIMARY KEY ("listId", "workerId")
 )
 WITH (
   OIDS=FALSE

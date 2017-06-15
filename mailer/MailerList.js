@@ -17,7 +17,7 @@ class MailerList {
       where: { _id: id },
       include: [
         {
-          model: sqldb.MailerAssoProvidersLists,
+          model: sqldb.MailerAssoListsProviders,
           as: 'assoProviders',
           required: false
         }
@@ -240,7 +240,7 @@ class MailerList {
           throw new Error('cannot grab provider list id');
         }
         // saving this info to asso
-        return sqldb.MailerAssoProvidersLists.create({
+        return sqldb.MailerAssoListsProviders.create({
           listId: this.getId(),
           providerId: mailerProvider.getId(),
           pApiId: iList.id,
