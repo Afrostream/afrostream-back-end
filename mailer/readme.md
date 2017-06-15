@@ -93,10 +93,14 @@ MailerList.find({where: { name: "list name" } })
 mailerList = mailer.List.loadFromDB(list)
 
 // subscribers management
+mailerList.getSubscribers({includeDisabled:true}).then(arrayOfMailerSubscribers => { })
+mailerList.getSubscribersEmails({includeDisabled:true}).then(arrayOfEmails => { })
 mailerList.addSubscriber(mailerSubscriber).then(mailerSubscriber => {})
 mailerList.addSubscribers([mailerSubscriber1, mailerSubscriber2, mailerSubscriber3])
           .then(arrayOfMailerSubscribers => {})
 mailerList.removeSubscriber(mailerSubscriber).then()
+mailerList.removeSubscribers([mailerSubscriber1, mailerSubscriber2, mailerSubscriber3]).then()
+mailerList.updateSubscribers(arrayOfMailerSubscribers)
 mailerList.findSubscriber({"email":"foo@bar.com"}).then(mailerSubscriber => {})
 
 // Add a provider to a list (short execution time)
@@ -127,13 +131,16 @@ mailerProvider.canSendEmails();
 mailerProvider.decreaseQuota();
 
 //
-mailer.Subscriber.create({"email":"foo@bar.com"})
+Mailer.Subscriber.create({"email":"foo@bar.com"}).then(mailerSubscriber => {})
+Mailer.Subscriber.bulkCreate([{"email":...},{"email":...}]).then(
+  arrayOfMailerSubscribers => { }
+)
 
 // example
 Q.all([
-  mailer.Subscriber.create({"email":"foo@bar.com"}),
-  mailer.Subscriber.create({"email":"a@a.com"}),
-  mailer.Subscriber.create({"email":"b@b.com"})
+  Mailer.Subscriber.create({"email":"foo@bar.com"}),
+  Mailer.Subscriber.create({"email":"a@a.com"}),
+  Mailer.Subscriber.create({"email":"b@b.com"})
 ])
   .then(([sub1, sub2, sub3]) => {
     // return mailerList.add(sub1);
@@ -146,8 +153,8 @@ Q.all([
 const pApi = mailerProvider.getAPIInterface()
 
 // the pApi has it's own object interface
-mailer.Provider.APIInterface.List
-mailer.Provider.APIInterface.Subscriber
+Mailer.Provider.APIInterface.List
+Mailer.Provider.APIInterface.Subscriber
 
 // the interface should be registered to the mailer using provider's name
 mailer.registerProviderAPIInterface('mailblast', pApiMailblast);
