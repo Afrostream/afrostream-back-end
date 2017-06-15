@@ -394,6 +394,8 @@ db.Work = db.sequelize.import('models/work');
 //
 db.MailerAssoListsWorkers = db.sequelize.import('models/MailerAssoListsWorkers');
 db.MailerAssoProvidersLists = db.sequelize.import('models/MailerAssoProvidersLists');
+db.MailerAssoSubscribersProviders = db.sequelize.import('models/MailerAssoSubscribersProviders');
+db.MailerAssoListsSubscribers = db.sequelize.import('models/MailerAssoListsSubscribers');
 db.MailerList = db.sequelize.import('models/MailerLists');
 db.MailerProvider = db.sequelize.import('models/MailerProviders');
 db.MailerSubscriber = db.sequelize.import('models/MailerSubscribers');
@@ -403,6 +405,10 @@ db.MailerWorker = db.sequelize.import('models/MailerWorkers');
 
 // db.Movie.hasMany(db.Comment, {as: 'comments'});
 db.MailerList.hasMany(db.MailerAssoProvidersLists, {as: 'assoProviders', foreignKey: 'listId'});
+
+db.MailerList.hasMany(db.MailerAssoListsSubscribers, {as: 'assoSubscribers', foreignKey: 'listId'});
+
+db.MailerAssoListsSubscribers.belongsTo(db.MailerSubscriber, {as: 'subscriber', foreignKey: 'subscriberId'});
 
 //db.MailerList.belongsToMany(db.MailerProvider, {through: db.MailerAssoProvidersLists, as: 'providers', foreignKey: 'listId'});
 //db.MailerProvider.belongsToMany(db.MailerList, {through: db.MailerAssoProvidersLists, as: 'lists', foreignKey: 'providerId'});

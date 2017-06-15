@@ -16,6 +16,7 @@ CREATE TABLE "MailerLists"
   name character varying(255),
   query text,
   "disabled" boolean default false,
+  "numberOfSubscribers" integer default 0,
   CONSTRAINT "MailerLists_pkey" PRIMARY KEY (_id)
 )
 WITH (
@@ -74,6 +75,27 @@ CREATE TABLE "MailerAssoListsWorkers"
   "updatedAt" timestamp with time zone,
   "listId" uuid NOT NULL,
   "workerId" uuid NOT NULL
+  CONSTRAINT "MailerAssoProvidersLists_pkey" PRIMARY KEY ("listId", "providerId")
+)
+WITH (
+  OIDS=FALSE
+);
+
+CREATE TABLE "MailerAssoListsSubscribers"
+(
+  _id uuid NOT NULL,
+  "createdAt" timestamp with time zone,
+  "updatedAt" timestamp with time zone,
+  -- we never remove a subscriber
+  -- we disable the subscriber
+  "disabled" boolean default false,
+  "state" character varying(16),
+  "dateActive" timestamp with time zone,
+  "dateUnsubscribed" timestamp with time zone,
+  --
+  "listId" uuid NOT NULL,
+  "subscriberId" uuid NOT NULL,
+  CONSTRAINT "MailerAssoListsSubscribers_pkey" PRIMARY KEY ("listId", "subscriberId")
 )
 WITH (
   OIDS=FALSE
@@ -84,22 +106,38 @@ CREATE TABLE "MailerSubscribers"
   _id uuid NOT NULL,
   "createdAt" timestamp with time zone,
   "updatedAt" timestamp with time zone,
-  "referenceUuid"  character varying(255),
-  "referenceEmail" character varying(255),
+  -- we never remove a subscriber
+  -- we disable the subscriber
+  "state" character varying(16),
+  -- reference
+  "referenceType"  character varying(32),  -- type: backo
+  "referenceUuid"  character varying(64),  -- uuid = backoUserId
+  "referenceEmail" character varying(255), -- if exists => we use this.
   CONSTRAINT "MailerSubscribers_pkey" PRIMARY KEY (_id)
 )
 WITH (
   OIDS=FALSE
 );
 
-CREATE TABLE "MailerAssoListsSubscribers"
+--
+-- we need to handle the email provider state here ...
+--
+-- states are :
+--   null  -- nothing happened yet
+--   ACTIVE
+--   UNSUBSCRIBED
+CREATE TABLE "MailerAssoSubscribersProviders"
 (
-  _id serial NOT NULL,
+  _id uuid NOT NULL,
   "createdAt" timestamp with time zone,
   "updatedAt" timestamp with time zone,
-  "listId" uuid NOT NULL,
   "subscriberId" uuid NOT NULL,
-  "disabled" boolean default false
+  "providerId" uuid NOT NULL,
+  "state" character varying(16),
+  "dateActive" timestamp with time zone,
+  "dateUnsubscribed" timestamp with time zone,
+  "disabled" boolean default false,
+  CONSTRAINT "MailerAssoSubscribersProviders_pkey" PRIMARY KEY ("subscriberId", "providerId")
 )
 WITH (
   OIDS=FALSE
