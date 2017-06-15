@@ -7,7 +7,9 @@ module.exports = function (sequelize, DataTypes) {
       unique: true,
       allowNull: false
     },
-    referenceUuid: DataTypes.STRING(255),
+    state: DataTypes.STRING(16), // null|ACTIVE|UNSUBSCRIBED
+    referenceType: DataTypes.STRING(32),
+    referenceUuid: DataTypes.STRING(64),
     referenceEmail: DataTypes.STRING(255)
   });
 };
