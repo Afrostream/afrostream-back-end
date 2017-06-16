@@ -4,6 +4,8 @@ const assert = require('better-assert');
 
 const logger = rootRequire('logger').prefix('MAILER').prefix('SUBSCRIBER');
 
+const Mailer = require('./Mailer.js');
+
 class MailerSubscriber {
   constructor () {
     this.model = null;
@@ -21,6 +23,18 @@ class MailerSubscriber {
     return this.model;
   }
 
+  getEmail() {
+    return this.model.get('email');
+  }
+
+  getFirstName() {
+    return this.model.get('firstName');
+  }
+
+  getLastName() {
+    return this.model.get('lastName');
+  }
+
   getReferenceUuid() {
     return this.model && this.model.get('referenceUuid');
   }
@@ -34,6 +48,15 @@ class MailerSubscriber {
       referenceEmail: this.model && this.model.get('referenceEmail'),
     };
   }
+
+  toISubscriber(assoListSubscriberProvider) {
+    return Mailer.apiInterface.Subscriber.build({
+      id: assoListSubscriberProvider && assoListSubscriberProvider.pApiId || null,
+      email: this.getEmail(),
+      firstName: this.getFirstName(),
+      lastName: this.getLastName()
+    });
+  }
 }
 
 /*
@@ -41,13 +64,14 @@ class MailerSubscriber {
  */
 MailerSubscriber.getDBModel = () => sqldb.MailerSubscriber;
 
+MailerSubscriber.loadFromModel = model => {
+  const mailerSubscriber = new MailerSubscriber();
+  mailerSubscriber.loadFromModel(model);
+  return mailerSubscriber;
+};
 
 MailerSubscriber.loadFromModels = models => {
-  return models.map(model => {
-    const mailerSubscriber = new MailerSubscriber();
-    mailerSubscriber.loadFromModel(model);
-    return mailerSubscriber;
-  });
+  return models.map(MailerSubscriber.loadFromModel);
 };
 
 /*
