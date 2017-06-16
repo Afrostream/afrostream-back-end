@@ -200,9 +200,9 @@ class Mailblast extends ApiInterface {
     });
   }
 
-  deleteSubscriber(listId, subscriberId) {
+  deleteSubscriber(listId, subscriber) {
     assert(listId && typeof listId === 'string');
-    assert(subscriberId && typeof subscriberId === 'string');
+    assert(subscriber instanceof ISubscriber);
     assert(subscriber.get('id'));
 
     logger.log(`list ${listId}: deleting subscriber ${subscriber.get('id')} ${subscriber.get('email')}`);
@@ -211,7 +211,7 @@ class Mailblast extends ApiInterface {
       method: 'DELETE',
       uri: `https://api.mailblast.io/v1/lists/${listId}/subscribers/${subscriber.get('id')}`
     })
-    .then(([response, body]) => {
+    .then(([response]) => {
       if (response.statusCode !== 204) throw new Error('http status should be 204');
       return true;
     });

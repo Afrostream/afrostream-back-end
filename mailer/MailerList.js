@@ -8,6 +8,8 @@ const logger = rootRequire('logger').prefix('MAILER').prefix('LIST');
 
 const Mailer = require('./Mailer.js');
 
+const _ = require('lodash');
+
 class MailerList {
   constructor () { }
 
@@ -56,6 +58,12 @@ class MailerList {
   hasQuery() {
     return Boolean(this.model.get('query'));
   }
+
+  /*
+  getAssoProvider(mailerProvider) {
+    return this.getAssoProviders().find(asso => asso.providerId === mailerProvider.getId());
+  }
+  */
 
   getAssoProviders() {
     return Array.from(this.model.assoProviders) || [];
@@ -353,6 +361,18 @@ class MailerList {
       });
   }
 
+  // fetch the asso between the list & the provider
+  // @return promise resolve:asso, reject:not found/error.
+  getAssoProvider(mailerProvider) {
+    return sqldb.MailerAssoListsProviders.find({
+      where: { listId: this.getId(), providerId: mailerProvider.getId() }
+    })
+    .then(assoListProvider => {
+      if (!assoListProvider) throw new Error('provider not linked');
+      return assoListProvider;
+    });
+  }
+
   /*
    * SYNC
    */
@@ -380,36 +400,165 @@ class MailerList {
     //
     let syncId = Math.round(Math.random() * 1000000);
 
-    return Q()
-      .then(() => {
-        return sqldb.MailerAssoListsProviders.find({
-          where: { listId: this.getId(), providerId: mailerProvider.getId() }
-        });
-      })
+    return this.getAssoProvider(mailerProvider)
       .then(assoListProvider => {
-        // security:
-        // - check if list <-> provider are realy linked
-        // - check if sync process is not already in progress.
-        if (!assoListProvider) throw new Error('provider not linked');
+        // check if sync process is not already in progress.
         if (assoListProvider.pApiStatus && assoListProvider.pApiStatus.id) {
           throw new Error('sync already started');
         }
         // saving new syncId
-        const newPApiStatus = Object.assign(
-          {}, assoListProvider.pApiStatus, { sync: { id: syncId, startedAt: new Date() } }
-        );
-        console.log('saving ', newPApiStatus);
-
-        return assoListProvider.update({
-          pApiStatus: newPApiStatus
-        });
+        return assoListProvider.updatePApiStatus({ sync: { id: syncId, startedAt: new Date() }});
       })
       .then(assoListProvider => {
-        const assoId = assoListProvider._id;
+        // to sync, we need to :
+        // - fetch all asso ListSubscriber
+        // - compare these asso.state to all asso ListSubsciberProvider state
+        //
+        setTimeout(() => {
 
-        // FIXME: push sync code here.
+          /*
+           *
+           *
+           *   W O R K E R       B E G I N
+           *
+           * (we are in the worker id=syncId)
+           *
+           */
 
-        return assoId;
+          // the worker is async.
+          // the worker check periodicaly if syncId is still his own in the database
+          //  if not => it stops the processing.
+          //
+          Q.all([
+            sqldb.MailerAssoListsSubscribers.findAll({
+              where:{listId:this.getId()}
+            }),
+            sqldb.MailerAssoListsSubscribersProviders.findAll({
+              where:{listId:this.getId(),providerId:mailerProvider.getId()}
+            })
+          ])
+          .then(([assoLS, assoLSP]) => {
+            // assoLS  = assoListsSubscribers
+            // assoLSP = assoListsSubscribersProviders
+            const assoLSSubscribersIds = assoLS.map(o => o.subscriberId);
+            const assoLSPSubscribersIds = assoLSP.map(o => o.subscriberId);
+            const toCreate = _.difference(assoLSSubscribersIds, assoLSPSubscribersIds)
+              .map(subscriberId => { return {
+                listId: this.getId(),
+                subscriberId: subscriberId,
+                providerId: mailerProvider.getId()
+              }; });
+
+            return sqldb.MailerAssoListsSubscribersProviders.bulkCreate(
+              toCreate, { individualHooks: true }
+            );
+          })
+          .then(() => {
+            return Q.all([
+              sqldb.MailerAssoListsSubscribers.findAll({
+                where:{listId:this.getId(),state:'ACTIVE',disabled:false},
+                include:[{model:sqldb.MailerSubscribers,required:true,as:'subscriber'}]
+              }),
+              sqldb.MailerAssoListsSubscribersProviders.findAll({
+                where:{listId:this.getId(),providerId:mailerProvider.getId()},
+                include:[{model:sqldb.MailerSubscribers,required:true,as:'subscriber'}]
+              })
+            ]);
+          })
+          .then(([assoLS, assoLSP]) => {
+            // assoLS  = assoListsSubscribers
+            // assoLSP = assoListsSubscribersProviders
+
+            //
+            // list of subscribers to activate in the providers
+            //  <=> assoListsSubscribersActive without corresponding assoListsSubscribersProviders
+            //        with state !== null.
+            //
+            // the algorithm is :
+            //  - we flag the asso "list suscriber provider" to P-ACTIVE (pending)
+            //  - we create the subscriber using pApi
+            //  - if ok,  we flag the user ACTIVE
+            //  - if nok, we flag the user E-ACTIVE (error)
+            //
+            const idToAssoLSP = { /* subscriberId : assoLSP */ };
+            const idToAssoLS = { /* subscriberId : assoLS */ };
+
+            assoLSP.forEach(asso => idToAssoLSP[asso.subscriberId] = asso);
+            assoLS.forEach(asso => idToAssoLS[asso.subscriberId] = asso);
+
+            // toCreate & toDelete are assoLSP models.
+            const assoLSPtoCreate = assoLS.filter(asso =>
+              asso.subscriberId &&
+              idToAssoLSP[asso.subscriberId].subscriberCanBeCreatedInProviderAPI()
+            ).map(asso => idToAssoLSP[asso.subscriberId]);
+            const assoLSPtoDelete = assoLSP.filter(asso =>
+              typeof idToAssoLS[asso.subscriberId] === 'undefined' &&
+              asso.susbcriberCanBeDeletedInProviderAPI()
+            );
+            const pApi = mailerProvider.getAPIInterface();
+
+            return this.getAssoProvider(mailerProvider)
+              .then(assoListProvider => {
+                if (!assoListProvider) throw new Error('asso list provider');
+                const pListId = assoListProvider.pApiId;
+                if (!pListId) throw new Error('pListId');
+                // first, disabling old ones
+                return assoLSPtoDelete.reduce((p, alsp, i) => {
+                  return p.then(() => {
+                    // first , we check if we can proceed
+                    return assoListProvider.ensureSyncCanProceed()
+                      .then(() => { return alsp.setStatusPendingActive(); })
+                      .then(() => { return pApi.deleteSubscriber(pListId, alsp.toISubscriber()); })
+                      .then(() => { return alsp.setStatusActive(); })
+                      .then(() => {
+                        // notifying progress.
+                        if (i % 10 === 0) {
+                          return assoListProvider.updatePApiStatus({sync: { progress: 0.5 * i / assoLSPtoDelete.length }});
+                        }
+                      });
+                  });
+                }, Q())
+                .then(() => assoListProvider);
+              })
+              .then(assoListProvider => {
+                const pListId = assoListProvider.pApiId;
+                // second, activating new ones.
+                return assoLSPtoCreate.reduce((p, alsp, i) => {
+                  return p.then(() => {
+                    // first , we check if we can proceed
+                    return assoListProvider.ensureSyncCanProceed()
+                      .then(() => { return alsp.setStatusPendingUnsubscribed(); })
+                      .then(() => { return pApi.createSubscriber(pListId, alsp.toISubscriber()); })
+                      .then(() => { return alsp.setStatusActive(); })
+                      .then(() => {
+                        // notifying progress.
+                        if (i % 10 === 0) {
+                          return assoListProvider.updatePApiStatus({sync: { progress: 0.5 * i / assoLSPtoCreate.length }});
+                        }
+                      });
+                  });
+                }, Q());
+              });
+          })
+          .then(
+            () => { },
+            err => {
+              /*
+               * catch-all worker status error
+               */
+              assoListProvider.updatePApiStatus({ sync: { error: err.message }})
+                .then(() => this.stopSync(mailerProvider));
+            }
+          );
+
+          /*
+           *
+           *
+           *   W O R K E R       END
+           *
+           *
+           */
+        });
       })
       .then(() => {
         return this.getSyncStatus(mailerProvider);
@@ -431,20 +580,9 @@ class MailerList {
     const providerName = mailerProvider.getName();
     logger.log(`[stopSync] provider ${providerName}`);
 
-    return Q()
-      .then(() => {
-        return sqldb.MailerAssoListsProviders.find({
-          where: { listId: this.getId(), providerId: mailerProvider.getId() }
-        });
-      })
+    return this.getAssoProvider(mailerProvider)
       .then(assoListProvider => {
-        // security:
-        // - check if list <-> provider are realy linked
-        // - check if sync process is not already in progress.
-        if (!assoListProvider) throw new Error('provider not linked');
-        return assoListProvider.update({
-          pApiStatus: Object.assign({}, assoListProvider.pApiStatus, { sync: { id: null } })
-        });
+        return assoListProvider.updatePApiStatus({ sync: { id: null } });
       });
   }
 
@@ -463,19 +601,7 @@ class MailerList {
     const providerName = mailerProvider.getName();
     logger.log(`[getSyncStatus] provider ${providerName}`);
 
-    return Q()
-      .then(() => {
-        return sqldb.MailerAssoListsProviders.find({
-          where: { listId: this.getId(), providerId: mailerProvider.getId() }
-        });
-      })
-      .then(assoListProvider => {
-        // security:
-        // - check if list <-> provider are realy linked
-        // - check if sync process is not already in progress.
-        if (!assoListProvider) throw new Error('provider not linked');
-        return assoListProvider;
-      });
+    return this.getAssoProvider(mailerProvider);
   }
 
   toJSON() {
@@ -487,9 +613,9 @@ class MailerList {
     };
   }
 
-  toIList(asso) {
+  toIList(assoListProvider) {
     return Mailer.APIInterface.List.build({
-      id: asso && asso.pApiId || null,
+      id: assoListProvider && assoListProvider.pApiId || null,
       name: this.getName(),
       subscribers: []
     });
