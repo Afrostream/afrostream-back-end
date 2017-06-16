@@ -353,6 +353,131 @@ class MailerList {
       });
   }
 
+  /*
+   * SYNC
+   */
+  startSync(mailerProvider) {
+    assert(typeof mailerProvider === 'undefined' || mailerProvider instanceof Mailer.Provider);
+
+    if (!mailerProvider) {
+      logger.log(`[startSync] no provider => startSync on all providers`);
+      // recursive call to all providers
+      return this.getProviders().then(mailerProviders => {
+        return Q.all(mailerProviders.filter(p => p)
+                .map(mailerProvider => this.startSync(mailerProvider))
+        );
+      });
+    }
+    const providerName = mailerProvider.getName();
+    logger.log(`[startSync] provider ${providerName}`);
+    //
+    // we need to compute a DIFF between
+    //  List <-> Subscribers               (MailerAssoListsSubscribers)
+    //  List <-> [Subscribers,Providers]   (MailerAssoListsSubscribersProviders)
+    //
+    // reporting the diff can be quite long, so we write in the database our "process number"
+    // & test if this process number still exists during the process.
+    //
+    let syncId = Math.round(Math.random() * 1000000);
+
+    return Q()
+      .then(() => {
+        return sqldb.MailerAssoListsProviders.find({
+          where: { listId: this.getId(), providerId: mailerProvider.getId() }
+        });
+      })
+      .then(assoListProvider => {
+        // security:
+        // - check if list <-> provider are realy linked
+        // - check if sync process is not already in progress.
+        if (!assoListProvider) throw new Error('provider not linked');
+        if (assoListProvider.pApiStatus && assoListProvider.pApiStatus.id) {
+          throw new Error('sync already started');
+        }
+        // saving new syncId
+        const newPApiStatus = Object.assign(
+          {}, assoListProvider.pApiStatus, { sync: { id: syncId, startedAt: new Date() } }
+        );
+        console.log('saving ', newPApiStatus);
+
+        return assoListProvider.update({
+          pApiStatus: newPApiStatus
+        });
+      })
+      .then(assoListProvider => {
+        const assoId = assoListProvider._id;
+
+        // FIXME: push sync code here.
+
+        return assoId;
+      })
+      .then(() => {
+        return this.getSyncStatus(mailerProvider);
+      });
+  }
+
+  stopSync(mailerProvider) {
+    assert(typeof mailerProvider === 'undefined' || mailerProvider instanceof Mailer.Provider);
+
+    if (!mailerProvider) {
+      logger.log(`[stopSync] no provider => stopSync on all providers`);
+      // recursive call to all providers
+      return this.getProviders().then(mailerProviders => {
+        return Q.all(mailerProviders.filter(p => p)
+                .map(mailerProvider => this.stopSync(mailerProvider))
+        );
+      });
+    }
+    const providerName = mailerProvider.getName();
+    logger.log(`[stopSync] provider ${providerName}`);
+
+    return Q()
+      .then(() => {
+        return sqldb.MailerAssoListsProviders.find({
+          where: { listId: this.getId(), providerId: mailerProvider.getId() }
+        });
+      })
+      .then(assoListProvider => {
+        // security:
+        // - check if list <-> provider are realy linked
+        // - check if sync process is not already in progress.
+        if (!assoListProvider) throw new Error('provider not linked');
+        return assoListProvider.update({
+          pApiStatus: Object.assign({}, assoListProvider.pApiStatus, { sync: { id: null } })
+        });
+      });
+  }
+
+  getSyncStatus(mailerProvider) {
+    assert(typeof mailerProvider === 'undefined' || mailerProvider instanceof Mailer.Provider);
+
+    if (!mailerProvider) {
+      logger.log(`[getSyncStatus] no provider => getSyncStatus on all providers`);
+      // recursive call to all providers
+      return this.getProviders().then(mailerProviders => {
+        return Q.all(mailerProviders.filter(p => p)
+                .map(mailerProvider => this.getSyncStatus(mailerProvider))
+        );
+      });
+    }
+    const providerName = mailerProvider.getName();
+    logger.log(`[getSyncStatus] provider ${providerName}`);
+
+    return Q()
+      .then(() => {
+        return sqldb.MailerAssoListsProviders.find({
+          where: { listId: this.getId(), providerId: mailerProvider.getId() }
+        });
+      })
+      .then(assoListProvider => {
+        // security:
+        // - check if list <-> provider are realy linked
+        // - check if sync process is not already in progress.
+        if (!assoListProvider) throw new Error('provider not linked');
+        return assoListProvider;
+      });
+  }
+
   toJSON() {
     return {
       _id: this.getId(),

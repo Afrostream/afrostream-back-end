@@ -13,6 +13,10 @@ class MailerProvider {
     return this.model._id;
   }
 
+  getName() {
+    return this.model && this.model.get('name');
+  }
+
   loadById(id) {
     return sqldb.MailerProvider.find({
       where: { _id: id }
