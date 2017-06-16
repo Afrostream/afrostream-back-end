@@ -26,6 +26,19 @@ module.exports = function (sequelize, DataTypes) {
         return this.update({
           pApiStatus: _.merge({}, current, newStatus)
         });
+      },
+
+      ensureSyncCanProceed: function (syncId) {
+        return this.reload()
+          .then(asso => {
+            const pApiStatus = asso.get('pApiStatus');
+
+            if (!pApiStatus ||
+                !pApiStatus.sync ||
+                 pApiStatus.sync.id !== syncId) {
+              throw new Error('-stopped-');
+            }
+          });
       }
     }
   });
