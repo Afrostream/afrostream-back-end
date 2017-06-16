@@ -15,9 +15,11 @@ class APIInterface {
 
 class List {
   constructor() {
-    this.id = null;
-    this.name = null;
-    this.subscribers = [];
+    this.data = {
+      id: null,
+      name: null,
+      subscribers: []
+    };
   }
 
   load(data) {
@@ -61,8 +63,51 @@ List.build = data => {
 };
 
 class Subscriber {
+  constructor() {
+    this.data = {
+      id: null,
+      firstName: null,
+      lastName: null,
+      state: null,
+      email: null
+    };
+  }
 
+  load(data) {
+    assert(data);
+    assert(data.email && typeof data.email === 'string');
+
+    this.data.id = data.id;
+    this.data.firstName = data.firstName;
+    this.data.lastName = data.lastName;
+    this.data.state = data.state;
+    this.data.email = data.email;
+  }
+
+  set(key, val) {
+    this.data[key] = val;
+  }
+
+  get(key) {
+    return this.data[key];
+  }
 }
+
+// check if some data can be an provider interface list
+Subscriber.isSubscriber = data => {
+  return data &&
+    data.email &&
+    typeof data.email === 'string';
+};
+
+Subscriber.build = data => {
+  if (Subscriber.isSubscriber(data)) {
+    throw new Error('data is not an ISubscriber ' + JSON.stringify(data));
+  }
+  const iSubscriber = new Subscriber();
+  iSubscriber.load(data);
+  return iSubscriber;
+};
 
 APIInterface.List = List;
 APIInterface.Subscriber = Subscriber;
