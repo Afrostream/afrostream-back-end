@@ -35,6 +35,22 @@ module.exports = function (sequelize, DataTypes) {
       susbcriberCanBeDeletedInProviderAPI: function () {
         return this.state === 'ACTIVE' ||
                this.state === 'E-UNSUBSCRIBED'; // retry
+      },
+
+      setStatusPendingActive: function () {
+        return this.update({state:'P-ACTIVE'});
+      },
+
+      setStatusPendingUnsubscribed: function () {
+        return this.update({state:'P-UNSUBSCRIBED'});
+      },
+
+      setStatusActive: function () {
+        return this.update({state:'ACTIVE'});
+      },
+
+      setStatusUnsubscribed: function () {
+        return this.update({state:'UNSUBSCRIBED'});
       }
     }
   });
