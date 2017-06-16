@@ -165,3 +165,56 @@ exports.assoSubscribers = (req, res) => {
     )
     .catch(res.handleError());
 };
+
+exports.providerStartSync = (req, res) => {
+  Q.all([
+    Mailer.List.loadById(req.params.listId),
+    Mailer.Provider.loadById(req.params.providerId)
+  ])
+    .then(([mailerList, mailerProvider]) => {
+      return mailerList.startSync(mailerProvider);
+    })
+    .then(
+      r => res.json(r)
+    )
+    .catch(res.handleError());
+};
+
+exports.providerStopSync = (req, res) => {
+  Q.all([
+    Mailer.List.loadById(req.params.listId),
+    Mailer.Provider.loadById(req.params.providerId)
+  ])
+    .then(([mailerList, mailerProvider]) => {
+      return mailerList.stopSync(mailerProvider);
+    })
+    .then(
+      r => res.json(r)
+    )
+    .catch(res.handleError());
+};
+
+exports.providerGetSyncStatus = (req, res) => {
+  Q.all([
+    Mailer.List.loadById(req.params.listId),
+    Mailer.Provider.loadById(req.params.providerId)
+  ])
+    .then(([mailerList, mailerProvider]) => {
+      return mailerList.getSyncStatus(mailerProvider);
+    })
+    .then(
+      r => res.json(r)
+    )
+    .catch(res.handleError());
+};
+
+exports.getSyncStatus = (req, res) => {
+  Mailer.List.loadById(req.params.listId)
+    .then(mailerList => {
+      return mailerList.getSyncStatus();
+    })
+    .then(
+      r => res.json(r)
+    )
+    .catch(res.handleError());
+};

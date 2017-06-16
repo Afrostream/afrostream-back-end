@@ -8,6 +8,14 @@ router.put('/:listId/updateQuery', controller.updateQuery);
 
 router.get('/:listId/assoSubscribers', controller.assoSubscribers);
 
+// all sync status (no provider)
+router.get('/:listId/sync/', controller.getSyncStatus);
+// sync status by provider
+router.get('/:listId/providers/:providerId/sync/start', controller.providerStartSync);
+router.get('/:listId/providers/:providerId/sync/stop', controller.providerStopSync);
+router.get('/:listId/providers/:providerId/sync/', controller.providerGetSyncStatus);
+
+
 router.get('/:listId', controller.show);
 router.get('/', controller.index);
 router.post('/', controller.create);
