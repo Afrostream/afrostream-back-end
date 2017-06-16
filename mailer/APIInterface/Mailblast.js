@@ -3,6 +3,7 @@ const Q = require('q');
 
 const ApiInterface = require('./APIInterface');
 const IList = ApiInterface.List;
+const ISubscriber = ApiInterface.Subscriber;
 
 const request = require('request');
 
@@ -137,6 +138,84 @@ class Mailblast extends ApiInterface {
       return true;
     });
   }
+
+  createSubscriber(listId, subscriber) {
+    assert(listId && typeof listId === 'string');
+    assert(subscriber instanceof ISubscriber);
+
+    logger.log(`list ${listId}: creating subscriber ${subscriber.get('email')}`);
+
+    return requestMailblast({
+      method: 'POST',
+      uri: `https://api.mailblast.io/v1/lists/${listId}/subscribers`,
+      body: {
+        data: {
+          attributes: {
+            email: subscriber.get('email'),
+            first_name: subscriber.get('firstName') || '',
+            last_name: subscriber.get('lastName') || ''
+          }
+        }
+      }
+    })
+    .then(([response, body]) => {
+      if (response.statusCode !== 201) throw new Error('http status should be 201');
+      if (!body || !body.data) throw new Error('missing response.data');
+      if (!Mailblast.isPSubscriber) throw new Error('malformated response');
+      // everything seems ok in mailblast system.
+      const subscriber = Mailblast.PSubscriberToISubscriber(body.data);
+      logger.log(`list ${listId}: subscriber ${subscriber.get('id')} created from ${JSON.stringify(body)} => ${JSON.stringify(subscriber)}`);
+      return subscriber;
+    });
+  }
+
+  updateSubscriber(listId, subscriber) {
+    assert(listId && typeof listId === 'string');
+    assert(subscriber instanceof ISubscriber);
+    assert(subscriber.get('id'));
+
+    logger.log(`list ${listId}: updating subscriber ${subscriber.get('id')} ${subscriber.get('email')}`);
+
+    return requestMailblast({
+      method: 'PATCH',
+      uri: `https://api.mailblast.io/v1/lists/${listId}/subscribers/${subscriber.get('id')}`,
+      body: {
+        data: {
+          attributes: {
+            email: subscriber.get('email'),
+            first_name: subscriber.get('firstName') || '',
+            last_name: subscriber.get('lastName') || ''
+          }
+        }
+      }
+    })
+    .then(([response, body]) => {
+      if (response.statusCode !== 200) throw new Error('http status should be 200');
+      if (!body || !body.data) throw new Error('missing response.data');
+      if (!Mailblast.isPSubscriber) throw new Error('malformated response');
+      // everything seems ok in mailblast system.
+      const subscriber = Mailblast.PSubscriberToISubscriber(body.data);
+      logger.log(`list ${listId}: subscriber ${subscriber.get('id')} updated from ${JSON.stringify(body)} => ${JSON.stringify(subscriber)}`);
+      return subscriber;
+    });
+  }
+
+  deleteSubscriber(listId, subscriberId) {
+    assert(listId && typeof listId === 'string');
+    assert(subscriberId && typeof subscriberId === 'string');
+    assert(subscriber.get('id'));
+
+    logger.log(`list ${listId}: deleting subscriber ${subscriber.get('id')} ${subscriber.get('email')}`);
+
+    return requestMailblast({
+      method: 'DELETE',
+      uri: `https://api.mailblast.io/v1/lists/${listId}/subscribers/${subscriber.get('id')}`
+    })
+    .then(([response, body]) => {
+      if (response.statusCode !== 204) throw new Error('http status should be 204');
+      return true;
+    });
+  }
 }
 
 // convertion functions
@@ -149,18 +228,19 @@ Mailblast.PListToIList = pList => {
   });
 };
 
+/*
 Mailblast.IListToPList = iList => {
   assert(iList);
 
   return {
-    id: iList && iList.id || null,
+    id: iList && iList.get('id') || null,
     attributes: {
-      name: iList && iList.name || null
+      name: iList && iList.get('name') || null
     }
   };
 };
+*/
 
-// existance functions
 Mailblast.isPList = pList => {
   return pList &&
     pList.id &&
@@ -169,5 +249,40 @@ Mailblast.isPList = pList => {
     pList.attributes.name &&
     typeof pList.attributes.name === 'string';
 };
+
+Mailblast.PSubscriberToISubscriber = pSubscriber => {
+  assert(pSubscriber);
+
+  return ISubscriber.build({
+    id: pSubscriber && pSubscriber.id || null,
+    email: pSubscriber && pSubscriber.email || null,
+    firstName: pSubscriber && pSubscriber.first_name || null,
+    lastName: pSubscriber && pSubscriber.last_name || null,
+    state: pSubscriber && pSubscriber.state || null
+  });
+};
+
+/*
+MailBlast.ISubscriberToPSubscriber = iSubscriber => {
+  assert(iSubscriber);
+
+  return {
+    id: iSubscriber && iSubscriber.get('id') || null,
+    attributes: {
+      FIXME
+    }
+  };
+};*
+*/
+
+Mailblast.isPSubscriber = pSubscriber => {
+  return pSubscriber &&
+    pSubscriber.id &&
+    typeof pSubscriber.id === 'string' &&
+    pSubscriber.attributes &&
+    pSubscriber.attributes.email &&
+    typeof pSubscriber.attributes.email === 'string';
+};
+
 
 module.exports = Mailblast;
