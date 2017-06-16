@@ -132,6 +132,9 @@ CREATE TABLE "MailerAssoListsSubscribersProviders"
   "subscriberId" uuid NOT NULL,
   "providerId" uuid NOT NULL,
   --
+  "pApiId" character varying(64),
+  "pApiState" character varying(64),
+  --
   "state" character varying(16),
   "dateActive" timestamp with time zone,
   "dateUnsubscribed" timestamp with time zone,
