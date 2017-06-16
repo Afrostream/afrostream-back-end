@@ -122,22 +122,21 @@ WITH (
 --
 -- we need to handle the email provider state here ...
 --
--- states are :
---   null  -- nothing happened yet
---   ACTIVE
---   UNSUBSCRIBED
-CREATE TABLE "MailerAssoSubscribersProviders"
+CREATE TABLE "MailerAssoListsSubscribersProviders"
 (
   _id uuid NOT NULL,
   "createdAt" timestamp with time zone,
   "updatedAt" timestamp with time zone,
+  -- links
+  "listId" uuid NOT NULL,
   "subscriberId" uuid NOT NULL,
   "providerId" uuid NOT NULL,
+  --
   "state" character varying(16),
   "dateActive" timestamp with time zone,
   "dateUnsubscribed" timestamp with time zone,
   "disabled" boolean default false,
-  CONSTRAINT "MailerAssoSubscribersProviders_pkey" PRIMARY KEY ("subscriberId", "providerId")
+  CONSTRAINT "MailerAssoListsSubscribersProviders_pkey" PRIMARY KEY ("subscriberId", "providerId")
 )
 WITH (
   OIDS=FALSE

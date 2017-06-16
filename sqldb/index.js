@@ -394,8 +394,8 @@ db.Work = db.sequelize.import('models/work');
 //
 db.MailerAssoListsWorkers = db.sequelize.import('models/MailerAssoListsWorkers');
 db.MailerAssoListsProviders = db.sequelize.import('models/MailerAssoListsProviders');
-db.MailerAssoSubscribersProviders = db.sequelize.import('models/MailerAssoSubscribersProviders');
 db.MailerAssoListsSubscribers = db.sequelize.import('models/MailerAssoListsSubscribers');
+db.MailerAssoListsSubscribersProviders = db.sequelize.import('models/MailerAssoListsSubscribersProviders');
 db.MailerList = db.sequelize.import('models/MailerLists');
 db.MailerProvider = db.sequelize.import('models/MailerProviders');
 db.MailerSubscriber = db.sequelize.import('models/MailerSubscribers');
