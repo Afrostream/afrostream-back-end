@@ -409,6 +409,7 @@ db.MailerList.hasMany(db.MailerAssoListsProviders, {as: 'assoProviders', foreign
 db.MailerList.hasMany(db.MailerAssoListsSubscribers, {as: 'assoSubscribers', foreignKey: 'listId'});
 
 db.MailerAssoListsSubscribers.belongsTo(db.MailerSubscriber, {as: 'subscriber', foreignKey: 'subscriberId'});
+db.MailerAssoListsSubscribersProviders.belongsTo(db.MailerSubscriber, {as: 'subscriber', foreignKey: 'subscriberId'});
 
 //db.MailerList.belongsToMany(db.MailerProvider, {through: db.MailerAssoListsProviders, as: 'providers', foreignKey: 'listId'});
 //db.MailerProvider.belongsToMany(db.MailerList, {through: db.MailerAssoListsProviders, as: 'lists', foreignKey: 'providerId'});
