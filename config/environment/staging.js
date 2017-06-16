@@ -40,7 +40,7 @@ module.exports = {
     hooks: {
       mqModelBlacklist: ['Logs', 'AccessToken', 'RefreshToken', 'UsersVideos',
         // excluding all mailer stuff.
-        'MailerAssoListsSubscribers', 'MailerAssoListsWorkers', 'MailerAssoProvidersList', 'MailerAssoSubscribersProviders',
+        'MailerAssoListsSubscribers', 'MailerAssoListsWorkers', 'MailerAssoProvidersList', 'MailerAssoListsProviders', 'MailerAssoListsSubscribersProviders',
         'MailerList', 'MailerProvider', 'MailerSubscriber', 'MailerTemplate', 'MailerTransaction', 'MailerWorker'
       ],
       mqFields: ['_id', 'title']

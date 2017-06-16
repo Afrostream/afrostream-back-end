@@ -54,7 +54,7 @@ List.isIList = data => {
 };
 
 List.build = data => {
-  if (List.isIList(data)) {
+  if (!List.isIList(data)) {
     throw new Error('data is not an IList ' + JSON.stringify(data));
   }
   const iList = new List();
@@ -101,7 +101,7 @@ Subscriber.isSubscriber = data => {
 };
 
 Subscriber.build = data => {
-  if (Subscriber.isSubscriber(data)) {
+  if (!Subscriber.isSubscriber(data)) {
     throw new Error('data is not an ISubscriber ' + JSON.stringify(data));
   }
   const iSubscriber = new Subscriber();

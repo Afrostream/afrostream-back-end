@@ -36,7 +36,7 @@ module.exports = function (sequelize, DataTypes) {
             if (!pApiStatus ||
                 !pApiStatus.sync ||
                  pApiStatus.sync.id !== syncId) {
-              throw new Error('-stopped-');
+              throw new Error('sync stopped ' + JSON.stringify(pApiStatus));
             }
           });
       }

@@ -410,12 +410,12 @@ class MailerList {
         return assoListProvider.updatePApiStatus({ sync: { id: syncId, startedAt: new Date() }});
       })
       .then(assoListProvider => {
+        const l = logger;
         // to sync, we need to :
         // - fetch all asso ListSubscriber
         // - compare these asso.state to all asso ListSubsciberProvider state
         //
         setTimeout(() => {
-
           /*
            *
            *
@@ -424,6 +424,9 @@ class MailerList {
            * (we are in the worker id=syncId)
            *
            */
+          const logger = l.prefix('startSync').prefix('worker').prefix(syncId);
+
+          logger.log(`START`);
 
           // the worker is async.
           // the worker check periodicaly if syncId is still his own in the database
@@ -442,6 +445,10 @@ class MailerList {
             // assoLSP = assoListsSubscribersProviders
             const assoLSSubscribersIds = assoLS.map(o => o.subscriberId);
             const assoLSPSubscribersIds = assoLSP.map(o => o.subscriberId);
+
+            logger.log(`assoLS: ${assoLSSubscribersIds.join(',')}`);
+            logger.log(`assoLSP: ${assoLSPSubscribersIds.join(',')}`);
+
             const toCreate = _.difference(assoLSSubscribersIds, assoLSPSubscribersIds)
               .map(subscriberId => { return {
                 listId: this.getId(),
@@ -449,19 +456,23 @@ class MailerList {
                 providerId: mailerProvider.getId()
               }; });
 
+            logger.log(`creating: ${toCreate.length} id`);
+
             return sqldb.MailerAssoListsSubscribersProviders.bulkCreate(
               toCreate, { individualHooks: true }
             );
           })
           .then(() => {
+            logger.log(`fetching data`);
+
             return Q.all([
               sqldb.MailerAssoListsSubscribers.findAll({
-                where:{listId:this.getId(),state:'ACTIVE',disabled:false},
-                include:[{model:sqldb.MailerSubscribers,required:true,as:'subscriber'}]
+                where: {listId: this.getId(), state: 'ACTIVE', disabled: false},
+                include: [{model: sqldb.MailerSubscriber, required: true, as: 'subscriber'}]
               }),
               sqldb.MailerAssoListsSubscribersProviders.findAll({
-                where:{listId:this.getId(),providerId:mailerProvider.getId()},
-                include:[{model:sqldb.MailerSubscribers,required:true,as:'subscriber'}]
+                where: {listId: this.getId(), providerId: mailerProvider.getId()},
+                include: [{model: sqldb.MailerSubscriber, required: true, as: 'subscriber'}]
               })
             ]);
           })
@@ -486,6 +497,8 @@ class MailerList {
             assoLSP.forEach(asso => idToAssoLSP[asso.subscriberId] = asso);
             assoLS.forEach(asso => idToAssoLS[asso.subscriberId] = asso);
 
+            logger.log(`data fetched`);
+
             // toCreate & toDelete are assoLSP models.
             const assoLSPtoCreate = assoLS.filter(asso =>
               asso.subscriberId &&
@@ -497,23 +510,42 @@ class MailerList {
             );
             const pApi = mailerProvider.getAPIInterface();
 
+            logger.log(`assoLSPtoCreate = [${assoLSPtoCreate.map(a=>a.subscriberId+':'+a.subscriber.referenceEmail).join(',')}]`);
+            logger.log(`assoLSPtoDelete = [${assoLSPtoDelete.map(a=>a.subscriberId+':'+a.subscriber.referenceEmail).join(',')}]`);
+
             return this.getAssoProvider(mailerProvider)
               .then(assoListProvider => {
                 if (!assoListProvider) throw new Error('asso list provider');
                 const pListId = assoListProvider.pApiId;
                 if (!pListId) throw new Error('pListId');
+
+                logger.log(`pListId ${pListId} processing assoLSPtoDelete`);
+
                 // first, disabling old ones
                 return assoLSPtoDelete.reduce((p, alsp, i) => {
                   return p.then(() => {
+                    logger.log(`assoLSPtoDelete: ensureSyncCanProceed`);
                     // first , we check if we can proceed
-                    return assoListProvider.ensureSyncCanProceed()
-                      .then(() => { return alsp.setStatusPendingActive(); })
-                      .then(() => { return pApi.deleteSubscriber(pListId, alsp.toISubscriber()); })
-                      .then(() => { return alsp.setStatusActive(); })
+                    return assoListProvider.ensureSyncCanProceed(syncId)
+                      .then(() => {
+                        logger.log(`assoLSPtoDelete: setStatusPendingActive`);
+                        return alsp.setStatusPendingActive();
+                      })
+                      .then(() => {
+                        logger.log(`assoLSPtoDelete: deleteSubscriber subscriberId=${alsp.subscriberId} email=${alsp.subscriber.referenceEmail}`);
+                        const subscriber = Mailer.Subscriber.loadFromModel(alsp.subscriber);
+                        return pApi.deleteSubscriber(pListId, subscriber.toISubscriber(alsp));
+                      })
+                      .then(() => {
+                        logger.log(`assoLSPtoDelete: setStatusActive`);
+                        return alsp.setStatusActive();
+                      })
                       .then(() => {
                         // notifying progress.
                         if (i % 10 === 0) {
-                          return assoListProvider.updatePApiStatus({sync: { progress: 0.5 * i / assoLSPtoDelete.length }});
+                          const progress = 0.5 * (i + 1) / assoLSPtoDelete.length;
+                          logger.log(`assoLSPtoDelete: updatePApiStatus ${progress}`);
+                          return assoListProvider.updatePApiStatus({sync: { progress: progress }});
                         }
                       });
                   });
@@ -522,18 +554,40 @@ class MailerList {
               })
               .then(assoListProvider => {
                 const pListId = assoListProvider.pApiId;
+
+                logger.log(`pListId ${pListId} processing assoLSPtoCreate`);
+
                 // second, activating new ones.
                 return assoLSPtoCreate.reduce((p, alsp, i) => {
                   return p.then(() => {
+                    logger.log(`assoLSPtoCreate: ensureSyncCanProceed`);
                     // first , we check if we can proceed
-                    return assoListProvider.ensureSyncCanProceed()
-                      .then(() => { return alsp.setStatusPendingUnsubscribed(); })
-                      .then(() => { return pApi.createSubscriber(pListId, alsp.toISubscriber()); })
-                      .then(() => { return alsp.setStatusActive(); })
+                    return assoListProvider.ensureSyncCanProceed(syncId)
+                      .then(() => {
+                        logger.log(`assoLSPtoCreate: setStatusPendingActive`);
+                        return alsp.setStatusPendingUnsubscribed();
+                      })
+                      .then(() => {
+                        logger.log(`assoLSPtoCreate: createSubscriber subscriberId=${alsp.subscriberId} email=${alsp.subscriber.referenceEmail}`);
+                        const subscriber = Mailer.Subscriber.loadFromModel(alsp.subscriber);
+                        return pApi.createSubscriber(pListId, subscriber.toISubscriber(alsp))
+                          .then(iSubscriber => {
+                            if (!iSubscriber.get('id')) {
+                              throw new Error('no provider subscriber id!?');
+                            }
+                            return alsp.update({pApiId: iSubscriber.get('id')});
+                          });
+                      })
+                      .then(() => {
+                        logger.log(`assoLSPtoCreate: setStatusActive`);
+                        return alsp.setStatusActive();
+                      })
                       .then(() => {
                         // notifying progress.
                         if (i % 10 === 0) {
-                          return assoListProvider.updatePApiStatus({sync: { progress: 0.5 * i / assoLSPtoCreate.length }});
+                          const progress = 0.5 * (i + 1) / assoLSPtoDelete.length;
+                          logger.log(`assoLSPtoCreate: updatePApiStatus ${progress}`);
+                          return assoListProvider.updatePApiStatus({sync: { progress: progress }});
                         }
                       });
                   });
@@ -541,11 +595,18 @@ class MailerList {
               });
           })
           .then(
-            () => { },
+            () => {
+              logger.log(`SUCCESS !`);
+              return this.stopSync(mailerProvider);
+            }
+          )
+          .catch(
             err => {
               /*
                * catch-all worker status error
                */
+              console.error(err.stack);
+              logger.log(`ERROR: ${err.message} ${JSON.stringify(err)}`);
               assoListProvider.updatePApiStatus({ sync: { error: err.message }})
                 .then(() => this.stopSync(mailerProvider));
             }
@@ -582,6 +643,7 @@ class MailerList {
 
     return this.getAssoProvider(mailerProvider)
       .then(assoListProvider => {
+        logger.log(`[stopSync] assoListProvider found, updating PApiStatus to sync.id = null`);
         return assoListProvider.updatePApiStatus({ sync: { id: null } });
       });
   }

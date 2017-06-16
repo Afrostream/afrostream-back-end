@@ -23,20 +23,20 @@ class MailerSubscriber {
     return this.model;
   }
 
-  getEmail() {
-    return this.model.get('email');
-  }
-
   getFirstName() {
-    return this.model.get('firstName');
+    return '';
   }
 
   getLastName() {
-    return this.model.get('lastName');
+    return '';
   }
 
   getReferenceUuid() {
     return this.model && this.model.get('referenceUuid');
+  }
+
+  getReferenceEmail() {
+    return this.model && this.model.get('referenceEmail');
   }
 
   toJSON() {
@@ -50,9 +50,9 @@ class MailerSubscriber {
   }
 
   toISubscriber(assoListSubscriberProvider) {
-    return Mailer.apiInterface.Subscriber.build({
+    return Mailer.APIInterface.Subscriber.build({
       id: assoListSubscriberProvider && assoListSubscriberProvider.pApiId || null,
-      email: this.getEmail(),
+      email: this.getReferenceEmail(),
       firstName: this.getFirstName(),
       lastName: this.getLastName()
     });

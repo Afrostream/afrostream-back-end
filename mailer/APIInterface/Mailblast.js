@@ -255,10 +255,10 @@ Mailblast.PSubscriberToISubscriber = pSubscriber => {
 
   return ISubscriber.build({
     id: pSubscriber && pSubscriber.id || null,
-    email: pSubscriber && pSubscriber.email || null,
-    firstName: pSubscriber && pSubscriber.first_name || null,
-    lastName: pSubscriber && pSubscriber.last_name || null,
-    state: pSubscriber && pSubscriber.state || null
+    email: pSubscriber && pSubscriber.attributes.email || null,
+    firstName: pSubscriber && pSubscriber.attributes.first_name || null,
+    lastName: pSubscriber && pSubscriber.attributes.last_name || null,
+    state: pSubscriber && pSubscriber.attributes.state || null
   });
 };
 
