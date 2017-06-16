@@ -98,8 +98,8 @@ mailerList.getSubscribersEmails({includeDisabled:true}).then(arrayOfEmails => { 
 mailerList.addSubscriber(mailerSubscriber).then(mailerSubscriber => {})
 mailerList.addSubscribers([mailerSubscriber1, mailerSubscriber2, mailerSubscriber3])
           .then(arrayOfMailerSubscribers => {})
-mailerList.removeSubscriber(mailerSubscriber).then()
-mailerList.removeSubscribers([mailerSubscriber1, mailerSubscriber2, mailerSubscriber3]).then()
+mailerList.disableSubscriber(mailerSubscriber).then()
+mailerList.disableSubscribers([mailerSubscriber1, mailerSubscriber2, mailerSubscriber3]).then()
 mailerList.updateSubscribers(arrayOfMailerSubscribers)
 mailerList.findSubscriber({"email":"foo@bar.com"}).then(mailerSubscriber => {})
 
@@ -114,9 +114,14 @@ mailerList.hasQuery()
 mailerList.runQuery().then(bool => {})
 
 // synch the mailer list with all providers
-mailerList.startSync().then(status => { })
+mailerList.startSync().then(statusList => { })
 mailerList.stopSync().then()
-mailerList.getSyncStatus().then(status => { console.log(status) })
+mailerList.getSyncStatus().then(statusList => { console.log(status) })
+
+// synch the mailer with a single provider
+mailerList.startSync(mailerProvider).then(status => { })
+mailerList.stopSync(mailerProvider).then()
+mailerList.getSyncStatus(mailerProvider).then(statusList => { console.log(status) })
 
 // underlying database object
 const MailerProvider = mailer.Provider.getDbModel()
@@ -171,6 +176,10 @@ pApi.getAllLists().then(arrayOfProviderList => { })
 pAPI.updateList(providerList).then(providerList => { })
 pApi.deleteList(providerList).then()
 
+
+pApi.createSubscriber(pListId, providerSubscriber).then(providerSubscriber => { })
+pApi.updateSubscriber(pListId, providerSubscriber).then(providerSubscriber => { })
+pApi.deleteSubscriber(pListId, pSubscriberId).then()
 
 //
 subscriber = mailer.getSubscriberByEmail({"email":"foo@bar.com"})
