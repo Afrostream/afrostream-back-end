@@ -32,6 +32,12 @@ CREATE TABLE "MailerProviders"
   name character varying(255),
   token character varying(255),
   interface character varying(255), -- name of the pApi interface
+  -- flag to stop disable a provider globaly
+  "disable" default false,
+  -- quota
+  "quotaEmailsBy24H" integer default 0,
+  "quotaNbSubscribers" integer default 0,        -- total number of subscribers in the lists
+  "quotaNbSubscribersByList" integer default 0,
   -- capabilities
   "canHandleList"  boolean default false,
   CONSTRAINT "MailerProviders_pkey" PRIMARY KEY (_id)
@@ -47,6 +53,9 @@ CREATE TABLE "MailerAssoListsProviders"
   "updatedAt" timestamp with time zone,
   "listId" uuid NOT NULL,
   "providerId" uuid NOT NULL,
+  -- flags
+  automation integer default 0, -- number of email sent when a subscriber is attached to the provider list
+  --
   "pApiId" character varying(255),
   "pApiStatus" json,
   CONSTRAINT "MailerAssoListsProviders_pkey" PRIMARY KEY ("listId", "providerId")
@@ -95,6 +104,8 @@ CREATE TABLE "MailerAssoListsSubscribers"
   --
   "listId" uuid NOT NULL,
   "subscriberId" uuid NOT NULL,
+  -- a transaction (email sent to provider) already exist for this user.
+  "transactionId" uuid,
   CONSTRAINT "MailerAssoListsSubscribers_pkey" PRIMARY KEY ("listId", "subscriberId")
 )
 WITH (
@@ -165,17 +176,13 @@ CREATE TABLE "MailerTransactions"
   _id uuid NOT NULL,
   "createdAt" timestamp with time zone,
   "updatedAt" timestamp with time zone,
-  "listId" uuid NOT NULL,
   "providerId" uuid NOT NULL,
-  "providerReferenceUuid" character varying(64),
-  "workerId" uuid,
-  "userId" integer NOT NULL,
+  "listId" uuid,
+  "subscriberId" uuid NOT NULL,
+  "subscriberReferenceUuid" character varying(64),
+  "subscriberReferenceEmail" character varying(255),
   "templateId" uuid,
-  email character varying(255),
-  metadata json,
   -- quelques stats
-  "sentToProviderDate" timestamp with time zone,
-  "sentDate" timestamp with time zone,
   "openedDate" timestamp with time zone,
   CONSTRAINT "MailerTransactions_pkey" PRIMARY KEY (_id)
 )
@@ -183,6 +190,8 @@ WITH (
   OIDS=FALSE
 );
 
-INSERT INTO "MailerProviders" ("_id", "name", "token", "interface", "canHandleList") VALUES
-('00000000-0000-0000-0000-000000000001', 'mailblast', 'y5MS3F4vq9X-g7o328vrZHszYxueSA', 'Mailblast', true),
-('00000000-0000-0000-0000-000000000002', 'sendgrid', 'FIXME', 'Sendgrid', false);
+INSERT INTO "MailerProviders"
+  ("_id", "name", "token", "interface", "canHandleList", "quotaEmailsBy24H", "quotaNbSubscribers", "quotaNbSubscribersByList")
+VALUES
+  ('00000000-0000-0000-0000-000000000001', 'mailblast', 'y5MS3F4vq9X-g7o328vrZHszYxueSA', 'Mailblast', true, 50000, 150000, null),
+  ('00000000-0000-0000-0000-000000000002', 'sendgrid', 'FIXME', 'Sendgrid', false, 0, 0, 0);

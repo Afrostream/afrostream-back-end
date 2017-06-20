@@ -7,22 +7,18 @@ module.exports = function (sequelize, DataTypes) {
       unique: true,
       allowNull: false
     },
-    listId: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
     providerId: {
       type: DataTypes.UUID,
       allowNull: false
     },
-    providerReferenceUuid: DataTypes.STRING(64),
-    workerId: DataTypes.UUID,
+    listId: DataTypes.UUID,
+    subscriberId: {
+      type: DataTypes.UUID,
+      allowNull: false
+    },
+    subscriberReferenceUuid: DataTypes.STRING(64),
+    subscriberReferenceEmail: DataTypes.STRING(255),
     templateId: DataTypes.UUID,
-    email: DataTypes.STRING,
-    metadata: DataTypes.JSON,
-    // stats
-    sendToProviderDate: DataTypes.DATE,
-    sentDate: DataTypes.DATE,
     openedDate: DataTypes.DATE
   });
 };

@@ -9,6 +9,7 @@ module.exports = function (sequelize, DataTypes) {
       unique: true,
       allowNull: false
     },
+    automation: DataTypes.INTEGER,
     listId: DataTypes.UUID,
     providerId:  DataTypes.UUID,
     pApiId: DataTypes.STRING,
