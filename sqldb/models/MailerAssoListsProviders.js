@@ -9,7 +9,12 @@ module.exports = function (sequelize, DataTypes) {
       unique: true,
       allowNull: false
     },
+    // flags
     automation: DataTypes.INTEGER,
+    canReactive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
     listId: DataTypes.UUID,
     providerId:  DataTypes.UUID,
     pApiId: DataTypes.STRING,

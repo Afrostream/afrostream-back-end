@@ -54,7 +54,8 @@ CREATE TABLE "MailerAssoListsProviders"
   "listId" uuid NOT NULL,
   "providerId" uuid NOT NULL,
   -- flags
-  automation integer default 0, -- number of email sent when a subscriber is attached to the provider list
+  automation integer default 0,    -- number of email sent when a subscriber is attached to the provider list
+  reactive boolean default false,  -- reactive=false => switch => active => unsubscribe =X=> active is forbidden.
   --
   "pApiId" character varying(255),
   "pApiStatus" json,
