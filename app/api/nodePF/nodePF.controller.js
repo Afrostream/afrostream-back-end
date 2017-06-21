@@ -65,7 +65,7 @@ module.exports.contents.index = (req, res) => {
         return sqldb.Video.find({
           where: {_id: req.query.videoId}
         })
-          .then(video => video.pfMd5Hash);
+          .then(video => { return [ video.pfMd5Hash ]; });
       }
       if (req.query.episodeId) {
         return sqldb.Episode.find({
@@ -76,7 +76,7 @@ module.exports.contents.index = (req, res) => {
             required: true
           }
         })
-          .then(episode => episode.video.pfMd5Hash);
+          .then(episode => { return [ episode.video.pfMd5Hash ]; });
       }
       if (req.query.movieId) {
         return sqldb.Movie.find({
@@ -87,7 +87,7 @@ module.exports.contents.index = (req, res) => {
             required: true
           }
         })
-          .then(movie => movie.video.pfMd5Hash);
+          .then(movie => { return [ movie.video.pfMd5Hash ]; });
       }
       if (req.query.pfMd5Hash) {
         return [ req.query.pfMd5Hash ];
