@@ -32,10 +32,10 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
   //
   Q.all([
     sqldb.MailerAssoListsSubscribers.findAll({
-      where:{listId:this.getId()}
+      where:{listId:mailerList.getId()}
     }),
     sqldb.MailerAssoListsSubscribersProviders.findAll({
-      where:{listId:this.getId(),providerId:mailerProvider.getId()}
+      where:{listId:mailerList.getId(),providerId:mailerProvider.getId()}
     })
   ])
   .then(([assoLS, assoLSP]) => {
@@ -49,7 +49,7 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
 
     const toCreate = _.difference(assoLSSubscribersIds, assoLSPSubscribersIds)
       .map(subscriberId => { return {
-        listId: this.getId(),
+        listId: mailerList.getId(),
         subscriberId: subscriberId,
         providerId: mailerProvider.getId()
       }; });
@@ -65,11 +65,11 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
 
     return Q.all([
       sqldb.MailerAssoListsSubscribers.findAll({
-        where: {listId: this.getId(), state: 'ACTIVE', disabled: false},
+        where: {listId: mailerList.getId(), state: 'ACTIVE', disabled: false},
         include: [{model: sqldb.MailerSubscriber, required: true, as: 'subscriber'}]
       }),
       sqldb.MailerAssoListsSubscribersProviders.findAll({
-        where: {listId: this.getId(), providerId: mailerProvider.getId()},
+        where: {listId: mailerList.getId(), providerId: mailerProvider.getId()},
         include: [{model: sqldb.MailerSubscriber, required: true, as: 'subscriber'}]
       })
     ]);
@@ -114,10 +114,11 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
     );
     const pApi = mailerProvider.getAPIInterface();
 
+    logger.log(`assoLSPtoCreate = ${assoLSPtoCreate.length} id ( ${assoLS.length} assoLS active => ${assoLS.length-assoLSPtoCreate.length} filtered`);
     logger.log(`assoLSPtoCreate = [${assoLSPtoCreate.map(a=>a.subscriberId+':'+a.subscriber.referenceEmail).join(',')}]`);
     logger.log(`assoLSPtoDelete = [${assoLSPtoDelete.map(a=>a.subscriberId+':'+a.subscriber.referenceEmail).join(',')}]`);
 
-    return this.getAssoProvider(mailerProvider)
+    return mailerList.getAssoProvider(mailerProvider)
       .then(assoListProvider => {
         if (!assoListProvider) throw new Error('asso list provider');
         const pListId = assoListProvider.pApiId;
@@ -154,6 +155,11 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
               });
           });
         }, Q())
+        .then(() => {
+          const progress = 0.5;
+          logger.log(`after assoLSPtoDelete: updatePApiStatus ${progress}`);
+          return assoListProvider.updatePApiStatus({sync: { progress: progress }});
+        })
         .then(() => assoListProvider);
       })
       .then(assoListProvider => {
@@ -208,19 +214,24 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
               .then(() => {
                 // notifying progress.
                 if (i % 10 === 0) {
-                  const progress = 0.5 * (i + 1) / assoLSPtoDelete.length;
+                  const progress = 0.5 + 0.5 * (i + 1) / assoLSPtoDelete.length;
                   logger.log(`assoLSPtoCreate: updatePApiStatus ${progress}`);
                   return assoListProvider.updatePApiStatus({sync: { progress: progress }});
                 }
               });
           });
-        }, Q());
+        }, Q())
+        .then(() => {
+          const progress = 1;
+          logger.log(`after assoLSPtoCreate: updatePApiStatus ${progress}`);
+          return assoListProvider.updatePApiStatus({sync: { progress: progress }});
+        });
       });
   })
   .then(
     () => {
       logger.log(`SUCCESS !`);
-      return this.stopSync(mailerProvider);
+      return mailerList.stopSync(mailerProvider);
     }
   )
   .catch(
@@ -231,7 +242,7 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
       console.error(err.stack);
       logger.log(`ERROR: ${err.message} ${JSON.stringify(err)}`);
       assoListProvider.updatePApiStatus({ sync: { error: err.message }})
-        .then(() => this.stopSync(mailerProvider));
+        .then(() => mailerList.stopSync(mailerProvider));
     }
   );
 

@@ -44,7 +44,7 @@ module.exports.start = (mailerList, mailerProvider, options) => {
       }, 50);
     })
     .then(() => {
-      return this.getSyncStatus(mailerProvider);
+      return mailerList.getSyncStatus(mailerProvider);
     });
 };
 
@@ -54,7 +54,7 @@ module.exports.stop = (mailerList, mailerProvider, options) => {
   const logger = options.logger.prefix(`SYNC-unknown-${providerName}`);
 
   logger.log(`stop`);
-  return this.getAssoProvider(mailerProvider)
+  return mailerList.getAssoProvider(mailerProvider)
     .then(assoListProvider => {
       logger.log(`[stopSync] assoListProvider found, updating PApiStatus to sync.id = null`);
       return assoListProvider.updatePApiStatus({ sync: { id: null } });
@@ -66,5 +66,5 @@ module.exports.status = (mailerList, mailerProvider, options) => {
   const logger = options.logger.prefix(`SYNC-unknown-${providerName}`);
 
   logger.log('status');
-  return this.getAssoProvider(mailerProvider);
+  return mailerList.getAssoProvider(mailerProvider);
 };
