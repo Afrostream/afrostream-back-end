@@ -133,8 +133,8 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
             // first , we check if we can proceed
             return assoListProvider.ensureSyncCanProceed(syncId)
               .then(() => {
-                logger.log(`assoLSPtoDelete: setStatusPendingActive`);
-                return alsp.setStatusPendingActive();
+                logger.log(`assoLSPtoDelete: setStatusPendingUnsubscribed`);
+                return alsp.setStatusPendingUnsubscribed();
               })
               .then(() => {
                 logger.log(`assoLSPtoDelete: deleteSubscriber subscriberId=${alsp.subscriberId} email=${alsp.subscriber.referenceEmail}`);
@@ -142,8 +142,8 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
                 return pApi.deleteSubscriber(pListId, subscriber.toISubscriber(alsp));
               })
               .then(() => {
-                logger.log(`assoLSPtoDelete: setStatusActive`);
-                return alsp.setStatusActive();
+                logger.log(`assoLSPtoDelete: setStatusUnsubscribed`);
+                return alsp.setStatusUnsubscribed();
               })
               .then(() => {
                 // notifying progress.
