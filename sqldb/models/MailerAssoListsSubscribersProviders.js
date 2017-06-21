@@ -27,9 +27,17 @@ module.exports = function (sequelize, DataTypes) {
     }
   }, {
     instanceMethods : {
+      subscriberIsOrWasActiveInProviderAPI: function () {
+        return this.state === 'ACTIVE' ||
+               this.state === 'P-UNSUBSCRIBED' ||
+               this.state === 'E-UNSUBSCRIBED' ||
+               this.state === 'UNSUBSCRIBED';
+      },
+
       subscriberCanBeCreatedInProviderAPI: function () {
         return this.state === null ||
-               this.state === 'E-ACTIVE'; // retry
+               this.state === 'E-ACTIVE' ||
+               this.state === 'UNSUBSCRIBED';
       },
 
       susbcriberCanBeDeletedInProviderAPI: function () {
