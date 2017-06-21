@@ -49,7 +49,7 @@ module.exports.profiles = {};
  * exports content with metadata.
  */
 module.exports.contents.index = (req, res) => {
-  const limit = req.query.limit || 5;
+  const limit = req.query.limit || 20;
 
   Q()
     .then(() => {
