@@ -33,7 +33,7 @@ CREATE TABLE "MailerProviders"
   token character varying(255),
   interface character varying(255), -- name of the pApi interface
   -- flag to stop disable a provider globaly
-  "disable" default false,
+  "disabled" boolean default false,
   -- quota
   "quotaEmailsBy24H" integer default 0,
   "quotaNbSubscribers" integer default 0,        -- total number of subscribers in the lists
@@ -54,8 +54,8 @@ CREATE TABLE "MailerAssoListsProviders"
   "listId" uuid NOT NULL,
   "providerId" uuid NOT NULL,
   -- flags
-  automation integer default 0,    -- number of email sent when a subscriber is attached to the provider list
-  reactive boolean default false,  -- reactive=false => switch => active => unsubscribe =X=> active is forbidden.
+  automation integer default 0,         -- number of email sent when a subscriber is attached to the provider list
+  "canReactive" boolean DEFAULT false,  -- reactive=false => switch => active => unsubscribe =X=> active is forbidden.
   --
   "pApiId" character varying(255),
   "pApiStatus" json,
@@ -84,7 +84,7 @@ CREATE TABLE "MailerAssoListsWorkers"
   "createdAt" timestamp with time zone,
   "updatedAt" timestamp with time zone,
   "listId" uuid NOT NULL,
-  "workerId" uuid NOT NULL
+  "workerId" uuid NOT NULL,
   CONSTRAINT "MailerAssoListsWorkers_pkey" PRIMARY KEY ("listId", "workerId")
 )
 WITH (
