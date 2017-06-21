@@ -162,6 +162,9 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
         logger.log(`pListId ${pListId} processing assoLSPtoCreate`);
 
         // second, activating new ones.
+        //
+        // FIXME: use the quota
+        //
         return assoLSPtoCreate.reduce((p, alsp, i) => {
           return p.then(() => {
             logger.log(`assoLSPtoCreate: ensureSyncCanProceed`);
@@ -181,6 +184,22 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
                     }
                     return alsp.update({pApiId: iSubscriber.get('id')});
                   });
+              })
+              .then(() => {
+                const automation = assoListProvider.get('automation');
+                if (automation) {
+                  const transactionData = {
+                    providerId: mailerProvider.getId(),
+                    listId: mailerList.getId(),
+                    subscriberId: alsp.subscriberId,
+                    subscriberReferenceUuid: alsp.subscriber.referenceUuid,
+                    subscriberReferenceEmail: alsp.subscriber.referenceEmail,
+                    templateId: null,
+                    openedDate: null
+                  };
+                  logger.prefix('TRANSACTION').log(JSON.stringify(transactionData));
+                  return sqldb.MailerTransaction.create(transactionData);
+                }
               })
               .then(() => {
                 logger.log(`assoLSPtoCreate: setStatusActive`);
