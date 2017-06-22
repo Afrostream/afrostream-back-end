@@ -249,6 +249,7 @@ class MailerList {
         }
         // saving this info to asso
         return sqldb.MailerAssoListsProviders.create({
+          automation: 1, // default ...
           listId: this.getId(),
           providerId: mailerProvider.getId(),
           pApiId: iList.id,
@@ -516,6 +517,7 @@ MailerList.findAndCountAll = options => {
 
 // the list query is a "SELECT".
 MailerList.isQueryValid = query => {
+  query = query || "";
   if (query === "") {
     return Q(true);
   }
