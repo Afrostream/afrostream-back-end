@@ -46,12 +46,8 @@ class List {
 // check if some data can be an provider interface list
 List.isIList = data => {
   return data &&
-    (
-      (data.id && typeof data.id === 'string') || data.id === null
-    ) &&
-    data.attributes &&
-    typeof data.attributes.name === 'string' &&
-    data.attributes.name;
+    ((data.id && typeof data.id === 'string') || data.id === null) &&
+    typeof data.name === 'string' && data.name;
 };
 
 List.build = data => {
