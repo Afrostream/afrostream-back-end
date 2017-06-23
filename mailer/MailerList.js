@@ -109,7 +109,8 @@ class MailerList {
       .then(() => {
         logger.log(`[RUNQUERY] updating model.numberOfSubscribers = ${numberOfSubscribers}`);
         return this.update({numberOfSubscribers: numberOfSubscribers});
-      });
+      })
+      .then(() => this);
   }
 
   getAssoSubscribers(options) {
