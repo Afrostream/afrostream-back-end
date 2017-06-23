@@ -76,6 +76,12 @@ exports.update = (req, res) => {
       return Mailer.List.loadById(req.params.listId);
     })
     .then(mailerList => {
+      if (mailerList.getCron() !== req.body.cron) {
+        return mailerList.updateCron(req.body.cron);
+      }
+      return mailerList;
+    })
+    .then(mailerList => {
       if (mailerList.getName() !== req.body.name) {
         return mailerList.updateName(req.body.name);
       }

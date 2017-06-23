@@ -16,6 +16,10 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       default: 0
     },
+    cron: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    },
     disabled: {
       type: DataTypes.BOOLEAN,
       defaultValue: false

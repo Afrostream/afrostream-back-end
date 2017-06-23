@@ -39,6 +39,10 @@ class MailerList {
     return this.model._id;
   }
 
+  getCron() {
+    return this.model.get('cron');
+  }
+
   getName() {
     return this.model.get('name');
   }
@@ -341,7 +345,12 @@ class MailerList {
       })
       .then(() => {
         return this.model.update({query: query});
-      });
+      })
+      .then(() => this);
+  }
+
+  updateCron (cron) {
+    return this.model.update({cron: cron}).then(() => this);
   }
 
   destroy() {

@@ -15,6 +15,7 @@ CREATE TABLE "MailerLists"
   "updatedAt" timestamp with time zone,
   name character varying(255),
   query text,
+  cron boolean default true,
   "disabled" boolean default false,
   "numberOfSubscribers" integer default 0,
   CONSTRAINT "MailerLists_pkey" PRIMARY KEY (_id)
@@ -151,7 +152,8 @@ CREATE TABLE "MailerAssoListsSubscribersProviders"
   "dateActive" timestamp with time zone,
   "dateUnsubscribed" timestamp with time zone,
   "disabled" boolean default false,
-  CONSTRAINT "MailerAssoListsSubscribersProviders_pkey" PRIMARY KEY ("subscriberId", "providerId")
+
+  CONSTRAINT "MailerAssoListsSubscribersProviders_pkey" PRIMARY KEY("listId", "subscriberId", "providerId")
 )
 WITH (
   OIDS=FALSE
