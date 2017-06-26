@@ -25,7 +25,8 @@ sqldb.MailerList.findAll({
     logger.log(mailerList.getName() + ' -> runQuery() ')
   );
   // first: we run the query
-  return mailerLists.reduce((p, c) => p.then(() => c.runQuery()), Q());
+  return mailerLists.reduce((p, c) => p.then(() => c.runQuery()), Q())
+    .then(() => mailerLists);
 }).then(mailerLists => {
   mailerLists.forEach(mailerList =>
     logger.log(mailerList.getName() + ' -> getProviders() -> startSync()')
