@@ -25,15 +25,11 @@ sqldb.MailerList.findAll({
     logger.log(mailerList.getName() + ' -> runQuery() ')
   );
   // first: we run the query
-  /* disabled (temp)
   return mailerLists.reduce((p, c) => p.then(() => c.runQuery()), Q());
-  */
-  return mailerLists;
 }).then(mailerLists => {
   mailerLists.forEach(mailerList =>
     logger.log(mailerList.getName() + ' -> getProviders() -> startSync()')
   );
-  /* disabled (temp)
   // second: we sync the providers
   return mailerLists.reduce((p, mailerList) => {
     return p.then(() => {
@@ -44,7 +40,6 @@ sqldb.MailerList.findAll({
         ));
     });
   }, Q());
-  */
 }).then(() => {
   logger.log('success');
   process.exit();
