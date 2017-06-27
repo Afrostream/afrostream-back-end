@@ -39,9 +39,13 @@ module.exports.start = (mailerList, mailerProvider, options) => {
       // to sync, we need to :
       // - fetch all asso ListSubscriber
       // - compare these asso.state to all asso ListSubsciberProvider state
-      setTimeout(() => {
-        worker(syncId, mailerList, mailerProvider, assoListProvider, logger);
-      }, 50);
+      const f = () => worker(syncId, mailerList, mailerProvider, assoListProvider, logger);
+
+      if (options.sync) {
+        return f();
+      } else {
+        setTimeout(f, 50);
+      }
     })
     .then(() => {
       return mailerList.getSyncStatus(mailerProvider);

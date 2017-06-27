@@ -387,9 +387,10 @@ class MailerList {
   /*
    * SYNC
    */
-  startSync(mailerProvider) {
+  startSync(mailerProvider, options) {
     assert(typeof mailerProvider === 'undefined' || mailerProvider instanceof Mailer.Provider);
 
+    options = options || {};
     if (!mailerProvider) {
       logger.log(`[startSync] no provider => startSync on all providers`);
       // recursive call to all providers
@@ -399,8 +400,7 @@ class MailerList {
         );
       });
     }
-
-    return sync.start(this, mailerProvider, {logger: logger});
+    return sync.start(this, mailerProvider, {logger: logger, sync: options.sync});
   }
 
   stopSync(mailerProvider) {

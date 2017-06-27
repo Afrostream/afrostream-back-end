@@ -36,9 +36,14 @@ sqldb.MailerList.findAll({
     return p.then(() => {
       // for each mailerList, we search the provider
       return mailerList.getProviders()
-        .then(mailerProviders => Q.all(
-          mailerProviders.map(mailerProvider => mailerList.startSync(mailerProvider))
-        ));
+        .then(mailerProviders =>
+          // foreach providers, we sync the list
+          mailerProviders.reduce((p, mailerProvider) => {
+            return p.then(() => {
+              return mailerList.startSync(mailerProvider);
+            });
+          })
+        );
     });
   }, Q());
 }).then(() => {

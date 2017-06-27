@@ -30,7 +30,7 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
   // the worker check periodicaly if syncId is still his own in the database
   //  if not => it stops the processing.
   //
-  Q.all([
+  return Q.all([
     sqldb.MailerAssoListsSubscribers.findAll({
       where:{listId:mailerList.getId()}
     }),
