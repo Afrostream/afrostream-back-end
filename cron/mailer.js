@@ -42,7 +42,7 @@ sqldb.MailerList.findAll({
             return p.then(() => {
               return mailerList.startSync(mailerProvider);
             });
-          })
+          }, Q())
         );
     });
   }, Q());
