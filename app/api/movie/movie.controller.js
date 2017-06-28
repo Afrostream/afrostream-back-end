@@ -7,8 +7,6 @@
  * DELETE  /api/movies/:id          ->  destroy
  */
 
-'use strict';
-
 const _ = require('lodash');
 const sqldb = rootRequire('sqldb');
 const algolia = rootRequire('components/algolia');
@@ -24,6 +22,8 @@ const filters = rootRequire('app/api/filters.js');
 const utils = rootRequire('app/api/utils.js');
 
 const getIncludedModel = require('./movie.includedModel').get;
+
+const Q = require('q');
 
 function responseWithSeasons (req, res, statusCode) {
   statusCode = statusCode || 200;
@@ -163,67 +163,75 @@ exports.index = (req, res) => {
 
 // Gets a single movie from the DB
 exports.show = (req, res) => {
-  // testing new API... dateFrom & dateTo
-  let queryOptions = {
-    where: {
-      _id: req.params.id
-    },
-    include: [
-      {
-        model: Video,
-        required: false,
-        as: 'video',
-        attributes: [
-          '_id', 'name', 'duration',
-          'sourceMp4', 'sourceMp4Deciphered',
-          'sourceMp4Size', 'sourceMp4DecipheredSize'
-        ]},
-      {model: Category, required: false, as: 'categorys'},
-      {
-        model: Season,
-        required: false,
-        as: 'seasons',
-        include: [
-          {
-            model: Episode,
-            as: 'episodes',
-            required: false,
-            include: [
-              {
-                model: Video,
-                as: 'video',
-                required: false,
-                attributes: [
-                  '_id', 'name', 'duration',
-                  'sourceMp4', 'sourceMp4Deciphered',
-                  'sourceMp4Size', 'sourceMp4DecipheredSize'
-                ]
-              },
-              {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
-              {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
-            ],
-            attributes: ['_id', 'title', 'episodeNumber', 'slug']
-          }
-        ]
-      }, // load all seasons
-      {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
-      {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
-      {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
-      {model: Licensor, as: 'licensor', required: false},
-      {model: Actor, as: 'actors', required: false, attributes: ['_id', 'firstName', 'lastName']}
-    ],
-    order: [
-      [{model: Season, as: 'seasons'}, 'sort'],
-      [{model: Season, as: 'seasons'}, {model: Episode, as: 'episodes'}, 'sort']
-    ]
-  };
-  //
-  queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
-  //
-  Movie.find(queryOptions)
-    .then(utils.handleEntityNotFound(res))
-    .then(utils.responseWithResult(req, res))
-    .catch(res.handleError());
+  Q()
+    .then(() => {
+    // validation
+    if (isNaN(parseInt(req.params.id, 10))) {
+      throw new Error(`malformed id : ${req.params.id}`);
+    }
+
+    // testing new API... dateFrom & dateTo
+    let queryOptions = {
+      where: {
+        _id: req.params.id
+      },
+      include: [
+        {
+          model: Video,
+          required: false,
+          as: 'video',
+          attributes: [
+            '_id', 'name', 'duration',
+            'sourceMp4', 'sourceMp4Deciphered',
+            'sourceMp4Size', 'sourceMp4DecipheredSize'
+          ]},
+        {model: Category, required: false, as: 'categorys'},
+        {
+          model: Season,
+          required: false,
+          as: 'seasons',
+          include: [
+            {
+              model: Episode,
+              as: 'episodes',
+              required: false,
+              include: [
+                {
+                  model: Video,
+                  as: 'video',
+                  required: false,
+                  attributes: [
+                    '_id', 'name', 'duration',
+                    'sourceMp4', 'sourceMp4Deciphered',
+                    'sourceMp4Size', 'sourceMp4DecipheredSize'
+                  ]
+                },
+                {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
+                {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']}
+              ],
+              attributes: ['_id', 'title', 'episodeNumber', 'slug']
+            }
+          ]
+        }, // load all seasons
+        {model: Image, as: 'logo', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+        {model: Image, as: 'poster', required: false, attributes: ['_id', 'name', 'imgix', 'path', 'profiles']},
+        {model: Image, as: 'thumb', required: false, attributes: ['_id', 'name', 'imgix', 'path']},
+        {model: Licensor, as: 'licensor', required: false},
+        {model: Actor, as: 'actors', required: false, attributes: ['_id', 'firstName', 'lastName']}
+      ],
+      order: [
+        [{model: Season, as: 'seasons'}, 'sort'],
+        [{model: Season, as: 'seasons'}, {model: Episode, as: 'episodes'}, 'sort']
+      ]
+    };
+    //
+    queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
+    //
+    return Movie.find(queryOptions);
+  })
+  .then(utils.handleEntityNotFound(res))
+  .then(utils.responseWithResult(req, res))
+  .catch(res.handleError());
 };
 
 // Gets all Seasons in selected movie

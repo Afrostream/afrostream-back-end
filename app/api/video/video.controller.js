@@ -6,9 +6,6 @@
  * PUT     /api/videos/:id          ->  update
  * DELETE  /api/videos/:id          ->  destroy
  */
-
-'use strict';
-
 const _ = require('lodash');
 const sqldb = rootRequire('sqldb');
 const Asset = sqldb.Asset;
@@ -237,6 +234,13 @@ exports.show = (req, res) => {
 
   Q()
     .then(() => {
+      // check video id format = 6a111ada-63df-4218-ad59-82ceb87b3654
+      // should be : /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+      // but we might handcraft some ... not corresponding to this format =>
+      if (!String(req.params.id).match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        throw new Error(`malformed id : ${req.params.id}`);
+      }
+
       // security & checks
       ensureAccessToVideo(req);
       //
