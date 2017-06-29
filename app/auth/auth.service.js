@@ -69,6 +69,7 @@ function isAuthenticated () {
         if (err || !authentified){
           var error = new Error(err && err.message || 'unauthorized');
           error.statusCode = err && err.statusCode || 401;
+          error.stack = null; // avoid dump stack trace (or should be original stack)
           return res.handleError()(error);
         } else {
           req.user = authentified; /// <= le fameux code ... horrible.
