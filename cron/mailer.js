@@ -40,7 +40,7 @@ sqldb.MailerList.findAll({
           // foreach providers, we sync the list
           mailerProviders.reduce((p, mailerProvider) => {
             return p.then(() => {
-              return mailerList.startSync(mailerProvider);
+              return mailerList.startSync(mailerProvider, {sync: true});
             });
           }, Q())
         );
