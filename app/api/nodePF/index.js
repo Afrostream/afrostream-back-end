@@ -12,4 +12,7 @@ router.get('/profiles', controller.profiles.index);
 
 router.get('/uploadToBouyguesSFTP', controller.uploadToBouyguesSFTP);
 
+router.get('/updateAssetState', controller.updateAssetState);
+router.get('/updateContentState', controller.updateContentState);
+
 module.exports = router;

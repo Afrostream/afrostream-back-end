@@ -162,3 +162,45 @@ module.exports.uploadToBouyguesSFTP = (req, res) => {
     })
     .catch(res.handleError());
 };
+
+module.exports.updateAssetState = (req, res) => {
+  Q()
+    .then(() => {
+      if (!req.query.assetId) throw new Error('missing assetId');
+      if (!req.query.state) throw new Error('missing state');
+
+      // custom call.
+      return NodePF.request({
+        uri: '/api/updateAssetState',
+        qs: {
+          assetId: req.query.assetId,
+          state: req.query.state
+        }
+      });
+    })
+    .then(asset => {
+      res.json(asset);
+    })
+    .catch(res.handleError());
+};
+
+module.exports.updateContentState = (req, res) => {
+  Q()
+    .then(() => {
+      if (!req.query.contentId) throw new Error('missing contentId');
+      if (!req.query.state) throw new Error('missing state');
+
+      // custom call.
+      return NodePF.request({
+        uri: '/api/updateContentState',
+        qs: {
+          contentId: req.query.contentId,
+          state: req.query.state
+        }
+      });
+    })
+    .then(content => {
+      res.json(content);
+    })
+    .catch(res.handleError());
+};
