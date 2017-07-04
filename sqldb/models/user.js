@@ -136,7 +136,8 @@ module.exports = function (sequelize, DataTypes) {
         followers: {
           type: DataTypes.INTEGER,
           defaultValue: 0
-        }
+        },
+        mailerProviderLastState: DataTypes.STRING(32)
     }, {
 
         /**
