@@ -10,6 +10,8 @@ const request = require('request');
 // fixme: this dependency should be injected
 const logger = rootRequire('logger').prefix('MAILER').prefix('MAILBLAST');
 
+const config = rootRequire('config');
+
 const requestMailblast = options => {
   assert(options);
   assert(options.uri);
@@ -17,8 +19,8 @@ const requestMailblast = options => {
   // fixme: move to config
   const queryOptions = Object.assign({}, {
     headers: {
-      'X-USER-TOKEN': 'y5MS3F4vq9X-g7o328vrZHszYxueSA',
-      'X-USER-EMAIL': 'tech@afrostream.tv'
+      'X-USER-TOKEN': config.mailblast.token,
+      'X-USER-EMAIL': config.mailblast.email
     },
     json: true
   }, options);

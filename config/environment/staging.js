@@ -122,6 +122,11 @@ module.exports = {
   },
   */
 
+  mailblast: {
+    token: process.env.MAILBLAST_TOKEN || '',
+    email: 'tech@afrostream.tv'
+  },
+
   /* configuration staging */
   netsize: {
     callbackBaseUrl: 'https://staging.afrostream.tv',
