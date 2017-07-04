@@ -29,6 +29,18 @@ class MailerProvider {
     });
   }
 
+  loadByName(name) {
+    return sqldb.MailerProvider.find({
+      where: { name: name }
+    })
+    .then(model => {
+      if (!model) throw new Error('cannot read from db');
+
+      this.model = model;
+      return this;
+    });
+  }
+
   getAPIInterface() {
     if (!this.apiInterface) {
       const interfaceName = this.model.get('interface');
@@ -52,6 +64,13 @@ MailerProvider.loadById = id => {
 
   const mailerProvider = new MailerProvider();
   return mailerProvider.loadById(id);
+};
+
+MailerProvider.loadByName = name => {
+  assert(name);
+
+  const mailerProvider = new MailerProvider();
+  return mailerProvider.loadByName(name);
 };
 
 module.exports = MailerProvider;
