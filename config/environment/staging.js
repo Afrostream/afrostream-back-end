@@ -123,6 +123,8 @@ module.exports = {
   */
 
   mailblast: {
+    // to simulate prod env :
+    // export MAILBLAST_TOKEN=y5MS3F4vq9X-g7o328vrZHszYxueSA
     token: process.env.MAILBLAST_TOKEN || '',
     email: 'tech@afrostream.tv'
   },
