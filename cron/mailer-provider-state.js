@@ -29,6 +29,12 @@ const Mailer = rootRequire('mailer');
 
 const chain = funcs => funcs.reduce((p, func) => p.then(prev => func(prev)), Q());
 
+// we need to prevent MQ messages
+// we monkey-patch the configuration ! (with side effects...)
+const config = rootRequire('config');
+config.sequelize.hooks.mqModelBlacklist.push('User');
+//
+
 Q()
   .then(() => {
     logger.log('loading mailblast provider');
