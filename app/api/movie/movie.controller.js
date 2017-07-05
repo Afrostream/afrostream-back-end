@@ -236,15 +236,23 @@ exports.show = (req, res) => {
 
 // Gets all Seasons in selected movie
 exports.seasons = (req, res) => {
-  let queryOptions = {
-    where: {
-      _id: req.params.id
-    }
-  };
+  Q()
+    .then(() => {
+      // validation
+      if (isNaN(parseInt(req.params.id, 10))) {
+        throw new Error(`malformed id : ${req.params.id}`);
+      }
 
-  queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
+      let queryOptions = {
+        where: {
+          _id: req.params.id
+        }
+      };
 
-  Movie.find(queryOptions)
+      queryOptions = filters.filterQueryOptions(req, queryOptions, Movie);
+
+      return Movie.find(queryOptions);
+    })
     .then(utils.handleEntityNotFound(res))
     .then(responseWithSeasons(req, res))
     .catch(res.handleError());
