@@ -359,6 +359,28 @@ module.exports = function (sequelize, DataTypes) {
                 return User.getPublicInfos(this.get({plain: true}));
             },
 
+            updateMailerProviderLastState: function (state) {
+              const lastState = this.get('mailerProviderLastState');
+
+              // /!\ we do not return a promise here ...
+              if (state === lastState) return;
+
+              // active,pending_verification,unsubscribed,soft_bounce,hard_bounce,spam_complaint
+              switch (state) {
+                case 'unsubscribed':
+                case 'hard_bounce':
+                case 'spam_complaint':
+                  this.set('emailNewsletter', false);
+                  break;
+                default:
+                  break;
+              }
+              this.set('mailerProviderLastState', state);
+
+              return this.save();
+            },
+
+
             toPlain: function (options) {
               var caller = options.req && options.req.user ||
                            options.req && options.req.passport && options.req.passport.user;
