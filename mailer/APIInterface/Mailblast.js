@@ -72,6 +72,24 @@ class Mailblast extends ApiInterface {
   // this provider can handle lists.
   canHandleList() { return true; }
 
+  getLists() {
+    logger.log(`get all lists`);
+
+    return requestMailblast({uri:'https://api.mailblast.io/v1/lists',qs:{'page[size]':100}})
+      .then(([response, body]) => {
+        if (response.statusCode !== 200) {
+          throw new Error(`http status should be 200 ${body && body.detail}`);
+        }
+        if (!body || !body.data) throw new Error('missing response.data');
+        if (!Array.isArray(body.data)) throw new Error('malformated response, data should be an array');
+        if (!body.data.every(pList=>Mailblast.isPList(pList))) throw new Error('malformated response');
+        logger.log(`${body.data.length} lists found`);
+        return body.data.map(pList=>Mailblast.PListToIList(pList));
+      });
+  }
+
+
+
   /*
    * @param list  IList
    * @return IList
@@ -95,7 +113,7 @@ class Mailblast extends ApiInterface {
           throw new Error(`http status should be 201 ${body && body.detail}`);
         }
         if (!body || !body.data) throw new Error('missing response.data');
-        if (!Mailblast.isPList) throw new Error('malformated response');
+        if (!Mailblast.isPList(body.data)) throw new Error('malformated response');
         // everything seems ok in mailblast system.
         const list = Mailblast.PListToIList(body.data);
         logger.log(`iList created from ${JSON.stringify(body)} => ${JSON.stringify(list)}`);
@@ -120,7 +138,7 @@ class Mailblast extends ApiInterface {
       .then(([response, body]) => {
         if (response.statusCode !== 200) throw new Error('http status should be 200');
         if (!body || !body.data) throw new Error('missing response.data');
-        if (!Mailblast.isPList) throw new Error('malformated response');
+        if (!Mailblast.isPList(body.data)) throw new Error('malformated response');
         // everything seems ok in mailblast system.
         const list = Mailblast.PListToIList(body.data);
         logger.log(`iList created from ${JSON.stringify(body)} => ${JSON.stringify(list)}`);
@@ -139,6 +157,45 @@ class Mailblast extends ApiInterface {
       if (response.statusCode !== 204) throw new Error('http status should be 204');
       return true;
     });
+  }
+
+  // crawl the provider api
+  getSubscribers(listId) {
+    assert(listId && typeof listId === 'string');
+
+    logger.log(`list ${listId}: get subscribers`);
+
+    const crawlPage = pageNumber =>
+      requestMailblast({
+        uri: `https://api.mailblast.io/v1/lists/${listId}/subscribers`,
+        qs: {
+          'page[number]': pageNumber,
+          'page[size]': 100
+        }
+      })
+      .then(([response, body]) => {
+        if (response.statusCode !== 200) throw new Error(`http status should be 200 - crawl ${pageNumber} ${listId}`);
+        if (!body || !body.data) throw new Error(`missing response.data - crawl ${pageNumber} ${listId}`);
+        if (!Array.isArray(body.data)) throw new Error(`malformed response - crawl ${pageNumber} ${listId}`);
+        return body;
+      });
+
+    const crawlRec = pageNumber => {
+      logger.log(`list ${listId}: get subscribers - crawling page ${pageNumber}`);
+      return crawlPage(pageNumber)
+        .then(body => {
+          if (!body.data.every(Mailblast.isPSubscriber)) throw new Error(`not pSubscriber - crawl ${pageNumber} ${listId}`);
+
+          const iSubscribers = body.data.map(Mailblast.PSubscriberToISubscriber);
+
+          if (!body.links || !body.links.next) {
+            return iSubscribers;
+          }
+          return crawlRec(pageNumber+1).then(nextISubscribers=>iSubscribers.concat(nextISubscribers));
+        });
+    };
+
+    return crawlRec(1);
   }
 
   createSubscriber(listId, subscriber) {
@@ -163,7 +220,7 @@ class Mailblast extends ApiInterface {
     .then(([response, body]) => {
       if (response.statusCode !== 201) throw new Error('http status should be 201');
       if (!body || !body.data) throw new Error('missing response.data');
-      if (!Mailblast.isPSubscriber) throw new Error('malformated response');
+      if (!Mailblast.isPSubscriber(body.data)) throw new Error('malformated response');
       // everything seems ok in mailblast system.
       const subscriber = Mailblast.PSubscriberToISubscriber(body.data);
       logger.log(`list ${listId}: subscriber ${subscriber.get('id')} created from ${JSON.stringify(body)} => ${JSON.stringify(subscriber)}`);
@@ -194,7 +251,7 @@ class Mailblast extends ApiInterface {
     .then(([response, body]) => {
       if (response.statusCode !== 200) throw new Error('http status should be 200');
       if (!body || !body.data) throw new Error('missing response.data');
-      if (!Mailblast.isPSubscriber) throw new Error('malformated response');
+      if (!Mailblast.isPSubscriber(body.data)) throw new Error('malformated response');
       // everything seems ok in mailblast system.
       const subscriber = Mailblast.PSubscriberToISubscriber(body.data);
       logger.log(`list ${listId}: subscriber ${subscriber.get('id')} updated from ${JSON.stringify(body)} => ${JSON.stringify(subscriber)}`);
@@ -217,6 +274,10 @@ class Mailblast extends ApiInterface {
       if (response.statusCode !== 204) throw new Error('http status should be 204');
       return true;
     });
+  }
+
+  request(options) {
+    return requestMailblast(options);
   }
 }
 
