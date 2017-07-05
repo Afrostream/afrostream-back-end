@@ -48,9 +48,6 @@ Q()
 
         return chain(
           iLists
-            .filter(iList=>iList.id === '02816c16-b933-4d36-9ab6-7be743864caa'
-             || iList.id === 'b3f0def7-efaf-4ac3-951d-6b003efbd62f'
-             || iList.id === '385c9453-c7be-4566-94e5-e0cda8a01ddc')
             .map((iList, i) => prev => {
               logger.log(`${i}/${iList.length}\t apiInterface.getSubscribers(${iList.id})`);
               return apiInterface.getSubscribers(iList.id).then(iSubscribers=>(prev||[]).concat(iSubscribers));
