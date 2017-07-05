@@ -93,6 +93,7 @@
     "cron-daily-queries": "node cron/daily-queries.js",
     "cron-stats-usersVideos": "node cron/stats-usersVideos.js",
     "cron-mailer": "node cron/mailer.js",
+    "cron-mailer-provider-state": "node cron/mailer-provider-state.js",
     "lint": "./node_modules/.bin/eslint .",
     "test": ". ~/.nvm/nvm.sh && nvm use 6.9.1 && node_modules/.bin/mocha -b test/integration/*",
     "heroku-postbuild": "npm run lint"
