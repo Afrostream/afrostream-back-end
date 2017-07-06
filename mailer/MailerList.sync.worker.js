@@ -137,6 +137,34 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
                 return alsp.setStatusPendingUnsubscribed();
               })
               .then(() => {
+                // new step: BEFORE WE DELETE THE SUBSCRIBER, WE UPDATE HIS PROVIDER STATE IN OUR DATABASE
+                logger.log(`assoLSPtoDelete: SYNC subscriberId=${alsp.subscriberId} state email=${alsp.subscriber.referenceEmail}`);
+                const subscriber = Mailer.Subscriber.loadFromModel(alsp.subscriber);
+                return pApi.getSubscriber(pListId, subscriber.toISubscriber(alsp))
+                  .then(iSubscriber => {
+                    const email = iSubscriber.get('email');
+                    const state = iSubscriber.get('state');
+                    return sqldb.User.findOne({where:{email:{$iLike:email}}})
+                      .then(user => {
+                        if (!user) {
+                          logger.warn(`assoLSPtoDelete: SYNC ${email}: user not found`);
+                        } else {
+                          const lastState = user.get('mailerProviderLastState');
+                          if (lastState === state) {
+                            logger.log(`assoLSPtoDelete: SYNC ${email}: keeping state ${state}`);
+                          } else {
+                            logger.log(`assoLSPtoDelete: SYNC ${email}: updating ${user._id} from ${lastState} to ${state}`);
+                          }
+                          return user.updateMailerProviderLastState(state);
+                        }
+                      });
+                  })
+                  .then(
+                    () => { },
+                    err => { logger.error(err); } // no error can be triggered by the sync.
+                  );
+              })
+              .then(() => {
                 logger.log(`assoLSPtoDelete: deleteSubscriber subscriberId=${alsp.subscriberId} email=${alsp.subscriber.referenceEmail}`);
                 const subscriber = Mailer.Subscriber.loadFromModel(alsp.subscriber);
                 return pApi.deleteSubscriber(pListId, subscriber.toISubscriber(alsp));

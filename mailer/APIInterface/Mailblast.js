@@ -259,6 +259,26 @@ class Mailblast extends ApiInterface {
     });
   }
 
+  getSubscriber(listId, subscriber) {
+    assert(listId && typeof listId === 'string');
+    assert(subscriber instanceof ISubscriber);
+    assert(subscriber.get('id'));
+
+    logger.log(`list ${listId}: get subscriber ${subscriber.get('id')} ${subscriber.get('email')}`);
+
+    return requestMailblast({
+      uri: `https://api.mailblast.io/v1/lists/${listId}/subscribers/${subscriber.get('id')}`
+    })
+    .then(([response, body]) => {
+      if (response.statusCode !== 200) throw new Error('http status should be 200');
+      if (!body || !body.data) throw new Error('missing response.data');
+      if (!Mailblast.isPSubscriber(body.data)) throw new Error('malformated response');
+      // everything seems ok in mailblast system.
+      const subscriber = Mailblast.PSubscriberToISubscriber(body.data);
+      return subscriber;
+    });
+  }
+
   deleteSubscriber(listId, subscriber) {
     assert(listId && typeof listId === 'string');
     assert(subscriber instanceof ISubscriber);
