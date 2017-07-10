@@ -213,6 +213,7 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
                 const subscriber = Mailer.Subscriber.loadFromModel(alsp.subscriber);
                 return pApi.createSubscriber(pListId, subscriber.toISubscriber(alsp))
                   .then(iSubscriber => {
+                    logger.log(`assoLSPtoCreate: createSubscriber iSubscriber=${JSON.stringify(iSubscriber)}`);
                     if (!iSubscriber.get('id')) {
                       throw new Error('no provider subscriber id!?');
                     }
@@ -221,6 +222,8 @@ module.exports = (syncId, mailerList, mailerProvider, assoListProvider, logger) 
               })
               .then(() => {
                 const automation = assoListProvider.get('automation');
+
+                logger.log(`assoLSPtoCreate: check automation: ${automation}`);
                 if (automation) {
                   const transactionData = {
                     providerId: mailerProvider.getId(),

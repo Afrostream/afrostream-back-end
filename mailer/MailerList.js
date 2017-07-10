@@ -48,7 +48,7 @@ class MailerList {
   }
 
   getQuery() {
-    return this.model.get('query');
+    return this.model.get('query'); // fixme: should be queries
   }
 
   getModel() {
@@ -83,14 +83,27 @@ class MailerList {
         if (!this.hasQuery()) throw new Error('missing query');
       })
       .then(() => {
-        const query = this.getQuery();
+        let query, lastQuery;
 
-        logger.log(`[RUNQUERY] ${query}`);
+        query = this.getQuery();
+        query = query.split(";\n").filter(q=>q.trim());
+        lastQuery = query.pop();
 
-        // we only accept user with valid email & uuid
-        return sqldb.sequelize.query(query, { type: sqldb.sequelize.QueryTypes.SELECT})
-          // rows <=> { email: "...", uuid: "..." }
-          .then(rows => rows.filter(row => row.email && row.uuid));
+        logger.log(`[RUNQUERY] [ALL-QUERIES]: ${query.join(';')}\n${lastQuery};`);
+
+        // only the last one is specific, reducing the first ones.
+        return query.reduce((p, query, i) => {
+          logger.log(`[RUNQUERY] run query ${i}: ${query}`);
+          return sqldb.sequelize.query(query);
+        }, Q())
+          .then(() => {
+          logger.log(`[RUNQUERY] run lastquery: ${lastQuery}`);
+          // the last query is specific :
+          // we only accept user with valid email & uuid
+          return sqldb.sequelize.query(lastQuery, { type: sqldb.sequelize.QueryTypes.SELECT})
+            // rows <=> { email: "...", uuid: "..." }
+            .then(rows => rows.filter(row => row.email && row.uuid));
+        });
       })
       .then(rows => {
         numberOfSubscribers = rows.length;
@@ -531,6 +544,9 @@ MailerList.isQueryValid = query => {
   if (query === "") {
     return Q(true);
   }
+  // splitting the query using ";\n" separator
+  //  poping the last one.
+  query = query.split(";\n").filter(q=>q.trim()).pop();
   return sqldb.sequelize.query(query, { type: sqldb.sequelize.QueryTypes.SELECT})
     .then(result => {
       const ok = result.every(row => typeof row.email !== 'undefined' && typeof row.uuid !== 'undefined');
