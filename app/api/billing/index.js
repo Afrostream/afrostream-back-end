@@ -203,5 +203,6 @@ router.put('/subscriptions/:subscriptionUuid/reactivate', controller.reactivateS
 router.put('/subscriptions/:subscriptionUuid/updateinternalplan/:internalPlanUuid', controller.switchSubscriptions);
 router.put('/subscriptions/:subscriptionUuid/coupons/:couponCode/redeem', controller.switchSubscriptions);
 router.put('/users/:userUuid', controller.updateUser);
+router.post('/providers/stripe/customerKey', controller.createStripeCustomerKey);
 
 module.exports = router;

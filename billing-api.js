@@ -442,6 +442,15 @@ var getCouponCampains = (providerName, couponsCampaignBillingUuid) => requestBil
   }
 }).then(body => body && body.response && body.response || []);
 
+var createStripeCustomerKey = (userReferenceUuid, apiVersion) => requestBilling({
+  method: 'POST',
+  url: config.billings.url + '/billings/providers/stripe/customerKey',
+  qs: { apiVersion: apiVersion },
+  body: {
+    userReferenceUuid: userReferenceUuid
+  }
+}).then(body => body && body.response && body.response || {});
+
 // very high level
 module.exports.getConfig = getConfig;
 module.exports.getSubscriptionsStatus = getSubscriptionsStatus;
@@ -469,3 +478,5 @@ module.exports.validateCoupons = validateCoupons;
 module.exports.createCoupons = createCoupons;
 module.exports.getCouponCampains = getCouponCampains;
 module.exports.listCoupons = listCoupons;
+// specific api
+module.exports.createStripeCustomerKey = createStripeCustomerKey;

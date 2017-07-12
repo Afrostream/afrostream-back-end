@@ -615,3 +615,14 @@ module.exports.updateUser = (req, res) => {
       res.handleError()
     );
 };
+
+module.exports.createStripeCustomerKey = (req, res) => {
+  Q()
+    .then(() => {
+      return billingApi.createStripeCustomerKey(req.user._id, req.query.apiVersion);
+    })
+    .then(
+      res.json.bind(res),
+      res.handleError()
+    );
+};
