@@ -78,7 +78,7 @@
     "supertest": "^2.0.1"
   },
   "engines": {
-    "node": "6.9.1"
+    "node": "6.11.1"
   },
   "scripts": {
     "start": "node server.js",
