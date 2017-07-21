@@ -85,6 +85,8 @@
   },
   "scripts": {
     "start": "node server.js",
+    "docker-build": "docker build -t afrostream/afrostream-backend .",
+    "docker-run": "docker run -i -t -p 5602:5602 --init afrostream/afrostream-backend:latest",
     "nvmstaging": ". ~/.nvm/nvm.sh && nvm use 6.9.1 && node_modules/.bin/nodemon staging.js",
     "staging": "node_modules/.bin/nodemon staging.js",
     "nvmdev": ". ~/.nvm/nvm.sh && nvm use 6.9.1 && node_modules/.bin/nodemon server.js",

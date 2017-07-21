@@ -1,8 +1,8 @@
 'use strict';
 
 // security
-if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging' || process.env.DATABASE_URL) {
-  console.error('security: cannot mock on production / staging environment');
+if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
+  console.error('security: cannot mock on production / staging environment [' +  process.env.NODE_ENV + ']');
   console.error('exit 1');
   process.exit(1);
 }

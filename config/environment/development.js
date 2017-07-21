@@ -18,7 +18,7 @@ module.exports = {
   },
 
   sequelize: {
-    uri: 'postgres://postgres:root@localhost:5432/afrostream',
+    uri: process.env.DATABASE_URL || 'postgres://postgres:root@localhost:5432/afrostream',
     options: {
       logging: console.log,
       storage: 'dev.postgres'
