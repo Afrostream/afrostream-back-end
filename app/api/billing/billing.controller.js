@@ -616,10 +616,56 @@ module.exports.updateUser = (req, res) => {
     );
 };
 
-module.exports.createStripeCustomerKey = (req, res) => {
+module.exports.createCustomerKey = (req, res) => {
+  const c = {
+    bodyFirstName: req.body.firstName,
+    bodyLastName: req.body.lastName
+  };
+
   Q()
+  //
+  // ensure input data is correct
+  //
     .then(() => {
-      return billingApi.createStripeCustomerKey(req.user._id, req.query.apiVersion);
+      if (!req.user) throw new Error('no user');
+      if (!req.body.billingProviderName) throw new Error('missing billingProviderName');
+      switch (req.body.billingProviderName) {
+        case 'stripe':
+          if (!req.body.opts) throw new Error('missing opts');
+          if (!req.body.opts.apiVersion) throw new Error('missing opts.apiVersion');
+          break;
+        default:
+          throw new Error(`cannot createCustomerKey for provider ${req.body.billingProviderName}`);
+      }
+    })
+    // Update user info
+    // Fixme : don't update user infos from billing subscription
+    //
+    .then(() => updateUserName(req, c)
+    )
+    //
+    // we create the user in the billing-api if he doesn't exist yet
+    //
+    .then(() => {
+      return billingApi.getOrCreateUser({
+        providerName: req.body.billingProviderName,
+        userReferenceUuid: req.user._id,
+        userProviderUuid: null,
+        userOpts: {
+          email: req.user.email,
+          firstName: req.body.firstName || '',
+          lastName: req.body.lastName || '',
+          countryCode: req.query.country || undefined,
+          languageCode: req.query.language && String(req.query.language).toLowerCase() || undefined
+        }
+      });
+    })
+    .then(billingsResponse => {
+      return billingApi.createEphemeralKey(
+        billingsResponse.response.user.userBillingUuid,
+        req.body.opts.apiVersion,
+        req.body.opts.raw
+      );
     })
     .then(
       res.json.bind(res),

@@ -442,12 +442,12 @@ var getCouponCampains = (providerName, couponsCampaignBillingUuid) => requestBil
   }
 }).then(body => body && body.response && body.response || []);
 
-var createStripeCustomerKey = (userReferenceUuid, apiVersion) => requestBilling({
+var createEphemeralKey = (userBillingUuid, apiVersion, raw) => requestBilling({
   method: 'POST',
-  url: config.billings.url + '/billings/providers/stripe/customerKey',
-  qs: { apiVersion: apiVersion },
+  url: `${config.billings.url}/billings/api/users/${userBillingUuid}/createEphemeralKey`,
+  qs: { raw: raw },
   body: {
-    userReferenceUuid: userReferenceUuid
+    opts: { apiVersion: apiVersion }
   }
 }).then(body => body && body.response && body.response || {});
 
@@ -479,4 +479,4 @@ module.exports.createCoupons = createCoupons;
 module.exports.getCouponCampains = getCouponCampains;
 module.exports.listCoupons = listCoupons;
 // specific api
-module.exports.createStripeCustomerKey = createStripeCustomerKey;
+module.exports.createEphemeralKey = createEphemeralKey;
