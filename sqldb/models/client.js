@@ -68,6 +68,11 @@ module.exports = function (sequelize, DataTypes) {
       isAndroid: function () {
         // bahri, app telephone android
         return this.getDataValue('type') === 'legacy-api.android';
+      },
+
+      isIOS: function () {
+        // bahri, app telephone android
+        return this.getDataValue('type') === 'legacy-api.ios';
       }
     }
   });

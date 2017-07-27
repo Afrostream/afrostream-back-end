@@ -126,7 +126,8 @@ var callback = function (req, res, next) {
         if (req.signupClientType) {
           // whitelisting client types
           if (req.signupClientType !== "legacy-api.tapptic" &&
-              req.signupClientType !== "legacy-api.android") {
+              req.signupClientType !== "legacy-api.android" &&
+              req.signupClientType !== "legacy-api.ios") {
             throw new Error('unallowed signupClientType');
           }
           return Client.findOne({where:{type:req.signupClientType}}).then(function (c) {

@@ -44,6 +44,7 @@ module.exports.showInternalplans = (req, res) => {
           billingsData.providerName = client.billingProviderName;
           break;
         case 'legacy-api.android':
+        case 'legacy-api.ios':
           billingsData.filterCountry = req.country && req.country._id || '--';
           billingsData.filterEnabled = "true";
           billingsData.filterClientId = client._id;
@@ -100,6 +101,7 @@ module.exports.showInternalplan = (req, res) => {
       const clientType = client && client.type || '';
       switch (clientType) {
         case 'legacy-api.android':
+        case 'legacy-api.ios':
           billingsData.country = req.country && req.country._id || '--';
           billingsData.filterEnabled = "true";
           billingsData.filterClientId = client && client._id;
@@ -143,7 +145,8 @@ module.exports.cancelSubscriptions = (req, res) => {
       if (!client) throw new Error('unknown client');
       if (!client.isFrontApi() &&
         !client.isBouyguesMiami() &&
-        !client.isAndroid()) {
+        !client.isAndroid() &&
+        !client.isIOS()) {
         throw new Error('unknown subscriptionUuid for user ' + c.userId + ' client type ' + client.type);
       }
     })
@@ -279,6 +282,7 @@ module.exports.createSubscriptions = (req, res) => {
           c.userProviderUuid = req.user.bouyguesId;
           break;
         case 'legacy-api.android':
+        case 'legacy-api.ios':
           // security, we prevent the android client to POST
           //  without using an authentified user
           if (!req.user) {
