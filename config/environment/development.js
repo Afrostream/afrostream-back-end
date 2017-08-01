@@ -5,7 +5,7 @@
 module.exports = {
   backEnd: {
     publicProtocol: 'http',
-    publicAuthority: 'localhost:5602'
+    publicAuthority: 'localhost:5702'
   },
 
   player: {
@@ -111,7 +111,7 @@ module.exports = {
 
   pf: {
     timeout: 500,
-    url: process.env.PF_URL || 'http://p-afsmsch-001.afrostream.dev'
+    url: process.env.AFROSTREAM_PF_BASE_URL || 'http://p-afsmsch-001.afrostream.dev'
   },
 
   logs: {
