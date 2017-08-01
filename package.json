@@ -85,18 +85,18 @@
   },
   "scripts": {
     "start": "node server.js",
-    "staging": "docker run -i -t -p 5602:5602 --init afrostream/afrostream-backend:latest node_modules/.bin/nodemon staging.js",
-    "dev": "docker run -i -t -p 5602:5602 --init afrostream/afrostream-backend:latest node_modules/.bin/nodemon server.js",
+    "staging": "docker run -i -t --net=host --init afrostream/afrostream-backend:latest node_modules/.bin/nodemon staging.js",
+    "dev": "docker run -i -t --net=host --init afrostream/afrostream-backend:latest node_modules/.bin/nodemon server.js",
     "seed": "export SEED_DB=true && npm run dev",
     "cron-daily-queries": "node cron/daily-queries.js",
     "cron-stats-usersVideos": "node cron/stats-usersVideos.js",
     "cron-mailer": "node cron/mailer.js",
     "cron-mailer-provider-state": "node cron/mailer-provider-state.js",
-    "lint": "docker run -i -t -p 5602:5602 --init afrostream/afrostream-backend:latest node_modules/.bin/eslint .",
+    "lint": "docker run -i -t --net=host --init afrostream/afrostream-backend:latest node_modules/.bin/eslint .",
     "test": ". ~/.nvm/nvm.sh && nvm use 6.9.1 && node_modules/.bin/mocha -b test/integration/*",
     "heroku-postbuild": "npm run lint",
     "docker-build": "docker build -t afrostream/afrostream-backend .",
-    "docker-run": "docker run -i -t -p 5602:5602 --init afrostream/afrostream-backend:latest"
+    "docker-run": "docker run -i -t --net=host --init afrostream/afrostream-backend:latest"
   },
   "pre-commit": [
     "lint"
