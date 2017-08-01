@@ -78,7 +78,16 @@ this project should be renamed => afrostream-api <=
 
 # afrostream-backend
 
-## Getting Started
+default dev port : 5702
+
+## Getting started with docker
+
+```
+docker build -t afrostream/afrostream-backend .
+docker run -i -t --net=host --init afrostream/afrostream-backend:latest
+```
+
+## Getting Started local dev without docker
 
 you need node 6.x
 
@@ -89,13 +98,13 @@ npm install
 ### run it on your own computer (dev env) with your own database
 
 ```
-npm run dev
+node server.js
 ```
 
 ### run it on your own computer but using the staging database !
 
 ```
-npm run staging  
+node staging.js  
 ```
 
 ## Database
