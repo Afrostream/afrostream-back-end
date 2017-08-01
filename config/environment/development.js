@@ -111,7 +111,7 @@ module.exports = {
 
   pf: {
     timeout: 500,
-    url: 'http://p-afsmsch-001.afrostream.dev'
+    url: process.env.PF_URL || 'http://p-afsmsch-001.afrostream.dev'
   },
 
   logs: {

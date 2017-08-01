@@ -69,7 +69,7 @@ module.exports = {
 
   pf: {
     timeout: 10000,
-    url: 'http://p-afsmsch-001.afrostream.tv:4000'
+    url: process.env.PF_URL || 'http://p-afsmsch-001.afrostream.tv:4000'
   },
 
   mq: {
