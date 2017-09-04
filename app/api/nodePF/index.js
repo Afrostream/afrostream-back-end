@@ -11,6 +11,7 @@ router.get('/contents', controller.contents.index);
 router.get('/profiles', controller.profiles.index);
 
 router.get('/uploadToBouyguesSFTP', controller.uploadToBouyguesSFTP);
+router.post('/uploadVideoIdListToBouyguesSFTP', controller.uploadVideoIdListToBouyguesSFTP);
 
 router.get('/updateAssetState', controller.updateAssetState);
 router.get('/updateContentState', controller.updateContentState);

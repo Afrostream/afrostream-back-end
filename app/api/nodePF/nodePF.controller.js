@@ -146,7 +146,6 @@ module.exports.profiles.index = (req, res) => {
     .catch(res.handleError());
 };
 
-// FIXME: should also be able to take ?pfMd5Hash
 module.exports.uploadToBouyguesSFTP = (req, res) => {
   Q()
     .then(() => {
@@ -159,6 +158,45 @@ module.exports.uploadToBouyguesSFTP = (req, res) => {
     })
     .then(assets => {
       res.json(assets);
+    })
+    .catch(res.handleError());
+};
+
+// FIXME: should also be able to take ?pfMd5Hash
+module.exports.uploadVideoIdListToBouyguesSFTP = (req, res) => {
+  Q()
+    .then(() => {
+      if (!req.body.videoIdList) throw new Error('no videoIdList');
+
+      const videoIdList = req.body.videoIdList.split(',') || [];
+
+      return videoIdList.reduce((p, videoId) =>
+        p.then(
+          () => {
+            req.logger.log(`fetching content from videoId=${videoId}`);
+            return sqldb.Video.find({where: {_id: videoId}});
+          }
+        ).then(
+          video => new pf.PfContent(video.pfMd5Hash).getContent()
+        ).then(
+          content => {
+            if (!content || !content.contentId) {
+              throw new Error(`no content found for video ${videoId}`);
+            }
+            const contentId = content.contentId;
+
+            req.logger.log(`uploading video to bouygues sftp contentId=${contentId}`);
+            return NodePF.request({
+              uri: '/api/uploadToBouyguesSFTP',
+              qs: {
+                contentId: contentId
+              }
+            });
+          }
+        ), Q());
+    })
+    .then(results => {
+      res.json(results);
     })
     .catch(res.handleError());
 };
